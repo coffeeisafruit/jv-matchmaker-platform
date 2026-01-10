@@ -1,0 +1,169 @@
+<!-- Transformation Results (loaded via HTMX) -->
+<div class="bg-white shadow sm:rounded-lg" x-data="{ tab: 'summary' }">
+    <div class="border-b border-gray-200">
+        <nav class="-mb-px flex" aria-label="Tabs">
+            <button @click="tab = 'summary'"
+                    :class="tab === 'summary' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm">
+                Summary
+            </button>
+            <button @click="tab = 'obstacles'"
+                    :class="tab === 'obstacles' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm">
+                Obstacles ({{ transformation.key_obstacles|length }})
+            </button>
+            <button @click="tab = 'drivers'"
+                    :class="tab === 'drivers' ? 'border-primary-500 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="w-1/3 py-4 px-1 text-center border-b-2 font-medium text-sm">
+                Value Drivers ({{ transformation.value_drivers|length }})
+            </button>
+        </nav>
+    </div>
+
+    <div class="p-6">
+        <!-- Success Banner -->
+        <div class="mb-6 rounded-md bg-green-50 p-4">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-green-800">Analysis Complete!</h3>
+                    <p class="mt-1 text-sm text-green-700">
+                        Your transformation analysis has been generated and saved.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Tab -->
+        <div x-show="tab === 'summary'" x-transition>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Transformation Summary</h3>
+            <p class="text-gray-600 whitespace-pre-wrap">{{ transformation.transformation_summary }}</p>
+
+            {% if analysis.recommended_positioning %}
+            <div class="mt-6 bg-primary-50 rounded-lg p-4">
+                <h4 class="text-sm font-medium text-primary-900 mb-2">Recommended Positioning</h4>
+                <p class="text-sm text-primary-700">{{ analysis.recommended_positioning }}</p>
+            </div>
+            {% endif %}
+
+            {% if analysis.emotional_journey %}
+            <div class="mt-6 grid grid-cols-2 gap-4">
+                <div class="bg-red-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-red-900 mb-2">Before Feelings</h4>
+                    <div class="flex flex-wrap gap-2">
+                        {% for feeling in analysis.emotional_journey.before_feelings %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            {{ feeling }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="bg-green-50 rounded-lg p-4">
+                    <h4 class="text-sm font-medium text-green-900 mb-2">After Feelings</h4>
+                    <div class="flex flex-wrap gap-2">
+                        {% for feeling in analysis.emotional_journey.after_feelings %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            {{ feeling }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Obstacles Tab -->
+        <div x-show="tab === 'obstacles'" x-transition x-cloak>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Key Obstacles</h3>
+            <div class="space-y-4">
+                {% for obstacle in transformation.key_obstacles %}
+                <div class="border-l-4 border-yellow-400 bg-yellow-50 p-4 rounded-r-lg">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <h4 class="text-sm font-medium text-yellow-800">
+                                {{ obstacle.obstacle }}
+                                {% if obstacle.severity %}
+                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                    {% if obstacle.severity == 'high' %}bg-red-100 text-red-800
+                                    {% elif obstacle.severity == 'medium' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-green-100 text-green-800{% endif %}">
+                                    {{ obstacle.severity|title }}
+                                </span>
+                                {% endif %}
+                            </h4>
+                            {% if obstacle.description %}
+                            <p class="mt-1 text-sm text-yellow-700">{{ obstacle.description }}</p>
+                            {% endif %}
+                            {% if obstacle.mitigation %}
+                            <p class="mt-2 text-sm text-yellow-800">
+                                <span class="font-medium">Mitigation:</span> {{ obstacle.mitigation }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Value Drivers Tab -->
+        <div x-show="tab === 'drivers'" x-transition x-cloak>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Value Drivers</h3>
+            <div class="space-y-4">
+                {% for driver in transformation.value_drivers %}
+                <div class="border-l-4 border-green-400 bg-green-50 p-4 rounded-r-lg">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <h4 class="text-sm font-medium text-green-800">
+                                {{ driver.driver }}
+                                {% if driver.impact %}
+                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                    {% if driver.impact == 'high' %}bg-green-100 text-green-800
+                                    {% elif driver.impact == 'medium' %}bg-blue-100 text-blue-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ driver.impact|title }} Impact
+                                </span>
+                                {% endif %}
+                            </h4>
+                            {% if driver.description %}
+                            <p class="mt-1 text-sm text-green-700">{{ driver.description }}</p>
+                            {% endif %}
+                            {% if driver.messaging_angle %}
+                            <p class="mt-2 text-sm text-green-800">
+                                <span class="font-medium">Messaging:</span> {{ driver.messaging_angle }}
+                            </p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-6 flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <a href="{% url 'positioning:transformation_detail' transformation.pk %}"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                View Full Details
+            </a>
+            <a href="{% url 'positioning:transformation_create' %}"
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700">
+                Create Another
+            </a>
+        </div>
+    </div>
+</div>

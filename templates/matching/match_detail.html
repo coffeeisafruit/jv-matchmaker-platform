@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+
+{% block title %}Match: {{ match.profile.name }} - JV Matcher{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li>
+                    <a href="{% url 'matching:match-list' %}" class="text-gray-400 hover:text-gray-500">
+                        <svg class="flex-shrink-0 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                        <span class="sr-only">Matches</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <a href="{% url 'matching:match-list' %}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+                            Matches
+                        </a>
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-500">{{ match.profile.name }}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="mt-4 flex items-center justify-between">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 h-16 w-16 rounded-full
+                    {% if match.final_score >= 0.8 %}bg-green-100
+                    {% elif match.final_score >= 0.6 %}bg-yellow-100
+                    {% else %}bg-red-100{% endif %} flex items-center justify-center">
+                    <span class="text-2xl font-bold
+                        {% if match.final_score >= 0.8 %}text-green-700
+                        {% elif match.final_score >= 0.6 %}text-yellow-700
+                        {% else %}text-red-700{% endif %}">
+                        {{ match.final_score|floatformat:1 }}
+                    </span>
+                </div>
+                <div class="ml-4">
+                    <h1 class="text-2xl font-bold text-gray-900">{{ match.profile.name }}</h1>
+                    {% if match.profile.company %}
+                    <p class="text-lg text-gray-500">{{ match.profile.company }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button type="button"
+                        class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                        hx-post="{% url 'matching:calculate-match' match.profile.pk %}"
+                        hx-swap="none"
+                        onclick="window.location.reload()">
+                    <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    Recalculate
+                </button>
+                <a href="{% url 'matching:profile-detail' match.profile.pk %}"
+                   class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    View Profile
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main content - Score breakdown -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Score breakdown card -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Score Breakdown</h2>
+                    <p class="mt-1 text-sm text-gray-500">Weighted harmonic mean of all scoring components.</p>
+                </div>
+                <div class="px-6 py-5 space-y-6">
+                    {% for component in score_components %}
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="text-sm font-medium text-gray-900">{{ component.name }}</span>
+                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600">
+                                    {{ component.weight }}% weight
+                                </span>
+                            </div>
+                            <span class="text-lg font-semibold
+                                {% if component.score >= 8 %}text-green-600
+                                {% elif component.score >= 6 %}text-yellow-600
+                                {% else %}text-red-600{% endif %}">
+                                {{ component.score|floatformat:1 }}/10
+                            </span>
+                        </div>
+
+                        <!-- Progress bar -->
+                        <div class="relative">
+                            <div class="overflow-hidden h-4 text-xs flex rounded-full bg-gray-200">
+                                <div style="width: {{ component.score|floatformat:0 }}0%"
+                                     class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center
+                                        {% if component.score >= 8 %}bg-green-500
+                                        {% elif component.score >= 6 %}bg-yellow-500
+                                        {% else %}bg-red-500{% endif %} transition-all duration-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Explanation -->
+                        <p class="text-sm text-gray-500">{{ component.explanation }}</p>
+
+                        <!-- Factors detail (collapsible) -->
+                        {% if component.factors %}
+                        <div x-data="{ open: false }">
+                            <button @click="open = !open" class="text-sm text-primary-600 hover:text-primary-500 flex items-center">
+                                <span x-show="!open">Show factors</span>
+                                <span x-show="open" x-cloak>Hide factors</span>
+                                <svg class="ml-1 h-4 w-4 transform transition-transform" :class="{ 'rotate-180': open }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div x-show="open" x-cloak x-transition class="mt-3 space-y-2">
+                                {% for factor in component.factors %}
+                                <div class="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2">
+                                    <div>
+                                        <span class="font-medium text-gray-700">{{ factor.name }}</span>
+                                        <p class="text-gray-500 text-xs">{{ factor.detail }}</p>
+                                    </div>
+                                    <span class="text-gray-600">{{ factor.score|floatformat:1 }}/{{ factor.max_score }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% if not forloop.last %}
+                    <hr class="border-gray-200">
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Recommendation -->
+            {% if recommendation %}
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Recommendation</h2>
+                </div>
+                <div class="px-6 py-5">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            {% if match.final_score >= 0.8 %}
+                            <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {% elif match.final_score >= 0.6 %}
+                            <svg class="h-6 w-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {% else %}
+                            <svg class="h-6 w-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            {% endif %}
+                        </div>
+                        <p class="ml-3 text-gray-700">{{ recommendation }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Profile info -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Profile Information</h2>
+                </div>
+                <div class="px-6 py-5">
+                    <dl class="space-y-4">
+                        {% if match.profile.industry %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Industry</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ match.profile.industry }}</dd>
+                        </div>
+                        {% endif %}
+
+                        {% if match.profile.audience_size %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Audience Size</dt>
+                            <dd class="mt-1">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if match.profile.audience_size == 'massive' %}bg-purple-100 text-purple-800
+                                    {% elif match.profile.audience_size == 'large' %}bg-blue-100 text-blue-800
+                                    {% elif match.profile.audience_size == 'medium' %}bg-green-100 text-green-800
+                                    {% elif match.profile.audience_size == 'small' %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ match.profile.get_audience_size_display }}
+                                </span>
+                            </dd>
+                        </div>
+                        {% endif %}
+
+                        {% if match.profile.email %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Email</dt>
+                            <dd class="mt-1 text-sm text-gray-900">
+                                <a href="mailto:{{ match.profile.email }}" class="text-primary-600 hover:text-primary-500">
+                                    {{ match.profile.email }}
+                                </a>
+                            </dd>
+                        </div>
+                        {% endif %}
+
+                        {% if match.profile.linkedin_url %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">LinkedIn</dt>
+                            <dd class="mt-1 text-sm">
+                                <a href="{{ match.profile.linkedin_url }}" target="_blank" rel="noopener noreferrer"
+                                   class="text-primary-600 hover:text-primary-500 flex items-center">
+                                    View Profile
+                                    <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </a>
+                            </dd>
+                        </div>
+                        {% endif %}
+
+                        {% if match.profile.website_url %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Website</dt>
+                            <dd class="mt-1 text-sm">
+                                <a href="{{ match.profile.website_url }}" target="_blank" rel="noopener noreferrer"
+                                   class="text-primary-600 hover:text-primary-500 flex items-center">
+                                    Visit Website
+                                    <svg class="ml-1 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                                    </svg>
+                                </a>
+                            </dd>
+                        </div>
+                        {% endif %}
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Source</dt>
+                            <dd class="mt-1">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if match.profile.source == 'clay' %}bg-indigo-100 text-indigo-800
+                                    {% elif match.profile.source == 'linkedin' %}bg-blue-100 text-blue-800
+                                    {% elif match.profile.source == 'import' %}bg-green-100 text-green-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ match.profile.get_source_display }}
+                                </span>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+
+            <!-- Status and actions -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Status & Actions</h2>
+                </div>
+                <div class="px-6 py-5 space-y-4">
+                    <!-- Status update form -->
+                    <form method="post" action="{% url 'matching:match-update-status' match.pk %}">
+                        {% csrf_token %}
+                        <div>
+                            <label for="status" class="block text-sm font-medium text-gray-700">Match Status</label>
+                            <select name="status"
+                                    id="status"
+                                    class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md">
+                                {% for value, label in status_form.fields.status.choices %}
+                                <option value="{{ value }}" {% if match.status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mt-4">
+                            <label for="notes" class="block text-sm font-medium text-gray-700">Notes</label>
+                            <textarea name="notes"
+                                      id="notes"
+                                      rows="3"
+                                      class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm"
+                                      placeholder="Add notes about this match...">{{ match.notes|default:"" }}</textarea>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit"
+                                    class="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                                Update Status
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr class="border-gray-200">
+
+                    <!-- Quick actions -->
+                    <div class="space-y-2">
+                        <p class="text-sm font-medium text-gray-700">Quick Actions</p>
+
+                        {% if match.profile.email %}
+                        <a href="mailto:{{ match.profile.email }}"
+                           class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                            Send Email
+                        </a>
+                        {% endif %}
+
+                        <a href="#"
+                           class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Generate PVP
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match metadata -->
+            <div class="bg-white shadow rounded-lg overflow-hidden">
+                <div class="px-6 py-5 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-900">Match Details</h2>
+                </div>
+                <div class="px-6 py-5">
+                    <dl class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500">Created</dt>
+                            <dd class="text-gray-900">{{ match.created_at|date:"M d, Y" }}</dd>
+                        </div>
+                        <div class="flex justify-between">
+                            <dt class="text-gray-500">Final Score</dt>
+                            <dd class="font-medium
+                                {% if match.final_score >= 0.8 %}text-green-600
+                                {% elif match.final_score >= 0.6 %}text-yellow-600
+                                {% else %}text-red-600{% endif %}">
+                                {{ match.final_score|floatformat:2 }}
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+
+{% block title %}Outreach Templates - GTM Engine{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Outreach Templates</h1>
+            <p class="mt-2 text-gray-600">
+                GEX-style email templates for your outreach sequences.
+            </p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'outreach:template_create' %}"
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700">
+                <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Create Template
+            </a>
+        </div>
+    </div>
+
+    <!-- Sequence Position Tabs -->
+    <div class="mb-6">
+        <div class="border-b border-gray-200">
+            <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+                <a href="{% url 'outreach:template_list' %}{% if current_category %}?category={{ current_category }}{% endif %}"
+                   class="{% if not current_position %}border-primary-500 text-primary-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    All Positions
+                </a>
+                {% for pos in positions %}
+                <a href="?position={{ pos }}{% if current_category %}&category={{ current_category }}{% endif %}"
+                   class="{% if current_position == pos|stringformat:'d' %}border-primary-500 text-primary-600{% else %}border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300{% endif %} whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                    Email {{ pos }}
+                </a>
+                {% endfor %}
+            </nav>
+        </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="flex items-center gap-4 mb-6">
+        <span class="text-sm font-medium text-gray-700">Category:</span>
+        <div class="flex flex-wrap gap-2">
+            <a href="{% url 'outreach:template_list' %}{% if current_position %}?position={{ current_position }}{% endif %}"
+               class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium {% if not current_category %}bg-primary-100 text-primary-800{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                All
+            </a>
+            {% for value, label in category_choices %}
+            <a href="?category={{ value }}{% if current_position %}&position={{ current_position }}{% endif %}"
+               class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium {% if current_category == value %}bg-primary-100 text-primary-800{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">
+                {{ label }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- GEX Sequence Info -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">GEX 4-Email Sequence</h3>
+                <p class="mt-1 text-sm text-blue-700">
+                    <strong>Email 1:</strong> Initial outreach with PVP |
+                    <strong>Email 2:</strong> Value add/insight share |
+                    <strong>Email 3:</strong> Social proof or case study |
+                    <strong>Email 4:</strong> Breakup email with soft close
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Grid -->
+    {% if templates %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for template in templates %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <!-- Header -->
+            <div class="p-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                        Email {{ template.sequence_position }}
+                    </span>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                 {% if template.is_active %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-600{% endif %}">
+                        {% if template.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 truncate">{{ template.name }}</h3>
+                <span class="text-xs text-gray-500 capitalize">{{ template.get_category_display }}</span>
+            </div>
+
+            <!-- Content Preview -->
+            <div class="p-4">
+                <div class="mb-3">
+                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Subject</label>
+                    <p class="text-sm text-gray-800 truncate">{{ template.subject_line }}</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Body Preview</label>
+                    <p class="text-sm text-gray-600 line-clamp-3">{{ template.body_template|truncatewords:30 }}</p>
+                </div>
+            </div>
+
+            <!-- Variables -->
+            {% if template.variables %}
+            <div class="px-4 pb-3">
+                <div class="flex flex-wrap gap-1">
+                    {% for var in template.variables|slice:":4" %}
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-gray-100 text-gray-600">
+                        {{ var }}
+                    </span>
+                    {% endfor %}
+                    {% if template.variables|length > 4 %}
+                    <span class="text-xs text-gray-500">+{{ template.variables|length|add:"-4" }} more</span>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Actions -->
+            <div class="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-between">
+                <span class="text-xs text-gray-500">{{ template.created_at|date:"M j, Y" }}</span>
+                <a href="{% url 'outreach:template_edit' template.pk %}"
+                   class="text-sm font-medium text-primary-600 hover:text-primary-700">
+                    Edit
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-6 flex justify-center">
+        <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_position %}&position={{ current_position }}{% endif %}"
+               class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                Previous
+            </a>
+            {% endif %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_position %}&position={{ current_position }}{% endif %}"
+               class="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                Next
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No templates yet</h3>
+        <p class="mt-1 text-sm text-gray-500">Get started by creating your first outreach template.</p>
+        <div class="mt-6">
+            <a href="{% url 'outreach:template_create' %}"
+               class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Create Template
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

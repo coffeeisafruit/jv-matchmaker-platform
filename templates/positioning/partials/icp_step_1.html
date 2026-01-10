@@ -1,0 +1,76 @@
+<!-- Step 1: Basic Information -->
+<form method="post"
+      hx-post="{% url 'positioning:icp_create' %}"
+      hx-target="#wizard-content"
+      hx-swap="innerHTML"
+      class="p-6 space-y-6">
+    {% csrf_token %}
+    <input type="hidden" name="step" value="1">
+
+    <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
+        <p class="text-sm text-gray-500 mb-6">Tell us about your ideal customer segment.</p>
+    </div>
+
+    <div class="space-y-6">
+        <!-- ICP Name -->
+        <div>
+            <label for="name" class="block text-sm font-medium text-gray-700">
+                ICP Name <span class="text-red-500">*</span>
+            </label>
+            <input type="text"
+                   name="name"
+                   id="name"
+                   required
+                   value="{{ wizard_data.name|default:'' }}"
+                   placeholder="e.g., Growth-Stage SaaS Companies"
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+            <p class="mt-1 text-xs text-gray-500">A memorable name for this customer profile</p>
+        </div>
+
+        <!-- Industry -->
+        <div>
+            <label for="industry" class="block text-sm font-medium text-gray-700">
+                Industry <span class="text-red-500">*</span>
+            </label>
+            <input type="text"
+                   name="industry"
+                   id="industry"
+                   required
+                   value="{{ wizard_data.industry|default:'' }}"
+                   placeholder="e.g., Technology, Healthcare, Finance"
+                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+            <p class="mt-1 text-xs text-gray-500">The primary industry your ideal customer operates in</p>
+        </div>
+
+        <!-- Company Size -->
+        <div>
+            <label for="company_size" class="block text-sm font-medium text-gray-700">
+                Company Size <span class="text-red-500">*</span>
+            </label>
+            <select name="company_size"
+                    id="company_size"
+                    required
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                <option value="">Select a size...</option>
+                {% for value, label in company_size_choices %}
+                <option value="{{ value }}" {% if wizard_data.company_size == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <p class="mt-1 text-xs text-gray-500">The typical size of your target companies</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-end pt-6 border-t border-gray-200">
+        <button type="submit"
+                name="action"
+                value="next"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            Next: Pain Points
+            <svg class="ml-2 -mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </button>
+    </div>
+</form>

@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+
+{% block title %}Import Profiles - JV Matcher{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li>
+                    <a href="{% url 'matching:profile-list' %}" class="text-gray-400 hover:text-gray-500">
+                        <svg class="flex-shrink-0 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                        <span class="sr-only">Profiles</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <a href="{% url 'matching:profile-list' %}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+                            Profiles
+                        </a>
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-500">Import</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="mt-4 text-2xl font-bold text-gray-900">Import Profiles from CSV</h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Bulk import JV partner profiles from a CSV file.
+        </p>
+    </div>
+
+    <!-- Instructions -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">CSV Format Requirements</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <p>Your CSV file should include a header row with the following columns:</p>
+                    <ul class="list-disc list-inside mt-2 space-y-1">
+                        <li><strong>name</strong> (required) - Full name of the contact</li>
+                        <li><strong>company</strong> - Company name</li>
+                        <li><strong>email</strong> - Email address</li>
+                        <li><strong>linkedin_url</strong> - LinkedIn profile URL</li>
+                        <li><strong>website_url</strong> - Website URL</li>
+                        <li><strong>industry</strong> - Industry category</li>
+                        <li><strong>audience_size</strong> - One of: tiny, small, medium, large, massive</li>
+                        <li><strong>audience_description</strong> - Description of their audience</li>
+                        <li><strong>content_style</strong> - Their content style and topics</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample CSV -->
+    <div class="bg-white shadow rounded-lg overflow-hidden mb-6">
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Sample CSV Format</h3>
+        </div>
+        <div class="px-6 py-5">
+            <div class="overflow-x-auto">
+                <pre class="text-xs text-gray-600 bg-gray-50 p-4 rounded-lg overflow-x-auto">name,company,email,linkedin_url,website_url,industry,audience_size,audience_description,content_style
+John Smith,Acme Corp,john@acme.com,https://linkedin.com/in/johnsmith,https://acme.com,Technology,medium,Tech entrepreneurs and developers,Educational long-form content
+Jane Doe,Marketing Pro,jane@marketingpro.com,https://linkedin.com/in/janedoe,https://marketingpro.com,Marketing,large,Small business owners,Practical tips and case studies</pre>
+            </div>
+            <p class="mt-3 text-sm text-gray-500">
+                <a href="#" class="text-primary-600 hover:text-primary-500">Download sample CSV template</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Upload form -->
+    <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Upload CSV File</h3>
+            </div>
+            <div class="px-6 py-5">
+                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:border-gray-400 transition-colors duration-200">
+                    <div class="space-y-1 text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <div class="flex text-sm text-gray-600">
+                            <label for="csv_file" class="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
+                                <span>Upload a file</span>
+                                <input id="csv_file" name="csv_file" type="file" accept=".csv" class="sr-only" required>
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
+                        </div>
+                        <p class="text-xs text-gray-500">CSV file up to 10MB</p>
+                    </div>
+                </div>
+
+                <!-- Selected file display -->
+                <div id="file-display" class="mt-4 hidden">
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div class="flex items-center">
+                            <svg class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span id="file-name" class="ml-2 text-sm text-gray-900"></span>
+                        </div>
+                        <button type="button" id="remove-file" class="text-gray-400 hover:text-gray-500">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                {% if form.csv_file.errors %}
+                <p class="mt-2 text-sm text-red-600">{{ form.csv_file.errors.0 }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Form actions -->
+        <div class="flex justify-end space-x-4">
+            <a href="{% url 'matching:profile-list' %}"
+               class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                Cancel
+            </a>
+            <button type="submit"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                Import Profiles
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    // File input handling
+    const fileInput = document.getElementById('csv_file');
+    const fileDisplay = document.getElementById('file-display');
+    const fileName = document.getElementById('file-name');
+    const removeFile = document.getElementById('remove-file');
+
+    fileInput.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            fileName.textContent = e.target.files[0].name;
+            fileDisplay.classList.remove('hidden');
+        }
+    });
+
+    removeFile.addEventListener('click', function() {
+        fileInput.value = '';
+        fileDisplay.classList.add('hidden');
+    });
+</script>
+{% endblock %}
+{% endblock %}

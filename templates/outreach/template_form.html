@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Create{% endif %} Template - GTM Engine{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <nav class="flex mb-4" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li>
+                    <a href="{% url 'outreach:template_list' %}" class="text-gray-500 hover:text-gray-700">Templates</a>
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="ml-2 text-gray-900 font-medium">{% if is_edit %}Edit{% else %}Create{% endif %}</span>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="text-3xl font-bold text-gray-900">
+            {% if is_edit %}Edit Template{% else %}Create New Template{% endif %}
+        </h1>
+        <p class="mt-2 text-gray-600">
+            Build a GEX-style email template with customizable placeholders.
+        </p>
+    </div>
+
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">Template Details</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Name -->
+                <div class="md:col-span-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                        Template Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           name="name"
+                           id="name"
+                           value="{% if is_edit %}{{ template.name }}{% endif %}"
+                           required
+                           placeholder="e.g., Initial Outreach - SaaS Founders"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                </div>
+
+                <!-- Sequence Position -->
+                <div>
+                    <label for="sequence_position" class="block text-sm font-medium text-gray-700 mb-1">
+                        Sequence Position <span class="text-red-500">*</span>
+                    </label>
+                    <select name="sequence_position"
+                            id="sequence_position"
+                            required
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        {% for pos in positions %}
+                        <option value="{{ pos }}" {% if is_edit and template.sequence_position == pos %}selected{% endif %}>
+                            Email {{ pos }}
+                            {% if pos == 1 %}- Initial Outreach{% endif %}
+                            {% if pos == 2 %}- Value Add{% endif %}
+                            {% if pos == 3 %}- Social Proof{% endif %}
+                            {% if pos == 4 %}- Breakup{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    <p class="mt-1 text-xs text-gray-500">Position in the 4-email GEX sequence</p>
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label for="category" class="block text-sm font-medium text-gray-700 mb-1">
+                        Category <span class="text-red-500">*</span>
+                    </label>
+                    <select name="category"
+                            id="category"
+                            required
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        {% for value, label in category_choices %}
+                        <option value="{{ value }}" {% if is_edit and template.category == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Content -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">Email Content</h2>
+
+            <!-- Subject Line -->
+            <div class="mb-6">
+                <label for="subject_line" class="block text-sm font-medium text-gray-700 mb-1">
+                    Subject Line <span class="text-red-500">*</span>
+                </label>
+                <input type="text"
+                       name="subject_line"
+                       id="subject_line"
+                       value="{% if is_edit %}{{ template.subject_line }}{% endif %}"
+                       required
+                       placeholder="e.g., Quick question about {{company}}"
+                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                <p class="mt-1 text-xs text-gray-500">Use &#123;&#123;placeholder&#125;&#125; syntax for personalization</p>
+            </div>
+
+            <!-- Body Template -->
+            <div class="mb-6">
+                <label for="body_template" class="block text-sm font-medium text-gray-700 mb-1">
+                    Email Body <span class="text-red-500">*</span>
+                </label>
+                <textarea name="body_template"
+                          id="body_template"
+                          rows="12"
+                          required
+                          placeholder="Hi {{first_name}},
+
+I noticed {{company}} has been...
+
+{{value_prop}}
+
+{{cta}}
+
+Best,
+[Your Name]"
+                          class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 font-mono text-sm">{% if is_edit %}{{ template.body_template }}{% endif %}</textarea>
+            </div>
+
+            <!-- Variables -->
+            <div>
+                <label for="variables" class="block text-sm font-medium text-gray-700 mb-1">
+                    Variables Used
+                </label>
+                <input type="text"
+                       name="variables"
+                       id="variables"
+                       value="{% if is_edit %}{{ template.variables|join:', ' }}{% endif %}"
+                       placeholder="first_name, company, pain_point, value_prop, cta"
+                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                <p class="mt-1 text-xs text-gray-500">Comma-separated list of placeholder names (without curly braces)</p>
+            </div>
+        </div>
+
+        <!-- Common Variables Reference -->
+        <div class="bg-gray-50 rounded-lg border border-gray-200 p-6">
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">Common Variables</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {% for var in common_variables %}
+                <button type="button"
+                        onclick="insertVariable('{{ var }}')"
+                        class="text-left px-3 py-2 bg-white border border-gray-300 rounded-md text-sm font-mono text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-colors">
+                    {{ var }}
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if is_edit %}
+        <!-- Active Status -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-900">Template Status</h3>
+                    <p class="text-sm text-gray-500">Active templates can be used in campaigns</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox"
+                           name="is_active"
+                           class="sr-only peer"
+                           {% if template.is_active %}checked{% endif %}>
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                </label>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between pt-4">
+            <a href="{% url 'outreach:template_list' %}"
+               class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Cancel
+            </a>
+            <button type="submit"
+                    class="px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                {% if is_edit %}Save Changes{% else %}Create Template{% endif %}
+            </button>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+function insertVariable(variable) {
+    const bodyField = document.getElementById('body_template');
+    const start = bodyField.selectionStart;
+    const end = bodyField.selectionEnd;
+    const text = bodyField.value;
+    bodyField.value = text.substring(0, start) + variable + text.substring(end);
+    bodyField.focus();
+    bodyField.setSelectionRange(start + variable.length, start + variable.length);
+}
+</script>
+{% endblock %}
+{% endblock %}

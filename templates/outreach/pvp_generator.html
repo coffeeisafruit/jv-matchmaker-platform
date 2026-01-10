@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+
+{% block title %}PVP Generator - GTM Engine{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">PVP Generator</h1>
+        <p class="mt-2 text-gray-600">
+            Generate Permissionless Value Propositions using Jordan Crawford's Pain-to-Solution pattern.
+        </p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column: Configuration -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Match Selection -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Select Match</h2>
+
+                <form id="pvp-form"
+                      hx-post="{% url 'outreach:pvp_generator' %}"
+                      hx-target="#pvp-result"
+                      hx-swap="innerHTML"
+                      hx-indicator="#loading-indicator">
+                    {% csrf_token %}
+
+                    <!-- Match Dropdown -->
+                    <div class="mb-4">
+                        <label for="match_id" class="block text-sm font-medium text-gray-700 mb-1">
+                            Target Match
+                        </label>
+                        <select name="match_id"
+                                id="match_id"
+                                required
+                                x-data="{ selected: '{{ selected_match.id|default:'' }}' }"
+                                x-model="selected"
+                                @change="$dispatch('match-selected', { matchId: selected })"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                            <option value="">Select a match...</option>
+                            {% for match in matches %}
+                            <option value="{{ match.id }}"
+                                    {% if selected_match.id == match.id %}selected{% endif %}
+                                    data-profile-name="{{ match.profile.name }}"
+                                    data-company="{{ match.profile.company|default:'' }}"
+                                    data-industry="{{ match.profile.industry|default:'' }}"
+                                    data-score="{{ match.final_score|floatformat:2 }}">
+                                {{ match.profile.name }}{% if match.profile.company %} ({{ match.profile.company }}){% endif %} - {{ match.final_score|floatformat:0|add:"0" }}%
+                            </option>
+                            {% empty %}
+                            <option value="" disabled>No matches available</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Pattern Type -->
+                    <div class="mb-4">
+                        <label for="pattern_type" class="block text-sm font-medium text-gray-700 mb-1">
+                            Pattern Type
+                        </label>
+                        <select name="pattern_type"
+                                id="pattern_type"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                            {% for value, label in pattern_choices %}
+                            <option value="{{ value }}" {% if value == 'pain_solution' %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500">
+                            Pain Solution is recommended for initial outreach.
+                        </p>
+                    </div>
+
+                    <!-- ICP Selection -->
+                    <div class="mb-6">
+                        <label for="icp_id" class="block text-sm font-medium text-gray-700 mb-1">
+                            ICP Context
+                        </label>
+                        <select name="icp_id"
+                                id="icp_id"
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                            <option value="">Use primary ICP</option>
+                            {% for icp in icps %}
+                            <option value="{{ icp.id }}" {% if icp.is_primary %}selected{% endif %}>
+                                {{ icp.name }}{% if icp.is_primary %} (Primary){% endif %}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <button type="submit"
+                            class="w-full flex items-center justify-center px-4 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors">
+                        <span id="loading-indicator" class="htmx-indicator mr-2">
+                            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </span>
+                        Generate PVP
+                    </button>
+                </form>
+            </div>
+
+            <!-- Pattern Info -->
+            <div class="bg-blue-50 rounded-lg border border-blue-200 p-4">
+                <h3 class="text-sm font-semibold text-blue-800 mb-2">About PVP Patterns</h3>
+                <ul class="text-sm text-blue-700 space-y-2">
+                    <li><strong>Pain Solution:</strong> Address specific pain with value upfront</li>
+                    <li><strong>Insight Share:</strong> Lead with valuable industry insight</li>
+                    <li><strong>Mutual Benefit:</strong> Propose clear win-win collaboration</li>
+                    <li><strong>Social Proof:</strong> Reference relevant success stories</li>
+                    <li><strong>Curiosity Hook:</strong> Create intrigue about opportunity</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Middle Column: Match Preview -->
+        <div class="lg:col-span-1"
+             x-data="{ match: null }"
+             @match-selected.window="match = $event.detail">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Match Preview</h2>
+
+                {% if selected_match %}
+                <div id="match-preview">
+                    <!-- Profile Info -->
+                    <div class="mb-6">
+                        <div class="flex items-center mb-3">
+                            <div class="h-12 w-12 rounded-full bg-primary-100 flex items-center justify-center">
+                                <span class="text-primary-700 font-semibold text-lg">
+                                    {{ selected_match.profile.name|slice:":1"|upper }}
+                                </span>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-lg font-medium text-gray-900">
+                                    {{ selected_match.profile.name }}
+                                </h3>
+                                {% if selected_match.profile.company %}
+                                <p class="text-sm text-gray-500">{{ selected_match.profile.company }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if selected_match.profile.industry %}
+                        <p class="text-sm text-gray-600 mb-2">
+                            <span class="font-medium">Industry:</span> {{ selected_match.profile.industry }}
+                        </p>
+                        {% endif %}
+
+                        {% if selected_match.profile.audience_description %}
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Audience:</span> {{ selected_match.profile.audience_description|truncatewords:30 }}
+                        </p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Match Scores -->
+                    <div class="border-t border-gray-200 pt-4">
+                        <h4 class="text-sm font-medium text-gray-700 mb-3">Match Scores</h4>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Overall</span>
+                                <div class="flex items-center">
+                                    <div class="w-24 h-2 bg-gray-200 rounded-full mr-2">
+                                        <div class="h-2 bg-primary-600 rounded-full" style="width: {{ selected_match.final_score|floatformat:0 }}%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">{{ selected_match.final_score|floatformat:0 }}%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Intent</span>
+                                <div class="flex items-center">
+                                    <div class="w-24 h-2 bg-gray-200 rounded-full mr-2">
+                                        <div class="h-2 bg-green-500 rounded-full" style="width: {{ selected_match.intent_score|floatformat:0 }}%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">{{ selected_match.intent_score|floatformat:0 }}%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Synergy</span>
+                                <div class="flex items-center">
+                                    <div class="w-24 h-2 bg-gray-200 rounded-full mr-2">
+                                        <div class="h-2 bg-blue-500 rounded-full" style="width: {{ selected_match.synergy_score|floatformat:0 }}%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">{{ selected_match.synergy_score|floatformat:0 }}%</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-gray-600">Momentum</span>
+                                <div class="flex items-center">
+                                    <div class="w-24 h-2 bg-gray-200 rounded-full mr-2">
+                                        <div class="h-2 bg-yellow-500 rounded-full" style="width: {{ selected_match.momentum_score|floatformat:0 }}%"></div>
+                                    </div>
+                                    <span class="text-sm font-medium text-gray-900">{{ selected_match.momentum_score|floatformat:0 }}%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <p class="mt-2">Select a match to preview</p>
+                </div>
+                {% endif %}
+
+                <!-- ICP Preview -->
+                {% if primary_icp %}
+                <div class="border-t border-gray-200 mt-6 pt-4">
+                    <h4 class="text-sm font-medium text-gray-700 mb-3">ICP Context</h4>
+                    <div class="bg-gray-50 rounded-md p-3">
+                        <p class="text-sm font-medium text-gray-900">{{ primary_icp.name }}</p>
+                        <p class="text-sm text-gray-600">{{ primary_icp.industry }}</p>
+                        {% if primary_icp.pain_points %}
+                        <div class="mt-2">
+                            <p class="text-xs font-medium text-gray-500 uppercase">Pain Points:</p>
+                            <ul class="text-xs text-gray-600 mt-1">
+                                {% for pain in primary_icp.pain_points|slice:":3" %}
+                                <li>- {{ pain }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Column: Result -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Generated PVP</h2>
+
+                <div id="pvp-result">
+                    <!-- Initial empty state -->
+                    <div class="text-center py-12 text-gray-500">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <p class="mt-2">Your generated PVP will appear here</p>
+                        <p class="text-sm text-gray-400 mt-1">Select a match and click Generate</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent PVPs -->
+    <div class="mt-8">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold text-gray-900">Recent PVPs</h2>
+            <a href="{% url 'outreach:pvp_list' %}"
+               class="text-sm font-medium text-primary-600 hover:text-primary-700">
+                View all
+            </a>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="divide-y divide-gray-200">
+                <!-- This would be populated with recent PVPs -->
+                <div class="p-6 text-center text-gray-500">
+                    <p>No PVPs generated yet. Create your first one above!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

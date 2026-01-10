@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ campaign.name }} - GTM Engine{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <nav class="flex mb-4" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li>
+                    <a href="{% url 'outreach:campaign_list' %}" class="text-gray-500 hover:text-gray-700">Campaigns</a>
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="ml-2 text-gray-900 font-medium truncate">{{ campaign.name }}</span>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ campaign.name }}</h1>
+                <div class="mt-2 flex items-center gap-3">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                 {% if campaign.status == 'active' %}bg-green-100 text-green-800
+                                 {% elif campaign.status == 'paused' %}bg-yellow-100 text-yellow-800
+                                 {% elif campaign.status == 'completed' %}bg-blue-100 text-blue-800
+                                 {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ campaign.get_status_display }}
+                    </span>
+                    <span class="text-sm text-gray-500">
+                        Created {{ campaign.created_at|date:"M j, Y" }}
+                    </span>
+                </div>
+            </div>
+            <div class="mt-4 sm:mt-0 flex gap-3">
+                {% if campaign.status == 'draft' %}
+                <button class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                    Start Campaign
+                </button>
+                {% elif campaign.status == 'active' %}
+                <button class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700">
+                    Pause
+                </button>
+                {% elif campaign.status == 'paused' %}
+                <button class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+                    Resume
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div class="text-2xl font-bold text-gray-900">{{ profiles.count }}</div>
+                    <div class="text-sm text-gray-500">Target Profiles</div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div class="text-2xl font-bold text-gray-900">{{ activities.count }}</div>
+                    <div class="text-sm text-gray-500">Total Activities</div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div class="text-2xl font-bold text-green-600">0</div>
+                    <div class="text-sm text-gray-500">Emails Sent</div>
+                </div>
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <div class="text-2xl font-bold text-primary-600">0%</div>
+                    <div class="text-sm text-gray-500">Response Rate</div>
+                </div>
+            </div>
+
+            <!-- Target Profiles -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Target Profiles</h2>
+                </div>
+                {% if profiles %}
+                <div class="divide-y divide-gray-200">
+                    {% for profile in profiles %}
+                    <div class="px-6 py-4 flex items-center justify-between hover:bg-gray-50">
+                        <div class="flex items-center">
+                            <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                                <span class="text-primary-700 font-semibold">{{ profile.name|slice:":1"|upper }}</span>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ profile.name }}</div>
+                                {% if profile.company %}
+                                <div class="text-sm text-gray-500">{{ profile.company }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                                Pending
+                            </span>
+                            <a href="{% url 'outreach:pvp_generator' %}?match_id="
+                               class="text-sm text-primary-600 hover:text-primary-700">
+                                Generate PVP
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="px-6 py-12 text-center text-gray-500">
+                    <p>No target profiles in this campaign.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h2 class="text-lg font-semibold text-gray-900">Recent Activity</h2>
+                </div>
+                {% if activities %}
+                <div class="divide-y divide-gray-200">
+                    {% for activity in activities %}
+                    <div class="px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full
+                                             {% if activity.action_type == 'email_sent' %}bg-blue-100 text-blue-600
+                                             {% elif activity.action_type == 'email_opened' %}bg-green-100 text-green-600
+                                             {% elif activity.action_type == 'replied' %}bg-purple-100 text-purple-600
+                                             {% else %}bg-gray-100 text-gray-600{% endif %}">
+                                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </span>
+                                <div class="ml-3">
+                                    <p class="text-sm font-medium text-gray-900">
+                                        {{ activity.get_action_type_display }}
+                                    </p>
+                                    <p class="text-sm text-gray-500">
+                                        {{ activity.profile.name }}
+                                    </p>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-500">
+                                {{ activity.created_at|timesince }} ago
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="px-6 py-12 text-center text-gray-500">
+                    <p>No activity yet. Start the campaign to begin outreach.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Campaign Info -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-sm font-medium text-gray-500 uppercase mb-4">Campaign Details</h3>
+                <dl class="space-y-4">
+                    <div>
+                        <dt class="text-xs text-gray-500">Template</dt>
+                        <dd class="mt-1 text-sm text-gray-900">
+                            {% if campaign.template %}
+                            {{ campaign.template.name }}
+                            {% else %}
+                            <span class="text-gray-500">No template</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-gray-500">Status</dt>
+                        <dd class="mt-1">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                         {% if campaign.status == 'active' %}bg-green-100 text-green-800
+                                         {% elif campaign.status == 'paused' %}bg-yellow-100 text-yellow-800
+                                         {% elif campaign.status == 'completed' %}bg-blue-100 text-blue-800
+                                         {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ campaign.get_status_display }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-gray-500">Created</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ campaign.created_at|date:"F j, Y g:i a" }}</dd>
+                    </div>
+                    {% if campaign.started_at %}
+                    <div>
+                        <dt class="text-xs text-gray-500">Started</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ campaign.started_at|date:"F j, Y g:i a" }}</dd>
+                    </div>
+                    {% endif %}
+                    {% if campaign.completed_at %}
+                    <div>
+                        <dt class="text-xs text-gray-500">Completed</dt>
+                        <dd class="mt-1 text-sm text-gray-900">{{ campaign.completed_at|date:"F j, Y g:i a" }}</dd>
+                    </div>
+                    {% endif %}
+                </dl>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-sm font-medium text-gray-500 uppercase mb-4">Quick Actions</h3>
+                <div class="space-y-3">
+                    <a href="{% url 'outreach:pvp_generator' %}"
+                       class="flex items-center w-full px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Generate PVPs
+                    </a>
+                    <a href="{% url 'outreach:template_list' %}"
+                       class="flex items-center w-full px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        View Templates
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

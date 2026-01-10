@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Create ICP - Positioning Wizard{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-gray-900">Create Ideal Customer Profile</h1>
+        <p class="mt-1 text-sm text-gray-500">
+            Define your target customer in 4 simple steps
+        </p>
+    </div>
+
+    <!-- Progress Steps -->
+    <nav aria-label="Progress" class="mb-8">
+        <ol role="list" class="flex items-center">
+            {% for step_num in "1234"|make_list %}
+            <li class="relative {% if not forloop.last %}flex-1{% endif %}">
+                <div class="flex items-center">
+                    <span class="relative flex h-10 w-10 items-center justify-center rounded-full
+                        {% if step_num|add:0 < step %}bg-primary-600{% elif step_num|add:0 == step %}border-2 border-primary-600 bg-white{% else %}border-2 border-gray-300 bg-white{% endif %}">
+                        {% if step_num|add:0 < step %}
+                        <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd"/>
+                        </svg>
+                        {% else %}
+                        <span class="{% if step_num|add:0 == step %}text-primary-600{% else %}text-gray-500{% endif %} font-medium">{{ step_num }}</span>
+                        {% endif %}
+                    </span>
+                    {% if not forloop.last %}
+                    <div class="ml-4 flex-1 h-0.5 {% if step_num|add:0 < step %}bg-primary-600{% else %}bg-gray-300{% endif %}"></div>
+                    {% endif %}
+                </div>
+                <span class="absolute -bottom-6 left-0 text-xs font-medium {% if step_num|add:0 <= step %}text-primary-600{% else %}text-gray-500{% endif %}">
+                    {% if step_num == "1" %}Basic Info
+                    {% elif step_num == "2" %}Pain Points
+                    {% elif step_num == "3" %}Goals
+                    {% else %}Budget{% endif %}
+                </span>
+            </li>
+            {% endfor %}
+        </ol>
+    </nav>
+
+    <!-- Form Container -->
+    <div class="bg-white shadow sm:rounded-lg mt-12">
+        <div id="wizard-content">
+            {% include "positioning/partials/icp_step_"|add:step|add:".html" %}
+        </div>
+    </div>
+</div>
+{% endblock %}

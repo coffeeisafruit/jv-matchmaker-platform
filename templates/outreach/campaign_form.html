@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Campaign - GTM Engine{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <nav class="flex mb-4" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li>
+                    <a href="{% url 'outreach:campaign_list' %}" class="text-gray-500 hover:text-gray-700">Campaigns</a>
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="ml-2 text-gray-900 font-medium">Create</span>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="text-3xl font-bold text-gray-900">Create New Campaign</h1>
+        <p class="mt-2 text-gray-600">
+            Set up an outreach campaign targeting specific profiles.
+        </p>
+    </div>
+
+    <form method="post" class="space-y-6" x-data="{ selectedProfiles: [] }">
+        {% csrf_token %}
+
+        <!-- Campaign Details -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6">Campaign Details</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Name -->
+                <div class="md:col-span-2">
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-1">
+                        Campaign Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text"
+                           name="name"
+                           id="name"
+                           required
+                           placeholder="e.g., Q1 Partner Outreach"
+                           class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                </div>
+
+                <!-- Template -->
+                <div>
+                    <label for="template_id" class="block text-sm font-medium text-gray-700 mb-1">
+                        Email Template
+                    </label>
+                    <select name="template_id"
+                            id="template_id"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        <option value="">No template (manual outreach)</option>
+                        {% for template in templates %}
+                        <option value="{{ template.id }}">
+                            {{ template.name }} (Email {{ template.sequence_position }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label for="status" class="block text-sm font-medium text-gray-700 mb-1">
+                        Initial Status
+                    </label>
+                    <select name="status"
+                            id="status"
+                            class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if value == 'draft' %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Target Selection -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 class="text-lg font-semibold text-gray-900 mb-2">Target Profiles</h2>
+            <p class="text-sm text-gray-500 mb-6">
+                Select profiles to include in this campaign. You can add from your matches or all profiles.
+            </p>
+
+            <!-- Quick Add from Matches -->
+            {% if matches %}
+            <div class="mb-6">
+                <h3 class="text-sm font-medium text-gray-700 mb-3">Top Matches</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-64 overflow-y-auto">
+                    {% for match in matches %}
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox"
+                               name="profile_ids"
+                               value="{{ match.profile.id }}"
+                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        <div class="ml-3 flex-1">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-medium text-gray-900">{{ match.profile.name }}</span>
+                                <span class="text-xs font-medium text-primary-600">{{ match.final_score|floatformat:0 }}%</span>
+                            </div>
+                            {% if match.profile.company %}
+                            <span class="text-xs text-gray-500">{{ match.profile.company }}</span>
+                            {% endif %}
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- All Profiles -->
+            {% if profiles %}
+            <div>
+                <h3 class="text-sm font-medium text-gray-700 mb-3">All Profiles</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto">
+                    {% for profile in profiles %}
+                    <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                        <input type="checkbox"
+                               name="profile_ids"
+                               value="{{ profile.id }}"
+                               class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded">
+                        <div class="ml-3 flex-1 min-w-0">
+                            <span class="text-sm font-medium text-gray-900 truncate block">{{ profile.name }}</span>
+                            {% if profile.company %}
+                            <span class="text-xs text-gray-500 truncate block">{{ profile.company }}</span>
+                            {% endif %}
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if not matches and not profiles %}
+            <div class="text-center py-8 text-gray-500">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <p class="mt-2">No profiles available. Add profiles first.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Actions -->
+        <div class="flex items-center justify-between pt-4">
+            <a href="{% url 'outreach:campaign_list' %}"
+               class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Cancel
+            </a>
+            <button type="submit"
+                    class="px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                Create Campaign
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
