@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}PVPs - GTM Engine{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Generated PVPs</h1>
+            <p class="mt-2 text-gray-600">
+                Your Permissionless Value Propositions with quality scores.
+            </p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'outreach:pvp_generator' %}"
+               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700">
+                <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Generate New PVP
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <form method="get" class="flex flex-wrap items-end gap-4">
+            <div class="flex-1 min-w-[200px]">
+                <label for="pattern_type" class="block text-sm font-medium text-gray-700 mb-1">Pattern Type</label>
+                <select name="pattern_type"
+                        id="pattern_type"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                    <option value="">All Patterns</option>
+                    {% for value, label in pattern_choices %}
+                    <option value="{{ value }}" {% if current_pattern == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex-1 min-w-[200px]">
+                <label for="min_score" class="block text-sm font-medium text-gray-700 mb-1">Minimum Score</label>
+                <select name="min_score"
+                        id="min_score"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+                    <option value="">Any Score</option>
+                    <option value="80" {% if min_score == '80' %}selected{% endif %}>80+ (Excellent)</option>
+                    <option value="60" {% if min_score == '60' %}selected{% endif %}>60+ (Good)</option>
+                    <option value="40" {% if min_score == '40' %}selected{% endif %}>40+ (Fair)</option>
+                </select>
+            </div>
+            <button type="submit"
+                    class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm font-medium">
+                Apply Filters
+            </button>
+            {% if current_pattern or min_score %}
+            <a href="{% url 'outreach:pvp_list' %}"
+               class="px-4 py-2 text-gray-500 hover:text-gray-700 text-sm font-medium">
+                Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- PVP List -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {% if pvps %}
+        <div class="divide-y divide-gray-200">
+            {% for pvp in pvps %}
+            <div class="p-6 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <!-- Header -->
+                        <div class="flex items-center mb-2">
+                            {% if pvp.match %}
+                            <h3 class="text-lg font-medium text-gray-900">
+                                {{ pvp.match.profile.name }}
+                            </h3>
+                            {% if pvp.match.profile.company %}
+                            <span class="ml-2 text-sm text-gray-500">
+                                ({{ pvp.match.profile.company }})
+                            </span>
+                            {% endif %}
+                            {% else %}
+                            <h3 class="text-lg font-medium text-gray-900">
+                                Standalone PVP
+                            </h3>
+                            {% endif %}
+                        </div>
+
+                        <!-- Pattern Badge -->
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                                {{ pvp.get_pattern_type_display }}
+                            </span>
+                            <span class="text-xs text-gray-500">
+                                {{ pvp.created_at|date:"M j, Y g:i a" }}
+                            </span>
+                        </div>
+
+                        <!-- Preview -->
+                        <p class="text-sm text-gray-600 mb-3 line-clamp-2">
+                            {{ pvp.full_message|truncatewords:40 }}
+                        </p>
+
+                        <!-- Pain Point & Value -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <div>
+                                <span class="font-medium text-gray-500 uppercase">Pain Point:</span>
+                                <p class="text-gray-700 mt-1">{{ pvp.pain_point_addressed|truncatewords:15 }}</p>
+                            </div>
+                            <div>
+                                <span class="font-medium text-gray-500 uppercase">Value Offered:</span>
+                                <p class="text-gray-700 mt-1">{{ pvp.value_offered|truncatewords:15 }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Side: Score & Actions -->
+                    <div class="ml-6 flex flex-col items-end">
+                        <!-- Quality Score -->
+                        <div class="mb-4">
+                            <div class="text-center">
+                                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full
+                                            {% if pvp.quality_score >= 80 %}bg-green-100
+                                            {% elif pvp.quality_score >= 60 %}bg-yellow-100
+                                            {% else %}bg-red-100{% endif %}">
+                                    <span class="text-2xl font-bold
+                                                 {% if pvp.quality_score >= 80 %}text-green-700
+                                                 {% elif pvp.quality_score >= 60 %}text-yellow-700
+                                                 {% else %}text-red-700{% endif %}">
+                                        {{ pvp.quality_score|floatformat:0 }}
+                                    </span>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Quality Score</p>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="flex space-x-2">
+                            <a href="{% url 'outreach:pvp_detail' pvp.pk %}"
+                               class="px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 border border-primary-300 rounded-md hover:bg-primary-50">
+                                View
+                            </a>
+                            <button onclick="navigator.clipboard.writeText('{{ pvp.full_message|escapejs }}')"
+                                    class="px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if current_pattern %}&pattern_type={{ current_pattern }}{% endif %}{% if min_score %}&min_score={{ min_score }}{% endif %}"
+                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Previous
+                </a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if current_pattern %}&pattern_type={{ current_pattern }}{% endif %}{% if min_score %}&min_score={{ min_score }}{% endif %}"
+                   class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Next
+                </a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Showing
+                        <span class="font-medium">{{ page_obj.start_index }}</span>
+                        to
+                        <span class="font-medium">{{ page_obj.end_index }}</span>
+                        of
+                        <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                        results
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if current_pattern %}&pattern_type={{ current_pattern }}{% endif %}{% if min_score %}&min_score={{ min_score }}{% endif %}"
+                           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Previous</span>
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-primary-500 bg-primary-50 text-sm font-medium text-primary-600">
+                            {{ num }}
+                        </span>
+                        {% else %}
+                        <a href="?page={{ num }}{% if current_pattern %}&pattern_type={{ current_pattern }}{% endif %}{% if min_score %}&min_score={{ min_score }}{% endif %}"
+                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ num }}
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if current_pattern %}&pattern_type={{ current_pattern }}{% endif %}{% if min_score %}&min_score={{ min_score }}{% endif %}"
+                           class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Next</span>
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No PVPs yet</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by generating your first PVP.</p>
+            <div class="mt-6">
+                <a href="{% url 'outreach:pvp_generator' %}"
+                   class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                    <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Generate PVP
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

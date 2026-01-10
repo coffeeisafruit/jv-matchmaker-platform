@@ -1,0 +1,105 @@
+<!-- PVP Content Partial (for edit updates) -->
+<div class="space-y-6" x-data="{ editing: false }">
+    <!-- Quality Score Badge -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center">
+            <span class="text-sm font-medium text-gray-700 mr-2">Quality Score:</span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                         {% if pvp.quality_score >= 80 %}bg-green-100 text-green-800
+                         {% elif pvp.quality_score >= 60 %}bg-yellow-100 text-yellow-800
+                         {% else %}bg-red-100 text-red-800{% endif %}">
+                {{ pvp.quality_score|floatformat:0 }}/100
+            </span>
+        </div>
+        <button @click="editing = !editing"
+                class="text-sm text-primary-600 hover:text-primary-700 font-medium">
+            <span x-text="editing ? 'Cancel' : 'Edit'"></span>
+        </button>
+    </div>
+
+    <!-- PVP Content -->
+    <div x-show="!editing">
+        <!-- Pain Point -->
+        <div class="mb-4">
+            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Pain Point Addressed</label>
+            <p class="text-sm text-gray-800">{{ pvp.pain_point_addressed }}</p>
+        </div>
+
+        <!-- Value Offered -->
+        <div class="mb-4">
+            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Value Offered</label>
+            <p class="text-sm text-gray-800">{{ pvp.value_offered }}</p>
+        </div>
+
+        <!-- Full Message -->
+        <div class="mb-4">
+            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Full Message</label>
+            <div class="bg-white border border-gray-200 rounded-lg p-4 text-sm text-gray-800 whitespace-pre-wrap">{{ pvp.full_message }}</div>
+        </div>
+
+        <!-- CTA -->
+        <div class="mb-4">
+            <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Call to Action</label>
+            <p class="text-sm text-gray-800">{{ pvp.call_to_action }}</p>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <form x-show="editing"
+          x-cloak
+          hx-post="{% url 'outreach:pvp_detail' pvp.pk %}"
+          hx-target="#pvp-result"
+          hx-swap="innerHTML">
+        {% csrf_token %}
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Full Message</label>
+                <textarea name="full_message"
+                          rows="8"
+                          class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">{{ pvp.full_message }}</textarea>
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Pain Point Addressed</label>
+                <input type="text"
+                       name="pain_point_addressed"
+                       value="{{ pvp.pain_point_addressed }}"
+                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Value Offered</label>
+                <input type="text"
+                       name="value_offered"
+                       value="{{ pvp.value_offered }}"
+                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+            </div>
+
+            <div>
+                <label class="block text-xs font-medium text-gray-500 uppercase mb-1">Call to Action</label>
+                <input type="text"
+                       name="call_to_action"
+                       value="{{ pvp.call_to_action }}"
+                       class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 text-sm">
+            </div>
+
+            <button type="submit"
+                    class="w-full px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 text-sm font-medium">
+                Save Changes
+            </button>
+        </div>
+    </form>
+
+    <!-- Actions -->
+    <div class="flex space-x-3 pt-4 border-t border-gray-200">
+        <button onclick="navigator.clipboard.writeText(document.querySelector('.whitespace-pre-wrap').textContent)"
+                class="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 text-sm font-medium">
+            Copy to Clipboard
+        </button>
+        <a href="{% url 'outreach:pvp_detail' pvp.pk %}"
+           class="flex-1 px-4 py-2 bg-primary-600 text-white text-center rounded-md hover:bg-primary-700 text-sm font-medium">
+            View Details
+        </a>
+    </div>
+</div>

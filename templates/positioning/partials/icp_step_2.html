@@ -1,0 +1,111 @@
+<!-- Step 2: Pain Points -->
+<form method="post"
+      hx-post="{% url 'positioning:icp_create' %}"
+      hx-target="#wizard-content"
+      hx-swap="innerHTML"
+      class="p-6 space-y-6"
+      x-data="painPointsManager()">
+    {% csrf_token %}
+    <input type="hidden" name="step" value="2">
+
+    <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Pain Points</h3>
+        <p class="text-sm text-gray-500 mb-6">What challenges does your ideal customer face?</p>
+    </div>
+
+    <div class="space-y-4">
+        <!-- Dynamic Pain Points List -->
+        <template x-for="(point, index) in painPoints" :key="index">
+            <div class="flex items-center space-x-3">
+                <div class="flex-1">
+                    <input type="text"
+                           :name="'pain_points[]'"
+                           x-model="painPoints[index]"
+                           placeholder="Enter a pain point..."
+                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                </div>
+                <button type="button"
+                        @click="removePoint(index)"
+                        x-show="painPoints.length > 1"
+                        class="text-gray-400 hover:text-red-500">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </div>
+        </template>
+
+        <!-- Add Pain Point Button -->
+        <button type="button"
+                @click="addPoint()"
+                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add Pain Point
+        </button>
+    </div>
+
+    <!-- Example Pain Points -->
+    <div class="bg-gray-50 rounded-lg p-4 mt-6">
+        <h4 class="text-sm font-medium text-gray-900 mb-2">Example Pain Points</h4>
+        <ul class="text-sm text-gray-600 space-y-1">
+            <li class="cursor-pointer hover:text-primary-600" @click="addExamplePoint('Struggling to find qualified leads')">
+                + Struggling to find qualified leads
+            </li>
+            <li class="cursor-pointer hover:text-primary-600" @click="addExamplePoint('Long sales cycles')">
+                + Long sales cycles
+            </li>
+            <li class="cursor-pointer hover:text-primary-600" @click="addExamplePoint('Difficulty scaling marketing efforts')">
+                + Difficulty scaling marketing efforts
+            </li>
+            <li class="cursor-pointer hover:text-primary-600" @click="addExamplePoint('Lack of predictable revenue')">
+                + Lack of predictable revenue
+            </li>
+        </ul>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-between pt-6 border-t border-gray-200">
+        <button type="submit"
+                name="action"
+                value="back"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            <svg class="mr-2 -ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back
+        </button>
+        <button type="submit"
+                name="action"
+                value="next"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            Next: Goals
+            <svg class="ml-2 -mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+        </button>
+    </div>
+</form>
+
+<script>
+function painPointsManager() {
+    return {
+        painPoints: {{ wizard_data.pain_points|safe|default:'[""]' }},
+        addPoint() {
+            this.painPoints.push('');
+        },
+        removePoint(index) {
+            this.painPoints.splice(index, 1);
+        },
+        addExamplePoint(example) {
+            const emptyIndex = this.painPoints.findIndex(p => p === '');
+            if (emptyIndex !== -1) {
+                this.painPoints[emptyIndex] = example;
+            } else {
+                this.painPoints.push(example);
+            }
+        }
+    }
+}
+</script>

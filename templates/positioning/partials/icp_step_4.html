@@ -1,0 +1,177 @@
+<!-- Step 4: Budget and Decision Makers -->
+<form method="post"
+      hx-post="{% url 'positioning:icp_create' %}"
+      hx-target="#wizard-content"
+      hx-swap="innerHTML"
+      class="p-6 space-y-6"
+      x-data="decisionMakersManager()">
+    {% csrf_token %}
+    <input type="hidden" name="step" value="4">
+    <input type="hidden" name="decision_makers" :value="JSON.stringify(decisionMakers)">
+
+    <div>
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Budget & Decision Makers</h3>
+        <p class="text-sm text-gray-500 mb-6">Understanding the buying process of your ideal customer.</p>
+    </div>
+
+    <div class="space-y-6">
+        <!-- Budget Range -->
+        <div>
+            <label for="budget_range" class="block text-sm font-medium text-gray-700">
+                Typical Budget Range
+            </label>
+            <select name="budget_range"
+                    id="budget_range"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                <option value="">Select a range...</option>
+                <option value="<$1,000" {% if wizard_data.budget_range == '<$1,000' %}selected{% endif %}>Less than $1,000</option>
+                <option value="$1,000-$5,000" {% if wizard_data.budget_range == '$1,000-$5,000' %}selected{% endif %}>$1,000 - $5,000</option>
+                <option value="$5,000-$10,000" {% if wizard_data.budget_range == '$5,000-$10,000' %}selected{% endif %}>$5,000 - $10,000</option>
+                <option value="$10,000-$25,000" {% if wizard_data.budget_range == '$10,000-$25,000' %}selected{% endif %}>$10,000 - $25,000</option>
+                <option value="$25,000-$50,000" {% if wizard_data.budget_range == '$25,000-$50,000' %}selected{% endif %}>$25,000 - $50,000</option>
+                <option value="$50,000-$100,000" {% if wizard_data.budget_range == '$50,000-$100,000' %}selected{% endif %}>$50,000 - $100,000</option>
+                <option value=">$100,000" {% if wizard_data.budget_range == '>$100,000' %}selected{% endif %}>More than $100,000</option>
+            </select>
+            <p class="mt-1 text-xs text-gray-500">The typical budget for your solution</p>
+        </div>
+
+        <!-- Decision Makers -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-3">
+                Key Decision Makers
+            </label>
+
+            <div class="space-y-4">
+                <template x-for="(dm, index) in decisionMakers" :key="index">
+                    <div class="bg-gray-50 rounded-lg p-4 relative">
+                        <button type="button"
+                                @click="removeDecisionMaker(index)"
+                                x-show="decisionMakers.length > 1"
+                                class="absolute top-2 right-2 text-gray-400 hover:text-red-500">
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Title/Role</label>
+                                <input type="text"
+                                       x-model="decisionMakers[index].title"
+                                       placeholder="e.g., VP of Marketing"
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-500">Role in Decision</label>
+                                <select x-model="decisionMakers[index].role"
+                                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                                    <option value="decision_maker">Final Decision Maker</option>
+                                    <option value="influencer">Influencer</option>
+                                    <option value="champion">Internal Champion</option>
+                                    <option value="blocker">Potential Blocker</option>
+                                    <option value="user">End User</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <label class="block text-xs font-medium text-gray-500">Key Concerns</label>
+                            <input type="text"
+                                   x-model="decisionMakers[index].concerns"
+                                   placeholder="e.g., ROI, implementation time, team adoption"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Add Decision Maker Button -->
+                <button type="button"
+                        @click="addDecisionMaker()"
+                        class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <svg class="-ml-1 mr-2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Add Decision Maker
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Summary Preview -->
+    <div class="bg-primary-50 rounded-lg p-4 mt-6">
+        <h4 class="text-sm font-medium text-primary-900 mb-3">ICP Summary</h4>
+        <dl class="grid grid-cols-1 gap-2 sm:grid-cols-2 text-sm">
+            <div>
+                <dt class="text-primary-600">Name:</dt>
+                <dd class="text-primary-900 font-medium">{{ wizard_data.name|default:'Not set' }}</dd>
+            </div>
+            <div>
+                <dt class="text-primary-600">Industry:</dt>
+                <dd class="text-primary-900 font-medium">{{ wizard_data.industry|default:'Not set' }}</dd>
+            </div>
+            <div>
+                <dt class="text-primary-600">Company Size:</dt>
+                <dd class="text-primary-900 font-medium">
+                    {% for value, label in company_size_choices %}
+                        {% if wizard_data.company_size == value %}{{ label }}{% endif %}
+                    {% empty %}
+                        Not set
+                    {% endfor %}
+                </dd>
+            </div>
+            <div>
+                <dt class="text-primary-600">Pain Points:</dt>
+                <dd class="text-primary-900 font-medium">{{ wizard_data.pain_points|length|default:0 }} defined</dd>
+            </div>
+            <div>
+                <dt class="text-primary-600">Goals:</dt>
+                <dd class="text-primary-900 font-medium">{{ wizard_data.goals|length|default:0 }} defined</dd>
+            </div>
+        </dl>
+    </div>
+
+    <!-- Navigation -->
+    <div class="flex justify-between pt-6 border-t border-gray-200">
+        <button type="submit"
+                name="action"
+                value="back"
+                class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+            <svg class="mr-2 -ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back
+        </button>
+        <button type="submit"
+                name="action"
+                value="save"
+                class="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            <svg class="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            Create ICP
+        </button>
+    </div>
+</form>
+
+<script>
+function decisionMakersManager() {
+    const existingDMs = {{ wizard_data.decision_makers|safe|default:'[]' }};
+    return {
+        decisionMakers: existingDMs.length > 0 ? existingDMs : [{
+            title: '',
+            role: 'decision_maker',
+            concerns: ''
+        }],
+        addDecisionMaker() {
+            this.decisionMakers.push({
+                title: '',
+                role: 'decision_maker',
+                concerns: ''
+            });
+        },
+        removeDecisionMaker(index) {
+            this.decisionMakers.splice(index, 1);
+        }
+    }
+}
+</script>

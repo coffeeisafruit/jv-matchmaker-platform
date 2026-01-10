@@ -1,0 +1,88 @@
+<!-- ICP Card (used for HTMX updates) -->
+<div class="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-200"
+     id="icp-card-{{ icp.pk }}">
+    <div class="p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900 truncate">
+                {{ icp.name }}
+            </h3>
+            {% if icp.is_primary %}
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                Primary
+            </span>
+            {% endif %}
+        </div>
+
+        <div class="space-y-3">
+            <div class="flex items-center text-sm text-gray-500">
+                <svg class="flex-shrink-0 mr-2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+                {{ icp.industry }}
+            </div>
+
+            <div class="flex items-center text-sm text-gray-500">
+                <svg class="flex-shrink-0 mr-2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                {{ icp.get_company_size_display }}
+            </div>
+
+            {% if icp.pain_points %}
+            <div class="text-sm text-gray-500">
+                <span class="font-medium text-gray-700">Pain Points:</span>
+                <span class="text-gray-600">{{ icp.pain_points|length }} defined</span>
+            </div>
+            {% endif %}
+
+            {% if icp.goals %}
+            <div class="text-sm text-gray-500">
+                <span class="font-medium text-gray-700">Goals:</span>
+                <span class="text-gray-600">{{ icp.goals|length }} defined</span>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-gray-50 px-6 py-4">
+        <div class="flex justify-between items-center">
+            <a href="{% url 'positioning:icp_detail' icp.pk %}"
+               class="text-sm font-medium text-primary-600 hover:text-primary-700">
+                View Details
+                <span aria-hidden="true"> &rarr;</span>
+            </a>
+
+            <div class="flex space-x-2">
+                {% if not icp.is_primary %}
+                <form method="post" action="{% url 'positioning:icp_set_primary' icp.pk %}"
+                      hx-post="{% url 'positioning:icp_set_primary' icp.pk %}"
+                      hx-target="#icp-card-{{ icp.pk }}"
+                      hx-swap="outerHTML">
+                    {% csrf_token %}
+                    <button type="submit"
+                            class="text-gray-400 hover:text-primary-600"
+                            title="Set as Primary">
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                        </svg>
+                    </button>
+                </form>
+                {% else %}
+                <span class="text-yellow-500" title="Primary ICP">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                    </svg>
+                </span>
+                {% endif %}
+
+                <a href="{% url 'positioning:icp_update' icp.pk %}"
+                   class="text-gray-400 hover:text-gray-600"
+                   title="Edit">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

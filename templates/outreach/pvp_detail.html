@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+
+{% block title %}PVP Details - GTM Engine{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <nav class="flex mb-4" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li>
+                    <a href="{% url 'outreach:pvp_list' %}" class="text-gray-500 hover:text-gray-700">PVPs</a>
+                </li>
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                    </svg>
+                    <span class="ml-2 text-gray-900 font-medium">Detail</span>
+                </li>
+            </ol>
+        </nav>
+
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">
+                    {% if pvp.match %}
+                    PVP for {{ pvp.match.profile.name }}
+                    {% else %}
+                    PVP Details
+                    {% endif %}
+                </h1>
+                <p class="mt-1 text-sm text-gray-500">
+                    Created {{ pvp.created_at|date:"F j, Y" }} at {{ pvp.created_at|time:"g:i a" }}
+                </p>
+            </div>
+            <a href="{% url 'outreach:pvp_generator' %}{% if pvp.match %}?match_id={{ pvp.match.id }}{% endif %}"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                Generate New
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Full Message Card -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
+                 x-data="{ editing: false }">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-gray-900">Message</h2>
+                    <button @click="editing = !editing"
+                            class="text-sm font-medium text-primary-600 hover:text-primary-700">
+                        <span x-text="editing ? 'Cancel' : 'Edit'"></span>
+                    </button>
+                </div>
+
+                <!-- View Mode -->
+                <div x-show="!editing">
+                    <div class="bg-gray-50 rounded-lg p-4 text-gray-800 whitespace-pre-wrap font-mono text-sm">{{ pvp.full_message }}</div>
+                    <button onclick="navigator.clipboard.writeText(document.querySelector('.font-mono').textContent)"
+                            class="mt-4 inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                        </svg>
+                        Copy to Clipboard
+                    </button>
+                </div>
+
+                <!-- Edit Mode -->
+                <form x-show="editing"
+                      x-cloak
+                      method="post"
+                      action="{% url 'outreach:pvp_detail' pvp.pk %}">
+                    {% csrf_token %}
+                    <textarea name="full_message"
+                              rows="10"
+                              class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">{{ pvp.full_message }}</textarea>
+                    <div class="mt-4 flex justify-end space-x-3">
+                        <button type="button"
+                                @click="editing = false"
+                                class="px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                                class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Components -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Message Components</h2>
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 uppercase mb-1">
+                            Pain Point Addressed
+                        </label>
+                        <p class="text-gray-800">{{ pvp.pain_point_addressed }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 uppercase mb-1">
+                            Value Offered
+                        </label>
+                        <p class="text-gray-800">{{ pvp.value_offered }}</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500 uppercase mb-1">
+                            Call to Action
+                        </label>
+                        <p class="text-gray-800">{{ pvp.call_to_action }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personalization Data -->
+            {% if pvp.personalization_data %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h2 class="text-lg font-semibold text-gray-900 mb-4">Personalization Elements</h2>
+                {% if pvp.personalization_data.elements %}
+                <ul class="space-y-2">
+                    {% for element in pvp.personalization_data.elements %}
+                    <li class="flex items-center text-sm">
+                        <svg class="h-4 w-4 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ element }}
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Sidebar -->
+        <div class="lg:col-span-1 space-y-6">
+            <!-- Quality Score -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 text-center">
+                <h3 class="text-sm font-medium text-gray-500 uppercase mb-4">Quality Score</h3>
+                <div class="inline-flex items-center justify-center w-24 h-24 rounded-full
+                            {% if pvp.quality_score >= 80 %}bg-green-100
+                            {% elif pvp.quality_score >= 60 %}bg-yellow-100
+                            {% else %}bg-red-100{% endif %}">
+                    <span class="text-3xl font-bold
+                                 {% if pvp.quality_score >= 80 %}text-green-700
+                                 {% elif pvp.quality_score >= 60 %}text-yellow-700
+                                 {% else %}text-red-700{% endif %}">
+                        {{ pvp.quality_score|floatformat:0 }}
+                    </span>
+                </div>
+                <p class="mt-2 text-sm text-gray-500">out of 100</p>
+                <p class="mt-1 text-xs
+                          {% if pvp.quality_score >= 80 %}text-green-600
+                          {% elif pvp.quality_score >= 60 %}text-yellow-600
+                          {% else %}text-red-600{% endif %}">
+                    {% if pvp.quality_score >= 80 %}Excellent
+                    {% elif pvp.quality_score >= 60 %}Good
+                    {% else %}Needs Improvement{% endif %}
+                </p>
+            </div>
+
+            <!-- Metadata -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-sm font-medium text-gray-500 uppercase mb-4">Details</h3>
+                <dl class="space-y-3">
+                    <div>
+                        <dt class="text-xs text-gray-500">Pattern Type</dt>
+                        <dd class="mt-1">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                                {{ pvp.get_pattern_type_display }}
+                            </span>
+                        </dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-gray-500">AI Model</dt>
+                        <dd class="text-sm text-gray-900">{{ pvp.ai_model_used }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-xs text-gray-500">Created</dt>
+                        <dd class="text-sm text-gray-900">{{ pvp.created_at|date:"M j, Y g:i a" }}</dd>
+                    </div>
+                </dl>
+            </div>
+
+            <!-- Target Profile -->
+            {% if profile %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-sm font-medium text-gray-500 uppercase mb-4">Target Profile</h3>
+                <div class="flex items-center mb-4">
+                    <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                        <span class="text-primary-700 font-semibold">
+                            {{ profile.name|slice:":1"|upper }}
+                        </span>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-gray-900">{{ profile.name }}</p>
+                        {% if profile.company %}
+                        <p class="text-xs text-gray-500">{{ profile.company }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if profile.industry %}
+                <p class="text-xs text-gray-600">
+                    <span class="font-medium">Industry:</span> {{ profile.industry }}
+                </p>
+                {% endif %}
+                {% if profile.linkedin_url %}
+                <a href="{{ profile.linkedin_url }}"
+                   target="_blank"
+                   class="mt-3 inline-flex items-center text-xs text-primary-600 hover:text-primary-700">
+                    View LinkedIn Profile
+                    <svg class="ml-1 h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- Match Score -->
+            {% if match %}
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <h3 class="text-sm font-medium text-gray-500 uppercase mb-4">Match Score</h3>
+                <div class="space-y-3">
+                    <div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Overall</span>
+                            <span class="font-medium text-gray-900">{{ match.final_score|floatformat:0 }}%</span>
+                        </div>
+                        <div class="mt-1 w-full h-2 bg-gray-200 rounded-full">
+                            <div class="h-2 bg-primary-600 rounded-full" style="width: {{ match.final_score|floatformat:0 }}%"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-gray-500">Intent</span>
+                            <span class="text-gray-700">{{ match.intent_score|floatformat:0 }}%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-gray-500">Synergy</span>
+                            <span class="text-gray-700">{{ match.synergy_score|floatformat:0 }}%</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-xs">
+                            <span class="text-gray-500">Momentum</span>
+                            <span class="text-gray-700">{{ match.momentum_score|floatformat:0 }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

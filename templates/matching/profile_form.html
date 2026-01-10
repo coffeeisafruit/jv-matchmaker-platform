@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - JV Matcher{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <nav class="flex" aria-label="Breadcrumb">
+            <ol class="flex items-center space-x-2">
+                <li>
+                    <a href="{% url 'matching:profile-list' %}" class="text-gray-400 hover:text-gray-500">
+                        <svg class="flex-shrink-0 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+                        </svg>
+                        <span class="sr-only">Profiles</span>
+                    </a>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <a href="{% url 'matching:profile-list' %}" class="ml-2 text-sm font-medium text-gray-500 hover:text-gray-700">
+                            Profiles
+                        </a>
+                    </div>
+                </li>
+                <li>
+                    <div class="flex items-center">
+                        <svg class="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="ml-2 text-sm font-medium text-gray-500">{{ title }}</span>
+                    </div>
+                </li>
+            </ol>
+        </nav>
+        <h1 class="mt-4 text-2xl font-bold text-gray-900">{{ title }}</h1>
+        <p class="mt-1 text-sm text-gray-500">
+            {% if object %}
+            Update the profile information below.
+            {% else %}
+            Enter the JV partner profile details below.
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Form -->
+    <form method="post" class="space-y-6">
+        {% csrf_token %}
+
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <!-- Basic Information -->
+            <div class="px-6 py-5 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Basic Information</h3>
+                <p class="mt-1 text-sm text-gray-500">Contact and company details.</p>
+            </div>
+            <div class="px-6 py-5 space-y-6">
+                <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <!-- Name -->
+                    <div>
+                        <label for="id_name" class="block text-sm font-medium text-gray-700">
+                            Full Name <span class="text-red-500">*</span>
+                        </label>
+                        <div class="mt-1">
+                            {{ form.name }}
+                        </div>
+                        {% if form.name.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Company -->
+                    <div>
+                        <label for="id_company" class="block text-sm font-medium text-gray-700">
+                            Company
+                        </label>
+                        <div class="mt-1">
+                            {{ form.company }}
+                        </div>
+                        {% if form.company.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.company.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label for="id_email" class="block text-sm font-medium text-gray-700">
+                            Email
+                        </label>
+                        <div class="mt-1">
+                            {{ form.email }}
+                        </div>
+                        {% if form.email.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Industry -->
+                    <div>
+                        <label for="id_industry" class="block text-sm font-medium text-gray-700">
+                            Industry
+                        </label>
+                        <div class="mt-1">
+                            {{ form.industry }}
+                        </div>
+                        {% if form.industry.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.industry.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- LinkedIn URL -->
+                    <div>
+                        <label for="id_linkedin_url" class="block text-sm font-medium text-gray-700">
+                            LinkedIn URL
+                        </label>
+                        <div class="mt-1">
+                            {{ form.linkedin_url }}
+                        </div>
+                        {% if form.linkedin_url.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.linkedin_url.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- Website URL -->
+                    <div>
+                        <label for="id_website_url" class="block text-sm font-medium text-gray-700">
+                            Website URL
+                        </label>
+                        <div class="mt-1">
+                            {{ form.website_url }}
+                        </div>
+                        {% if form.website_url.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.website_url.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Audience Information -->
+            <div class="px-6 py-5 border-t border-b border-gray-200 bg-gray-50">
+                <h3 class="text-lg font-medium text-gray-900">Audience Information</h3>
+                <p class="mt-1 text-sm text-gray-500">Details about their audience and reach.</p>
+            </div>
+            <div class="px-6 py-5 space-y-6">
+                <!-- Audience Size -->
+                <div>
+                    <label for="id_audience_size" class="block text-sm font-medium text-gray-700">
+                        Audience Size
+                    </label>
+                    <div class="mt-1">
+                        {{ form.audience_size }}
+                    </div>
+                    {% if form.audience_size.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.audience_size.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Audience Description -->
+                <div>
+                    <label for="id_audience_description" class="block text-sm font-medium text-gray-700">
+                        Audience Description
+                    </label>
+                    <div class="mt-1">
+                        {{ form.audience_description }}
+                    </div>
+                    <p class="mt-1 text-sm text-gray-500">Describe who their audience is, their demographics, interests, and pain points.</p>
+                    {% if form.audience_description.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.audience_description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Content Style -->
+                <div>
+                    <label for="id_content_style" class="block text-sm font-medium text-gray-700">
+                        Content Style
+                    </label>
+                    <div class="mt-1">
+                        {{ form.content_style }}
+                    </div>
+                    <p class="mt-1 text-sm text-gray-500">Describe their content tone, format preferences, and typical topics.</p>
+                    {% if form.content_style.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.content_style.errors.0 }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Form actions -->
+        <div class="flex justify-end space-x-4">
+            <a href="{% url 'matching:profile-list' %}"
+               class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                Cancel
+            </a>
+            <button type="submit"
+                    class="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                {{ submit_text }}
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}
