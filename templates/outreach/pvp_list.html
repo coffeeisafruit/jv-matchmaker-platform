@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
-{% block title %}PVPs - GTM Engine{% endblock %}
+{% block title %}Value Propositions - JV Matchmaker{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Generated PVPs</h1>
+            <h1 class="text-3xl font-bold text-gray-900">Generated Pitches</h1>
             <p class="mt-2 text-gray-600">
-                Your Permissionless Value Propositions with quality scores.
+                Your value propositions with quality scores.
             </p>
         </div>
         <div class="mt-4 sm:mt-0">
@@ -18,7 +18,7 @@
                 <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Generate New PVP
+                Generate New Pitch
             </a>
         </div>
     </div>
@@ -82,7 +82,7 @@
                             {% endif %}
                             {% else %}
                             <h3 class="text-lg font-medium text-gray-900">
-                                Standalone PVP
+                                Standalone Pitch
                             </h3>
                             {% endif %}
                         </div>
@@ -226,15 +226,15 @@
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
             </svg>
-            <h3 class="mt-2 text-sm font-medium text-gray-900">No PVPs yet</h3>
-            <p class="mt-1 text-sm text-gray-500">Get started by generating your first PVP.</p>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No Pitches yet</h3>
+            <p class="mt-1 text-sm text-gray-500">Get started by generating your first pitch.</p>
             <div class="mt-6">
                 <a href="{% url 'outreach:pvp_generator' %}"
                    class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
                     <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    Generate PVP
+                    Generate Pitch
                 </a>
             </div>
         </div>

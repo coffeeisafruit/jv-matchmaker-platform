@@ -374,6 +374,239 @@ Output in JSON format:
             }
         )
 
+    def generate_pvp_for_supabase(
+        self,
+        profile,  # SupabaseProfile
+        match_data,  # SupabaseMatch or None
+        pattern_type: str = 'pain_solution',
+        icp=None
+    ) -> PVPResult:
+        """
+        Generate a PVP for a Supabase profile.
+
+        Args:
+            profile: SupabaseProfile object
+            match_data: Optional SupabaseMatch object with scoring data
+            pattern_type: Type of PVP pattern to use
+            icp: Optional ICP object for additional context
+
+        Returns:
+            PVPResult with generated content and quality score
+        """
+        # Build the prompt with Supabase profile context
+        prompt = self._build_supabase_prompt(profile, match_data, pattern_type, icp)
+
+        # Call Claude API
+        response = self._call_claude(prompt)
+
+        # Parse the response
+        pvp_data = self._parse_response(response)
+
+        # Calculate quality score for Supabase profile
+        quality_score, quality_breakdown = self._calculate_supabase_quality_score(
+            pvp_data, profile, match_data, pattern_type
+        )
+
+        return PVPResult(
+            pain_point_addressed=pvp_data.get('pain_point_addressed', ''),
+            value_offered=pvp_data.get('value_offered', ''),
+            call_to_action=pvp_data.get('call_to_action', ''),
+            full_message=pvp_data.get('full_message', ''),
+            quality_score=quality_score,
+            quality_breakdown=quality_breakdown,
+            personalization_data={
+                'elements': pvp_data.get('personalization_elements', []),
+                'pattern_type': pattern_type,
+                'supabase_profile_id': str(profile.id)
+            }
+        )
+
+    def _build_supabase_prompt(self, profile, match_data, pattern_type: str, icp=None) -> str:
+        """Build the prompt with Supabase profile and match context."""
+        # Build enrichment section from Supabase profile fields
+        enrichment_section = ""
+        enrichment_fields = [
+            ('what_you_do', 'What They Do'),
+            ('who_you_serve', 'Who They Serve'),
+            ('seeking', 'What They\'re Seeking'),
+            ('offering', 'What They\'re Offering'),
+            ('current_projects', 'Current Projects'),
+            ('bio', 'Bio'),
+        ]
+        for field, label in enrichment_fields:
+            value = getattr(profile, field, None)
+            if value:
+                enrichment_section += f"\n- {label}: {value}"
+
+        if enrichment_section:
+            enrichment_section = "\n**Additional Context:**" + enrichment_section
+
+        # Build score breakdown section from match data
+        score_breakdown_section = ""
+        if match_data:
+            score_breakdown_section = "\n**Match Analysis:**\n"
+            if match_data.harmonic_mean:
+                score_breakdown_section += f"- Overall Match Score: {float(match_data.harmonic_mean) * 100:.0f}%\n"
+            if match_data.score_ab:
+                score_breakdown_section += f"- Your→Them Score: {float(match_data.score_ab) * 100:.0f}%\n"
+            if match_data.score_ba:
+                score_breakdown_section += f"- Them→You Score: {float(match_data.score_ba) * 100:.0f}%\n"
+            if match_data.rich_analysis:
+                score_breakdown_section += f"- Analysis: {match_data.rich_analysis[:500]}...\n"
+
+        # Build pain points and goals from ICP
+        pain_points = "- General business pain points"
+        goals = "- General business goals"
+        icp_industry = profile.niche or "General"
+
+        if icp:
+            if icp.pain_points:
+                pain_points = "\n".join(f"- {p}" for p in icp.pain_points)
+            if icp.goals:
+                goals = "\n".join(f"- {g}" for g in icp.goals)
+            icp_industry = icp.industry
+
+        # Calculate audience size
+        audience_size = "Unknown"
+        if profile.list_size or profile.social_reach:
+            list_size = profile.list_size or 0
+            social = profile.social_reach or 0
+            total = list_size + social
+            if total > 100000:
+                audience_size = f"{total:,} (Large)"
+            elif total > 10000:
+                audience_size = f"{total:,} (Medium)"
+            elif total > 0:
+                audience_size = f"{total:,} (Small)"
+
+        # Get the pattern prompt
+        pattern_prompt = self.PATTERN_PROMPTS.get(
+            pattern_type,
+            self.PATTERN_PROMPTS['pain_solution']
+        )
+
+        # Format the prompt
+        return pattern_prompt.format(
+            profile_name=profile.name or "Unknown",
+            profile_company=profile.company or "Unknown",
+            profile_industry=profile.niche or "Unknown",
+            profile_audience_size=audience_size,
+            profile_audience_description=profile.who_you_serve or "Not specified",
+            profile_content_style=profile.what_you_do or "Not specified",
+            enrichment_section=enrichment_section,
+            intent_score=f"{float(match_data.score_ba or 0) * 100:.0f}" if match_data else "N/A",
+            synergy_score=f"{float(match_data.harmonic_mean or 0) * 100:.0f}" if match_data else "N/A",
+            momentum_score="N/A",  # Not available in SupabaseMatch
+            final_score=f"{float(match_data.harmonic_mean or 0) * 100:.0f}" if match_data else "N/A",
+            score_breakdown_section=score_breakdown_section,
+            icp_industry=icp_industry,
+            pain_points=pain_points,
+            goals=goals
+        )
+
+    def _calculate_supabase_quality_score(
+        self,
+        pvp_data: dict,
+        profile,
+        match_data,
+        pattern_type: str
+    ) -> tuple[float, dict]:
+        """Calculate quality score for Supabase-based PVP."""
+        breakdown = {}
+        total_score = 0
+
+        full_message = pvp_data.get('full_message', '')
+        personalization_elements = pvp_data.get('personalization_elements', [])
+
+        # 1. Personalization (20 points)
+        personalization_score = min(len(personalization_elements) * 4, 20)
+        if profile.name and profile.name.split()[0] in full_message:
+            personalization_score = min(personalization_score + 2, 20)
+        if profile.company and profile.company in full_message:
+            personalization_score = min(personalization_score + 3, 20)
+        breakdown['personalization'] = {
+            'score': personalization_score,
+            'max': 20,
+            'notes': f'{len(personalization_elements)} personalization elements detected'
+        }
+        total_score += personalization_score
+
+        # 2. Relevance (15 points)
+        relevance_score = 10
+        if pvp_data.get('pain_point_addressed') and len(pvp_data['pain_point_addressed']) > 20:
+            relevance_score += 5
+        breakdown['relevance'] = {
+            'score': relevance_score,
+            'max': 15,
+            'notes': 'Pain point addressed in message'
+        }
+        total_score += relevance_score
+
+        # 3. Value First (20 points)
+        value_score = 10
+        value_offered = pvp_data.get('value_offered', '')
+        if len(value_offered) > 30:
+            value_score += 5
+        if 'insight' in value_offered.lower() or 'help' in full_message.lower():
+            value_score += 5
+        breakdown['value_first'] = {
+            'score': value_score,
+            'max': 20,
+            'notes': 'Value proposition present in message'
+        }
+        total_score += value_score
+
+        # 4. Clarity (10 points)
+        word_count = len(full_message.split())
+        clarity_score = 10 if 50 <= word_count <= 200 else 7
+        breakdown['clarity'] = {
+            'score': clarity_score,
+            'max': 10,
+            'notes': f'{word_count} words'
+        }
+        total_score += clarity_score
+
+        # 5. Tone (10 points)
+        tone_score = 8
+        pushy_words = ['buy', 'purchase', 'discount', 'limited time', 'act now']
+        if any(word in full_message.lower() for word in pushy_words):
+            tone_score -= 3
+        if '?' in full_message:
+            tone_score += 2
+        tone_score = max(0, min(tone_score, 10))
+        breakdown['tone'] = {
+            'score': tone_score,
+            'max': 10,
+            'notes': 'Conversational tone assessment'
+        }
+        total_score += tone_score
+
+        # 6. Call to Action (15 points)
+        cta = pvp_data.get('call_to_action', '')
+        cta_score = 10 if cta else 5
+        soft_cta_words = ['thoughts', 'interested', 'curious', 'worth', 'open to']
+        if any(word in cta.lower() for word in soft_cta_words):
+            cta_score += 5
+        breakdown['call_to_action'] = {
+            'score': cta_score,
+            'max': 15,
+            'notes': 'Soft CTA present' if cta_score >= 12 else 'CTA could be softer'
+        }
+        total_score += cta_score
+
+        # 7. Credibility (10 points)
+        credibility_score = 7
+        if match_data and match_data.harmonic_mean and float(match_data.harmonic_mean) > 0.7:
+            credibility_score += 3
+        breakdown['credibility'] = {
+            'score': credibility_score,
+            'max': 10,
+            'notes': 'Credibility established through relevance'
+        }
+        total_score += credibility_score
+
+        return total_score, breakdown
+
     def _build_prompt(self, match, pattern_type: str, icp=None) -> str:
         """Build the prompt with match and ICP context."""
         profile = match.profile

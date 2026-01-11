@@ -3,15 +3,19 @@ Match Scoring Service for JV Matcher Module.
 
 Implements the ISMC (Intent, Synergy, Momentum, Context) scoring framework
 using a weighted harmonic mean for the final score calculation.
+
+Also includes PartnershipAnalyzer for dynamic partnership insights that
+integrates ICP and Transformation data with pre-computed SupabaseMatch data.
 """
 
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, List, Dict, Any
 import math
+import re
 
 from django.conf import settings
 
-from .models import Profile, Match
+from .models import Profile, Match, SupabaseProfile, SupabaseMatch
 
 
 @dataclass
@@ -638,3 +642,377 @@ class MatchScoringService:
         )
 
         return match
+
+
+# =============================================================================
+# PARTNERSHIP ANALYZER - Dynamic insights for SupabaseProfile partners
+# =============================================================================
+
+@dataclass
+class PartnershipInsight:
+    """A single insight about why a partnership could work."""
+    type: str  # 'seeking_offering', 'audience_overlap', 'solution_fit', 'scale_match'
+    icon: str  # CSS class or emoji for display
+    headline: str  # Short summary
+    detail: str  # Explanation
+    action: Optional[str] = None  # Suggested action
+
+
+@dataclass
+class PartnershipAnalysis:
+    """Complete analysis of a partner with dynamic insights."""
+    partner: SupabaseProfile
+    tier: str  # 'hand_picked', 'strong', 'wildcard'
+    score: Optional[float]  # harmonic_mean from SupabaseMatch if available
+    insights: List[PartnershipInsight] = field(default_factory=list)
+    suggested_action: Optional[str] = None
+    conversation_starter: Optional[str] = None
+
+
+class PartnershipAnalyzer:
+    """
+    Analyzes partnerships at display time, combining:
+    - Pre-computed SupabaseMatch data (seeking→offering, harmonic_mean)
+    - User's ICP (audience overlap)
+    - User's Transformation (solution fit)
+    - Scale compatibility (list sizes)
+
+    Generates dynamic "Why You Two" narratives and suggested actions.
+    """
+
+    # Tier thresholds based on harmonic_mean (0-100 scale)
+    TIER_THRESHOLDS = {
+        'hand_picked': 80,  # 80%+ = rare, exceptional match
+        'strong': 60,       # 60-80% = solid potential
+        'wildcard': 0,      # Below 60% or no score = discovery
+    }
+
+    def __init__(
+        self,
+        user,
+        user_supabase_profile: Optional[SupabaseProfile] = None,
+        icp=None,  # positioning.models.ICP
+        transformation=None,  # positioning.models.TransformationAnalysis
+    ):
+        """
+        Initialize analyzer with user context.
+
+        Args:
+            user: Django User instance
+            user_supabase_profile: User's own SupabaseProfile (if linked)
+            icp: User's primary ICP (for audience matching)
+            transformation: User's transformation analysis (for solution fit)
+        """
+        self.user = user
+        self.user_profile = user_supabase_profile
+        self.icp = icp
+        self.transformation = transformation
+
+    def analyze(
+        self,
+        partner: SupabaseProfile,
+        supabase_match: Optional[SupabaseMatch] = None
+    ) -> PartnershipAnalysis:
+        """
+        Analyze a partner and generate dynamic insights.
+
+        Args:
+            partner: The SupabaseProfile to analyze
+            supabase_match: Pre-computed match data (if available)
+
+        Returns:
+            PartnershipAnalysis with tier, insights, and suggested action
+        """
+        insights = []
+        score = None
+
+        # Dimension 1: Seeking→Offering (from pre-computed SupabaseMatch)
+        if supabase_match and supabase_match.harmonic_mean:
+            score = float(supabase_match.harmonic_mean)
+            seeking_insight = self._build_seeking_offering_insight(
+                partner, supabase_match
+            )
+            if seeking_insight:
+                insights.append(seeking_insight)
+
+        # Dimension 2: Audience Overlap (ICP integration)
+        if self.icp:
+            audience_insight = self._build_audience_insight(partner)
+            if audience_insight:
+                insights.append(audience_insight)
+
+        # Dimension 3: Solution Fit (Transformation integration)
+        if self.transformation:
+            solution_insight = self._build_solution_insight(partner)
+            if solution_insight:
+                insights.append(solution_insight)
+
+        # Dimension 4: Scale Compatibility
+        scale_insight = self._build_scale_insight(partner)
+        if scale_insight:
+            insights.append(scale_insight)
+
+        # Determine tier
+        tier = self._determine_tier(score, len(insights))
+
+        # Generate suggested action
+        suggested_action = self._generate_suggested_action(insights, tier)
+
+        # Generate conversation starter
+        conversation_starter = self._generate_conversation_starter(
+            partner, insights
+        )
+
+        return PartnershipAnalysis(
+            partner=partner,
+            tier=tier,
+            score=score,
+            insights=insights,
+            suggested_action=suggested_action,
+            conversation_starter=conversation_starter,
+        )
+
+    def _build_seeking_offering_insight(
+        self,
+        partner: SupabaseProfile,
+        match: SupabaseMatch
+    ) -> Optional[PartnershipInsight]:
+        """Build insight from seeking→offering alignment."""
+        if not match.match_reason:
+            # Generate from raw data if no pre-computed reason
+            if self.user_profile and self.user_profile.seeking and partner.offering:
+                return PartnershipInsight(
+                    type='seeking_offering',
+                    icon='exchange',
+                    headline='Service Match',
+                    detail=f"You're seeking help with your goals — they offer relevant services",
+                    action='Explore their offering'
+                )
+            return None
+
+        # Use pre-computed match_reason from jv-matcher
+        return PartnershipInsight(
+            type='seeking_offering',
+            icon='exchange',
+            headline='Complementary Skills',
+            detail=match.match_reason[:150] if match.match_reason else 'Skills alignment detected',
+            action='Request an introduction'
+        )
+
+    def _build_audience_insight(
+        self,
+        partner: SupabaseProfile
+    ) -> Optional[PartnershipInsight]:
+        """Build insight from ICP audience overlap."""
+        if not self.icp or not self.icp.industry:
+            return None
+
+        icp_industry = self.icp.industry.lower()
+
+        # Check partner's who_you_serve
+        partner_serves = (partner.who_you_serve or '').lower()
+        partner_niche = (partner.niche or '').lower()
+
+        # Simple keyword matching (could be enhanced with NLP)
+        has_overlap = (
+            icp_industry in partner_serves or
+            icp_industry in partner_niche or
+            any(word in partner_serves for word in icp_industry.split()) or
+            any(word in partner_niche for word in icp_industry.split())
+        )
+
+        if has_overlap:
+            return PartnershipInsight(
+                type='audience_overlap',
+                icon='users',
+                headline='Shared Audience',
+                detail=f"You both serve {self.icp.industry} — ideal for cross-promotion",
+                action='Propose a list swap or co-promotion'
+            )
+
+        return None
+
+    def _build_solution_insight(
+        self,
+        partner: SupabaseProfile
+    ) -> Optional[PartnershipInsight]:
+        """Build insight from transformation/solution fit."""
+        if not self.transformation or not partner.offering:
+            return None
+
+        # Check if partner's offering addresses ICP pain points
+        partner_offering = (partner.offering or '').lower()
+        pain_points = self.icp.pain_points if self.icp else []
+
+        if not pain_points:
+            return None
+
+        # Check for overlap between offering and pain points
+        for pain in pain_points[:3]:  # Check top 3 pain points
+            pain_lower = pain.lower() if isinstance(pain, str) else ''
+            if any(word in partner_offering for word in pain_lower.split() if len(word) > 3):
+                return PartnershipInsight(
+                    type='solution_fit',
+                    icon='lightbulb',
+                    headline='Solution Provider',
+                    detail=f"Their offering may help your customers with: {pain[:50]}",
+                    action='Explore affiliate or referral partnership'
+                )
+
+        return None
+
+    def _build_scale_insight(
+        self,
+        partner: SupabaseProfile
+    ) -> Optional[PartnershipInsight]:
+        """Build insight from list size compatibility."""
+        if not self.user_profile:
+            return None
+
+        user_list = self.user_profile.list_size or 0
+        partner_list = partner.list_size or 0
+
+        if user_list == 0 or partner_list == 0:
+            return None
+
+        # Calculate ratio
+        if user_list > partner_list:
+            ratio = user_list / partner_list if partner_list > 0 else float('inf')
+        else:
+            ratio = partner_list / user_list if user_list > 0 else float('inf')
+
+        if ratio <= 2:
+            # Within 2x = good for list swap
+            return PartnershipInsight(
+                type='scale_match',
+                icon='balance',
+                headline='Compatible Scale',
+                detail=f"Similar list sizes (~{self._format_number(partner_list)}) — fair exchange potential",
+                action='Propose an equal list swap'
+            )
+        elif ratio <= 5:
+            # 2-5x difference
+            if partner_list > user_list:
+                return PartnershipInsight(
+                    type='scale_match',
+                    icon='trending-up',
+                    headline='Growth Opportunity',
+                    detail=f"Their larger audience ({self._format_number(partner_list)}) could accelerate your reach",
+                    action='Offer value beyond list size (expertise, content)'
+                )
+            else:
+                return PartnershipInsight(
+                    type='scale_match',
+                    icon='gift',
+                    headline='Mentor Opportunity',
+                    detail=f"Your larger audience could help them grow",
+                    action='Consider a mentorship or promotional deal'
+                )
+
+        return None
+
+    def _determine_tier(
+        self,
+        score: Optional[float],
+        insight_count: int
+    ) -> str:
+        """Determine confidence tier based on score and insights."""
+        if score is not None:
+            if score >= self.TIER_THRESHOLDS['hand_picked']:
+                return 'hand_picked'
+            elif score >= self.TIER_THRESHOLDS['strong']:
+                return 'strong'
+
+        # If no score but multiple insights, still consider it valuable
+        if insight_count >= 3:
+            return 'strong'
+        elif insight_count >= 1:
+            return 'wildcard'
+
+        return 'wildcard'
+
+    def _generate_suggested_action(
+        self,
+        insights: List[PartnershipInsight],
+        tier: str
+    ) -> str:
+        """Generate a suggested next action based on insights."""
+        if not insights:
+            return "Explore their profile to find common ground"
+
+        # Combine actions from insights
+        actions = [i.action for i in insights if i.action]
+
+        if tier == 'hand_picked':
+            if 'audience_overlap' in [i.type for i in insights]:
+                return "High-priority: Propose a co-marketing campaign or list swap"
+            return "High-priority: Request an introduction call"
+
+        if 'seeking_offering' in [i.type for i in insights]:
+            return "Reach out to discuss how you can help each other"
+
+        if 'audience_overlap' in [i.type for i in insights]:
+            return "Explore cross-promotion opportunities"
+
+        return actions[0] if actions else "Review their profile and find alignment"
+
+    def _generate_conversation_starter(
+        self,
+        partner: SupabaseProfile,
+        insights: List[PartnershipInsight]
+    ) -> Optional[str]:
+        """Generate a conversation starter for the intro."""
+        if not insights:
+            return None
+
+        # Prioritize insights for conversation starters
+        for insight in insights:
+            if insight.type == 'seeking_offering':
+                if partner.offering:
+                    return f"Ask {partner.name.split()[0] if partner.name else 'them'} about their approach to {partner.offering[:30]}..."
+            elif insight.type == 'audience_overlap':
+                if self.icp:
+                    return f"Discuss how you both serve {self.icp.industry} and explore synergies"
+            elif insight.type == 'scale_match':
+                return "Compare audience engagement strategies and list-building approaches"
+
+        return None
+
+    def _format_number(self, num: int) -> str:
+        """Format number for display (e.g., 5000 -> 5K)."""
+        if num >= 1000000:
+            return f"{num/1000000:.1f}M"
+        elif num >= 1000:
+            return f"{num/1000:.0f}K"
+        return str(num)
+
+    def analyze_batch(
+        self,
+        partners: List[SupabaseProfile],
+        matches_by_partner_id: Optional[Dict[str, SupabaseMatch]] = None
+    ) -> List[PartnershipAnalysis]:
+        """
+        Analyze multiple partners efficiently.
+
+        Args:
+            partners: List of SupabaseProfile instances
+            matches_by_partner_id: Dict mapping partner.id to SupabaseMatch
+
+        Returns:
+            List of PartnershipAnalysis, sorted by tier/score
+        """
+        analyses = []
+        matches_by_partner_id = matches_by_partner_id or {}
+
+        for partner in partners:
+            match = matches_by_partner_id.get(str(partner.id))
+            analysis = self.analyze(partner, match)
+            analyses.append(analysis)
+
+        # Sort by tier (hand_picked first) then by score
+        tier_order = {'hand_picked': 0, 'strong': 1, 'wildcard': 2}
+        analyses.sort(
+            key=lambda a: (tier_order.get(a.tier, 3), -(a.score or 0))
+        )
+
+        return analyses

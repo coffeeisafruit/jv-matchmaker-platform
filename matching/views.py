@@ -24,9 +24,268 @@ from django.views.generic import (
 )
 
 from .forms import ProfileForm, ProfileImportForm, MatchStatusForm
-from .models import Match, Profile
-from .services import MatchScoringService
+from .models import Match, Profile, SupabaseProfile, SupabaseMatch
+from .services import MatchScoringService, PartnershipAnalyzer
+from positioning.models import ICP, TransformationAnalysis
 
+
+# =============================================================================
+# SUPABASE PROFILE VIEWS (Browse the 3,143+ partner database)
+# =============================================================================
+
+class SupabaseProfileListView(LoginRequiredMixin, ListView):
+    """
+    Browse all JV partner profiles from Supabase database.
+    """
+    model = SupabaseProfile
+    template_name = 'matching/supabase_profile_list.html'
+    context_object_name = 'profiles'
+    paginate_by = 25
+
+    def get_queryset(self):
+        """Apply search and filters to Supabase profiles."""
+        queryset = SupabaseProfile.objects.all()
+
+        # Search filter
+        search = self.request.GET.get('search', '').strip()
+        if search:
+            queryset = queryset.filter(
+                Q(name__icontains=search) |
+                Q(company__icontains=search) |
+                Q(niche__icontains=search) |
+                Q(business_focus__icontains=search) |
+                Q(what_you_do__icontains=search) |
+                Q(who_you_serve__icontains=search)
+            )
+
+        # Niche filter
+        niche = self.request.GET.get('niche', '').strip()
+        if niche:
+            queryset = queryset.filter(niche__icontains=niche)
+
+        # Status filter (Member, Non Member Resource, Pending)
+        status = self.request.GET.get('status', '').strip()
+        if status:
+            queryset = queryset.filter(status=status)
+
+        return queryset.order_by('-last_active_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['total_profiles'] = SupabaseProfile.objects.count()
+        context['current_search'] = self.request.GET.get('search', '')
+        context['current_niche'] = self.request.GET.get('niche', '')
+        context['current_status'] = self.request.GET.get('status', '')
+
+        # Get user's primary ICP for smart suggestions
+        primary_icp = ICP.objects.filter(
+            user=self.request.user,
+            is_primary=True
+        ).first()
+
+        if not primary_icp:
+            # Fall back to most recent ICP
+            primary_icp = ICP.objects.filter(user=self.request.user).first()
+
+        context['icp'] = primary_icp
+
+        # Get user's transformation analysis for solution fit
+        transformation = TransformationAnalysis.objects.filter(
+            user=self.request.user
+        ).first()
+
+        # Find user's SupabaseProfile by email to get personalized matches
+        user_supabase_profile = SupabaseProfile.objects.filter(
+            email__iexact=self.request.user.email
+        ).first()
+
+        context['user_supabase_profile'] = user_supabase_profile
+
+        # Get personalized recommendations from pre-computed matches
+        if user_supabase_profile:
+            recommended, matches_by_id = self._get_user_matches_with_data(
+                user_supabase_profile
+            )
+            context['recommended_partners'] = recommended
+        else:
+            recommended = self._get_featured_partners(icp=primary_icp)
+            matches_by_id = {}
+            context['recommended_partners'] = recommended
+
+        # Create PartnershipAnalyzer and enrich partner data with insights
+        analyzer = PartnershipAnalyzer(
+            user=self.request.user,
+            user_supabase_profile=user_supabase_profile,
+            icp=primary_icp,
+            transformation=transformation,
+        )
+
+        # Analyze recommended partners with dynamic insights
+        if recommended:
+            partner_analyses = analyzer.analyze_batch(
+                partners=recommended,
+                matches_by_partner_id=matches_by_id
+            )
+            context['partner_analyses'] = partner_analyses
+        else:
+            context['partner_analyses'] = []
+
+        return context
+
+    def _get_user_matches(self, user_profile):
+        """
+        Get personalized partner recommendations from pre-computed SupabaseMatch.
+        These matches are based on seeking→offering algorithm (you need what they offer).
+        """
+        partners, _ = self._get_user_matches_with_data(user_profile)
+        return partners
+
+    def _get_user_matches_with_data(self, user_profile):
+        """
+        Get personalized partner recommendations with match data.
+
+        Returns:
+            Tuple of (partners list, matches_by_partner_id dict)
+        """
+        # Get this user's top matches ordered by harmonic_mean score
+        matches = SupabaseMatch.objects.filter(
+            profile_id=user_profile.id,
+            harmonic_mean__isnull=False,
+            harmonic_mean__gt=0
+        ).order_by('-harmonic_mean')[:8]
+
+        if not matches:
+            return self._get_featured_partners(), {}
+
+        # Get the suggested profile IDs in score order
+        profile_ids = [m.suggested_profile_id for m in matches]
+
+        # Create lookup of matches by suggested_profile_id
+        matches_by_id = {str(m.suggested_profile_id): m for m in matches}
+
+        # Fetch the actual profiles
+        profiles = list(SupabaseProfile.objects.filter(
+            id__in=profile_ids,
+            status='Member'
+        ))
+
+        # Re-order by match score order
+        id_to_profile = {p.id: p for p in profiles}
+        ordered = [id_to_profile[pid] for pid in profile_ids if pid in id_to_profile]
+        return ordered[:4], matches_by_id
+
+    def _get_featured_partners(self, icp=None):
+        """
+        Get featured partners when user has no SupabaseProfile.
+
+        Prioritizes partners that match the user's ICP industry if available.
+        """
+        from django.db.models import Avg, Count
+
+        # If user has an ICP, first try to find partners matching their industry
+        if icp and icp.industry:
+            icp_aligned = SupabaseProfile.objects.filter(
+                status='Member',
+                niche__icontains=icp.industry
+            ).exclude(niche__isnull=True).order_by('-list_size')[:4]
+
+            if icp_aligned.exists():
+                return list(icp_aligned)
+
+        # Fallback: Get profiles that are frequently recommended with high scores
+        top_matched_profile_ids = (
+            SupabaseMatch.objects
+            .filter(harmonic_mean__isnull=False, harmonic_mean__gt=0)
+            .values('suggested_profile_id')
+            .annotate(
+                avg_score=Avg('harmonic_mean'),
+                match_count=Count('id')
+            )
+            .filter(match_count__gte=3)
+            .order_by('-avg_score')[:8]
+        )
+
+        profile_ids = [m['suggested_profile_id'] for m in top_matched_profile_ids]
+
+        if profile_ids:
+            profiles = list(SupabaseProfile.objects.filter(
+                id__in=profile_ids,
+                status='Member'
+            ).exclude(niche__isnull=True))
+
+            id_to_profile = {p.id: p for p in profiles}
+            ordered = [id_to_profile[pid] for pid in profile_ids if pid in id_to_profile]
+            return ordered[:4]
+
+        # Ultimate fallback: active members with largest lists
+        return SupabaseProfile.objects.filter(
+            status='Member',
+            list_size__gt=1000
+        ).exclude(
+            niche__isnull=True
+        ).order_by('-list_size')[:4]
+
+    def render_to_response(self, context, **response_kwargs):
+        """Return partial template for HTMX requests."""
+        if self.request.htmx:
+            self.template_name = 'matching/partials/supabase_profile_table.html'
+        return super().render_to_response(context, **response_kwargs)
+
+
+class SupabaseProfileDetailView(LoginRequiredMixin, DetailView):
+    """View detailed information about a Supabase profile."""
+    model = SupabaseProfile
+    template_name = 'matching/supabase_profile_detail.html'
+    context_object_name = 'profile'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Get any matches involving this profile
+        context['matches_as_source'] = SupabaseMatch.objects.filter(
+            profile_id=self.object.id
+        ).order_by('-harmonic_mean')[:10]
+        context['matches_as_target'] = SupabaseMatch.objects.filter(
+            suggested_profile_id=self.object.id
+        ).order_by('-harmonic_mean')[:10]
+
+        # Get user context for partnership analysis
+        primary_icp = ICP.objects.filter(
+            user=self.request.user,
+            is_primary=True
+        ).first() or ICP.objects.filter(user=self.request.user).first()
+
+        transformation = TransformationAnalysis.objects.filter(
+            user=self.request.user
+        ).first()
+
+        user_supabase_profile = SupabaseProfile.objects.filter(
+            email__iexact=self.request.user.email
+        ).first()
+
+        # Get match data for this specific partner
+        supabase_match = None
+        if user_supabase_profile:
+            supabase_match = SupabaseMatch.objects.filter(
+                profile_id=user_supabase_profile.id,
+                suggested_profile_id=self.object.id
+            ).first()
+
+        # Analyze this partner
+        analyzer = PartnershipAnalyzer(
+            user=self.request.user,
+            user_supabase_profile=user_supabase_profile,
+            icp=primary_icp,
+            transformation=transformation,
+        )
+        context['partnership_analysis'] = analyzer.analyze(self.object, supabase_match)
+        context['icp'] = primary_icp
+
+        return context
+
+
+# =============================================================================
+# DJANGO PROFILE VIEWS (User's own profiles)
+# =============================================================================
 
 class ProfileListView(LoginRequiredMixin, ListView):
     """

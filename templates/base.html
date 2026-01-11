@@ -4,7 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}GTM Engine{% endblock %}</title>
+    <title>{% block title %}JV Matchmaker{% endblock %}</title>
+
+    <!-- Apple-style Typography (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -12,19 +17,48 @@
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        'sans': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    },
                     colors: {
+                        apple: {
+                            blue: '#007AFF',
+                            gray: {
+                                50: '#FAFAFA',
+                                100: '#F5F5F5',
+                                200: '#E5E5E5',
+                                300: '#A3A3A3',
+                                400: '#525252',
+                                500: '#262626',
+                                600: '#0A0A0A',
+                            }
+                        },
                         primary: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            200: '#c7d2fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81',
+                            50: '#EBF5FF',
+                            100: '#E1EFFE',
+                            200: '#C3DDFD',
+                            300: '#A4CAFE',
+                            400: '#76A9FA',
+                            500: '#3F83F8',
+                            600: '#007AFF',
+                            700: '#0066D6',
+                            800: '#004CA3',
+                            900: '#003370',
                         }
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.4s ease-out forwards',
+                        'slide-up': 'slideUp 0.4s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(10px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        },
                     }
                 }
             }
@@ -37,109 +71,149 @@
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
-    <!-- Custom styles -->
+    <!-- HTMX and Alpine configuration -->
+    <script>
+        document.addEventListener('htmx:beforeSwap', function(event) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(event.detail.serverResponse, 'text/html');
+            const scripts = doc.querySelectorAll('script');
+            scripts.forEach(function(script) {
+                if (script.textContent) {
+                    const newScript = document.createElement('script');
+                    newScript.textContent = script.textContent;
+                    document.head.appendChild(newScript);
+                    document.head.removeChild(newScript);
+                }
+            });
+        });
+
+        document.addEventListener('htmx:afterSwap', function(event) {
+            if (typeof Alpine !== 'undefined') {
+                Alpine.initTree(event.detail.target);
+            }
+        });
+    </script>
+
+    <!-- Clean Styles -->
     <style>
         [x-cloak] { display: none !important; }
 
-        /* HTMX loading indicator */
-        .htmx-request .htmx-indicator {
-            display: inline-block;
-        }
-        .htmx-indicator {
-            display: none;
+        body {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        /* Smooth transitions for HTMX swaps */
-        .htmx-swapping {
+        /* HTMX indicators */
+        .htmx-indicator {
             opacity: 0;
-            transition: opacity 0.2s ease-out;
+            transition: opacity 200ms ease-in;
         }
+        .htmx-indicator.htmx-request {
+            opacity: 1;
+        }
+
+        /* Clean card style */
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+
+        .card-hover:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Form inputs */
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #007AFF;
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        /* Staggered animations */
+        .stagger-1 { animation-delay: 0.05s; }
+        .stagger-2 { animation-delay: 0.1s; }
+        .stagger-3 { animation-delay: 0.15s; }
+        .stagger-4 { animation-delay: 0.2s; }
+        .stagger-5 { animation-delay: 0.25s; }
     </style>
 
     {% block extra_head %}{% endblock %}
 </head>
-<body class="h-full bg-gray-50" x-data="{ mobileMenuOpen: false }">
+<body class="h-full bg-apple-gray-50 font-sans text-apple-gray-600" x-data="{ mobileMenuOpen: false }">
     <!-- Navigation -->
-    <nav class="bg-white shadow-sm border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
+    <nav class="bg-white/80 backdrop-blur-xl border-b border-apple-gray-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="flex justify-between h-14">
                 <!-- Logo and main nav -->
-                <div class="flex">
-                    <!-- Logo -->
-                    <div class="flex-shrink-0 flex items-center">
-                        <a href="{% url 'core:home' %}" class="text-xl font-bold text-primary-600">
-                            GTM Engine
-                        </a>
-                    </div>
+                <div class="flex items-center">
+                    <a href="{% url 'core:home' %}" class="flex items-center">
+                        <span class="text-lg font-semibold text-apple-gray-600">JV Matchmaker</span>
+                    </a>
 
-                    <!-- Desktop navigation -->
                     {% if user.is_authenticated %}
-                    <div class="hidden sm:ml-8 sm:flex sm:space-x-4">
+                    <div class="hidden sm:flex sm:ml-10 sm:space-x-1">
                         <a href="{% url 'core:dashboard' %}"
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium {% if request.resolver_match.url_name == 'dashboard' %}text-primary-600 border-b-2 border-primary-600{% else %}text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300{% endif %}">
+                           class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {% if request.resolver_match.url_name == 'dashboard' %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-500 hover:text-apple-gray-600 hover:bg-apple-gray-100{% endif %}">
                             Dashboard
                         </a>
                         <a href="{% url 'positioning:icp_list' %}"
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium {% if 'positioning' in request.path %}text-primary-600 border-b-2 border-primary-600{% else %}text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300{% endif %}">
+                           class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {% if 'positioning' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-500 hover:text-apple-gray-600 hover:bg-apple-gray-100{% endif %}">
                             Positioning
                         </a>
-                        <a href="{% url 'matching:profile-list' %}"
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium {% if 'matching' in request.path %}text-primary-600 border-b-2 border-primary-600{% else %}text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300{% endif %}">
-                            Matching
+                        <a href="{% url 'matching:partners' %}"
+                           class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {% if 'matching' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-500 hover:text-apple-gray-600 hover:bg-apple-gray-100{% endif %}">
+                            Partners
                         </a>
                         <a href="{% url 'outreach:pvp_generator' %}"
-                           class="inline-flex items-center px-3 py-2 text-sm font-medium {% if 'outreach' in request.path %}text-primary-600 border-b-2 border-primary-600{% else %}text-gray-500 hover:text-gray-700 hover:border-b-2 hover:border-gray-300{% endif %}">
+                           class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {% if 'outreach' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-500 hover:text-apple-gray-600 hover:bg-apple-gray-100{% endif %}">
                             Outreach
                         </a>
                     </div>
                     {% endif %}
                 </div>
 
-                <!-- Right side buttons -->
-                <div class="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">
+                <!-- Right side -->
+                <div class="hidden sm:flex sm:items-center sm:space-x-4">
                     {% if user.is_authenticated %}
-                    <span class="text-sm text-gray-500">{{ user.business_name }}</span>
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open"
-                                class="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 focus:outline-none">
-                            <span class="sr-only">Open user menu</span>
-                            <div class="h-8 w-8 rounded-full bg-primary-100 flex items-center justify-center">
-                                <span class="text-primary-700 font-semibold">{{ user.username|slice:":1"|upper }}</span>
+                                class="flex items-center space-x-2 text-sm focus:outline-none">
+                            <div class="h-8 w-8 rounded-full bg-apple-gray-200 flex items-center justify-center">
+                                <span class="text-apple-gray-600 font-medium text-sm">{{ user.username|slice:":1"|upper }}</span>
                             </div>
-                            <svg class="ml-2 h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                            </svg>
                         </button>
 
-                        <!-- Dropdown menu -->
                         <div x-show="open"
                              x-cloak
                              @click.away="open = false"
                              x-transition:enter="transition ease-out duration-100"
-                             x-transition:enter-start="transform opacity-0 scale-95"
-                             x-transition:enter-end="transform opacity-100 scale-100"
+                             x-transition:enter-start="opacity-0 scale-95"
+                             x-transition:enter-end="opacity-100 scale-100"
                              x-transition:leave="transition ease-in duration-75"
-                             x-transition:leave-start="transform opacity-100 scale-100"
-                             x-transition:leave-end="transform opacity-0 scale-95"
-                             class="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 z-50">
-                            <a href="{% url 'core:dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                             x-transition:leave-start="opacity-100 scale-100"
+                             x-transition:leave-end="opacity-0 scale-95"
+                             class="absolute right-0 mt-2 w-48 rounded-xl bg-white border border-apple-gray-200 shadow-lg py-1 z-50">
+                            <div class="px-4 py-2 border-b border-apple-gray-100">
+                                <p class="text-sm font-medium text-apple-gray-600">{{ user.username }}</p>
+                                <p class="text-xs text-apple-gray-400">{{ user.business_name }}</p>
+                            </div>
+                            <a href="{% url 'core:dashboard' %}" class="block px-4 py-2 text-sm text-apple-gray-500 hover:bg-apple-gray-50">
                                 Dashboard
                             </a>
                             <form method="post" action="{% url 'core:logout' %}">
                                 {% csrf_token %}
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-apple-gray-500 hover:bg-apple-gray-50">
                                     Sign out
                                 </button>
                             </form>
                         </div>
                     </div>
                     {% else %}
-                    <a href="{% url 'core:login' %}"
-                       class="text-sm font-medium text-gray-500 hover:text-gray-700">
-                        Log in
+                    <a href="{% url 'core:login' %}" class="text-sm font-medium text-apple-gray-500 hover:text-apple-gray-600">
+                        Sign in
                     </a>
-                    <a href="{% url 'core:signup' %}"
-                       class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                    <a href="{% url 'core:signup' %}" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full bg-apple-blue text-white hover:bg-blue-600 transition-colors">
                         Get Started
                     </a>
                     {% endif %}
@@ -149,13 +223,12 @@
                 <div class="flex items-center sm:hidden">
                     <button @click="mobileMenuOpen = !mobileMenuOpen"
                             type="button"
-                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500">
-                        <span class="sr-only">Open main menu</span>
+                            class="p-2 rounded-lg text-apple-gray-500 hover:bg-apple-gray-100">
                         <svg x-show="!mobileMenuOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"/>
                         </svg>
                         <svg x-show="mobileMenuOpen" x-cloak class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
                     </button>
                 </div>
@@ -163,55 +236,36 @@
         </div>
 
         <!-- Mobile menu -->
-        <div x-show="mobileMenuOpen" x-cloak class="sm:hidden">
+        <div x-show="mobileMenuOpen" x-cloak class="sm:hidden bg-white border-t border-apple-gray-200">
             {% if user.is_authenticated %}
-            <div class="pt-2 pb-3 space-y-1">
-                <a href="{% url 'core:dashboard' %}"
-                   class="block pl-3 pr-4 py-2 text-base font-medium {% if request.resolver_match.url_name == 'dashboard' %}text-primary-600 bg-primary-50 border-l-4 border-primary-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+            <div class="py-2 px-4 space-y-1">
+                <a href="{% url 'core:dashboard' %}" class="block px-4 py-3 rounded-lg text-sm font-medium {% if request.resolver_match.url_name == 'dashboard' %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-600 hover:bg-apple-gray-50{% endif %}">
                     Dashboard
                 </a>
-                <a href="{% url 'positioning:icp_list' %}"
-                   class="block pl-3 pr-4 py-2 text-base font-medium {% if 'positioning' in request.path %}text-primary-600 bg-primary-50 border-l-4 border-primary-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+                <a href="{% url 'positioning:icp_list' %}" class="block px-4 py-3 rounded-lg text-sm font-medium {% if 'positioning' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-600 hover:bg-apple-gray-50{% endif %}">
                     Positioning
                 </a>
-                <a href="{% url 'matching:profile-list' %}"
-                   class="block pl-3 pr-4 py-2 text-base font-medium {% if 'matching' in request.path %}text-primary-600 bg-primary-50 border-l-4 border-primary-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
-                    Matching
+                <a href="{% url 'matching:partners' %}" class="block px-4 py-3 rounded-lg text-sm font-medium {% if 'matching' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-600 hover:bg-apple-gray-50{% endif %}">
+                    Partners
                 </a>
-                <a href="{% url 'outreach:pvp_generator' %}"
-                   class="block pl-3 pr-4 py-2 text-base font-medium {% if 'outreach' in request.path %}text-primary-600 bg-primary-50 border-l-4 border-primary-600{% else %}text-gray-500 hover:bg-gray-50 hover:text-gray-700{% endif %}">
+                <a href="{% url 'outreach:pvp_generator' %}" class="block px-4 py-3 rounded-lg text-sm font-medium {% if 'outreach' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-600 hover:bg-apple-gray-50{% endif %}">
                     Outreach
                 </a>
             </div>
-            <div class="pt-4 pb-3 border-t border-gray-200">
-                <div class="flex items-center px-4">
-                    <div class="flex-shrink-0">
-                        <div class="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-                            <span class="text-primary-700 font-semibold text-lg">{{ user.username|slice:":1"|upper }}</span>
-                        </div>
-                    </div>
-                    <div class="ml-3">
-                        <div class="text-base font-medium text-gray-800">{{ user.username }}</div>
-                        <div class="text-sm font-medium text-gray-500">{{ user.business_name }}</div>
-                    </div>
-                </div>
-                <div class="mt-3 space-y-1">
-                    <form method="post" action="{% url 'core:logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="block w-full text-left pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">
-                            Sign out
-                        </button>
-                    </form>
-                </div>
+            <div class="py-3 px-4 border-t border-apple-gray-100">
+                <form method="post" action="{% url 'core:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="block w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-apple-gray-500 hover:bg-apple-gray-50">
+                        Sign out
+                    </button>
+                </form>
             </div>
             {% else %}
-            <div class="pt-2 pb-3 space-y-1">
-                <a href="{% url 'core:login' %}"
-                   class="block pl-3 pr-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-700">
-                    Log in
+            <div class="py-2 px-4 space-y-1">
+                <a href="{% url 'core:login' %}" class="block px-4 py-3 rounded-lg text-sm font-medium text-apple-gray-600 hover:bg-apple-gray-50">
+                    Sign in
                 </a>
-                <a href="{% url 'core:signup' %}"
-                   class="block pl-3 pr-4 py-2 text-base font-medium text-primary-600 hover:bg-primary-50">
+                <a href="{% url 'core:signup' %}" class="block px-4 py-3 rounded-lg text-sm font-medium text-apple-blue">
                     Get Started
                 </a>
             </div>
@@ -221,49 +275,24 @@
 
     <!-- Messages -->
     {% if messages %}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4" x-data="{ show: true }">
+    <div class="max-w-6xl mx-auto px-6 mt-6" x-data="{ show: true }">
         {% for message in messages %}
         <div x-show="show"
-             x-transition:enter="transform ease-out duration-300 transition"
-             x-transition:enter-start="translate-y-2 opacity-0"
-             x-transition:enter-end="translate-y-0 opacity-100"
-             x-transition:leave="transition ease-in duration-100"
+             x-transition:leave="transition ease-in duration-200"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
-             class="rounded-md p-4 mb-4 {% if message.tags == 'success' %}bg-green-50{% elif message.tags == 'error' %}bg-red-50{% elif message.tags == 'warning' %}bg-yellow-50{% else %}bg-blue-50{% endif %}">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    {% if message.tags == 'success' %}
-                    <svg class="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                    </svg>
-                    {% elif message.tags == 'error' %}
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                    </svg>
-                    {% elif message.tags == 'warning' %}
-                    <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
-                    </svg>
-                    {% else %}
-                    <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                    </svg>
-                    {% endif %}
-                </div>
-                <div class="ml-3 flex-1">
+             class="rounded-xl p-4 mb-4 {% if message.tags == 'success' %}bg-green-50 border border-green-200{% elif message.tags == 'error' %}bg-red-50 border border-red-200{% elif message.tags == 'warning' %}bg-yellow-50 border border-yellow-200{% else %}bg-blue-50 border border-blue-200{% endif %}">
+            <div class="flex items-center">
+                <div class="flex-1">
                     <p class="text-sm font-medium {% if message.tags == 'success' %}text-green-800{% elif message.tags == 'error' %}text-red-800{% elif message.tags == 'warning' %}text-yellow-800{% else %}text-blue-800{% endif %}">
                         {{ message }}
                     </p>
                 </div>
-                <div class="ml-auto pl-3">
-                    <button @click="show = false" class="-mx-1.5 -my-1.5 inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2 {% if message.tags == 'success' %}text-green-500 hover:bg-green-100 focus:ring-green-600{% elif message.tags == 'error' %}text-red-500 hover:bg-red-100 focus:ring-red-600{% elif message.tags == 'warning' %}text-yellow-500 hover:bg-yellow-100 focus:ring-yellow-600{% else %}text-blue-500 hover:bg-blue-100 focus:ring-blue-600{% endif %}">
-                        <span class="sr-only">Dismiss</span>
-                        <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                        </svg>
-                    </button>
-                </div>
+                <button @click="show = false" class="ml-4 p-1 rounded-lg hover:bg-black/5">
+                    <svg class="h-4 w-4 {% if message.tags == 'success' %}text-green-600{% elif message.tags == 'error' %}text-red-600{% elif message.tags == 'warning' %}text-yellow-600{% else %}text-blue-600{% endif %}" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
             </div>
         </div>
         {% endfor %}
@@ -276,16 +305,14 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-gray-200 mt-auto">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+    <footer class="border-t border-apple-gray-200 mt-20">
+        <div class="max-w-6xl mx-auto py-8 px-6">
             <div class="flex flex-col md:flex-row justify-between items-center">
-                <div class="text-gray-400 text-sm">
-                    GTM Engine - Powered by AI
-                </div>
-                <div class="flex space-x-6 mt-4 md:mt-0">
-                    <a href="#" class="text-gray-400 hover:text-gray-500 text-sm">Privacy</a>
-                    <a href="#" class="text-gray-400 hover:text-gray-500 text-sm">Terms</a>
-                    <a href="#" class="text-gray-400 hover:text-gray-500 text-sm">Support</a>
+                <p class="text-sm text-apple-gray-400">JV Matchmaker</p>
+                <div class="flex space-x-8 mt-4 md:mt-0">
+                    <a href="#" class="text-sm text-apple-gray-400 hover:text-apple-gray-600">Privacy</a>
+                    <a href="#" class="text-sm text-apple-gray-400 hover:text-apple-gray-600">Terms</a>
+                    <a href="#" class="text-sm text-apple-gray-400 hover:text-apple-gray-600">Support</a>
                 </div>
             </div>
         </div>

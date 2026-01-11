@@ -4,11 +4,34 @@ from django.db import models
 class ICP(models.Model):
     """Ideal Customer Profile - defines the target customer characteristics."""
 
+    CUSTOMER_TYPE_CHOICES = [
+        ('b2b', 'Business (B2B)'),
+        ('b2c', 'Consumer (B2C)'),
+    ]
+
     COMPANY_SIZE_CHOICES = [
         ('solo', 'Solo/Freelancer'),
         ('small', 'Small (2-10 employees)'),
         ('medium', 'Medium (11-100 employees)'),
         ('enterprise', 'Enterprise (100+ employees)'),
+    ]
+
+    AGE_RANGE_CHOICES = [
+        ('18-24', '18-24 years'),
+        ('25-34', '25-34 years'),
+        ('35-44', '35-44 years'),
+        ('45-54', '45-54 years'),
+        ('55-64', '55-64 years'),
+        ('65+', '65+ years'),
+    ]
+
+    INCOME_LEVEL_CHOICES = [
+        ('low', 'Under $30,000'),
+        ('lower_middle', '$30,000 - $50,000'),
+        ('middle', '$50,000 - $75,000'),
+        ('upper_middle', '$75,000 - $100,000'),
+        ('high', '$100,000 - $150,000'),
+        ('affluent', '$150,000+'),
     ]
 
     user = models.ForeignKey(
@@ -17,15 +40,49 @@ class ICP(models.Model):
         related_name='icps'
     )
     name = models.CharField(max_length=255)
-    industry = models.CharField(max_length=100)
-    company_size = models.CharField(max_length=20, choices=COMPANY_SIZE_CHOICES)
+    customer_type = models.CharField(
+        max_length=10,
+        choices=CUSTOMER_TYPE_CHOICES,
+        default='b2b'
+    )
+    industry = models.CharField(max_length=100)  # Also used as "niche/market" for B2C
+
+    # B2B fields
+    company_size = models.CharField(
+        max_length=20,
+        choices=COMPANY_SIZE_CHOICES,
+        null=True,
+        blank=True
+    )
+
+    # B2C fields
+    age_range = models.CharField(
+        max_length=20,
+        choices=AGE_RANGE_CHOICES,
+        null=True,
+        blank=True
+    )
+    income_level = models.CharField(
+        max_length=20,
+        choices=INCOME_LEVEL_CHOICES,
+        null=True,
+        blank=True
+    )
+    demographics = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        help_text='e.g., "Parents with young children", "Remote workers"'
+    )
+
+    # Common fields
     pain_points = models.JSONField(default=list, help_text='List of pain points')
     goals = models.JSONField(default=list, help_text='List of goals')
     budget_range = models.CharField(max_length=100, null=True, blank=True)
     decision_makers = models.JSONField(
         null=True,
         blank=True,
-        help_text='Information about decision makers'
+        help_text='Information about decision makers (B2B) or purchase influencers (B2C)'
     )
     is_primary = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

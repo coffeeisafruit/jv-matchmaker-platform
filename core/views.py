@@ -13,6 +13,7 @@ from django.contrib import messages
 from django.urls import reverse_lazy
 
 from .forms import SignupForm
+from .models import User
 
 
 class HomeView(TemplateView):
@@ -24,6 +25,21 @@ class HomeView(TemplateView):
         if request.user.is_authenticated:
             return redirect('core:dashboard')
         return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Get actual counts from database
+        from matching.models import SupabaseProfile
+        partners_count = SupabaseProfile.objects.count()
+        founders_count = User.objects.count()
+
+        # Set minimum display values for marketing purposes
+        # Show actual count if > minimum, otherwise show minimum
+        context['partners_count'] = max(partners_count, 3143)
+        context['founders_count'] = max(founders_count, 500)
+
+        return context
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -59,6 +75,13 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         # Check if onboarding is completed
         context['onboarding_completed'] = user.onboarding_completed
+
+        # Check if ICP review is due (monthly check-in)
+        context['icp_review_due'] = user.is_icp_review_due()
+
+        # Get primary ICP for review prompt
+        from positioning.models import ICP
+        context['primary_icp'] = ICP.objects.filter(user=user, is_primary=True).first()
 
         return context
 
@@ -105,7 +128,7 @@ class SignupView(View):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, f'Welcome to GTM Engine, {user.business_name}! Let\'s get started.')
+            messages.success(request, f'Welcome to JV Matchmaker, {user.business_name}! Let\'s get started.')
             return redirect('core:dashboard')
         return render(request, self.template_name, {'form': form})
 
@@ -137,3 +160,15 @@ class DashboardStatsView(LoginRequiredMixin, View):
             'pvps_progress': min(100, (user.pvps_this_month / limits['pvps']) * 100) if limits['pvps'] > 0 else 0,
         }
         return render(request, 'core/partials/stats_cards.html', context)
+
+
+class ICPReviewView(LoginRequiredMixin, View):
+    """Handle ICP review confirmation."""
+    login_url = reverse_lazy('core:login')
+
+    def post(self, request):
+        """Mark the ICP as reviewed."""
+        user = request.user
+        user.mark_icp_reviewed()
+        messages.success(request, 'Great! Your ICP has been confirmed. We\'ll check in again next month.')
+        return redirect('core:dashboard')

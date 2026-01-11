@@ -19,10 +19,14 @@ urlpatterns = [
     path('icps/<int:pk>/delete/', views.ICPDeleteView.as_view(), name='icp_delete'),
     path('icps/<int:pk>/set-primary/', views.ICPSetPrimaryView.as_view(), name='icp_set_primary'),
 
+    # AI Suggestion Generation (HTMX endpoint)
+    path('icps/generate-suggestions/', views.GenerateAISuggestionsView.as_view(), name='generate_suggestions'),
+
     # Transformation URLs
     path('transformations/', views.TransformationListView.as_view(), name='transformation_list'),
     path('transformations/create/', views.TransformationCreateView.as_view(), name='transformation_create'),
     path('transformations/generate/', views.TransformationGenerateView.as_view(), name='transformation_generate'),
+    path('transformations/generate-draft/', views.GenerateTransformationDraftView.as_view(), name='generate_transformation_draft'),
     path('transformations/<int:pk>/', views.TransformationDetailView.as_view(), name='transformation_detail'),
     path('transformations/<int:pk>/delete/', views.TransformationDeleteView.as_view(), name='transformation_delete'),
 ]

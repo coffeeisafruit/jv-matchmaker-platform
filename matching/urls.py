@@ -12,10 +12,14 @@ from . import views
 app_name = 'matching'
 
 urlpatterns = [
-    # Index redirects to profile list
-    path('', RedirectView.as_view(pattern_name='matching:profile-list', permanent=False), name='index'),
+    # Index redirects to partner database (Supabase)
+    path('', RedirectView.as_view(pattern_name='matching:partners', permanent=False), name='index'),
 
-    # Profile URLs
+    # Supabase Partner Database (3,143+ profiles)
+    path('partners/', views.SupabaseProfileListView.as_view(), name='partners'),
+    path('partners/<uuid:pk>/', views.SupabaseProfileDetailView.as_view(), name='partner-detail'),
+
+    # User's Own Profiles (legacy)
     path('profiles/', views.ProfileListView.as_view(), name='profile-list'),
     path('profiles/create/', views.ProfileCreateView.as_view(), name='profile-create'),
     path('profiles/import/', views.ProfileImportView.as_view(), name='profile-import'),

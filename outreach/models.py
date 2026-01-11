@@ -26,6 +26,11 @@ class PVP(models.Model):
         blank=True,
         related_name='pvps'
     )
+    supabase_profile_id = models.UUIDField(
+        null=True,
+        blank=True,
+        help_text='UUID of the SupabaseProfile this PVP was generated for'
+    )
     pattern_type = models.CharField(
         max_length=20,
         choices=PATTERN_TYPE_CHOICES

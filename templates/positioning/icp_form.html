@@ -1,50 +1,57 @@
 {% extends "base.html" %}
 
-{% block title %}Create ICP - Positioning Wizard{% endblock %}
+{% block title %}Create ICP - JV Matchmaker{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+<div class="max-w-2xl mx-auto px-6 py-12">
     <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-2xl font-bold text-gray-900">Create Ideal Customer Profile</h1>
-        <p class="mt-1 text-sm text-gray-500">
-            Define your target customer in 4 simple steps
-        </p>
+    <div class="mb-8 animate-fade-in">
+        <a href="{% url 'positioning:icp_list' %}" class="inline-flex items-center text-sm text-apple-gray-400 hover:text-apple-gray-600 mb-4">
+            <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to ICPs
+        </a>
+        <h1 class="text-2xl font-semibold text-apple-gray-600 tracking-tight">
+            Create Ideal Customer Profile
+        </h1>
     </div>
 
     <!-- Progress Steps -->
-    <nav aria-label="Progress" class="mb-8">
-        <ol role="list" class="flex items-center">
-            {% for step_num in "1234"|make_list %}
-            <li class="relative {% if not forloop.last %}flex-1{% endif %}">
-                <div class="flex items-center">
-                    <span class="relative flex h-10 w-10 items-center justify-center rounded-full
-                        {% if step_num|add:0 < step %}bg-primary-600{% elif step_num|add:0 == step %}border-2 border-primary-600 bg-white{% else %}border-2 border-gray-300 bg-white{% endif %}">
-                        {% if step_num|add:0 < step %}
-                        <svg class="h-6 w-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd"/>
-                        </svg>
-                        {% else %}
-                        <span class="{% if step_num|add:0 == step %}text-primary-600{% else %}text-gray-500{% endif %} font-medium">{{ step_num }}</span>
-                        {% endif %}
-                    </span>
+    <nav class="mb-8 animate-fade-in stagger-1">
+        <div class="card p-4">
+            <ol class="flex items-center justify-between">
+                {% for step_num in "1234"|make_list %}
+                <li class="flex items-center">
+                    <div class="flex items-center">
+                        <span class="flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-all
+                            {% if step_num|add:0 < step %}bg-apple-blue text-white{% elif step_num|add:0 == step %}bg-apple-blue text-white{% else %}bg-apple-gray-100 text-apple-gray-400{% endif %}">
+                            {% if step_num|add:0 < step %}
+                            <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path fill-rule="evenodd" d="M19.916 4.626a.75.75 0 01.208 1.04l-9 13.5a.75.75 0 01-1.154.114l-6-6a.75.75 0 011.06-1.06l5.353 5.353 8.493-12.739a.75.75 0 011.04-.208z" clip-rule="evenodd"/>
+                            </svg>
+                            {% else %}
+                            {{ step_num }}
+                            {% endif %}
+                        </span>
+                        <span class="ml-2 text-xs font-medium {% if step_num|add:0 <= step %}text-apple-gray-600{% else %}text-apple-gray-400{% endif %} hidden sm:block">
+                            {% if step_num == "1" %}Info
+                            {% elif step_num == "2" %}Pain Points
+                            {% elif step_num == "3" %}Goals
+                            {% else %}Budget{% endif %}
+                        </span>
+                    </div>
                     {% if not forloop.last %}
-                    <div class="ml-4 flex-1 h-0.5 {% if step_num|add:0 < step %}bg-primary-600{% else %}bg-gray-300{% endif %}"></div>
+                    <div class="mx-2 sm:mx-4 w-8 sm:w-16 h-px {% if step_num|add:0 < step %}bg-apple-blue{% else %}bg-apple-gray-200{% endif %}"></div>
                     {% endif %}
-                </div>
-                <span class="absolute -bottom-6 left-0 text-xs font-medium {% if step_num|add:0 <= step %}text-primary-600{% else %}text-gray-500{% endif %}">
-                    {% if step_num == "1" %}Basic Info
-                    {% elif step_num == "2" %}Pain Points
-                    {% elif step_num == "3" %}Goals
-                    {% else %}Budget{% endif %}
-                </span>
-            </li>
-            {% endfor %}
-        </ol>
+                </li>
+                {% endfor %}
+            </ol>
+        </div>
     </nav>
 
     <!-- Form Container -->
-    <div class="bg-white shadow sm:rounded-lg mt-12">
+    <div class="card animate-fade-in stagger-2">
         <div id="wizard-content">
             {% include "positioning/partials/icp_step_"|add:step|add:".html" %}
         </div>

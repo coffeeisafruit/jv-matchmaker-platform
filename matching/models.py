@@ -1,6 +1,127 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.postgres.fields import ArrayField
+import uuid
 
+
+# =============================================================================
+# SUPABASE MODELS (Read-only, maps to existing Supabase tables)
+# =============================================================================
+
+class SupabaseProfile(models.Model):
+    """
+    Maps to the existing 'profiles' table in Supabase.
+    Contains 3,143+ JV partner profiles.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    auth_user_id = models.UUIDField(null=True, blank=True)
+    name = models.TextField()
+    email = models.TextField(null=True, blank=True)
+    phone = models.TextField(null=True, blank=True)
+    company = models.TextField(null=True, blank=True)
+    website = models.TextField(null=True, blank=True)
+    linkedin = models.TextField(null=True, blank=True)
+    avatar_url = models.TextField(null=True, blank=True)
+    business_focus = models.TextField(null=True, blank=True)
+    status = models.TextField(default='Member')  # Member, Non Member Resource, Pending
+    service_provided = models.TextField(null=True, blank=True)
+    list_size = models.IntegerField(default=0)
+    business_size = models.TextField(null=True, blank=True)
+    social_reach = models.IntegerField(default=0)
+    role = models.TextField(default='member')  # admin, member, viewer
+    bio = models.TextField(null=True, blank=True)
+    tags = ArrayField(models.TextField(), null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
+    what_you_do = models.TextField(null=True, blank=True)
+    who_you_serve = models.TextField(null=True, blank=True)
+    seeking = models.TextField(null=True, blank=True)
+    offering = models.TextField(null=True, blank=True)
+    current_projects = models.TextField(null=True, blank=True)
+    niche = models.TextField(null=True, blank=True)
+    audience_type = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    profile_updated_at = models.DateTimeField(null=True, blank=True)
+    last_active_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        managed = False  # Django won't create/modify this table
+        db_table = 'profiles'
+        ordering = ['-last_active_at']
+        verbose_name = 'Supabase Profile'
+        verbose_name_plural = 'Supabase Profiles'
+
+    def __str__(self):
+        if self.company:
+            return f"{self.name} ({self.company})"
+        return self.name
+
+    @property
+    def audience_size_display(self):
+        """Convert list_size to a display category."""
+        if self.list_size >= 1000000:
+            return 'Massive (1M+)'
+        elif self.list_size >= 100000:
+            return 'Large (100K - 1M)'
+        elif self.list_size >= 10000:
+            return 'Medium (10K - 100K)'
+        elif self.list_size >= 1000:
+            return 'Small (1K - 10K)'
+        return 'Tiny (< 1K)'
+
+
+class SupabaseMatch(models.Model):
+    """
+    Maps to the existing 'match_suggestions' table in Supabase.
+    Contains pre-computed match suggestions.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    profile_id = models.UUIDField()
+    suggested_profile_id = models.UUIDField()
+    match_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    match_reason = models.TextField(null=True, blank=True)
+    source = models.TextField(null=True, blank=True)
+    status = models.TextField(default='pending')  # pending, viewed, contacted, connected, dismissed
+    suggested_at = models.DateTimeField(auto_now_add=True)
+    viewed_at = models.DateTimeField(null=True, blank=True)
+    contacted_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(null=True, blank=True)
+    rich_analysis = models.TextField(null=True, blank=True)
+    analysis_generated_at = models.DateTimeField(null=True, blank=True)
+    email_sent_at = models.DateTimeField(null=True, blank=True)
+    user_feedback = models.CharField(max_length=20, null=True, blank=True)
+    feedback_at = models.DateTimeField(null=True, blank=True)
+    match_context = models.JSONField(null=True, blank=True)
+    score_ab = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    score_ba = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    harmonic_mean = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    scale_symmetry_score = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    trust_level = models.TextField(default='legacy')  # platinum, gold, bronze, legacy
+    expires_at = models.DateTimeField(null=True, blank=True)
+    draft_intro_clicked_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        managed = False  # Django won't create/modify this table
+        db_table = 'match_suggestions'
+        ordering = ['-harmonic_mean']
+        verbose_name = 'Supabase Match'
+        verbose_name_plural = 'Supabase Matches'
+
+    def __str__(self):
+        return f"Match {self.profile_id} <-> {self.suggested_profile_id} ({self.harmonic_mean})"
+
+    def get_profile(self):
+        """Get the source profile."""
+        return SupabaseProfile.objects.filter(id=self.profile_id).first()
+
+    def get_suggested_profile(self):
+        """Get the suggested match profile."""
+        return SupabaseProfile.objects.filter(id=self.suggested_profile_id).first()
+
+
+# =============================================================================
+# DJANGO MODELS (Managed by Django, for app-specific data)
+# =============================================================================
 
 class Profile(models.Model):
     """

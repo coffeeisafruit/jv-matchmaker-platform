@@ -3,74 +3,89 @@
       hx-post="{% url 'positioning:icp_create' %}"
       hx-target="#wizard-content"
       hx-swap="innerHTML"
-      class="p-6 space-y-6">
+      class="p-6 space-y-6"
+      x-data="{ customerType: '{{ wizard_data.customer_type|default:'b2b' }}' }">
     {% csrf_token %}
     <input type="hidden" name="step" value="1">
 
-    <div>
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
-        <p class="text-sm text-gray-500 mb-6">Tell us about your ideal customer segment.</p>
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold text-apple-gray-600">Basic Information</h3>
+        <p class="text-sm text-apple-gray-400 mt-1">Tell us about your ideal customer.</p>
     </div>
 
-    <div class="space-y-6">
-        <!-- ICP Name -->
-        <div>
-            <label for="name" class="block text-sm font-medium text-gray-700">
-                ICP Name <span class="text-red-500">*</span>
+    <!-- Customer Type -->
+    <div>
+        <label class="block text-sm font-medium text-apple-gray-600 mb-3">Customer Type</label>
+        <div class="grid grid-cols-2 gap-3">
+            <label class="relative cursor-pointer">
+                <input type="radio" name="customer_type" value="b2b" x-model="customerType" class="sr-only peer">
+                <div class="border border-apple-gray-200 rounded-xl p-4 peer-checked:border-apple-blue peer-checked:bg-apple-blue/5 hover:border-apple-gray-300 transition-all">
+                    <p class="text-sm font-medium text-apple-gray-600">Business (B2B)</p>
+                    <p class="text-xs text-apple-gray-400 mt-0.5">Selling to companies</p>
+                </div>
             </label>
-            <input type="text"
-                   name="name"
-                   id="name"
-                   required
-                   value="{{ wizard_data.name|default:'' }}"
-                   placeholder="e.g., Growth-Stage SaaS Companies"
-                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
-            <p class="mt-1 text-xs text-gray-500">A memorable name for this customer profile</p>
+            <label class="relative cursor-pointer">
+                <input type="radio" name="customer_type" value="b2c" x-model="customerType" class="sr-only peer">
+                <div class="border border-apple-gray-200 rounded-xl p-4 peer-checked:border-apple-blue peer-checked:bg-apple-blue/5 hover:border-apple-gray-300 transition-all">
+                    <p class="text-sm font-medium text-apple-gray-600">Consumer (B2C)</p>
+                    <p class="text-xs text-apple-gray-400 mt-0.5">Selling to individuals</p>
+                </div>
+            </label>
         </div>
+    </div>
 
-        <!-- Industry -->
-        <div>
-            <label for="industry" class="block text-sm font-medium text-gray-700">
-                Industry <span class="text-red-500">*</span>
-            </label>
-            <input type="text"
-                   name="industry"
-                   id="industry"
-                   required
-                   value="{{ wizard_data.industry|default:'' }}"
-                   placeholder="e.g., Technology, Healthcare, Finance"
-                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
-            <p class="mt-1 text-xs text-gray-500">The primary industry your ideal customer operates in</p>
-        </div>
+    <!-- ICP Name -->
+    <div>
+        <label for="name" class="block text-sm font-medium text-apple-gray-600 mb-2">ICP Name</label>
+        <input type="text" name="name" id="name" required value="{{ wizard_data.name|default:'' }}"
+               :placeholder="customerType === 'b2b' ? 'e.g., Growth-Stage SaaS Companies' : 'e.g., Health-Conscious Millennials'"
+               class="block w-full rounded-lg border border-apple-gray-200 px-4 py-2.5 text-apple-gray-600 placeholder-apple-gray-400 text-sm">
+    </div>
 
-        <!-- Company Size -->
-        <div>
-            <label for="company_size" class="block text-sm font-medium text-gray-700">
-                Company Size <span class="text-red-500">*</span>
-            </label>
-            <select name="company_size"
-                    id="company_size"
-                    required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
-                <option value="">Select a size...</option>
-                {% for value, label in company_size_choices %}
-                <option value="{{ value }}" {% if wizard_data.company_size == value %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-            <p class="mt-1 text-xs text-gray-500">The typical size of your target companies</p>
-        </div>
+    <!-- Industry -->
+    <div>
+        <label for="industry" class="block text-sm font-medium text-apple-gray-600 mb-2">
+            <span x-text="customerType === 'b2b' ? 'Industry' : 'Niche / Market'"></span>
+        </label>
+        <input type="text" name="industry" id="industry" required value="{{ wizard_data.industry|default:'' }}"
+               :placeholder="customerType === 'b2b' ? 'e.g., Technology, Healthcare' : 'e.g., Fitness, Personal Finance'"
+               class="block w-full rounded-lg border border-apple-gray-200 px-4 py-2.5 text-apple-gray-600 placeholder-apple-gray-400 text-sm">
+    </div>
+
+    <!-- B2B: Company Size -->
+    <div x-show="customerType === 'b2b'" x-cloak>
+        <label for="company_size" class="block text-sm font-medium text-apple-gray-600 mb-2">Company Size</label>
+        <select name="company_size" id="company_size" :required="customerType === 'b2b'"
+                class="block w-full rounded-lg border border-apple-gray-200 px-4 py-2.5 text-apple-gray-600 text-sm">
+            <option value="">Select size...</option>
+            {% for value, label in company_size_choices %}
+            <option value="{{ value }}" {% if wizard_data.company_size == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- B2C: Age Range -->
+    <div x-show="customerType === 'b2c'" x-cloak>
+        <label for="age_range" class="block text-sm font-medium text-apple-gray-600 mb-2">Age Range</label>
+        <select name="age_range" id="age_range" :required="customerType === 'b2c'"
+                class="block w-full rounded-lg border border-apple-gray-200 px-4 py-2.5 text-apple-gray-600 text-sm">
+            <option value="">Select age range...</option>
+            {% for value, label in age_range_choices %}
+            <option value="{{ value }}" {% if wizard_data.age_range == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
     </div>
 
     <!-- Navigation -->
-    <div class="flex justify-end pt-6 border-t border-gray-200">
-        <button type="submit"
-                name="action"
-                value="next"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-            Next: Pain Points
-            <svg class="ml-2 -mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="flex justify-end pt-6 border-t border-apple-gray-100">
+        <button type="submit" name="action" value="next"
+                class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-apple-blue rounded-lg hover:bg-blue-600 transition-colors">
+            Next
+            <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
         </button>
     </div>
 </form>
+
+<style>[x-cloak] { display: none !important; }</style>

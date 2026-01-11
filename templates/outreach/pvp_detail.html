@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}PVP Details - GTM Engine{% endblock %}
+{% block title %}Value Proposition Details - JV Matchmaker{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -9,7 +9,7 @@
         <nav class="flex mb-4" aria-label="Breadcrumb">
             <ol class="flex items-center space-x-2">
                 <li>
-                    <a href="{% url 'outreach:pvp_list' %}" class="text-gray-500 hover:text-gray-700">PVPs</a>
+                    <a href="{% url 'outreach:pvp_list' %}" class="text-gray-500 hover:text-gray-700">Pitches</a>
                 </li>
                 <li class="flex items-center">
                     <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -24,9 +24,9 @@
             <div>
                 <h1 class="text-2xl font-bold text-gray-900">
                     {% if pvp.match %}
-                    PVP for {{ pvp.match.profile.name }}
+                    Value Proposition for {{ pvp.match.profile.name }}
                     {% else %}
-                    PVP Details
+                    Value Proposition Details
                     {% endif %}
                 </h1>
                 <p class="mt-1 text-sm text-gray-500">

@@ -20,4 +20,7 @@ urlpatterns = [
 
     # HTMX endpoints
     path('dashboard/stats/', views.DashboardStatsView.as_view(), name='dashboard_stats'),
+
+    # ICP review
+    path('icp/review/', views.ICPReviewView.as_view(), name='icp_review'),
 ]

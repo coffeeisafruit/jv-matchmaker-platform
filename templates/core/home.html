@@ -1,179 +1,219 @@
 {% extends 'base.html' %}
+{% load humanize %}
 
-{% block title %}GTM Engine - AI-Powered Partner Matching Platform{% endblock %}
+{% block title %}JV Matchmaker - Strategic Partnership Intelligence{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<div class="relative bg-white overflow-hidden">
-    <div class="max-w-7xl mx-auto">
-        <div class="relative z-10 pb-8 bg-white sm:pb-16 md:pb-20 lg:max-w-2xl lg:w-full lg:pb-28 xl:pb-32">
-            <svg class="hidden lg:block absolute right-0 inset-y-0 h-full w-48 text-white transform translate-x-1/2" fill="currentColor" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <polygon points="50,0 100,0 50,100 0,100"/>
-            </svg>
+<!-- Hero Section - Bold with color -->
+<div class="relative bg-slate-950 overflow-hidden">
+    <!-- Glowing orb effects -->
+    <div class="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl"></div>
 
-            <main class="mt-10 mx-auto max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-                <div class="sm:text-center lg:text-left">
-                    <h1 class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                        <span class="block">Find your perfect</span>
-                        <span class="block text-primary-600">JV partners</span>
-                    </h1>
-                    <p class="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0">
-                        GTM Engine uses AI to match your business with ideal joint venture partners. Create compelling value propositions and automate outreach to grow faster together.
-                    </p>
-                    <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-                        <div class="rounded-md shadow">
-                            <a href="{% url 'core:signup' %}"
-                               class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 md:py-4 md:text-lg md:px-10">
-                                Get started free
-                            </a>
-                        </div>
-                        <div class="mt-3 sm:mt-0 sm:ml-3">
-                            <a href="#features"
-                               class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 md:py-4 md:text-lg md:px-10">
-                                Learn more
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-    <div class="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
-        <div class="h-56 w-full bg-gradient-to-br from-primary-400 to-primary-600 sm:h-72 md:h-96 lg:w-full lg:h-full flex items-center justify-center">
-            <svg class="h-48 w-48 text-white/30" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-            </svg>
-        </div>
-    </div>
-</div>
+    <div class="relative max-w-6xl mx-auto px-6 pt-24 pb-32 lg:pt-32 lg:pb-40">
+        <div class="max-w-4xl">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 mb-8">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-sm font-medium text-slate-300">{{ partners_count|floatformat:0|intcomma }} partners ready to connect</span>
+            </div>
 
-<!-- Features Section -->
-<div id="features" class="py-12 bg-gray-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="lg:text-center">
-            <h2 class="text-base text-primary-600 font-semibold tracking-wide uppercase">Features</h2>
-            <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                Everything you need to find ideal partners
+            <h1 class="text-5xl lg:text-7xl font-bold tracking-tight leading-[1.05]">
+                <span class="text-white">Find partners who</span><br>
+                <span class="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">accelerate growth</span>
+            </h1>
+
+            <p class="mt-8 text-xl lg:text-2xl text-slate-400 leading-relaxed max-w-2xl">
+                Stop cold outreach. Our AI identifies partners who share your audience and actively want what you offer.
             </p>
-            <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
-                GTM Engine streamlines your partner discovery and outreach process with AI-powered tools.
-            </p>
-        </div>
 
-        <div class="mt-10">
-            <div class="space-y-10 md:space-y-0 md:grid md:grid-cols-3 md:gap-x-8 md:gap-y-10">
-                <!-- Feature 1: Positioning -->
-                <div class="relative">
-                    <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                        </svg>
+            <div class="mt-12 flex flex-col sm:flex-row gap-4">
+                <a href="{% url 'core:signup' %}"
+                   class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 transition-all shadow-lg shadow-purple-500/25">
+                    Start Free
+                    <svg class="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                    </svg>
+                </a>
+                <a href="#how-it-works"
+                   class="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-lg text-white border border-slate-700 hover:bg-white/5 transition-all">
+                    See How It Works
+                </a>
+            </div>
+
+            <!-- Trust Indicators -->
+            <div class="mt-16 flex flex-wrap items-center gap-8">
+                <div class="flex items-center gap-3">
+                    <div class="flex -space-x-2">
+                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-slate-950"></div>
+                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-slate-950"></div>
+                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-slate-950"></div>
+                        <div class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 border-2 border-slate-950"></div>
                     </div>
-                    <p class="ml-16 text-lg leading-6 font-medium text-gray-900">AI-Powered PVP Creation</p>
-                    <p class="mt-2 ml-16 text-base text-gray-500">
-                        Generate compelling Partner Value Propositions tailored to each potential partner using our AI engine.
-                    </p>
+                    <span class="text-sm font-medium text-slate-400">Join {{ founders_count }}+ founders</span>
                 </div>
-
-                <!-- Feature 2: Matching -->
-                <div class="relative">
-                    <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                        </svg>
-                    </div>
-                    <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Smart Partner Matching</p>
-                    <p class="mt-2 ml-16 text-base text-gray-500">
-                        Our algorithm scores and ranks potential partners based on intent, synergy, momentum, and context.
-                    </p>
-                </div>
-
-                <!-- Feature 3: Outreach -->
-                <div class="relative">
-                    <div class="absolute flex items-center justify-center h-12 w-12 rounded-md bg-primary-500 text-white">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <p class="ml-16 text-lg leading-6 font-medium text-gray-900">Automated Outreach</p>
-                    <p class="mt-2 ml-16 text-base text-gray-500">
-                        Generate personalized outreach messages and track your partner engagement in one place.
-                    </p>
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span class="text-sm font-medium text-slate-400">No credit card required</span>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- How It Works Section -->
-<div class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="lg:text-center mb-12">
-            <h2 class="text-base text-primary-600 font-semibold tracking-wide uppercase">How It Works</h2>
-            <p class="mt-2 text-3xl leading-8 font-extrabold tracking-tight text-gray-900 sm:text-4xl">
-                Three simple steps to grow
+<!-- Value Props -->
+<div class="bg-white py-24 lg:py-32">
+    <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-20">
+            <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
+                Partnership intelligence, <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">simplified</span>
+            </h2>
+            <p class="mt-6 text-xl text-slate-500">
+                Everything you need to find, evaluate, and connect with strategic partners.
             </p>
         </div>
 
-        <div class="relative">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Step 1 -->
-                <div class="text-center">
-                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 text-primary-600 text-2xl font-bold mb-4">
-                        1
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Define Your ICP</h3>
-                    <p class="text-gray-500">
-                        Tell us about your ideal customer profile and transformation story.
-                    </p>
+        <div class="grid md:grid-cols-3 gap-8">
+            <!-- Card 1 - Blue -->
+            <div class="group relative bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-8 border border-blue-100 hover:shadow-xl hover:shadow-blue-200/50 hover:-translate-y-1 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-6 shadow-lg shadow-blue-500/25">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
                 </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-3">Smart Matching</h3>
+                <p class="text-slate-600 leading-relaxed">
+                    Our algorithm analyzes intent, audience overlap, and scale to surface partners with genuine synergy potential.
+                </p>
+            </div>
 
-                <!-- Step 2 -->
-                <div class="text-center">
-                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 text-primary-600 text-2xl font-bold mb-4">
-                        2
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Discover Partners</h3>
-                    <p class="text-gray-500">
-                        Our AI finds and scores potential JV partners that align with your goals.
-                    </p>
+            <!-- Card 2 - Purple -->
+            <div class="group relative bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-2xl p-8 border border-purple-100 hover:shadow-xl hover:shadow-purple-200/50 hover:-translate-y-1 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/25">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                    </svg>
                 </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-3">AI Value Props</h3>
+                <p class="text-slate-600 leading-relaxed">
+                    Generate personalized partnership proposals that articulate mutual benefit and open doors faster.
+                </p>
+            </div>
 
-                <!-- Step 3 -->
-                <div class="text-center">
-                    <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 text-primary-600 text-2xl font-bold mb-4">
-                        3
-                    </div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-2">Start Outreach</h3>
-                    <p class="text-gray-500">
-                        Generate personalized messages and track your partnership pipeline.
-                    </p>
+            <!-- Card 3 - Emerald -->
+            <div class="group relative bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-2xl p-8 border border-emerald-100 hover:shadow-xl hover:shadow-emerald-200/50 hover:-translate-y-1 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/25">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
                 </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-3">Warm Outreach</h3>
+                <p class="text-slate-600 leading-relaxed">
+                    Craft contextual messages based on shared audiences and complementary offerings. No more cold emails.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works -->
+<div id="how-it-works" class="py-24 lg:py-32 bg-gradient-to-b from-slate-50 to-white border-y border-slate-200">
+    <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center max-w-3xl mx-auto mb-20">
+            <p class="text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent uppercase tracking-wider mb-4">How It Works</p>
+            <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight">
+                Three steps to your next partnership
+            </h2>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8 lg:gap-12">
+            <!-- Step 1 -->
+            <div class="relative">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-6 shadow-lg shadow-blue-500/25">
+                    <span class="text-2xl font-bold text-white">1</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-3">Define Your ICP</h3>
+                <p class="text-slate-600 leading-relaxed">
+                    Tell us who your ideal customer is. We'll use this to find partners who serve the same audience with complementary solutions.
+                </p>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="relative">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center mb-6 shadow-lg shadow-purple-500/25">
+                    <span class="text-2xl font-bold text-white">2</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-3">Discover Matches</h3>
+                <p class="text-slate-600 leading-relaxed">
+                    Our algorithm scores partners on seeking/offering alignment, audience overlap, and scale. Quality over quantity.
+                </p>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="relative">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-6 shadow-lg shadow-emerald-500/25">
+                    <span class="text-2xl font-bold text-white">3</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-900 mb-3">Connect & Grow</h3>
+                <p class="text-slate-600 leading-relaxed">
+                    Reach out with AI-crafted messages that highlight mutual benefit. Track your pipeline and build lasting partnerships.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="relative bg-slate-950 py-20 lg:py-24 overflow-hidden">
+    <!-- Glowing orbs -->
+    <div class="absolute top-1/2 left-1/4 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/2 right-1/4 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl"></div>
+
+    <div class="relative max-w-6xl mx-auto px-6">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
+            <div class="text-center">
+                <div class="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-blue-400 to-blue-300 bg-clip-text text-transparent mb-2">{{ partners_count|floatformat:0|intcomma }}</div>
+                <div class="text-slate-500 font-medium">Partners in Database</div>
+            </div>
+            <div class="text-center">
+                <div class="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-purple-400 to-purple-300 bg-clip-text text-transparent mb-2">87%</div>
+                <div class="text-slate-500 font-medium">Match Relevance</div>
+            </div>
+            <div class="text-center">
+                <div class="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-pink-400 to-pink-300 bg-clip-text text-transparent mb-2">4.2x</div>
+                <div class="text-slate-500 font-medium">Faster Discovery</div>
+            </div>
+            <div class="text-center">
+                <div class="text-5xl lg:text-6xl font-bold bg-gradient-to-r from-emerald-400 to-emerald-300 bg-clip-text text-transparent mb-2">$0</div>
+                <div class="text-slate-500 font-medium">To Get Started</div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- CTA Section -->
-<div class="bg-primary-600">
-    <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:py-16 lg:px-8 lg:flex lg:items-center lg:justify-between">
-        <h2 class="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
-            <span class="block">Ready to find your ideal partners?</span>
-            <span class="block text-primary-200">Start free today.</span>
+<div class="py-24 lg:py-32 bg-white">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+        <h2 class="text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight mb-6">
+            Ready to find partners who <span class="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">move the needle</span>?
         </h2>
-        <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-            <div class="inline-flex rounded-md shadow">
-                <a href="{% url 'core:signup' %}"
-                   class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-primary-600 bg-white hover:bg-primary-50">
-                    Get started
-                </a>
-            </div>
-            <div class="ml-3 inline-flex rounded-md shadow">
-                <a href="{% url 'core:login' %}"
-                   class="inline-flex items-center justify-center px-5 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-700 hover:bg-primary-800">
-                    Sign in
-                </a>
-            </div>
+        <p class="text-xl text-slate-500 mb-12 max-w-2xl mx-auto">
+            Join growth-focused leaders who use JV Matchmaker to build strategic partnerships faster.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{% url 'core:signup' %}"
+               class="inline-flex items-center justify-center px-10 py-5 text-lg font-bold rounded-lg text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 transition-all shadow-lg shadow-purple-500/25">
+                Get Started Free
+                <svg class="ml-2 w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                </svg>
+            </a>
+            <a href="{% url 'core:login' %}"
+               class="inline-flex items-center justify-center px-10 py-5 text-lg font-bold rounded-lg text-slate-700 border-2 border-slate-200 hover:bg-slate-50 transition-all">
+                Sign In
+            </a>
         </div>
     </div>
 </div>

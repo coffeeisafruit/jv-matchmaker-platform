@@ -21,7 +21,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import ListView, DetailView, CreateView, UpdateView
 
-from matching.models import Match, Profile
+from matching.models import Match, Profile, SupabaseProfile, SupabaseMatch
 from positioning.models import ICP
 from .models import PVP, OutreachTemplate, OutreachCampaign
 from .services import PVPGeneratorService, ClayWebhookService
@@ -40,10 +40,47 @@ class PVPGeneratorView(LoginRequiredMixin, View):
 
     def get(self, request):
         """Display the PVP generator interface."""
-        # Get user's matches ordered by score
-        matches = Match.objects.filter(
-            user=request.user
-        ).select_related('profile').order_by('-final_score')[:20]
+        # Get user's Supabase profile by email
+        user_supabase_profile = SupabaseProfile.objects.filter(
+            email__iexact=request.user.email
+        ).first()
+
+        # Get Supabase matches for this user
+        supabase_matches = []
+        featured_partners = []
+
+        if user_supabase_profile:
+            # Get matches where user is the source profile
+            match_suggestions = SupabaseMatch.objects.filter(
+                profile_id=user_supabase_profile.id
+            ).order_by('-harmonic_mean')[:20]
+
+            # Fetch the suggested profiles
+            suggested_profile_ids = [m.suggested_profile_id for m in match_suggestions]
+            profiles_by_id = {
+                p.id: p for p in SupabaseProfile.objects.filter(id__in=suggested_profile_ids)
+            }
+
+            # Build match list with profile data
+            for match in match_suggestions:
+                profile = profiles_by_id.get(match.suggested_profile_id)
+                if profile:
+                    supabase_matches.append({
+                        'match': match,
+                        'profile': profile,
+                        'score': float(match.harmonic_mean or 0) * 100,  # Convert to percentage
+                    })
+
+        # If no matches, get featured partners
+        if not supabase_matches:
+            # Get featured partners (same logic as Partners page)
+            featured_partners = list(SupabaseProfile.objects.filter(
+                status='Member'
+            ).exclude(
+                name__isnull=True
+            ).exclude(
+                name=''
+            ).order_by('-list_size', '-social_reach')[:20])
 
         # Get user's primary ICP
         primary_icp = ICP.objects.filter(
@@ -57,33 +94,66 @@ class PVPGeneratorView(LoginRequiredMixin, View):
         # Get pattern type choices
         pattern_choices = PVP.PATTERN_TYPE_CHOICES
 
-        # Get selected match if provided
-        selected_match_id = request.GET.get('match_id')
-        selected_match = None
-        if selected_match_id:
-            selected_match = Match.objects.filter(
-                id=selected_match_id,
-                user=request.user
-            ).select_related('profile').first()
+        # Get selected profile if provided
+        selected_profile_id = request.GET.get('profile_id')
+        selected_profile = None
+        selected_match_data = None
+        if selected_profile_id:
+            selected_profile = SupabaseProfile.objects.filter(id=selected_profile_id).first()
+            if user_supabase_profile and selected_profile:
+                selected_match_data = SupabaseMatch.objects.filter(
+                    profile_id=user_supabase_profile.id,
+                    suggested_profile_id=selected_profile.id
+                ).first()
 
         context = {
-            'matches': matches,
+            'supabase_matches': supabase_matches,
+            'featured_partners': featured_partners,
+            'user_supabase_profile': user_supabase_profile,
             'primary_icp': primary_icp,
             'icps': icps,
             'pattern_choices': pattern_choices,
-            'selected_match': selected_match,
+            'selected_profile': selected_profile,
+            'selected_match_data': selected_match_data,
         }
 
         return render(request, self.template_name, context)
 
     def post(self, request):
-        """Generate a PVP for the selected match."""
-        match_id = request.POST.get('match_id')
+        """Generate a PVP for the selected Supabase profile."""
+        profile_id = request.POST.get('profile_id')
         pattern_type = request.POST.get('pattern_type', 'pain_solution')
         icp_id = request.POST.get('icp_id')
 
-        # Validate match
-        match = get_object_or_404(Match, id=match_id, user=request.user)
+        # Validate Supabase profile
+        if not profile_id:
+            if request.htmx:
+                return render(request, 'outreach/partials/pvp_error.html', {
+                    'error': 'Please select a partner from the dropdown.'
+                })
+            return JsonResponse({'success': False, 'error': 'No profile selected'}, status=400)
+
+        try:
+            profile = SupabaseProfile.objects.get(id=profile_id)
+        except (SupabaseProfile.DoesNotExist, ValueError, Exception):
+            if request.htmx:
+                return render(request, 'outreach/partials/pvp_error.html', {
+                    'error': 'Please select a valid partner profile.'
+                })
+            return JsonResponse({'success': False, 'error': 'Invalid profile'}, status=400)
+
+        # Get user's Supabase profile for match data
+        user_supabase_profile = SupabaseProfile.objects.filter(
+            email__iexact=request.user.email
+        ).first()
+
+        # Get match data if available
+        match_data = None
+        if user_supabase_profile:
+            match_data = SupabaseMatch.objects.filter(
+                profile_id=user_supabase_profile.id,
+                suggested_profile_id=profile.id
+            ).first()
 
         # Get ICP if specified
         icp = None
@@ -106,14 +176,14 @@ class PVPGeneratorView(LoginRequiredMixin, View):
                 # In production, decrypt the key
                 api_key = user_key.encrypted_key
 
-            # Generate PVP
+            # Generate PVP using Supabase profile data
             service = PVPGeneratorService(api_key=api_key)
-            result = service.generate_pvp(match, pattern_type, icp)
+            result = service.generate_pvp_for_supabase(profile, match_data, pattern_type, icp)
 
             # Save the PVP
             pvp = PVP.objects.create(
                 user=request.user,
-                match=match,
+                supabase_profile_id=profile.id,
                 pattern_type=pattern_type,
                 pain_point_addressed=result.pain_point_addressed,
                 value_offered=result.value_offered,
@@ -133,7 +203,7 @@ class PVPGeneratorView(LoginRequiredMixin, View):
                 return render(request, 'outreach/partials/pvp_result.html', {
                     'pvp': pvp,
                     'quality_breakdown': result.quality_breakdown,
-                    'match': match,
+                    'profile': profile,
                 })
 
             return JsonResponse({

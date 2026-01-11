@@ -16,6 +16,18 @@ try:
 except ImportError:
     HAS_ANTHROPIC = False
 
+try:
+    import google.generativeai as genai
+    HAS_GEMINI = True
+except ImportError:
+    HAS_GEMINI = False
+
+try:
+    from openai import OpenAI
+    HAS_OPENAI = True
+except ImportError:
+    HAS_OPENAI = False
+
 
 class TransformationService:
     """
@@ -271,6 +283,246 @@ Respond ONLY with the JSON object, no additional text."""
             '_mock_data': True,
             '_api_error': error_msg or 'Using mock data (no API key configured)',
         }
+
+
+class ICPSuggestionService:
+    """
+    Service class for generating AI-powered ICP pain point and goal suggestions.
+
+    Uses Gemini API (preferred) or Claude API to generate contextually relevant
+    suggestions based on the industry/niche and company size (B2B) or demographics (B2C).
+    """
+
+    # B2B Prompts
+    B2B_PAIN_POINTS_PROMPT = """You are an expert business consultant. Generate 5 specific, actionable pain points that businesses in the {industry} industry typically face.
+
+Company Size Context: {company_size}
+
+Focus on challenges that are:
+1. Specific to this industry (not generic business problems)
+2. Relevant to the company size
+3. Actionable and addressable
+4. Written in plain language (not jargon-heavy)
+
+Respond ONLY with a JSON array of 5 pain point strings, like:
+["Pain point 1", "Pain point 2", "Pain point 3", "Pain point 4", "Pain point 5"]
+
+Do not include any other text, just the JSON array."""
+
+    B2B_GOALS_PROMPT = """You are an expert business consultant. Generate 5 specific, achievable goals that businesses in the {industry} industry typically pursue.
+
+Company Size Context: {company_size}
+
+Focus on goals that are:
+1. Specific to this industry (not generic business goals)
+2. Relevant to the company size
+3. Measurable and achievable
+4. Written in plain language
+
+Respond ONLY with a JSON array of 5 goal strings, like:
+["Goal 1", "Goal 2", "Goal 3", "Goal 4", "Goal 5"]
+
+Do not include any other text, just the JSON array."""
+
+    # B2C Prompts
+    B2C_PAIN_POINTS_PROMPT = """You are an expert consumer marketing consultant. Generate 5 specific, relatable pain points that consumers in the {niche} market typically face.
+
+Target Demographic: {demographics}
+
+Focus on challenges that are:
+1. Specific to this niche/market (not generic life problems)
+2. Relevant to the target demographic
+3. Emotionally resonant and relatable
+4. Written in conversational language
+
+Respond ONLY with a JSON array of 5 pain point strings, like:
+["Pain point 1", "Pain point 2", "Pain point 3", "Pain point 4", "Pain point 5"]
+
+Do not include any other text, just the JSON array."""
+
+    B2C_GOALS_PROMPT = """You are an expert consumer marketing consultant. Generate 5 specific, aspirational goals that consumers in the {niche} market typically pursue.
+
+Target Demographic: {demographics}
+
+Focus on goals that are:
+1. Specific to this niche/market (not generic life goals)
+2. Relevant to the target demographic
+3. Aspirational but achievable
+4. Written in conversational language
+
+Respond ONLY with a JSON array of 5 goal strings, like:
+["Goal 1", "Goal 2", "Goal 3", "Goal 4", "Goal 5"]
+
+Do not include any other text, just the JSON array."""
+
+    def __init__(self, api_key: Optional[str] = None):
+        """Initialize the service with optional API key."""
+        # Get API keys - prefer OpenRouter, then Gemini, then Anthropic
+        self.openrouter_api_key = getattr(settings, 'OPENROUTER_API_KEY', '') or os.environ.get('OPENROUTER_API_KEY', '')
+        self.gemini_api_key = api_key or getattr(settings, 'GEMINI_API_KEY', '') or os.environ.get('GEMINI_API_KEY', '')
+        self.anthropic_api_key = getattr(settings, 'ANTHROPIC_API_KEY', '') or os.environ.get('ANTHROPIC_API_KEY', '')
+
+        # Model settings
+        self.openrouter_model = getattr(settings, 'AI_CONFIG', {}).get('openrouter_model', 'meta-llama/llama-3.2-3b-instruct:free')
+        self.gemini_model = getattr(settings, 'AI_CONFIG', {}).get('gemini_model', 'gemini-2.5-flash')
+        self.anthropic_model = getattr(settings, 'AI_CONFIG', {}).get('default_model', 'claude-sonnet-4-20250514')
+
+        # Determine which provider to use (priority: OpenRouter > Gemini > Anthropic)
+        self.use_openrouter = HAS_OPENAI and bool(self.openrouter_api_key)
+        self.use_gemini = HAS_GEMINI and bool(self.gemini_api_key) and not self.use_openrouter
+        self.use_anthropic = HAS_ANTHROPIC and bool(self.anthropic_api_key) and not self.use_openrouter and not self.use_gemini
+
+    def _get_openrouter_client(self):
+        """Get the OpenRouter client (OpenAI-compatible)."""
+        if not HAS_OPENAI:
+            raise ImportError("The 'openai' package is not installed.")
+        if not self.openrouter_api_key:
+            raise ValueError("No OpenRouter API key configured.")
+        return OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=self.openrouter_api_key,
+        )
+
+    def _get_gemini_model(self):
+        """Get the Gemini model."""
+        if not HAS_GEMINI:
+            raise ImportError("The 'google-generativeai' package is not installed.")
+        if not self.gemini_api_key:
+            raise ValueError("No Gemini API key configured.")
+        genai.configure(api_key=self.gemini_api_key)
+        return genai.GenerativeModel(self.gemini_model)
+
+    def _get_anthropic_client(self):
+        """Get the Anthropic client."""
+        if not HAS_ANTHROPIC:
+            raise ImportError("The 'anthropic' package is not installed.")
+        if not self.anthropic_api_key:
+            raise ValueError("No Anthropic API key configured.")
+        return anthropic.Anthropic(api_key=self.anthropic_api_key)
+
+    def _parse_json_array(self, response_text: str) -> list:
+        """Parse a JSON array from the response."""
+        try:
+            text = response_text.strip()
+            if text.startswith('```json'):
+                text = text[7:]
+            if text.startswith('```'):
+                text = text[3:]
+            if text.endswith('```'):
+                text = text[:-3]
+            return json.loads(text.strip())
+        except json.JSONDecodeError:
+            return []
+
+    def _call_ai(self, prompt: str) -> str:
+        """Call the AI provider (OpenRouter > Gemini > Anthropic)."""
+        if self.use_openrouter:
+            client = self._get_openrouter_client()
+            response = client.chat.completions.create(
+                model=self.openrouter_model,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return response.choices[0].message.content
+        elif self.use_gemini:
+            model = self._get_gemini_model()
+            response = model.generate_content(prompt)
+            return response.text
+        elif self.use_anthropic:
+            client = self._get_anthropic_client()
+            message = client.messages.create(
+                model=self.anthropic_model,
+                max_tokens=1024,
+                messages=[{"role": "user", "content": prompt}]
+            )
+            return message.content[0].text
+        else:
+            raise ValueError("No AI provider configured. Set OPENROUTER_API_KEY, GEMINI_API_KEY, or ANTHROPIC_API_KEY.")
+
+    def generate_pain_points(self, industry: str, company_size: str, customer_type: str = 'b2b', age_range: str = '') -> list:
+        """Generate AI-powered pain point suggestions."""
+        if not industry:
+            return []
+
+        if customer_type == 'b2c':
+            # B2C: Use consumer-focused prompt
+            age_labels = {
+                '18-24': '18-24 year olds (Gen Z)',
+                '25-34': '25-34 year olds (Millennials)',
+                '35-44': '35-44 year olds (Younger Gen X)',
+                '45-54': '45-54 year olds (Older Gen X)',
+                '55-64': '55-64 year olds (Baby Boomers)',
+                '65+': '65+ year olds (Seniors)',
+            }
+            demographics = age_labels.get(age_range, 'Adults of various ages')
+
+            prompt = self.B2C_PAIN_POINTS_PROMPT.format(
+                niche=industry,
+                demographics=demographics
+            )
+        else:
+            # B2B: Use business-focused prompt
+            size_labels = {
+                'solo': 'Solo/Freelancer',
+                'small': 'Small Business (1-10 employees)',
+                'medium': 'Medium Business (11-50 employees)',
+                'large': 'Large Business (51-200 employees)',
+                'enterprise': 'Enterprise (200+ employees)',
+            }
+            size_context = size_labels.get(company_size, 'Small to medium business')
+
+            prompt = self.B2B_PAIN_POINTS_PROMPT.format(
+                industry=industry,
+                company_size=size_context
+            )
+
+        try:
+            response_text = self._call_ai(prompt)
+            return self._parse_json_array(response_text)
+        except Exception:
+            return []
+
+    def generate_goals(self, industry: str, company_size: str, customer_type: str = 'b2b', age_range: str = '') -> list:
+        """Generate AI-powered goal suggestions."""
+        if not industry:
+            return []
+
+        if customer_type == 'b2c':
+            # B2C: Use consumer-focused prompt
+            age_labels = {
+                '18-24': '18-24 year olds (Gen Z)',
+                '25-34': '25-34 year olds (Millennials)',
+                '35-44': '35-44 year olds (Younger Gen X)',
+                '45-54': '45-54 year olds (Older Gen X)',
+                '55-64': '55-64 year olds (Baby Boomers)',
+                '65+': '65+ year olds (Seniors)',
+            }
+            demographics = age_labels.get(age_range, 'Adults of various ages')
+
+            prompt = self.B2C_GOALS_PROMPT.format(
+                niche=industry,
+                demographics=demographics
+            )
+        else:
+            # B2B: Use business-focused prompt
+            size_labels = {
+                'solo': 'Solo/Freelancer',
+                'small': 'Small Business (1-10 employees)',
+                'medium': 'Medium Business (11-50 employees)',
+                'large': 'Large Business (51-200 employees)',
+                'enterprise': 'Enterprise (200+ employees)',
+            }
+            size_context = size_labels.get(company_size, 'Small to medium business')
+
+            prompt = self.B2B_GOALS_PROMPT.format(
+                industry=industry,
+                company_size=size_context
+            )
+
+        try:
+            response_text = self._call_ai(prompt)
+            return self._parse_json_array(response_text)
+        except Exception:
+            return []
 
 
 class PositioningService:

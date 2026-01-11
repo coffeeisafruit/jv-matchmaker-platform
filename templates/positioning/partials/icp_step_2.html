@@ -4,108 +4,106 @@
       hx-target="#wizard-content"
       hx-swap="innerHTML"
       class="p-6 space-y-6"
-      x-data="painPointsManager()">
+      x-data='{
+          painPoints: {{ wizard_data.pain_points|safe|default:"[\"\"]" }},
+          addPoint() { this.painPoints.push(""); },
+          removePoint(index) { this.painPoints.splice(index, 1); },
+          addExample(text) {
+              const empty = this.painPoints.findIndex(p => p === "");
+              if (empty !== -1) { this.painPoints[empty] = text; }
+              else { this.painPoints.push(text); }
+          }
+      }'>
     {% csrf_token %}
     <input type="hidden" name="step" value="2">
 
-    <div>
-        <h3 class="text-lg font-medium text-gray-900 mb-4">Pain Points</h3>
-        <p class="text-sm text-gray-500 mb-6">What challenges does your ideal customer face?</p>
+    <div class="mb-6">
+        <h3 class="text-lg font-semibold text-apple-gray-600">Pain Points</h3>
+        <p class="text-sm text-apple-gray-400 mt-1">What challenges does your ideal customer face?</p>
     </div>
 
-    <div class="space-y-4">
-        <!-- Dynamic Pain Points List -->
+    <div class="space-y-3">
         <template x-for="(point, index) in painPoints" :key="index">
-            <div class="flex items-center space-x-3">
-                <div class="flex-1">
-                    <input type="text"
-                           :name="'pain_points[]'"
-                           x-model="painPoints[index]"
-                           placeholder="Enter a pain point..."
-                           class="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm">
-                </div>
-                <button type="button"
-                        @click="removePoint(index)"
-                        x-show="painPoints.length > 1"
-                        class="text-gray-400 hover:text-red-500">
+            <div class="flex items-center space-x-2">
+                <input type="text" :name="'pain_points[]'" x-model="painPoints[index]" placeholder="Enter a pain point..."
+                       class="flex-1 rounded-lg border border-apple-gray-200 px-4 py-2.5 text-apple-gray-600 placeholder-apple-gray-400 text-sm">
+                <button type="button" @click="removePoint(index)" x-show="painPoints.length > 1"
+                        class="p-2 text-apple-gray-400 hover:text-red-500 rounded-lg hover:bg-apple-gray-50">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
                 </button>
             </div>
         </template>
 
-        <!-- Add Pain Point Button -->
-        <button type="button"
-                @click="addPoint()"
-                class="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button type="button" @click="addPoint()"
+                class="inline-flex items-center text-sm font-medium text-apple-blue hover:text-blue-600">
+            <svg class="mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
             Add Pain Point
         </button>
     </div>
 
-    <!-- Example Pain Points -->
-    <div class="bg-gray-50 rounded-lg p-4 mt-6">
-        <h4 class="text-sm font-medium text-gray-900 mb-2">Example Pain Points</h4>
-        <ul class="text-sm text-gray-600 space-y-1">
-            <li class="cursor-pointer hover:text-primary-600" @click="addExamplePoint('Struggling to find qualified leads')">
+    <!-- Suggestions -->
+    <div class="bg-apple-gray-50 rounded-xl p-4">
+        <div class="flex items-center justify-between mb-3">
+            <h4 class="text-sm font-medium text-apple-gray-600">Suggestions</h4>
+            {% if wizard_data.industry %}
+            <button type="button"
+                    hx-post="{% url 'positioning:generate_suggestions' %}"
+                    hx-vals='{"type": "pain_points", "industry": "{{ wizard_data.industry|escapejs }}", "company_size": "{{ wizard_data.company_size|default:""|escapejs }}", "customer_type": "{{ wizard_data.customer_type|default:"b2b"|escapejs }}"}'
+                    hx-target="#suggestions"
+                    hx-swap="innerHTML"
+                    hx-indicator="#loading"
+                    class="inline-flex items-center text-xs font-medium text-apple-blue hover:text-blue-600">
+                <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                </svg>
+                Generate with AI
+                <span id="loading" class="htmx-indicator ml-1">
+                    <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                </span>
+            </button>
+            {% endif %}
+        </div>
+        <div id="suggestions" class="space-y-1">
+            {% for example in example_pain_points %}
+            <button type="button" @click="addExample('{{ example|escapejs }}')"
+                    class="block w-full text-left px-3 py-2 text-sm text-apple-gray-500 hover:text-apple-blue hover:bg-white rounded-lg transition-colors">
+                + {{ example }}
+            </button>
+            {% empty %}
+            <button type="button" @click="addExample('Struggling to find qualified leads')"
+                    class="block w-full text-left px-3 py-2 text-sm text-apple-gray-500 hover:text-apple-blue hover:bg-white rounded-lg transition-colors">
                 + Struggling to find qualified leads
-            </li>
-            <li class="cursor-pointer hover:text-primary-600" @click="addExamplePoint('Long sales cycles')">
+            </button>
+            <button type="button" @click="addExample('Long sales cycles')"
+                    class="block w-full text-left px-3 py-2 text-sm text-apple-gray-500 hover:text-apple-blue hover:bg-white rounded-lg transition-colors">
                 + Long sales cycles
-            </li>
-            <li class="cursor-pointer hover:text-primary-600" @click="addExamplePoint('Difficulty scaling marketing efforts')">
-                + Difficulty scaling marketing efforts
-            </li>
-            <li class="cursor-pointer hover:text-primary-600" @click="addExamplePoint('Lack of predictable revenue')">
-                + Lack of predictable revenue
-            </li>
-        </ul>
+            </button>
+            {% endfor %}
+        </div>
     </div>
 
     <!-- Navigation -->
-    <div class="flex justify-between pt-6 border-t border-gray-200">
-        <button type="submit"
-                name="action"
-                value="back"
-                class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-            <svg class="mr-2 -ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="flex justify-between pt-6 border-t border-apple-gray-100">
+        <button type="submit" name="action" value="back"
+                class="inline-flex items-center px-4 py-2.5 text-sm font-medium text-apple-gray-500 bg-white border border-apple-gray-200 rounded-lg hover:bg-apple-gray-50 transition-colors">
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
             </svg>
             Back
         </button>
-        <button type="submit"
-                name="action"
-                value="next"
-                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-            Next: Goals
-            <svg class="ml-2 -mr-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button type="submit" name="action" value="next"
+                class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-apple-blue rounded-lg hover:bg-blue-600 transition-colors">
+            Next
+            <svg class="ml-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
         </button>
     </div>
 </form>
-
-<script>
-function painPointsManager() {
-    return {
-        painPoints: {{ wizard_data.pain_points|safe|default:'[""]' }},
-        addPoint() {
-            this.painPoints.push('');
-        },
-        removePoint(index) {
-            this.painPoints.splice(index, 1);
-        },
-        addExamplePoint(example) {
-            const emptyIndex = this.painPoints.findIndex(p => p === '');
-            if (emptyIndex !== -1) {
-                this.painPoints[emptyIndex] = example;
-            } else {
-                this.painPoints.push(example);
-            }
-        }
-    }
-}
-</script>
