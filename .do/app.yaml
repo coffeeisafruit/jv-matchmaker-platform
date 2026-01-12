@@ -1,0 +1,49 @@
+name: jv-matchmaker
+region: nyc
+services:
+  - name: web
+    github:
+      repo: your-github-username/jv-matchmaker-platform
+      branch: main
+      deploy_on_push: true
+    build_command: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+    run_command: gunicorn config.wsgi --bind 0.0.0.0:$PORT
+    envs:
+      - key: DEBUG
+        value: "False"
+      - key: SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: ALLOWED_HOSTS
+        value: "${APP_DOMAIN}"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://${APP_DOMAIN}"
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: ANTHROPIC_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: OPENAI_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: OPENROUTER_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: SUPABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: SUPABASE_KEY
+        scope: RUN_TIME
+        type: SECRET
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    http_port: 8080
+
+databases:
+  - name: db
+    engine: PG
+    production: false
+    cluster_name: jv-matchmaker-db
