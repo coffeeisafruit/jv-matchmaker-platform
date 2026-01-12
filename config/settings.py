@@ -136,9 +136,9 @@ LOGOUT_REDIRECT_URL = "/"
 # AI Model Configuration (OpenRouter)
 # Free models for pre-customer testing - switch to Claude for production
 AI_CONFIG = {
-    "default_model": "google/gemma-2-9b-it:free",
-    "fast_model": "meta-llama/llama-3.2-3b-instruct:free",
-    "quality_model": "google/gemma-2-9b-it:free",
+    "default_model": "arcee-ai/trinity-mini:free",
+    "fast_model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "quality_model": "arcee-ai/trinity-mini:free",
     "max_tokens": 4096,
     "temperature": 0.7,
     # Production models (uncomment when ready):
