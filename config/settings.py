@@ -133,13 +133,18 @@ LOGIN_URL = "/login/"
 LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/"
 
-# AI Model Configuration
+# AI Model Configuration (OpenRouter)
+# Free models for pre-customer testing - switch to Claude for production
 AI_CONFIG = {
-    "default_model": "claude-sonnet-4-20250514",
-    "fast_model": "claude-haiku-4-20250514",
-    "quality_model": "claude-sonnet-4-20250514",
+    "default_model": "google/gemma-2-9b-it:free",
+    "fast_model": "meta-llama/llama-3.2-3b-instruct:free",
+    "quality_model": "google/gemma-2-9b-it:free",
     "max_tokens": 4096,
     "temperature": 0.7,
+    # Production models (uncomment when ready):
+    # "default_model": "anthropic/claude-sonnet-4",
+    # "fast_model": "anthropic/claude-haiku",
+    # "quality_model": "anthropic/claude-sonnet-4",
 }
 
 # GTM Engine Configuration
