@@ -330,10 +330,12 @@ Output in JSON format:
 
     def __init__(self, api_key: str = None):
         """Initialize the PVP Generator Service."""
-        self.api_key = api_key or settings.ANTHROPIC_API_KEY
-        self.model = settings.AI_CONFIG.get('default_model', 'claude-sonnet-4-20250514')
+        # Use OpenRouter API key (falls back to Anthropic if not set)
+        self.api_key = api_key or settings.OPENROUTER_API_KEY or settings.ANTHROPIC_API_KEY
+        self.model = settings.AI_CONFIG.get('default_model', 'google/gemma-2-9b-it:free')
         self.max_tokens = settings.AI_CONFIG.get('max_tokens', 4096)
         self.temperature = settings.AI_CONFIG.get('temperature', 0.7)
+        self.use_openrouter = bool(settings.OPENROUTER_API_KEY)
 
     def generate_pvp(self, match, pattern_type: str = 'pain_solution', icp=None) -> PVPResult:
         """
@@ -664,28 +666,49 @@ Output in JSON format:
         )
 
     def _call_claude(self, prompt: str) -> str:
-        """Call the Claude API with the prompt."""
+        """Call the AI API (OpenRouter or Anthropic) with the prompt."""
         try:
-            import anthropic
+            if self.use_openrouter:
+                # Use OpenRouter via OpenAI-compatible API
+                import openai
 
-            client = anthropic.Anthropic(api_key=self.api_key)
+                client = openai.OpenAI(
+                    base_url="https://openrouter.ai/api/v1",
+                    api_key=self.api_key,
+                )
 
-            message = client.messages.create(
-                model=self.model,
-                max_tokens=self.max_tokens,
-                temperature=self.temperature,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
-            )
+                response = client.chat.completions.create(
+                    model=self.model,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ]
+                )
 
-            return message.content[0].text
+                return response.choices[0].message.content
+            else:
+                # Fall back to Anthropic direct API
+                import anthropic
 
-        except ImportError:
-            logger.error("anthropic package not installed")
-            raise ImportError("Please install the anthropic package: pip install anthropic")
+                client = anthropic.Anthropic(api_key=self.api_key)
+
+                message = client.messages.create(
+                    model=self.model,
+                    max_tokens=self.max_tokens,
+                    temperature=self.temperature,
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+
+                return message.content[0].text
+
+        except ImportError as e:
+            logger.error(f"Required package not installed: {e}")
+            raise ImportError("Please install required packages: pip install openai anthropic")
         except Exception as e:
-            logger.error(f"Error calling Claude API: {e}")
+            logger.error(f"Error calling AI API: {e}")
             raise
 
     def _parse_response(self, response: str) -> dict:
