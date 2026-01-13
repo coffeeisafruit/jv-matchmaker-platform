@@ -4,16 +4,7 @@
       hx-target="#wizard-content"
       hx-swap="innerHTML"
       class="p-6 space-y-6"
-      x-data='{
-          painPoints: {{ wizard_data.pain_points|safe|default:"[\"\"]" }},
-          addPoint() { this.painPoints.push(""); },
-          removePoint(index) { this.painPoints.splice(index, 1); },
-          addExample(text) {
-              const empty = this.painPoints.findIndex(p => p === "");
-              if (empty !== -1) { this.painPoints[empty] = text; }
-              else { this.painPoints.push(text); }
-          }
-      }'>
+      x-data="painPointsManager()">
     {% csrf_token %}
     <input type="hidden" name="step" value="2">
 
@@ -107,3 +98,26 @@
         </button>
     </div>
 </form>
+
+<script>
+function painPointsManager() {
+    const existing = {{ wizard_data.pain_points|safe|default:'[""]' }};
+    return {
+        painPoints: existing.length > 0 ? existing : [''],
+        addPoint() {
+            this.painPoints.push('');
+        },
+        removePoint(index) {
+            this.painPoints.splice(index, 1);
+        },
+        addExample(text) {
+            const emptyIndex = this.painPoints.findIndex(p => p === '');
+            if (emptyIndex !== -1) {
+                this.painPoints[emptyIndex] = text;
+            } else {
+                this.painPoints.push(text);
+            }
+        }
+    }
+}
+</script>

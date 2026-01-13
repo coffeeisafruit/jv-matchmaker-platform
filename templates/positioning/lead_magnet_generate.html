@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Lead Magnets - JV Matchmaker{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-6 py-12">
+    <!-- Header -->
+    <div class="mb-10 animate-fade-in">
+        <a href="{% url 'positioning:lead_magnet_list' %}"
+           class="inline-flex items-center text-sm text-apple-gray-500 hover:text-apple-gray-600 mb-4">
+            <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+            </svg>
+            Back to Lead Magnets
+        </a>
+        <h1 class="text-3xl font-semibold text-apple-gray-600 tracking-tight">
+            Generate Lead Magnet Concepts
+        </h1>
+        <p class="mt-2 text-apple-gray-400">
+            AI will create 3 irresistible lead magnet ideas based on your transformation analysis.
+        </p>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card p-8 animate-fade-in stagger-1">
+        {% if transformations %}
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+
+            <!-- Instructions -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-700" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <h3 class="text-sm font-medium text-blue-800">How it works</h3>
+                        <p class="mt-1 text-sm text-blue-700">
+                            Select a transformation analysis, and AI will generate 3 lead magnet concepts
+                            that focus on <strong>WHAT</strong> and <strong>WHY</strong>, leaving the <strong>HOW</strong>
+                            for your paid offer. Each magnet can be built in under 5 hours.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transformation Selection -->
+            <div>
+                <label for="transformation" class="block text-sm font-medium text-apple-gray-600 mb-2">
+                    Select Transformation Analysis
+                </label>
+                <select id="transformation"
+                        name="transformation"
+                        required
+                        class="block w-full px-4 py-3 border border-apple-gray-200 rounded-lg text-apple-gray-600
+                               focus:ring-2 focus:ring-apple-blue focus:border-apple-blue
+                               transition-colors">
+                    <option value="">Choose a transformation...</option>
+                    {% for transformation in transformations %}
+                    <option value="{{ transformation.pk }}">
+                        {{ transformation.transformation_summary|truncatewords:15 }}
+                        {% if transformation.icp %} - {{ transformation.icp.name }}{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+                <p class="mt-2 text-sm text-apple-gray-400">
+                    The AI will analyze this transformation to create relevant lead magnet concepts.
+                </p>
+            </div>
+
+            <!-- What You'll Get -->
+            <div class="border border-apple-gray-200 rounded-lg p-4 bg-apple-gray-50">
+                <h4 class="text-sm font-semibold text-apple-gray-600 mb-3">You'll get 3 concepts with:</h4>
+                <ul class="space-y-2 text-sm text-apple-gray-600">
+                    <li class="flex items-start">
+                        <svg class="mr-2 h-5 w-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Compelling title that grabs attention</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="mr-2 h-5 w-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Clear WHAT they'll learn (high-level insights)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="mr-2 h-5 w-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Persuasive WHY it matters (urgency & importance)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="mr-2 h-5 w-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Format recommendation (PDF, video, checklist, etc.)</span>
+                    </li>
+                    <li class="flex items-start">
+                        <svg class="mr-2 h-5 w-5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        <span>Problem it solves before they buy</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex items-center justify-between pt-4">
+                <a href="{% url 'positioning:lead_magnet_list' %}"
+                   class="text-sm text-apple-gray-500 hover:text-apple-gray-600">
+                    Cancel
+                </a>
+                <button type="submit"
+                        class="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-apple-blue rounded-lg hover:bg-blue-600 transition-colors">
+                    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Generate 3 Concepts
+                </button>
+            </div>
+        </form>
+
+        {% else %}
+        <!-- No Transformations State -->
+        <div class="text-center py-8">
+            <div class="w-14 h-14 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
+                <svg class="h-7 w-7 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-apple-gray-600 mb-2">No transformation analysis found</h3>
+            <p class="text-apple-gray-400 mb-6 max-w-sm mx-auto">
+                You need to create a transformation analysis first before generating lead magnet concepts.
+            </p>
+            <a href="{% url 'positioning:transformation_create' %}"
+               class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white bg-apple-blue rounded-lg hover:bg-blue-600 transition-colors">
+                Create Transformation Analysis
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Methodology Credit -->
+    <div class="mt-8 text-center text-xs text-apple-gray-400 animate-fade-in stagger-2">
+        <p>Based on Rob Lennon's Lead Magnet methodology from The Launch Content Playbook</p>
+    </div>
+</div>
+{% endblock %}

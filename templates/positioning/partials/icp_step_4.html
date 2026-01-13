@@ -82,6 +82,38 @@
                 <span x-text="isB2C ? 'Add Influencer' : 'Add Decision Maker'"></span>
             </button>
         </div>
+
+        <!-- AI Suggestions for Decision Makers -->
+        {% if wizard_data.industry %}
+        <div class="bg-apple-gray-50 rounded-xl p-4 mt-4">
+            <div class="flex items-center justify-between mb-3">
+                <h4 class="text-sm font-medium text-apple-gray-600">
+                    <span x-text="isB2C ? 'Suggested Influencers' : 'Suggested Decision Makers'"></span>
+                </h4>
+                <button type="button"
+                        hx-post="{% url 'positioning:generate_suggestions' %}"
+                        hx-vals='{"type": "decision_makers", "industry": "{{ wizard_data.industry|escapejs }}", "company_size": "{{ wizard_data.company_size|default:""|escapejs }}", "customer_type": "{{ wizard_data.customer_type|default:"b2b"|escapejs }}"}'
+                        hx-target="#dm-suggestions"
+                        hx-swap="innerHTML"
+                        hx-indicator="#dm-loading"
+                        class="inline-flex items-center text-xs font-medium text-apple-blue hover:text-blue-600">
+                    <svg class="mr-1 h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                    Generate with AI
+                    <span id="dm-loading" class="htmx-indicator ml-1">
+                        <svg class="animate-spin h-3 w-3" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                    </span>
+                </button>
+            </div>
+            <div id="dm-suggestions" class="space-y-2">
+                <p class="text-xs text-apple-gray-400">Click "Generate with AI" to get suggested decision makers for {{ wizard_data.industry }}.</p>
+            </div>
+        </div>
+        {% endif %}
     </div>
 
     <!-- Summary -->
@@ -140,6 +172,23 @@ function decisionMakersManager() {
         },
         removeDecisionMaker(index) {
             this.decisionMakers.splice(index, 1);
+        },
+        addDecisionMakerSuggestion(dm) {
+            // Find first empty slot or add new
+            const emptyIndex = this.decisionMakers.findIndex(d => !d.title && !d.concerns);
+            if (emptyIndex !== -1) {
+                this.decisionMakers[emptyIndex] = {
+                    title: dm.title || '',
+                    role: dm.role || 'decision_maker',
+                    concerns: dm.concerns || ''
+                };
+            } else {
+                this.decisionMakers.push({
+                    title: dm.title || '',
+                    role: dm.role || 'decision_maker',
+                    concerns: dm.concerns || ''
+                });
+            }
         }
     }
 }

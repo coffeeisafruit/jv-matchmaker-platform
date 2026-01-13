@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block title %}Sent Emails - JV Matchmaker{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">Sent Emails</h1>
+            <p class="mt-2 text-gray-600">
+                Track all emails sent through the platform.
+            </p>
+        </div>
+        <div class="mt-4 sm:mt-0">
+            <a href="{% url 'outreach:email_settings' %}"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Email Settings
+            </a>
+        </div>
+    </div>
+
+    <!-- Email List -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        {% if sent_emails %}
+        <div class="divide-y divide-gray-200">
+            {% for email in sent_emails %}
+            <div class="p-6 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <!-- Recipient -->
+                        <div class="flex items-center mb-2">
+                            <span class="text-sm text-gray-500 mr-2">To:</span>
+                            <span class="font-medium text-gray-900">
+                                {% if email.recipient_name %}{{ email.recipient_name }} &lt;{{ email.recipient_email }}&gt;{% else %}{{ email.recipient_email }}{% endif %}
+                            </span>
+                        </div>
+
+                        <!-- Subject -->
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">
+                            {{ email.subject }}
+                        </h3>
+
+                        <!-- Preview -->
+                        <p class="text-sm text-gray-600 line-clamp-2 mb-3">
+                            {{ email.body|truncatewords:30 }}
+                        </p>
+
+                        <!-- Meta -->
+                        <div class="flex items-center space-x-4 text-xs text-gray-500">
+                            {% if email.email_connection %}
+                            <span>From: {{ email.email_connection.email_address }}</span>
+                            {% endif %}
+                            <span>{{ email.created_at|date:"M j, Y g:i a" }}</span>
+                            {% if email.pvp %}
+                            <a href="{% url 'outreach:pvp_detail' email.pvp.pk %}" class="text-primary-600 hover:text-primary-700">
+                                View Pitch
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="ml-6 flex flex-col items-end">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                     {% if email.status == 'sent' %}bg-green-100 text-green-800
+                                     {% elif email.status == 'failed' %}bg-red-100 text-red-800
+                                     {% elif email.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                     {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ email.get_status_display }}
+                        </span>
+
+                        {% if email.sent_at %}
+                        <span class="text-xs text-gray-500 mt-2">
+                            Sent {{ email.sent_at|timesince }} ago
+                        </span>
+                        {% endif %}
+
+                        {% if email.error_message %}
+                        <p class="text-xs text-red-600 mt-2 max-w-xs truncate" title="{{ email.error_message }}">
+                            {{ email.error_message|truncatewords:10 }}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="bg-gray-50 px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
+            <div class="flex-1 flex justify-between sm:hidden">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}"
+                   class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Previous
+                </a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}"
+                   class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Next
+                </a>
+                {% endif %}
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Showing
+                        <span class="font-medium">{{ page_obj.start_index }}</span>
+                        to
+                        <span class="font-medium">{{ page_obj.end_index }}</span>
+                        of
+                        <span class="font-medium">{{ page_obj.paginator.count }}</span>
+                        emails
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                        {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}"
+                           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Previous</span>
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                            </svg>
+                        </a>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                        {% if num == page_obj.number %}
+                        <span class="relative inline-flex items-center px-4 py-2 border border-primary-500 bg-primary-50 text-sm font-medium text-primary-600">
+                            {{ num }}
+                        </span>
+                        {% else %}
+                        <a href="?page={{ num }}"
+                           class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                            {{ num }}
+                        </a>
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}"
+                           class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <span class="sr-only">Next</span>
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-12">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No emails sent yet</h3>
+            <p class="mt-1 text-sm text-gray-500">
+                Generate a pitch and send it to start seeing your sent emails here.
+            </p>
+            <div class="mt-6">
+                <a href="{% url 'outreach:pvp_generator' %}"
+                   class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700">
+                    Generate Pitch
+                </a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -32,4 +32,21 @@ urlpatterns = [
 
     # Webhooks
     path('webhooks/clay/', views.ClayWebhookView.as_view(), name='clay_webhook'),
+    path('webhooks/clay/supabase/', views.ClaySupabaseWebhookView.as_view(), name='clay_supabase_webhook'),
+
+    # Outreach Sequences (GEX Email Sequences)
+    path('sequences/', views.SequenceListView.as_view(), name='sequence_list'),
+    path('sequences/create/', views.SequenceCreateView.as_view(), name='sequence_create'),
+    path('sequences/<int:pk>/', views.SequenceDetailView.as_view(), name='sequence_detail'),
+    path('sequences/<int:pk>/generate/', views.SequenceGenerateView.as_view(), name='sequence_generate'),
+
+    # Email Integration
+    path('email/settings/', views.EmailSettingsView.as_view(), name='email_settings'),
+    path('email/oauth/google/', views.GoogleOAuthConnectView.as_view(), name='google_oauth_connect'),
+    path('email/oauth/google/callback/', views.GoogleOAuthCallbackView.as_view(), name='google_oauth_callback'),
+    path('email/oauth/microsoft/', views.MicrosoftOAuthConnectView.as_view(), name='microsoft_oauth_connect'),
+    path('email/oauth/microsoft/callback/', views.MicrosoftOAuthCallbackView.as_view(), name='microsoft_oauth_callback'),
+    path('email/disconnect/<int:pk>/', views.EmailDisconnectView.as_view(), name='email_disconnect'),
+    path('email/send/', views.SendEmailView.as_view(), name='send_email'),
+    path('email/sent/', views.SentEmailListView.as_view(), name='sent_email_list'),
 ]

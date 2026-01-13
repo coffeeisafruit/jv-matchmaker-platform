@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Email Settings - JV Matchmaker{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Email Settings</h1>
+        <p class="mt-2 text-gray-600">
+            Connect your email accounts to send pitches directly from the platform.
+        </p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+    <div class="mb-6">
+        {% for message in messages %}
+        <div class="rounded-md p-4 {% if message.tags == 'success' %}bg-green-50 text-green-800{% elif message.tags == 'error' %}bg-red-50 text-red-800{% else %}bg-blue-50 text-blue-800{% endif %}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Connected Accounts -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-8">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-900">Connected Accounts</h2>
+        </div>
+
+        <div id="email-connections-list">
+            {% include 'outreach/partials/email_connections_list.html' %}
+        </div>
+    </div>
+
+    <!-- Connect New Account -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-medium text-gray-900">Connect New Account</h2>
+        </div>
+
+        <div class="p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Gmail -->
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-red-600" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20 18h-2V9.25L12 13 6 9.25V18H4V6h1.2l6.8 4.25L18.8 6H20v12zM20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-900">Gmail</h3>
+                            <p class="text-sm text-gray-500">Connect your Google account</p>
+                        </div>
+                    </div>
+                    {% if has_google_oauth %}
+                    <a href="{% url 'outreach:google_oauth_connect' %}"
+                       class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                        </svg>
+                        Connect Gmail
+                    </a>
+                    {% else %}
+                    <button disabled
+                            class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Not Configured
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2 text-center">Contact admin to enable</p>
+                    {% endif %}
+                </div>
+
+                <!-- Outlook -->
+                <div class="border border-gray-200 rounded-lg p-4 hover:border-primary-300 transition-colors">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                            <svg class="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M21.17 2.06A2.98 2.98 0 0119.75 2H4.25C3.01 2 2 3.01 2 4.25v15.5C2 20.99 3.01 22 4.25 22h15.5c1.24 0 2.25-1.01 2.25-2.25V4.25c0-.82-.44-1.53-1.08-1.94-.02-.01-.04-.01-.06-.02-.08-.05-.17-.1-.26-.14-.01-.01-.02-.01-.03-.02a.996.996 0 00-.1-.04c-.01 0-.02-.01-.03-.01-.09-.03-.19-.05-.29-.05H4.25c-.1 0-.2.02-.29.05-.01 0-.02.01-.03.01-.03.01-.07.02-.1.04-.01.01-.02.01-.03.02-.09.04-.18.09-.26.14-.02.01-.04.01-.06.02-.64.41-1.08 1.12-1.08 1.94v15.5C2.4 20.99 3.01 22 4.25 22h15.5c1.24 0 2.25-1.01 2.25-2.25V4.25c0-.82-.44-1.53-1.08-1.94-.02-.01-.04-.01-.06-.02-.08-.05-.17-.1-.26-.14-.01-.01-.02-.01-.03-.02a.996.996 0 00-.1-.04c-.01 0-.02-.01-.03-.01-.09-.03-.19-.05-.29-.05h.02zm-7.34 15.17c-.2.1-.42.15-.65.15H5.4c-.23 0-.45-.05-.65-.15a1.292 1.292 0 01-.45-.42c-.11-.18-.17-.39-.17-.61V7.78c0-.22.06-.43.17-.61.11-.18.26-.32.45-.42.2-.1.42-.15.65-.15h7.78c.23 0 .45.05.65.15.19.1.34.24.45.42.11.18.17.39.17.61v8.42c0 .22-.06.43-.17.61-.11.18-.26.32-.45.42z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-900">Outlook</h3>
+                            <p class="text-sm text-gray-500">Connect your Microsoft account</p>
+                        </div>
+                    </div>
+                    {% if has_microsoft_oauth %}
+                    <a href="{% url 'outreach:microsoft_oauth_connect' %}"
+                       class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z" fill="#00A4EF"/>
+                        </svg>
+                        Connect Outlook
+                    </a>
+                    {% else %}
+                    <button disabled
+                            class="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-200 shadow-sm text-sm font-medium rounded-md text-gray-400 bg-gray-50 cursor-not-allowed">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Not Configured
+                    </button>
+                    <p class="text-xs text-gray-500 mt-2 text-center">Contact admin to enable</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div class="flex">
+            <svg class="w-5 h-5 text-blue-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div>
+                <h4 class="text-sm font-medium text-blue-800">About Email Integration</h4>
+                <p class="mt-1 text-sm text-blue-700">
+                    When you connect your email account, you can send pitches directly from JV Matchmaker.
+                    If no account is connected, you'll be able to use your default email client via mailto links.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sent Emails Link -->
+    <div class="mt-6 text-center">
+        <a href="{% url 'outreach:sent_email_list' %}"
+           class="text-primary-600 hover:text-primary-700 text-sm font-medium">
+            View Sent Emails &rarr;
+        </a>
+    </div>
+</div>
+{% endblock %}

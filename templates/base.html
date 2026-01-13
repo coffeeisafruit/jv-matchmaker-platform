@@ -165,6 +165,10 @@
                            class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {% if 'matching' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-500 hover:text-apple-gray-600 hover:bg-apple-gray-100{% endif %}">
                             Partners
                         </a>
+                        <a href="{% url 'playbook:list' %}"
+                           class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {% if 'playbook' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-500 hover:text-apple-gray-600 hover:bg-apple-gray-100{% endif %}">
+                            Playbook
+                        </a>
                         <a href="{% url 'outreach:pvp_generator' %}"
                            class="px-4 py-2 text-sm font-medium rounded-lg transition-colors {% if 'outreach' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-500 hover:text-apple-gray-600 hover:bg-apple-gray-100{% endif %}">
                             Outreach
@@ -247,6 +251,9 @@
                 </a>
                 <a href="{% url 'matching:partners' %}" class="block px-4 py-3 rounded-lg text-sm font-medium {% if 'matching' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-600 hover:bg-apple-gray-50{% endif %}">
                     Partners
+                </a>
+                <a href="{% url 'playbook:list' %}" class="block px-4 py-3 rounded-lg text-sm font-medium {% if 'playbook' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-600 hover:bg-apple-gray-50{% endif %}">
+                    Playbook
                 </a>
                 <a href="{% url 'outreach:pvp_generator' %}" class="block px-4 py-3 rounded-lg text-sm font-medium {% if 'outreach' in request.path %}text-apple-blue bg-apple-blue/10{% else %}text-apple-gray-600 hover:bg-apple-gray-50{% endif %}">
                     Outreach

@@ -13,8 +13,8 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.template.loader import render_to_string
 
-from .models import ICP, TransformationAnalysis
-from .services import TransformationService, ICPSuggestionService
+from .models import ICP, TransformationAnalysis, LeadMagnetConcept
+from .services import TransformationService, ICPSuggestionService, LeadMagnetGeneratorService
 
 
 # =============================================================================
@@ -1198,11 +1198,11 @@ class GenerateTransformationDraftView(LoginRequiredMixin, View):
 
 
 class GenerateAISuggestionsView(LoginRequiredMixin, View):
-    """Generate AI-powered suggestions for pain points or goals."""
+    """Generate AI-powered suggestions for pain points, goals, or decision makers."""
 
     def post(self, request):
         """Generate AI suggestions based on industry/niche and demographics."""
-        suggestion_type = request.POST.get('type', 'pain_points')  # pain_points or goals
+        suggestion_type = request.POST.get('type', 'pain_points')  # pain_points, goals, or decision_makers
         industry = request.POST.get('industry', '')
         company_size = request.POST.get('company_size', '')
         customer_type = request.POST.get('customer_type', 'b2b')
@@ -1220,10 +1220,14 @@ class GenerateAISuggestionsView(LoginRequiredMixin, View):
 
         if suggestion_type == 'goals':
             suggestions = service.generate_goals(industry, company_size, customer_type, age_range)
-            onclick_fn = 'addExampleGoal'
+            onclick_fn = 'addExample'  # Matches x-data function in icp_step_3.html
+        elif suggestion_type == 'decision_makers':
+            # Decision makers returns list of objects, not strings
+            suggestions = service.generate_decision_makers(industry, company_size, customer_type, age_range)
+            return self._render_decision_maker_suggestions(suggestions, industry, customer_type)
         else:
             suggestions = service.generate_pain_points(industry, company_size, customer_type, age_range)
-            onclick_fn = 'addExamplePoint'
+            onclick_fn = 'addExample'  # Matches x-data function in icp_step_2.html
 
         if not suggestions:
             return HttpResponse(
@@ -1231,22 +1235,175 @@ class GenerateAISuggestionsView(LoginRequiredMixin, View):
                 content_type='text/html'
             )
 
-        # Build HTML for the suggestions
+        # Build HTML for the suggestions - matching template button styling
         html_items = []
         for suggestion in suggestions:
             escaped = suggestion.replace("'", "\\'").replace('"', '&quot;')
             html_items.append(
-                f'<li class="cursor-pointer hover:text-primary-600" '
-                f'@click="{onclick_fn}(\'{escaped}\')">'
-                f'+ {suggestion}</li>'
+                f'<button type="button" @click="{onclick_fn}(\'{escaped}\')" '
+                f'class="block w-full text-left px-3 py-2 text-sm text-apple-gray-500 hover:text-apple-blue hover:bg-white rounded-lg transition-colors">'
+                f'+ {suggestion}</button>'
             )
 
         label = industry
         html = f'''
-        <ul class="text-sm text-gray-600 space-y-1">
+        <div class="space-y-1">
             {''.join(html_items)}
-        </ul>
+        </div>
         <p class="mt-2 text-xs text-green-600">AI-generated suggestions for {label}</p>
         '''
 
         return HttpResponse(html, content_type='text/html')
+
+    def _render_decision_maker_suggestions(self, suggestions, industry, customer_type):
+        """Render decision maker suggestions as clickable cards."""
+        if not suggestions:
+            return HttpResponse(
+                '<div class="text-sm text-amber-600">Could not generate suggestions. Using AI requires an API key. Check your configuration.</div>',
+                content_type='text/html'
+            )
+
+        label = 'Purchase Influencers' if customer_type == 'b2c' else 'Decision Makers'
+        role_labels = {
+            'decision_maker': 'Final Decision Maker',
+            'influencer': 'Influencer',
+            'champion': 'Champion',
+            'user': 'End User'
+        }
+
+        html_items = []
+        for i, dm in enumerate(suggestions):
+            title = dm.get('title', '').replace("'", "\\'").replace('"', '&quot;')
+            role = dm.get('role', 'decision_maker')
+            concerns = dm.get('concerns', '').replace("'", "\\'").replace('"', '&quot;')
+            role_label = role_labels.get(role, role)
+
+            # JSON encode the decision maker - escape for HTML attribute
+            dm_json = json.dumps(dm).replace('"', '&quot;')
+
+            html_items.append(f'''
+                <button type="button"
+                        id="dm-suggestion-{i}"
+                        data-dm="{dm_json}"
+                        onclick="selectDecisionMaker(this)"
+                        class="dm-suggestion block w-full text-left p-3 bg-white border border-apple-gray-200 rounded-lg hover:border-apple-blue hover:bg-apple-blue/5 transition-colors">
+                    <div class="flex justify-between items-start">
+                        <span class="font-medium text-apple-gray-600">{title}</span>
+                        <span class="text-xs px-2 py-0.5 bg-apple-gray-100 text-apple-gray-500 rounded">{role_label}</span>
+                    </div>
+                    <p class="text-xs text-apple-gray-400 mt-1">{concerns}</p>
+                </button>
+            ''')
+
+        html = f'''
+        <div class="space-y-2">
+            {''.join(html_items)}
+        </div>
+        <p class="mt-2 text-xs text-green-600">AI-generated {label.lower()} for {industry}</p>
+        <p id="dm-added-msg" class="hidden mt-2 text-xs text-apple-blue font-medium">Added to form above</p>
+        <script>
+        function selectDecisionMaker(btn) {{
+            // Get the data
+            const dm = JSON.parse(btn.dataset.dm);
+
+            // Find the Alpine component on the form
+            const form = document.querySelector('form[x-data]');
+            if (form && form._x_dataStack) {{
+                const alpineData = form._x_dataStack[0];
+                if (alpineData && alpineData.addDecisionMakerSuggestion) {{
+                    alpineData.addDecisionMakerSuggestion(dm);
+                }}
+            }}
+
+            // Visual feedback - mark as selected
+            btn.classList.remove('bg-white', 'border-apple-gray-200');
+            btn.classList.add('bg-green-50', 'border-green-500');
+            btn.innerHTML = '<div class="flex items-center justify-center text-green-600"><svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>Added</div>';
+            btn.disabled = true;
+
+            // Show added message
+            document.getElementById('dm-added-msg').classList.remove('hidden');
+
+            // Scroll to show the form
+            document.querySelector('.space-y-3').scrollIntoView({{ behavior: 'smooth', block: 'start' }});
+        }}
+        </script>
+        '''
+
+        return HttpResponse(html, content_type='text/html')
+
+
+# =============================================================================
+# LEAD MAGNET GENERATOR VIEWS
+# =============================================================================
+
+class LeadMagnetListView(LoginRequiredMixin, ListView):
+    """List user's lead magnet concepts."""
+    model = LeadMagnetConcept
+    template_name = 'positioning/lead_magnet_list.html'
+    context_object_name = 'lead_magnets'
+
+    def get_queryset(self):
+        return LeadMagnetConcept.objects.filter(user=self.request.user)
+
+
+class LeadMagnetGenerateView(LoginRequiredMixin, View):
+    """Generate new lead magnet concepts."""
+    template_name = 'positioning/lead_magnet_generate.html'
+
+    def get(self, request):
+        """Show form to select transformation."""
+        transformations = TransformationAnalysis.objects.filter(user=request.user)
+        return render(request, self.template_name, {'transformations': transformations})
+
+    def post(self, request):
+        """Generate 3 concepts using LeadMagnetGeneratorService."""
+        transformation_id = request.POST.get('transformation')
+
+        if not transformation_id:
+            messages.error(request, 'Please select a transformation analysis.')
+            return redirect('positioning:lead_magnet_generate')
+
+        transformation = get_object_or_404(
+            TransformationAnalysis,
+            pk=transformation_id,
+            user=request.user
+        )
+
+        # Generate concepts using service
+        service = LeadMagnetGeneratorService()
+
+        try:
+            # Generate unsaved concept objects
+            concepts = service.generate_concepts(
+                user=request.user,
+                transformation=transformation,
+                icp=transformation.icp,
+                num_concepts=3
+            )
+
+            # Save concepts to database
+            created_concepts = []
+            for concept in concepts:
+                concept.save()
+                created_concepts.append(concept)
+
+            messages.success(
+                request,
+                f'Generated {len(created_concepts)} lead magnet concepts!'
+            )
+            return redirect('positioning:lead_magnet_list')
+
+        except Exception as e:
+            messages.error(request, f'Error generating concepts: {str(e)}')
+            return redirect('positioning:lead_magnet_generate')
+
+
+class LeadMagnetDetailView(LoginRequiredMixin, DetailView):
+    """View a single lead magnet concept."""
+    model = LeadMagnetConcept
+    template_name = 'positioning/lead_magnet_detail.html'
+    context_object_name = 'lead_magnet'
+
+    def get_queryset(self):
+        return LeadMagnetConcept.objects.filter(user=self.request.user)

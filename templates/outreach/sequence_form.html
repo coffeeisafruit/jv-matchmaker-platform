@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Email Sequence - JV Matchmaker{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Create Email Sequence</h1>
+        <p class="mt-2 text-gray-600">
+            Generate a 4-email GEX-style outreach sequence for a partner prospect.
+        </p>
+    </div>
+
+    <!-- GEX Info Card -->
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">About GEX Email Sequences</h3>
+                <div class="mt-2 text-sm text-blue-700">
+                    <p class="mb-2">AI will generate 4 emails based on your selected sequence type:</p>
+                    <ul class="list-disc list-inside space-y-1 ml-2">
+                        <li><strong>Lookalike:</strong> Reference similar customers/partners</li>
+                        <li><strong>Trigger-Based:</strong> Respond to recent events or changes</li>
+                        <li><strong>Creative Ideas:</strong> Share 3 specific ideas for collaboration</li>
+                        <li><strong>Poke the Bear:</strong> Challenge assumptions with questions</li>
+                        <li><strong>Super Short:</strong> Ultra-brief 1-2 sentence emails</li>
+                        <li><strong>Standard + AI:</strong> Classic approach with AI personalization</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Form -->
+    <form method="post" class="bg-white shadow-sm rounded-lg border border-gray-200">
+        {% csrf_token %}
+
+        <div class="p-6 space-y-6">
+            <!-- Sequence Name -->
+            <div>
+                <label for="id_name" class="block text-sm font-medium text-gray-700 mb-2">
+                    Sequence Name <span class="text-red-500">*</span>
+                </label>
+                <input type="text"
+                       name="name"
+                       id="id_name"
+                       required
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                       placeholder="e.g., Q1 2024 - Partner Outreach">
+                <p class="mt-1 text-sm text-gray-500">Give this sequence a descriptive name for your records.</p>
+            </div>
+
+            <!-- Target Profile -->
+            <div>
+                <label for="id_target_profile" class="block text-sm font-medium text-gray-700 mb-2">
+                    Target Partner <span class="text-red-500">*</span>
+                </label>
+                <select name="target_profile"
+                        id="id_target_profile"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                    <option value="">Select a partner to target...</option>
+                    {{ form.target_profile }}
+                </select>
+                <p class="mt-1 text-sm text-gray-500">Choose the partner you want to reach out to.</p>
+            </div>
+
+            <!-- Sequence Type -->
+            <div>
+                <label for="id_sequence_type" class="block text-sm font-medium text-gray-700 mb-2">
+                    Sequence Type <span class="text-red-500">*</span>
+                </label>
+                <select name="sequence_type"
+                        id="id_sequence_type"
+                        required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500">
+                    <option value="standard_ai">Standard + AI (Recommended)</option>
+                    <option value="lookalike">Lookalike Campaign</option>
+                    <option value="trigger">Trigger-Based</option>
+                    <option value="creative_ideas">Creative Ideas (3 Ideas)</option>
+                    <option value="poke_bear">Poke the Bear (Challenging)</option>
+                    <option value="super_short">Super Short (1-2 sentences)</option>
+                </select>
+                <p class="mt-1 text-sm text-gray-500">The AI will adapt the 4-email structure based on this type.</p>
+            </div>
+
+            <!-- Sequence Structure Preview -->
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <h4 class="text-sm font-medium text-gray-900 mb-3">4-Email Structure Preview</h4>
+                <div class="space-y-2">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-100 text-primary-800 text-xs font-medium">
+                                1
+                            </span>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-700"><strong>Net New Email:</strong> Why you, why now + offer</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
+                                2
+                            </span>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-700"><strong>Threaded Reply:</strong> More context, case study depth</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary-100 text-primary-800 text-xs font-medium">
+                                3
+                            </span>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-700"><strong>Net New Email:</strong> Different value prop, lower friction CTA</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-100 text-blue-800 text-xs font-medium">
+                                4
+                            </span>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-gray-700"><strong>Threaded Reply:</strong> Hail mary / "right person?" check</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center rounded-b-lg">
+            <a href="{% url 'outreach:sequence_list' %}"
+               class="text-sm font-medium text-gray-700 hover:text-gray-900">
+                Cancel
+            </a>
+            <button type="submit"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Generate Sequence
+            </button>
+        </div>
+    </form>
+
+    <!-- Help Text -->
+    <div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-yellow-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-yellow-800">Pro Tips</h3>
+                <div class="mt-2 text-sm text-yellow-700">
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Choose partners with high match scores for better personalization</li>
+                        <li>Review and edit each email before sending</li>
+                        <li>Space emails 3-4 days apart for best results</li>
+                        <li>Track opens and replies to optimize future sequences</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -29,4 +29,9 @@ urlpatterns = [
     path('transformations/generate-draft/', views.GenerateTransformationDraftView.as_view(), name='generate_transformation_draft'),
     path('transformations/<int:pk>/', views.TransformationDetailView.as_view(), name='transformation_detail'),
     path('transformations/<int:pk>/delete/', views.TransformationDeleteView.as_view(), name='transformation_delete'),
+
+    # Lead Magnet URLs
+    path('lead-magnets/', views.LeadMagnetListView.as_view(), name='lead_magnet_list'),
+    path('lead-magnets/generate/', views.LeadMagnetGenerateView.as_view(), name='lead_magnet_generate'),
+    path('lead-magnets/<int:pk>/', views.LeadMagnetDetailView.as_view(), name='lead_magnet_detail'),
 ]

@@ -4,16 +4,7 @@
       hx-target="#wizard-content"
       hx-swap="innerHTML"
       class="p-6 space-y-6"
-      x-data='{
-          goals: {{ wizard_data.goals|safe|default:"[\"\"]" }},
-          addGoal() { this.goals.push(""); },
-          removeGoal(index) { this.goals.splice(index, 1); },
-          addExample(text) {
-              const empty = this.goals.findIndex(g => g === "");
-              if (empty !== -1) { this.goals[empty] = text; }
-              else { this.goals.push(text); }
-          }
-      }'>
+      x-data="goalsManager()">
     {% csrf_token %}
     <input type="hidden" name="step" value="3">
 
@@ -107,3 +98,26 @@
         </button>
     </div>
 </form>
+
+<script>
+function goalsManager() {
+    const existing = {{ wizard_data.goals|safe|default:'[""]' }};
+    return {
+        goals: existing.length > 0 ? existing : [''],
+        addGoal() {
+            this.goals.push('');
+        },
+        removeGoal(index) {
+            this.goals.splice(index, 1);
+        },
+        addExample(text) {
+            const emptyIndex = this.goals.findIndex(g => g === '');
+            if (emptyIndex !== -1) {
+                this.goals[emptyIndex] = text;
+            } else {
+                this.goals.push(text);
+            }
+        }
+    }
+}
+</script>

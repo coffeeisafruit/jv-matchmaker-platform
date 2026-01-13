@@ -21,6 +21,7 @@ urlpatterns = [
     path("positioning/", include("positioning.urls", namespace="positioning")),
     path("matching/", include("matching.urls")),
     path("outreach/", include("outreach.urls")),
+    path("playbook/", include("playbook.urls")),
 ]
 
 # Serve static and media files in development

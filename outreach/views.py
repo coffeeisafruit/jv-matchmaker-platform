@@ -19,12 +19,15 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView
+from django.conf import settings
+from django.utils import timezone
 
 from matching.models import Match, Profile, SupabaseProfile, SupabaseMatch
 from positioning.models import ICP
-from .models import PVP, OutreachTemplate, OutreachCampaign
+from .models import PVP, OutreachTemplate, OutreachCampaign, OutreachSequence, OutreachEmail, EmailConnection, SentEmail
 from .services import PVPGeneratorService, ClayWebhookService
+from .email_service import EmailService, OAuthHelper, generate_mailto_link
 
 logger = logging.getLogger(__name__)
 
@@ -106,6 +109,9 @@ class PVPGeneratorView(LoginRequiredMixin, View):
                     suggested_profile_id=selected_profile.id
                 ).first()
 
+        # Get recent PVPs for display
+        recent_pvps = PVP.objects.filter(user=request.user).order_by('-created_at')[:5]
+
         context = {
             'supabase_matches': supabase_matches,
             'featured_partners': featured_partners,
@@ -115,24 +121,92 @@ class PVPGeneratorView(LoginRequiredMixin, View):
             'pattern_choices': pattern_choices,
             'selected_profile': selected_profile,
             'selected_match_data': selected_match_data,
+            'recent_pvps': recent_pvps,
         }
 
         return render(request, self.template_name, context)
 
     def post(self, request):
-        """Generate a PVP for the selected Supabase profile."""
+        """Generate a PVP for the selected Supabase profile or general copy."""
         profile_id = request.POST.get('profile_id')
         pattern_type = request.POST.get('pattern_type', 'pain_solution')
         icp_id = request.POST.get('icp_id')
 
-        # Validate Supabase profile
-        if not profile_id:
-            if request.htmx:
-                return render(request, 'outreach/partials/pvp_error.html', {
-                    'error': 'Please select a partner from the dropdown.'
-                })
-            return JsonResponse({'success': False, 'error': 'No profile selected'}, status=400)
+        # Get ICP if specified (needed for both general and specific cases)
+        icp = None
+        if icp_id:
+            icp = get_object_or_404(ICP, id=icp_id, user=request.user)
+        else:
+            # Use primary ICP if available
+            icp = ICP.objects.filter(user=request.user, is_primary=True).first()
 
+        # Handle general copy generation (no specific partner selected OR "general" chosen)
+        if not profile_id or profile_id == 'general':
+            try:
+                # Get user's API key if available (BYOK)
+                from core.models import APIKey
+                api_key = None
+                user_key = APIKey.objects.filter(
+                    user=request.user,
+                    provider='anthropic',
+                    is_active=True
+                ).first()
+                if user_key:
+                    api_key = user_key.encrypted_key
+
+                # Generate general PVP
+                service = PVPGeneratorService(api_key=api_key)
+                result = service.generate_general_pvp(pattern_type, icp)
+
+                # Save the PVP (without a specific profile)
+                pvp = PVP.objects.create(
+                    user=request.user,
+                    supabase_profile_id=None,  # No specific partner
+                    pattern_type=pattern_type,
+                    pain_point_addressed=result.pain_point_addressed,
+                    value_offered=result.value_offered,
+                    call_to_action=result.call_to_action,
+                    full_message=result.full_message,
+                    personalization_data=result.personalization_data,
+                    ai_model_used=service.model,
+                    quality_score=result.quality_score,
+                )
+
+                # Update user's PVP count
+                request.user.pvps_this_month += 1
+                request.user.save(update_fields=['pvps_this_month'])
+
+                # Return HTMX partial or JSON response
+                if request.htmx:
+                    return render(request, 'outreach/partials/pvp_result.html', {
+                        'pvp': pvp,
+                        'quality_breakdown': result.quality_breakdown,
+                        'profile': None,
+                        'is_general': True,
+                    })
+
+                return JsonResponse({
+                    'success': True,
+                    'pvp_id': pvp.id,
+                    'quality_score': pvp.quality_score,
+                    'full_message': pvp.full_message,
+                    'is_general': True,
+                })
+
+            except Exception as e:
+                logger.error(f"Error generating general PVP: {e}")
+
+                if request.htmx:
+                    return render(request, 'outreach/partials/pvp_error.html', {
+                        'error': str(e)
+                    })
+
+                return JsonResponse({
+                    'success': False,
+                    'error': str(e)
+                }, status=500)
+
+        # Handle specific partner profile
         try:
             profile = SupabaseProfile.objects.get(id=profile_id)
         except (SupabaseProfile.DoesNotExist, ValueError, Exception):
@@ -154,14 +228,6 @@ class PVPGeneratorView(LoginRequiredMixin, View):
                 profile_id=user_supabase_profile.id,
                 suggested_profile_id=profile.id
             ).first()
-
-        # Get ICP if specified
-        icp = None
-        if icp_id:
-            icp = get_object_or_404(ICP, id=icp_id, user=request.user)
-        else:
-            # Use primary ICP if available
-            icp = ICP.objects.filter(user=request.user, is_primary=True).first()
 
         try:
             # Get user's API key if available (BYOK)
@@ -626,3 +692,532 @@ class ClayWebhookView(View):
             'status': 'ok',
             'endpoint': 'clay-webhook'
         })
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ClaySupabaseWebhookView(View):
+    """
+    Webhook endpoint for Clay enrichment data targeting SupabaseProfile.
+
+    This endpoint updates SupabaseProfile records (the main partner database)
+    with enrichment data from Clay/Claygent.
+
+    POST: Receive and process enrichment data from Clay
+    GET: Health check
+    """
+
+    def post(self, request):
+        """Handle Clay webhook POST request for SupabaseProfile updates."""
+        # Get signature from header
+        signature = request.headers.get('X-Clay-Signature', '')
+
+        # Initialize service
+        service = ClayWebhookService()
+
+        # Validate signature
+        if not service.validate_signature(request.body, signature):
+            logger.warning("Invalid Clay webhook signature for Supabase endpoint")
+            return JsonResponse({
+                'error': 'Invalid signature'
+            }, status=401)
+
+        try:
+            # Parse JSON payload
+            payload = json.loads(request.body)
+
+            # Process the webhook for SupabaseProfile
+            results = service.process_supabase_webhook(payload)
+
+            logger.info(
+                f"Clay Supabase webhook processed: {results['processed']} success, "
+                f"{results['failed']} failed"
+            )
+
+            return JsonResponse({
+                'success': True,
+                'processed': results['processed'],
+                'failed': results['failed'],
+                'updated_profiles': results['updated_profiles'][:10],  # Limit response size
+                'errors': results['errors'][:10] if results['errors'] else []
+            })
+
+        except json.JSONDecodeError:
+            logger.error("Invalid JSON in Clay Supabase webhook")
+            return JsonResponse({
+                'error': 'Invalid JSON payload'
+            }, status=400)
+        except Exception as e:
+            logger.error(f"Error processing Clay Supabase webhook: {e}")
+            return JsonResponse({
+                'error': str(e)
+            }, status=500)
+
+    def get(self, request):
+        """Health check endpoint for Clay Supabase webhook."""
+        return JsonResponse({
+            'status': 'ok',
+            'endpoint': 'clay-supabase-webhook',
+            'description': 'Updates SupabaseProfile records with Clay enrichment data'
+        })
+
+
+class SequenceListView(LoginRequiredMixin, ListView):
+    """List user's outreach sequences."""
+    model = OutreachSequence
+    template_name = 'outreach/sequence_list.html'
+    context_object_name = 'sequences'
+    paginate_by = 20
+
+    def get_queryset(self):
+        """Filter sequences to current user only."""
+        return OutreachSequence.objects.filter(
+            user=self.request.user
+        ).select_related('target_profile').prefetch_related('emails')
+
+
+class SequenceCreateView(LoginRequiredMixin, CreateView):
+    """Create a new outreach sequence."""
+    model = OutreachSequence
+    template_name = 'outreach/sequence_form.html'
+    fields = ['name', 'sequence_type', 'target_profile']
+    success_url = '/outreach/sequences/'
+
+    def get_form(self, form_class=None):
+        """Customize the form."""
+        form = super().get_form(form_class)
+        # Filter target profiles to Supabase profiles
+        form.fields['target_profile'].queryset = SupabaseProfile.objects.filter(
+            status='Member'
+        ).exclude(name__isnull=True).exclude(name='')
+        return form
+
+    def form_valid(self, form):
+        """Set user and generate emails."""
+        form.instance.user = self.request.user
+        response = super().form_valid(form)
+
+        # TODO: Generate emails using SequenceGeneratorService
+        # For now, create placeholder emails
+        self._create_placeholder_emails(form.instance)
+
+        messages.success(
+            self.request,
+            f'Sequence "{form.instance.name}" created successfully.'
+        )
+        return response
+
+    def _create_placeholder_emails(self, sequence):
+        """Create 4 placeholder emails for the sequence."""
+        email_templates = [
+            {
+                'number': 1,
+                'is_threaded': False,
+                'subject': f"Quick question about {sequence.target_profile.name}",
+                'body': "Email 1 content will be AI-generated based on sequence type..."
+            },
+            {
+                'number': 2,
+                'is_threaded': True,
+                'subject': "Re: Quick question",
+                'body': "Email 2 follow-up content..."
+            },
+            {
+                'number': 3,
+                'is_threaded': False,
+                'subject': "Different approach",
+                'body': "Email 3 with different value prop..."
+            },
+            {
+                'number': 4,
+                'is_threaded': True,
+                'subject': "Re: Different approach",
+                'body': "Email 4 breakup email..."
+            }
+        ]
+
+        for template in email_templates:
+            OutreachEmail.objects.create(
+                sequence=sequence,
+                email_number=template['number'],
+                is_threaded=template['is_threaded'],
+                subject_line=template['subject'],
+                body=template['body']
+            )
+
+
+class SequenceDetailView(LoginRequiredMixin, DetailView):
+    """View sequence with all emails."""
+    model = OutreachSequence
+    template_name = 'outreach/sequence_detail.html'
+    context_object_name = 'sequence'
+
+    def get_queryset(self):
+        """Filter to user's sequences."""
+        return OutreachSequence.objects.filter(
+            user=self.request.user
+        ).prefetch_related('emails')
+
+
+class SequenceGenerateView(LoginRequiredMixin, View):
+    """HTMX endpoint to generate/regenerate emails."""
+
+    def post(self, request, pk):
+        """Generate or regenerate sequence emails."""
+        sequence = get_object_or_404(
+            OutreachSequence,
+            pk=pk,
+            user=request.user
+        )
+
+        try:
+            # TODO: Call SequenceGeneratorService here
+            # For now, just return success
+            messages.success(request, 'Email sequence generated successfully.')
+
+            if request.htmx:
+                # Return updated emails partial
+                return render(request, 'outreach/partials/sequence_emails.html', {
+                    'sequence': sequence,
+                    'emails': sequence.emails.all()
+                })
+
+            return redirect('outreach:sequence_detail', pk=sequence.pk)
+
+        except Exception as e:
+            logger.error(f"Error generating sequence: {e}")
+            messages.error(request, f'Error generating sequence: {e}')
+
+            if request.htmx:
+                return render(request, 'outreach/partials/error.html', {
+                    'error': str(e)
+                })
+
+            return redirect('outreach:sequence_detail', pk=sequence.pk)
+
+
+# =============================================================================
+# Email Integration Views
+# =============================================================================
+
+class EmailSettingsView(LoginRequiredMixin, TemplateView):
+    """View for managing connected email accounts."""
+    template_name = 'outreach/email_settings.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['email_connections'] = EmailConnection.objects.filter(
+            user=self.request.user,
+            is_active=True
+        )
+        context['has_google_oauth'] = bool(settings.GOOGLE_OAUTH_CLIENT_ID)
+        context['has_microsoft_oauth'] = bool(settings.MICROSOFT_OAUTH_CLIENT_ID)
+        return context
+
+
+class GoogleOAuthConnectView(LoginRequiredMixin, View):
+    """Initiate Google OAuth flow."""
+
+    def get(self, request):
+        if not settings.GOOGLE_OAUTH_CLIENT_ID:
+            messages.error(request, 'Google OAuth is not configured.')
+            return redirect('outreach:email_settings')
+
+        # Generate state token to prevent CSRF
+        import secrets
+        state = secrets.token_urlsafe(32)
+        request.session['google_oauth_state'] = state
+
+        auth_url = OAuthHelper.get_google_auth_url(state)
+        return redirect(auth_url)
+
+
+class GoogleOAuthCallbackView(LoginRequiredMixin, View):
+    """Handle Google OAuth callback."""
+
+    def get(self, request):
+        error = request.GET.get('error')
+        if error:
+            messages.error(request, f'Google authorization failed: {error}')
+            return redirect('outreach:email_settings')
+
+        # Verify state
+        state = request.GET.get('state')
+        session_state = request.session.pop('google_oauth_state', None)
+        if state != session_state:
+            messages.error(request, 'Invalid OAuth state. Please try again.')
+            return redirect('outreach:email_settings')
+
+        code = request.GET.get('code')
+        if not code:
+            messages.error(request, 'No authorization code received.')
+            return redirect('outreach:email_settings')
+
+        try:
+            # Exchange code for tokens
+            token_data = OAuthHelper.exchange_google_code(code)
+
+            # Get user's email from the token
+            from google.oauth2.credentials import Credentials
+            from googleapiclient.discovery import build
+
+            creds = Credentials(token=token_data['access_token'])
+            service = build('oauth2', 'v2', credentials=creds)
+            user_info = service.userinfo().get().execute()
+            email_address = user_info.get('email')
+
+            # Create or update connection
+            connection, created = EmailConnection.objects.update_or_create(
+                user=request.user,
+                email_address=email_address,
+                defaults={
+                    'provider': 'gmail',
+                    'access_token': token_data['access_token'],
+                    'refresh_token': token_data.get('refresh_token', ''),
+                    'token_expires_at': token_data['expires_at'],
+                    'scopes': settings.GOOGLE_OAUTH_SCOPES,
+                    'is_active': True,
+                }
+            )
+
+            # Set as primary if it's the first connection
+            if created and not EmailConnection.objects.filter(
+                user=request.user, is_primary=True
+            ).exists():
+                connection.mark_as_primary()
+
+            messages.success(
+                request,
+                f'Successfully connected {email_address}!'
+            )
+
+        except Exception as e:
+            logger.error(f"Google OAuth error: {e}")
+            messages.error(request, f'Failed to connect Google account: {e}')
+
+        return redirect('outreach:email_settings')
+
+
+class MicrosoftOAuthConnectView(LoginRequiredMixin, View):
+    """Initiate Microsoft OAuth flow."""
+
+    def get(self, request):
+        if not settings.MICROSOFT_OAUTH_CLIENT_ID:
+            messages.error(request, 'Microsoft OAuth is not configured.')
+            return redirect('outreach:email_settings')
+
+        import secrets
+        state = secrets.token_urlsafe(32)
+        request.session['microsoft_oauth_state'] = state
+
+        auth_url = OAuthHelper.get_microsoft_auth_url(state)
+        return redirect(auth_url)
+
+
+class MicrosoftOAuthCallbackView(LoginRequiredMixin, View):
+    """Handle Microsoft OAuth callback."""
+
+    def get(self, request):
+        error = request.GET.get('error')
+        if error:
+            error_desc = request.GET.get('error_description', error)
+            messages.error(request, f'Microsoft authorization failed: {error_desc}')
+            return redirect('outreach:email_settings')
+
+        # Verify state
+        state = request.GET.get('state')
+        session_state = request.session.pop('microsoft_oauth_state', None)
+        if state != session_state:
+            messages.error(request, 'Invalid OAuth state. Please try again.')
+            return redirect('outreach:email_settings')
+
+        code = request.GET.get('code')
+        if not code:
+            messages.error(request, 'No authorization code received.')
+            return redirect('outreach:email_settings')
+
+        try:
+            # Exchange code for tokens
+            token_data = OAuthHelper.exchange_microsoft_code(code)
+
+            # Get user's email from Microsoft Graph
+            import requests as http_requests
+            headers = {'Authorization': f"Bearer {token_data['access_token']}"}
+            response = http_requests.get(
+                'https://graph.microsoft.com/v1.0/me',
+                headers=headers
+            )
+            user_info = response.json()
+            email_address = user_info.get('mail') or user_info.get('userPrincipalName')
+
+            # Create or update connection
+            connection, created = EmailConnection.objects.update_or_create(
+                user=request.user,
+                email_address=email_address,
+                defaults={
+                    'provider': 'outlook',
+                    'access_token': token_data['access_token'],
+                    'refresh_token': token_data.get('refresh_token', ''),
+                    'token_expires_at': token_data['expires_at'],
+                    'scopes': settings.MICROSOFT_OAUTH_SCOPES,
+                    'is_active': True,
+                }
+            )
+
+            # Set as primary if it's the first connection
+            if created and not EmailConnection.objects.filter(
+                user=request.user, is_primary=True
+            ).exists():
+                connection.mark_as_primary()
+
+            messages.success(
+                request,
+                f'Successfully connected {email_address}!'
+            )
+
+        except Exception as e:
+            logger.error(f"Microsoft OAuth error: {e}")
+            messages.error(request, f'Failed to connect Microsoft account: {e}')
+
+        return redirect('outreach:email_settings')
+
+
+class EmailDisconnectView(LoginRequiredMixin, View):
+    """Disconnect an email account."""
+
+    def post(self, request, pk):
+        connection = get_object_or_404(
+            EmailConnection,
+            pk=pk,
+            user=request.user
+        )
+
+        email = connection.email_address
+        connection.is_active = False
+        connection.save()
+
+        messages.success(request, f'Disconnected {email}')
+
+        if request.htmx:
+            # Return updated connections list
+            connections = EmailConnection.objects.filter(
+                user=request.user,
+                is_active=True
+            )
+            return render(request, 'outreach/partials/email_connections_list.html', {
+                'email_connections': connections
+            })
+
+        return redirect('outreach:email_settings')
+
+
+class SendEmailView(LoginRequiredMixin, View):
+    """Send an email via connected account or return mailto link."""
+
+    def post(self, request):
+        """Send email or return mailto link."""
+        to_email = request.POST.get('to_email', '')
+        to_name = request.POST.get('to_name', '')
+        subject = request.POST.get('subject', '')
+        body = request.POST.get('body', '')
+        pvp_id = request.POST.get('pvp_id')
+
+        if not to_email or not subject or not body:
+            return JsonResponse({
+                'success': False,
+                'error': 'Missing required fields: to_email, subject, body'
+            }, status=400)
+
+        # Get user's primary email connection
+        connection = EmailConnection.objects.filter(
+            user=request.user,
+            is_active=True,
+            is_primary=True
+        ).first()
+
+        # If no primary, get any active connection
+        if not connection:
+            connection = EmailConnection.objects.filter(
+                user=request.user,
+                is_active=True
+            ).first()
+
+        # If no connection, return mailto link
+        if not connection:
+            mailto_link = generate_mailto_link(to_email, subject, body, to_name)
+            return JsonResponse({
+                'success': True,
+                'method': 'mailto',
+                'mailto_link': mailto_link,
+                'message': 'No email account connected. Use the link to open your email client.'
+            })
+
+        try:
+            # Send via connected account
+            email_service = EmailService(connection)
+            result = email_service.send_email(
+                to_email=to_email,
+                subject=subject,
+                body=body,
+                to_name=to_name
+            )
+
+            # Record the sent email
+            sent_email = SentEmail.objects.create(
+                user=request.user,
+                email_connection=connection,
+                pvp_id=pvp_id if pvp_id else None,
+                recipient_email=to_email,
+                recipient_name=to_name,
+                subject=subject,
+                body=body,
+                provider_message_id=result.get('message_id', ''),
+                thread_id=result.get('thread_id', ''),
+                status='sent',
+                sent_at=timezone.now()
+            )
+
+            return JsonResponse({
+                'success': True,
+                'method': 'oauth',
+                'message': f'Email sent successfully via {connection.email_address}',
+                'sent_email_id': sent_email.id
+            })
+
+        except Exception as e:
+            logger.error(f"Error sending email: {e}")
+
+            # Record failed attempt
+            SentEmail.objects.create(
+                user=request.user,
+                email_connection=connection,
+                pvp_id=pvp_id if pvp_id else None,
+                recipient_email=to_email,
+                recipient_name=to_name,
+                subject=subject,
+                body=body,
+                status='failed',
+                error_message=str(e)
+            )
+
+            # Fall back to mailto
+            mailto_link = generate_mailto_link(to_email, subject, body, to_name)
+            return JsonResponse({
+                'success': False,
+                'error': str(e),
+                'method': 'mailto',
+                'mailto_link': mailto_link,
+                'message': 'Failed to send via connected account. Use the link to open your email client.'
+            })
+
+
+class SentEmailListView(LoginRequiredMixin, ListView):
+    """View list of sent emails."""
+    model = SentEmail
+    template_name = 'outreach/sent_email_list.html'
+    context_object_name = 'sent_emails'
+    paginate_by = 20
+
+    def get_queryset(self):
+        return SentEmail.objects.filter(
+            user=self.request.user
+        ).select_related('email_connection', 'pvp')

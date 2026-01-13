@@ -1,0 +1,147 @@
+<!-- Email Sequence Partial for HTMX updates -->
+<div class="space-y-6">
+    {% for email in emails %}
+    <div class="bg-white rounded-lg shadow-sm border-2
+                {% if email.replied_at %}border-green-300
+                {% elif email.opened_at %}border-blue-300
+                {% elif email.sent_at %}border-yellow-300
+                {% else %}border-gray-200{% endif %}
+                overflow-hidden">
+        <!-- Email Header -->
+        <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <span class="inline-flex items-center justify-center h-8 w-8 rounded-full
+                                 {% if email.email_number == 1 or email.email_number == 3 %}bg-primary-100 text-primary-800
+                                 {% else %}bg-blue-100 text-blue-800{% endif %}
+                                 text-sm font-bold">
+                        {{ email.email_number }}
+                    </span>
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-900">Email {{ email.email_number }}</h3>
+                        <p class="text-sm text-gray-600">
+                            {% if email.is_threaded %}
+                                <span class="inline-flex items-center text-blue-700">
+                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                    </svg>
+                                    Threaded reply to previous
+                                </span>
+                            {% else %}
+                                <span class="text-gray-600">Net new email</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Status Badge -->
+                    {% if email.replied_at %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                            </svg>
+                            Replied
+                        </span>
+                    {% elif email.opened_at %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                            <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                            </svg>
+                            Opened
+                        </span>
+                    {% elif email.sent_at %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                            <svg class="h-4 w-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                            </svg>
+                            Sent {{ email.sent_at|date:"M j" }}
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                            Draft
+                        </span>
+                    {% endif %}
+
+                    <!-- Copy Button -->
+                    <button type="button"
+                            onclick="copyEmailToClipboard({{ email.email_number }})"
+                            class="inline-flex items-center px-3 py-1 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                        <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Copy
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Content -->
+        <div class="px-6 py-4" id="email-content-{{ email.email_number }}">
+            <!-- Subject Line -->
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                    Subject Line
+                </label>
+                <div class="bg-gray-50 rounded-lg px-4 py-3 border border-gray-200">
+                    <p class="text-base font-medium text-gray-900">{{ email.subject_line }}</p>
+                </div>
+            </div>
+
+            <!-- Email Body -->
+            <div>
+                <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                    Email Body
+                </label>
+                <div class="bg-gray-50 rounded-lg px-4 py-4 border border-gray-200">
+                    <div class="prose prose-sm max-w-none text-gray-800 whitespace-pre-wrap">{{ email.body }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Footer with Tracking Info -->
+        {% if email.sent_at or email.opened_at or email.replied_at %}
+        <div class="px-6 py-3 bg-gray-50 border-t border-gray-200">
+            <div class="flex items-center gap-6 text-xs text-gray-600">
+                {% if email.sent_at %}
+                <span class="inline-flex items-center">
+                    <svg class="h-4 w-4 mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                    </svg>
+                    Sent: {{ email.sent_at|date:"M j, Y g:i A" }}
+                </span>
+                {% endif %}
+                {% if email.opened_at %}
+                <span class="inline-flex items-center">
+                    <svg class="h-4 w-4 mr-1 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
+                    </svg>
+                    Opened: {{ email.opened_at|date:"M j, Y g:i A" }}
+                </span>
+                {% endif %}
+                {% if email.replied_at %}
+                <span class="inline-flex items-center">
+                    <svg class="h-4 w-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                    </svg>
+                    Replied: {{ email.replied_at|date:"M j, Y g:i A" }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% empty %}
+    <!-- No Emails -->
+    <div class="text-center py-12 bg-white rounded-lg shadow-sm border border-gray-200">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+        <h3 class="mt-2 text-sm font-medium text-gray-900">No emails generated yet</h3>
+        <p class="mt-1 text-sm text-gray-500">Click "Regenerate Emails" to generate the 4-email sequence.</p>
+    </div>
+    {% endfor %}
+</div>

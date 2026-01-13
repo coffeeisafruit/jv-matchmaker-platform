@@ -50,12 +50,12 @@
                         </label>
                         <select name="profile_id"
                                 id="profile_id"
-                                required
                                 x-data="{ selected: '{{ selected_profile.id|default:'' }}' }"
                                 x-model="selected"
                                 @change="$dispatch('profile-selected', { profileId: selected })"
                                 class="w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500">
                             <option value="">Select a partner...</option>
+                            <option value="general">General Copy (No specific partner)</option>
                             {% if supabase_matches %}
                             <optgroup label="Your Top Matches">
                             {% for item in supabase_matches %}
@@ -253,12 +253,36 @@
 
                 <div id="pvp-result">
                     <!-- Initial empty state -->
-                    <div class="text-center py-12 text-gray-500">
+                    <div class="text-center py-8 text-gray-500">
                         <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                         </svg>
-                        <p class="mt-2">Your generated pitch will appear here</p>
-                        <p class="text-sm text-gray-400 mt-1">Select a match and click Generate</p>
+                        <p class="mt-2 font-medium">Your generated pitch will appear here</p>
+                        <p class="text-sm text-gray-400 mt-1">Select a partner and click Generate</p>
+
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <p class="text-sm text-gray-600 mb-3">Or create a reusable template:</p>
+                            <button type="button"
+                                    hx-post="{% url 'outreach:pvp_generator' %}"
+                                    hx-vals='{"profile_id": "general", "pattern_type": "pain_solution", "icp_id": "{{ primary_icp.id|default:'' }}"}'
+                                    hx-target="#pvp-result"
+                                    hx-swap="innerHTML"
+                                    hx-indicator="#general-loading"
+                                    hx-include="[name='csrfmiddlewaretoken']"
+                                    class="inline-flex items-center px-4 py-2 bg-blue-50 text-blue-700 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors text-sm font-medium">
+                                <span id="general-loading" class="htmx-indicator mr-2">
+                                    <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                </span>
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                Generate General Template
+                            </button>
+                            <p class="text-xs text-gray-400 mt-2">Creates a pitch with [PLACEHOLDERS] you can customize</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -276,10 +300,39 @@
         </div>
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             <div class="divide-y divide-gray-200">
-                <!-- This would be populated with recent PVPs -->
-                <div class="p-6 text-center text-gray-500">
-                    <p>No pitches generated yet. Create your first one above!</p>
-                </div>
+                {% if recent_pvps %}
+                    {% for pvp in recent_pvps %}
+                    <a href="{% url 'outreach:pvp_detail' pvp.pk %}" class="block p-4 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 truncate">
+                                    {% if pvp.supabase_profile_id %}
+                                        {{ pvp.supabase_profile.name|default:"Partner Pitch" }}
+                                    {% else %}
+                                        General Template
+                                    {% endif %}
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1 truncate">
+                                    {{ pvp.full_message|truncatewords:15 }}
+                                </p>
+                            </div>
+                            <div class="ml-4 flex items-center space-x-3">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                                    {% if pvp.quality_score >= 80 %}bg-green-100 text-green-800
+                                    {% elif pvp.quality_score >= 60 %}bg-yellow-100 text-yellow-800
+                                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ pvp.quality_score|floatformat:0 }}
+                                </span>
+                                <span class="text-xs text-gray-400">{{ pvp.created_at|timesince }} ago</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="p-6 text-center text-gray-500">
+                        <p>No pitches generated yet. Create your first one above!</p>
+                    </div>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "positioning.apps.PositioningConfig",
     "matching.apps.MatchingConfig",
     "outreach.apps.OutreachConfig",
+    "playbook.apps.PlaybookConfig",
 ]
 
 MIDDLEWARE = [
@@ -134,16 +135,15 @@ LOGIN_REDIRECT_URL = "/dashboard/"
 LOGOUT_REDIRECT_URL = "/"
 
 # AI Model Configuration (OpenRouter)
-# Free models for pre-customer testing - switch to Claude for production
+# Free models for testing - switch to paid for production
 AI_CONFIG = {
-    "default_model": "arcee-ai/trinity-mini:free",
-    "fast_model": "nvidia/nemotron-3-nano-30b-a3b:free",
-    "quality_model": "arcee-ai/trinity-mini:free",
+    "default_model": "meta-llama/llama-3.2-3b-instruct:free",
+    "fast_model": "meta-llama/llama-3.2-3b-instruct:free",
+    "quality_model": "meta-llama/llama-3.2-3b-instruct:free",
     "max_tokens": 4096,
     "temperature": 0.7,
-    # Production models (uncomment when ready):
-    # "default_model": "anthropic/claude-sonnet-4",
-    # "fast_model": "anthropic/claude-haiku",
+    # Paid models (for production):
+    # "default_model": "openai/gpt-4o-mini",
     # "quality_model": "anthropic/claude-sonnet-4",
 }
 
@@ -159,6 +159,36 @@ GTM_CONFIG = {
     },
     "quality_threshold": 8.0,  # AutoClaygent 7-criterion minimum
 }
+
+# Email OAuth Configuration (Gmail & Outlook)
+# Get credentials from Google Cloud Console and Azure AD
+GOOGLE_OAUTH_CLIENT_ID = os.environ.get("GOOGLE_OAUTH_CLIENT_ID", "")
+GOOGLE_OAUTH_CLIENT_SECRET = os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", "")
+GOOGLE_OAUTH_REDIRECT_URI = os.environ.get(
+    "GOOGLE_OAUTH_REDIRECT_URI",
+    "http://localhost:8001/outreach/email/oauth/google/callback/"
+)
+
+MICROSOFT_OAUTH_CLIENT_ID = os.environ.get("MICROSOFT_OAUTH_CLIENT_ID", "")
+MICROSOFT_OAUTH_CLIENT_SECRET = os.environ.get("MICROSOFT_OAUTH_CLIENT_SECRET", "")
+MICROSOFT_OAUTH_REDIRECT_URI = os.environ.get(
+    "MICROSOFT_OAUTH_REDIRECT_URI",
+    "http://localhost:8001/outreach/email/oauth/microsoft/callback/"
+)
+
+# OAuth Scopes
+GOOGLE_OAUTH_SCOPES = [
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/userinfo.email",
+]
+
+MICROSOFT_OAUTH_SCOPES = [
+    "Mail.Send",
+    "Mail.Read",
+    "User.Read",
+    "offline_access",
+]
 
 # Static files with WhiteNoise
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

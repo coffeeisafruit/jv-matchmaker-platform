@@ -6,17 +6,42 @@ This integration adds co-sell execution features alongside your existing JV matc
 
 ## What You're Building
 
-**Two feature sets in one platform:**
-1. **JV Partner Matching** (existing) - Find and match with JV partners
-2. **Co-Sell Execution** (new) - Execute co-sell workflows with existing partners
+**Three feature sets in one platform:**
+1. **JV Partner Matching** (existing) - Find and match with JV partners from Supabase directory
+2. **JV Relationship Management** (v1.5 - added) - Track JV partner relationships through 6-stage workflow
+3. **Co-Sell Execution** (v2.0 - new) - Execute co-sell workflows with B2B partners
+
+---
+
+## Pre-Existing Work (v1.5)
+
+Before starting v2.0, the `matching/` app was extended with JV relationship tracking:
+
+### Models Added to `matching/models.py`:
+- **JVRelationship** - Tracks user's relationship with JV partners through 6-stage workflow (Match → Pitch → Close → Execute → Convert → Reciprocate)
+- **JVActivity** - Activity timeline for each relationship
+
+### Why This Matters for v2.0:
+- `JVRelationship` and `JVActivity` need `tenant_id` added in Phase 2
+- These are **separate** from Co-Sell `partners/` app - no naming conflict
+- JV = promotional partnerships, Co-Sell = B2B account overlaps
+
+### Distinction Between "Partners":
+| Feature | App | Model | Purpose |
+|---------|-----|-------|---------|
+| JV Partner Tracking | `matching/` | `JVRelationship` | Your relationship with JV partners (6-stage workflow) |
+| Co-Sell Partners | `partners/` | `Partner` | External orgs (AWS, etc.) for overlap detection |
+
+---
 
 ## Before You Start
 
-1. ✅ Review `/docs/planning/INTEGRATION_PLAN.md` - Full roadmap
-2. ✅ Review `/docs/planning/CURRENT_CODEBASE_ANALYSIS.md` - How it fits
-3. ✅ Review `/docs/research/RESEARCH_SUMMARY.md` - All research documents
-4. ✅ Backup your database
-5. ✅ Create a feature branch: `git checkout -b feature/cosell-integration`
+1. ✅ Review [`/docs/PRD.md`](../../../docs/PRD.md) - Product Requirements Document (v1.0 → v1.5 → v2.0)
+2. ✅ Review [`INTEGRATION_PLAN.md`](./INTEGRATION_PLAN.md) - Full v2.0 roadmap
+3. ✅ Review [`CURRENT_CODEBASE_ANALYSIS.md`](./CURRENT_CODEBASE_ANALYSIS.md) - How it fits
+4. ✅ Review [`RESEARCH_SUMMARY.md`](../research/RESEARCH_SUMMARY.md) - All research documents
+5. ✅ Backup your database
+6. ✅ Create a feature branch: `git checkout -b feature/cosell-integration`
 
 ## Implementation Order
 

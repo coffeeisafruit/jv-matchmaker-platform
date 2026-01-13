@@ -376,6 +376,47 @@ Output in JSON format:
             }
         )
 
+    def generate_general_pvp(
+        self,
+        pattern_type: str = 'pain_solution',
+        icp=None
+    ) -> PVPResult:
+        """
+        Generate a general PVP template without a specific partner target.
+
+        Args:
+            pattern_type: Type of PVP pattern to use
+            icp: Optional ICP object for context
+
+        Returns:
+            PVPResult with generated content and quality score
+        """
+        # Build the prompt with ICP context only
+        prompt = self._build_general_prompt(pattern_type, icp)
+
+        # Call Claude API
+        response = self._call_claude(prompt)
+
+        # Parse the response
+        pvp_data = self._parse_response(response)
+
+        # Calculate quality score (simplified for general copy)
+        quality_score, quality_breakdown = self._calculate_general_quality_score(pvp_data, pattern_type)
+
+        return PVPResult(
+            pain_point_addressed=pvp_data.get('pain_point_addressed', ''),
+            value_offered=pvp_data.get('value_offered', ''),
+            call_to_action=pvp_data.get('call_to_action', ''),
+            full_message=pvp_data.get('full_message', ''),
+            quality_score=quality_score,
+            quality_breakdown=quality_breakdown,
+            personalization_data={
+                'elements': pvp_data.get('personalization_elements', []),
+                'pattern_type': pattern_type,
+                'is_general': True
+            }
+        )
+
     def generate_pvp_for_supabase(
         self,
         profile,  # SupabaseProfile
@@ -506,6 +547,167 @@ Output in JSON format:
             goals=goals
         )
 
+    def _build_general_prompt(self, pattern_type: str, icp=None) -> str:
+        """Build a prompt for general copy without a specific partner."""
+        # Build pain points and goals from ICP
+        pain_points = "- General business pain points"
+        goals = "- General business goals"
+        icp_industry = "General"
+
+        if icp:
+            if icp.pain_points:
+                pain_points = "\n".join(f"- {p}" for p in icp.pain_points)
+            if icp.goals:
+                goals = "\n".join(f"- {g}" for g in icp.goals)
+            icp_industry = icp.industry
+
+        # General prompt template
+        general_prompt = f"""You are an expert B2B outreach specialist creating a general partnership pitch template.
+
+This pitch should be adaptable for reaching out to potential JV partners, course creators, coaches, and consultants.
+
+## Pattern: {pattern_type.replace('_', ' ').title()}
+
+## Your Offering Context (ICP)
+
+**Target Industry:** {icp_industry}
+
+**Pain Points You Solve:**
+{pain_points}
+
+**Goals You Help Achieve:**
+{goals}
+
+## Your Task
+
+Create a general partnership pitch template that:
+1. Can be easily personalized with [PARTNER_NAME], [COMPANY], [SPECIFIC_DETAIL] placeholders
+2. Follows the {pattern_type.replace('_', ' ')} pattern
+3. Leads with value before asking for anything
+4. Is professional yet conversational
+5. Works for reaching out to potential JV partners
+
+The message should be:
+- 100-150 words maximum
+- Include clear placeholders where personalization should go (use brackets like [PARTNER_NAME])
+- Valuable as a template that can be customized per partner
+
+## Output Format
+
+Provide your response in the following JSON format:
+{{
+    "pain_point_addressed": "The general pain point category being addressed",
+    "value_offered": "The value/insight being provided",
+    "call_to_action": "Your soft closing invitation",
+    "full_message": "The complete email template with [PLACEHOLDERS]",
+    "personalization_elements": ["list", "of", "placeholder", "variables", "used"]
+}}"""
+
+        return general_prompt
+
+    def _ensure_string(self, value) -> str:
+        """Ensure a value is a string (handles lists, None, etc.)."""
+        if value is None:
+            return ''
+        if isinstance(value, list):
+            return ' '.join(str(v) for v in value)
+        return str(value)
+
+    def _calculate_general_quality_score(self, pvp_data: dict, pattern_type: str) -> tuple[float, dict]:
+        """Calculate quality score for general copy (simplified scoring)."""
+        breakdown = {}
+        total_score = 0
+
+        full_message = self._ensure_string(pvp_data.get('full_message', ''))
+        personalization_elements = pvp_data.get('personalization_elements', [])
+
+        # 1. Template Quality (20 points) - has good placeholders
+        placeholder_count = full_message.count('[')
+        placeholder_score = min(placeholder_count * 5, 20)
+        breakdown['template_quality'] = {
+            'score': placeholder_score,
+            'max': 20,
+            'notes': f'{placeholder_count} placeholders for personalization'
+        }
+        total_score += placeholder_score
+
+        # 2. Relevance (15 points)
+        relevance_score = 10
+        pain_point = self._ensure_string(pvp_data.get('pain_point_addressed', ''))
+        if pain_point and len(pain_point) > 20:
+            relevance_score += 5
+        breakdown['relevance'] = {
+            'score': relevance_score,
+            'max': 15,
+            'notes': 'Pain point category addressed'
+        }
+        total_score += relevance_score
+
+        # 3. Value First (20 points)
+        value_score = 12
+        value_offered = self._ensure_string(pvp_data.get('value_offered', ''))
+        if len(value_offered) > 30:
+            value_score += 4
+        if 'insight' in value_offered.lower() or 'help' in full_message.lower():
+            value_score += 4
+        breakdown['value_first'] = {
+            'score': value_score,
+            'max': 20,
+            'notes': 'Value proposition present'
+        }
+        total_score += value_score
+
+        # 4. Clarity (10 points)
+        word_count = len(full_message.split())
+        clarity_score = 10 if 50 <= word_count <= 200 else 7
+        breakdown['clarity'] = {
+            'score': clarity_score,
+            'max': 10,
+            'notes': f'{word_count} words'
+        }
+        total_score += clarity_score
+
+        # 5. Tone (10 points)
+        tone_score = 8
+        pushy_words = ['buy', 'purchase', 'discount', 'limited time', 'act now']
+        if any(word in full_message.lower() for word in pushy_words):
+            tone_score -= 3
+        if '?' in full_message:
+            tone_score += 2
+        tone_score = max(0, min(tone_score, 10))
+        breakdown['tone'] = {
+            'score': tone_score,
+            'max': 10,
+            'notes': 'Conversational tone assessment'
+        }
+        total_score += tone_score
+
+        # 6. Call to Action (15 points)
+        cta = self._ensure_string(pvp_data.get('call_to_action', ''))
+        cta_score = 10 if cta else 5
+        soft_cta_words = ['thoughts', 'interested', 'curious', 'worth', 'open to']
+        if any(word in cta.lower() for word in soft_cta_words):
+            cta_score += 5
+        breakdown['call_to_action'] = {
+            'score': cta_score,
+            'max': 15,
+            'notes': 'Soft CTA present' if cta_score >= 12 else 'CTA could be softer'
+        }
+        total_score += cta_score
+
+        # 7. Adaptability (10 points) - can it work for multiple partners?
+        adaptability_score = 7
+        if '[' in full_message and ']' in full_message:
+            adaptability_score += 3
+        breakdown['adaptability'] = {
+            'score': adaptability_score,
+            'max': 10,
+            'notes': 'Template is adaptable for different partners'
+        }
+        total_score += adaptability_score
+
+        return total_score, breakdown
+
     def _calculate_supabase_quality_score(
         self,
         pvp_data: dict,
@@ -517,8 +719,10 @@ Output in JSON format:
         breakdown = {}
         total_score = 0
 
-        full_message = pvp_data.get('full_message', '')
+        full_message = self._ensure_string(pvp_data.get('full_message', ''))
         personalization_elements = pvp_data.get('personalization_elements', [])
+        if not isinstance(personalization_elements, list):
+            personalization_elements = []
 
         # 1. Personalization (20 points)
         personalization_score = min(len(personalization_elements) * 4, 20)
@@ -535,7 +739,8 @@ Output in JSON format:
 
         # 2. Relevance (15 points)
         relevance_score = 10
-        if pvp_data.get('pain_point_addressed') and len(pvp_data['pain_point_addressed']) > 20:
+        pain_point = self._ensure_string(pvp_data.get('pain_point_addressed', ''))
+        if pain_point and len(pain_point) > 20:
             relevance_score += 5
         breakdown['relevance'] = {
             'score': relevance_score,
@@ -546,7 +751,7 @@ Output in JSON format:
 
         # 3. Value First (20 points)
         value_score = 10
-        value_offered = pvp_data.get('value_offered', '')
+        value_offered = self._ensure_string(pvp_data.get('value_offered', ''))
         if len(value_offered) > 30:
             value_score += 5
         if 'insight' in value_offered.lower() or 'help' in full_message.lower():
@@ -584,7 +789,7 @@ Output in JSON format:
         total_score += tone_score
 
         # 6. Call to Action (15 points)
-        cta = pvp_data.get('call_to_action', '')
+        cta = self._ensure_string(pvp_data.get('call_to_action', ''))
         cta_score = 10 if cta else 5
         soft_cta_words = ['thoughts', 'interested', 'curious', 'worth', 'open to']
         if any(word in cta.lower() for word in soft_cta_words):
@@ -713,22 +918,121 @@ Output in JSON format:
 
     def _parse_response(self, response: str) -> dict:
         """Parse the JSON response from Claude."""
-        try:
-            # Try to extract JSON from the response
-            # Claude sometimes wraps JSON in markdown code blocks
-            if "```json" in response:
-                start = response.find("```json") + 7
-                end = response.find("```", start)
-                response = response[start:end].strip()
-            elif "```" in response:
-                start = response.find("```") + 3
-                end = response.find("```", start)
-                response = response[start:end].strip()
+        import re
 
-            return json.loads(response)
+        try:
+            text = response.strip()
+
+            # Try to extract JSON from markdown code blocks first
+            if "```json" in text:
+                start = text.find("```json") + 7
+                end = text.find("```", start)
+                if end > start:
+                    text = text[start:end].strip()
+            elif "```" in text:
+                start = text.find("```") + 3
+                end = text.find("```", start)
+                if end > start:
+                    text = text[start:end].strip()
+
+            # Find the start of JSON object
+            if '{' in text:
+                start_idx = text.find('{')
+                text = text[start_idx:]
+
+                # Use JSONDecoder.raw_decode to parse just the JSON object
+                decoder = json.JSONDecoder()
+                parsed_obj, _ = decoder.raw_decode(text)
+                return parsed_obj
+
+            return json.loads(text)
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse Claude response as JSON: {e}")
-            # Return a default structure with the raw response
+            logger.warning(f"JSON parsing failed, trying regex extraction: {e}")
+
+            # Fallback: extract fields using regex (handles malformed JSON from free models)
+            result = {
+                'pain_point_addressed': '',
+                'value_offered': '',
+                'call_to_action': '',
+                'full_message': '',
+                'personalization_elements': []
+            }
+
+            # Try to extract pain_point_addressed
+            pain_match = re.search(r'"pain_point_addressed":\s*"([^"]*)"', response)
+            if pain_match:
+                result['pain_point_addressed'] = pain_match.group(1)
+
+            # Try to extract value_offered
+            value_match = re.search(r'"value_offered":\s*"([^"]*)"', response)
+            if value_match:
+                result['value_offered'] = value_match.group(1)
+
+            # Try to extract call_to_action
+            cta_match = re.search(r'"call_to_action":\s*"([^"]*)"', response)
+            if cta_match:
+                result['call_to_action'] = cta_match.group(1)
+
+            # Try to extract full_message - handle various malformed JSON patterns
+            # Strategy: Find the start of full_message value and capture until the next field starts
+            full_msg_match = None
+
+            # Pattern 1: Properly quoted (might have escaped newlines)
+            full_msg_match = re.search(
+                r'"full_message":\s*"((?:[^"\\]|\\.)*)"\s*[,}]',
+                response,
+                re.DOTALL
+            )
+
+            # Pattern 2: Unescaped newlines - look for content between "full_message": " and "personalization_elements"
+            if not full_msg_match:
+                full_msg_match = re.search(
+                    r'"full_message":\s*"(.*?)"?\s*,?\s*"personalization_elements"',
+                    response,
+                    re.DOTALL
+                )
+
+            # Pattern 3: full_message is last field - capture until closing brace
+            if not full_msg_match:
+                full_msg_match = re.search(
+                    r'"full_message":\s*"(.*?)"?\s*\}',
+                    response,
+                    re.DOTALL
+                )
+
+            if full_msg_match:
+                msg = full_msg_match.group(1)
+                # Clean up escaped characters and artifacts
+                msg = msg.replace('\\n', '\n').replace('\\"', '"').replace('\\t', '\t')
+                # Remove trailing quote if captured
+                msg = msg.rstrip('"').strip()
+                result['full_message'] = msg
+            else:
+                # Last resort: extract any Dear/Hi/Subject message pattern
+                msg_match = re.search(
+                    r'((?:Dear|Hi|Hello|Subject:|Hey)\s+\[?[A-Za-z_]+\]?.*?)(?:"?\s*,?\s*"personalization|"?\s*\}|$)',
+                    response,
+                    re.DOTALL | re.IGNORECASE
+                )
+                if msg_match:
+                    result['full_message'] = msg_match.group(1).strip()
+                else:
+                    # If still no message found, use the whole response
+                    result['full_message'] = response
+
+            # Try to extract personalization_elements
+            elements_match = re.search(r'"personalization_elements":\s*\[(.*?)\]', response)
+            if elements_match:
+                elements_str = elements_match.group(1)
+                elements = re.findall(r'"([^"]+)"', elements_str)
+                result['personalization_elements'] = elements
+
+            # If we got at least a full_message, consider it a success
+            if result['full_message'] and result['full_message'] != response:
+                logger.info("Successfully extracted fields using regex fallback")
+                return result
+
+            logger.error(f"Failed to parse response with both JSON and regex")
             return {
                 'pain_point_addressed': 'Unable to parse',
                 'value_offered': 'Unable to parse',
@@ -752,8 +1056,10 @@ Output in JSON format:
         breakdown = {}
         total_score = 0
 
-        full_message = pvp_data.get('full_message', '')
+        full_message = self._ensure_string(pvp_data.get('full_message', ''))
         personalization_elements = pvp_data.get('personalization_elements', [])
+        if not isinstance(personalization_elements, list):
+            personalization_elements = []
 
         # 1. Personalization (20 points)
         personalization_score = min(len(personalization_elements) * 4, 20)
@@ -770,7 +1076,8 @@ Output in JSON format:
 
         # 2. Relevance (15 points)
         relevance_score = 10  # Base score
-        if pvp_data.get('pain_point_addressed') and len(pvp_data['pain_point_addressed']) > 20:
+        pain_point = self._ensure_string(pvp_data.get('pain_point_addressed', ''))
+        if pain_point and len(pain_point) > 20:
             relevance_score += 5
         breakdown['relevance'] = {
             'score': relevance_score,
@@ -781,7 +1088,7 @@ Output in JSON format:
 
         # 3. Value First (20 points)
         value_score = 10  # Base score
-        value_offered = pvp_data.get('value_offered', '')
+        value_offered = self._ensure_string(pvp_data.get('value_offered', ''))
         if len(value_offered) > 30:
             value_score += 5
         if 'insight' in value_offered.lower() or 'help' in full_message.lower():
@@ -819,7 +1126,7 @@ Output in JSON format:
         total_score += tone_score
 
         # 6. Call to Action (15 points)
-        cta = pvp_data.get('call_to_action', '')
+        cta = self._ensure_string(pvp_data.get('call_to_action', ''))
         cta_score = 10 if cta else 5
         soft_cta_words = ['thoughts', 'interested', 'curious', 'worth', 'open to']
         if any(word in cta.lower() for word in soft_cta_words):
@@ -1033,6 +1340,181 @@ class ClayWebhookService:
                     results['processed'] += 1
                 else:
                     results['failed'] += 1
+
+            except Exception as e:
+                results['errors'].append(str(e))
+                results['failed'] += 1
+
+        return results
+
+    def update_supabase_profile(self, identifier: str, enrichment_data: dict, lookup_by: str = 'email') -> bool:
+        """
+        Update a SupabaseProfile with Clay enrichment data.
+
+        Args:
+            identifier: email or profile_id (UUID)
+            enrichment_data: Dict from Clay Claygent output
+            lookup_by: 'email' or 'id'
+
+        Returns:
+            True if update successful, False otherwise
+        """
+        from matching.models import SupabaseProfile
+        from datetime import datetime
+
+        try:
+            if lookup_by == 'email':
+                profile = SupabaseProfile.objects.get(email__iexact=identifier)
+            else:
+                profile = SupabaseProfile.objects.get(id=identifier)
+
+            # Map Clay/Claygent output fields to SupabaseProfile schema
+            field_mapping = {
+                # From Platform Detection Pattern
+                'platforms_detected': 'tags',  # Store as tags array
+                'portal_url': 'website',
+
+                # From SMB Owner Discovery Pattern
+                'owner_name': 'name',
+                'owner_title': 'business_focus',
+
+                # From Business Model Classification
+                'business_model': 'audience_type',
+                'pricing_details': 'service_provided',
+
+                # Standard enrichment fields
+                'linkedin_url': 'linkedin',
+                'company_name': 'company',
+                'bio': 'bio',
+                'industry': 'niche',
+                'list_size': 'list_size',
+                'social_reach': 'social_reach',
+
+                # Direct field mappings
+                'website': 'website',
+                'linkedin': 'linkedin',
+                'company': 'company',
+                'niche': 'niche',
+                'seeking': 'seeking',
+                'offering': 'offering',
+                'what_you_do': 'what_you_do',
+                'who_you_serve': 'who_you_serve',
+            }
+
+            updated_fields = []
+            for clay_field, our_field in field_mapping.items():
+                if enrichment_data.get(clay_field):
+                    value = enrichment_data[clay_field]
+
+                    # Handle special cases
+                    if our_field == 'tags' and isinstance(value, list):
+                        # Merge with existing tags
+                        existing_tags = profile.tags or []
+                        profile.tags = list(set(existing_tags + value))
+                    elif our_field in ['list_size', 'social_reach']:
+                        # Ensure numeric fields are integers
+                        try:
+                            setattr(profile, our_field, int(value))
+                        except (ValueError, TypeError):
+                            continue
+                    else:
+                        setattr(profile, our_field, value)
+
+                    updated_fields.append(our_field)
+
+            # Store raw enrichment data in notes for audit trail
+            import json
+            existing_notes = {}
+            if profile.notes:
+                try:
+                    existing_notes = json.loads(profile.notes)
+                except json.JSONDecodeError:
+                    existing_notes = {'original_notes': profile.notes}
+
+            existing_notes['clay_enrichment'] = {
+                'data': enrichment_data,
+                'enriched_at': datetime.now().isoformat(),
+                'updated_fields': updated_fields
+            }
+            profile.notes = json.dumps(existing_notes)
+
+            profile.save()
+
+            # Trigger async match recalculation
+            try:
+                from matching.tasks import recalculate_matches_for_profile
+                recalculate_matches_for_profile.delay(str(profile.id))
+                logger.info(f"Triggered match recalculation for profile {profile.id}")
+            except Exception as e:
+                # Don't fail the webhook if recalculation fails
+                logger.warning(f"Could not trigger match recalculation: {e}")
+
+            logger.info(f"Updated SupabaseProfile {identifier} with Clay enrichment: {updated_fields}")
+            return True
+
+        except SupabaseProfile.DoesNotExist:
+            logger.error(f"SupabaseProfile not found for {lookup_by}={identifier}")
+            return False
+        except Exception as e:
+            logger.error(f"Error updating SupabaseProfile {identifier}: {e}")
+            return False
+
+    def process_supabase_webhook(self, payload: dict) -> dict:
+        """
+        Process a Clay webhook payload for SupabaseProfile updates.
+
+        Args:
+            payload: Complete webhook payload
+
+        Returns:
+            Dictionary with processing results
+        """
+        results = {
+            'processed': 0,
+            'failed': 0,
+            'errors': [],
+            'updated_profiles': []
+        }
+
+        # Handle both single record and batch formats
+        records = payload.get('records', [payload]) if 'records' in payload else [payload]
+
+        for record in records:
+            try:
+                # Determine lookup method - prefer profile_id (UUID) if available
+                profile_id = record.get('profile_id') or record.get('id')
+                email = record.get('email')
+
+                if profile_id:
+                    # Try UUID lookup first (more precise)
+                    lookup_by = 'id'
+                    identifier = profile_id
+                elif email:
+                    lookup_by = 'email'
+                    identifier = email
+                else:
+                    results['errors'].append("No profile identifier (profile_id or email) in record")
+                    results['failed'] += 1
+                    continue
+
+                # Parse and update
+                enrichment_data = self.parse_enrichment_data(record)
+
+                if self.update_supabase_profile(identifier, enrichment_data, lookup_by):
+                    results['processed'] += 1
+                    results['updated_profiles'].append(identifier)
+                else:
+                    # If UUID lookup failed, try email as fallback
+                    if lookup_by == 'id' and email:
+                        if self.update_supabase_profile(email, enrichment_data, 'email'):
+                            results['processed'] += 1
+                            results['updated_profiles'].append(email)
+                        else:
+                            results['errors'].append(f"Profile not found: {identifier}")
+                            results['failed'] += 1
+                    else:
+                        results['errors'].append(f"Profile not found: {identifier}")
+                        results['failed'] += 1
 
             except Exception as e:
                 results['errors'].append(str(e))

@@ -160,3 +160,45 @@ class PainSignal(models.Model):
 
     def __str__(self):
         return f"{self.get_signal_type_display()}: {self.description[:50]}"
+
+
+class LeadMagnetConcept(models.Model):
+    """AI-generated lead magnet concept based on transformation analysis."""
+
+    class Format(models.TextChoices):
+        PDF = 'pdf', 'PDF Guide'
+        VIDEO = 'video', 'Short Video'
+        CHECKLIST = 'checklist', 'Checklist'
+        TEMPLATE = 'template', 'Template/Swipe File'
+        QUIZ = 'quiz', 'Quiz/Assessment'
+        CALCULATOR = 'calculator', 'Calculator/Tool'
+
+    user = models.ForeignKey('core.User', on_delete=models.CASCADE, related_name='lead_magnets')
+    transformation = models.ForeignKey(
+        'TransformationAnalysis',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='lead_magnets'
+    )
+
+    title = models.CharField(max_length=200)
+    what_description = models.TextField(help_text='What the audience will learn/get')
+    why_description = models.TextField(help_text='Why they need this before buying')
+    format_suggestion = models.CharField(max_length=20, choices=Format.choices)
+
+    # AI generation metadata
+    target_problem = models.TextField(help_text='The one problem this solves')
+    hook = models.CharField(max_length=300, blank=True)
+    estimated_creation_time = models.CharField(max_length=50, default='3-5 hours')
+
+    is_selected = models.BooleanField(default=False, help_text='User selected this concept to build')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Lead Magnet Concept'
+        verbose_name_plural = 'Lead Magnet Concepts'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.get_format_suggestion_display()})"

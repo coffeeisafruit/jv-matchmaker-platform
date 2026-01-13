@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Create Playbook - JV Matchmaker{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="{% url 'playbook:list' %}" class="text-gray-500 hover:text-gray-700 text-sm flex items-center mb-4">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to Playbooks
+        </a>
+        <h1 class="text-2xl font-semibold text-gray-900">Create Launch Playbook</h1>
+        <p class="text-gray-500 mt-1">Generate an AI-powered content sequence for your launch</p>
+    </div>
+
+    <!-- Form -->
+    <form method="post" class="bg-white rounded-xl border border-gray-200 p-8">
+        {% csrf_token %}
+
+        <!-- Name -->
+        <div class="mb-6">
+            <label for="id_name" class="block text-sm font-medium text-gray-700 mb-2">
+                Playbook Name
+            </label>
+            <input type="text"
+                   name="name"
+                   id="id_name"
+                   placeholder="e.g., Course Launch Q1 2026"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                   required>
+            <p class="mt-1 text-sm text-gray-500">A name to identify this launch</p>
+        </div>
+
+        <!-- Size -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Playbook Size
+            </label>
+            <div class="grid grid-cols-3 gap-4">
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="size" value="small" class="peer sr-only">
+                    <div class="p-4 border-2 border-gray-200 rounded-lg peer-checked:border-primary-500 peer-checked:bg-primary-50 hover:border-gray-300 transition-colors">
+                        <div class="font-semibold text-gray-900">Small</div>
+                        <div class="text-sm text-gray-500">12 plays</div>
+                        <div class="text-xs text-gray-400 mt-1">2-3 weeks</div>
+                    </div>
+                </label>
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="size" value="medium" class="peer sr-only" checked>
+                    <div class="p-4 border-2 border-gray-200 rounded-lg peer-checked:border-primary-500 peer-checked:bg-primary-50 hover:border-gray-300 transition-colors">
+                        <div class="font-semibold text-gray-900">Medium</div>
+                        <div class="text-sm text-gray-500">29 plays</div>
+                        <div class="text-xs text-gray-400 mt-1">4-6 weeks</div>
+                    </div>
+                </label>
+                <label class="relative cursor-pointer">
+                    <input type="radio" name="size" value="large" class="peer sr-only">
+                    <div class="p-4 border-2 border-gray-200 rounded-lg peer-checked:border-primary-500 peer-checked:bg-primary-50 hover:border-gray-300 transition-colors">
+                        <div class="font-semibold text-gray-900">Large</div>
+                        <div class="text-sm text-gray-500">54 plays</div>
+                        <div class="text-xs text-gray-400 mt-1">60-90 days</div>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- Launch Date -->
+        <div class="mb-6">
+            <label for="id_launch_date" class="block text-sm font-medium text-gray-700 mb-2">
+                Launch Date (Optional)
+            </label>
+            <input type="date"
+                   name="launch_date"
+                   id="id_launch_date"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+            <p class="mt-1 text-sm text-gray-500">We'll schedule your plays leading up to this date</p>
+        </div>
+
+        <!-- Transformation (if available) -->
+        {% if form.transformation %}
+        <div class="mb-6">
+            <label for="id_transformation" class="block text-sm font-medium text-gray-700 mb-2">
+                Link to Transformation Analysis (Optional)
+            </label>
+            {{ form.transformation }}
+            <p class="mt-1 text-sm text-gray-500">AI will use this to personalize your playbook content</p>
+        </div>
+        {% endif %}
+
+        <!-- Submit -->
+        <div class="flex justify-end gap-4 pt-6 border-t border-gray-200">
+            <a href="{% url 'playbook:list' %}"
+               class="px-6 py-3 text-gray-700 hover:text-gray-900 transition-colors">
+                Cancel
+            </a>
+            <button type="submit"
+                    class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                Create Playbook
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

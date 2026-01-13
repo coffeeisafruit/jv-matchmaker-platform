@@ -1,4 +1,178 @@
 from django.db import models
+from django.utils import timezone
+from cryptography.fernet import Fernet
+from django.conf import settings
+import json
+
+
+class EmailConnection(models.Model):
+    """
+    Stores OAuth tokens for connected email accounts (Gmail, Outlook).
+    Allows users to send emails directly from the platform.
+    """
+    PROVIDER_CHOICES = [
+        ('gmail', 'Gmail'),
+        ('outlook', 'Outlook'),
+    ]
+
+    user = models.ForeignKey(
+        'core.User',
+        on_delete=models.CASCADE,
+        related_name='email_connections'
+    )
+    provider = models.CharField(max_length=20, choices=PROVIDER_CHOICES)
+    email_address = models.EmailField()
+
+    # Encrypted OAuth tokens
+    _access_token = models.TextField(db_column='access_token')
+    _refresh_token = models.TextField(db_column='refresh_token')
+
+    token_expires_at = models.DateTimeField()
+    scopes = models.JSONField(default=list)
+
+    is_active = models.BooleanField(default=True)
+    is_primary = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Email Connection'
+        verbose_name_plural = 'Email Connections'
+        unique_together = ['user', 'email_address']
+        ordering = ['-is_primary', '-created_at']
+
+    def __str__(self):
+        return f"{self.email_address} ({self.get_provider_display()})"
+
+    def _get_cipher(self):
+        """Get Fernet cipher for token encryption."""
+        key = settings.SECRET_KEY[:32].encode()
+        key = key.ljust(32, b'=')
+        import base64
+        return Fernet(base64.urlsafe_b64encode(key))
+
+    @property
+    def access_token(self):
+        """Decrypt and return access token."""
+        if not self._access_token:
+            return None
+        try:
+            cipher = self._get_cipher()
+            return cipher.decrypt(self._access_token.encode()).decode()
+        except Exception:
+            return self._access_token
+
+    @access_token.setter
+    def access_token(self, value):
+        """Encrypt and store access token."""
+        if value:
+            cipher = self._get_cipher()
+            self._access_token = cipher.encrypt(value.encode()).decode()
+        else:
+            self._access_token = ''
+
+    @property
+    def refresh_token(self):
+        """Decrypt and return refresh token."""
+        if not self._refresh_token:
+            return None
+        try:
+            cipher = self._get_cipher()
+            return cipher.decrypt(self._refresh_token.encode()).decode()
+        except Exception:
+            return self._refresh_token
+
+    @refresh_token.setter
+    def refresh_token(self, value):
+        """Encrypt and store refresh token."""
+        if value:
+            cipher = self._get_cipher()
+            self._refresh_token = cipher.encrypt(value.encode()).decode()
+        else:
+            self._refresh_token = ''
+
+    def is_token_expired(self):
+        """Check if access token is expired."""
+        return timezone.now() >= self.token_expires_at
+
+    def mark_as_primary(self):
+        """Set this connection as the primary email for the user."""
+        EmailConnection.objects.filter(user=self.user, is_primary=True).update(is_primary=False)
+        self.is_primary = True
+        self.save(update_fields=['is_primary'])
+
+
+class SentEmail(models.Model):
+    """
+    Tracks emails sent through the platform.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('sent', 'Sent'),
+        ('failed', 'Failed'),
+        ('bounced', 'Bounced'),
+    ]
+
+    user = models.ForeignKey(
+        'core.User',
+        on_delete=models.CASCADE,
+        related_name='sent_emails'
+    )
+    email_connection = models.ForeignKey(
+        EmailConnection,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sent_emails'
+    )
+    pvp = models.ForeignKey(
+        'outreach.PVP',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sent_emails'
+    )
+    outreach_email = models.ForeignKey(
+        'outreach.OutreachEmail',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sent_records'
+    )
+
+    # Recipient info
+    recipient_email = models.EmailField()
+    recipient_name = models.CharField(max_length=255, blank=True)
+    recipient_profile_id = models.UUIDField(null=True, blank=True)
+
+    # Email content
+    subject = models.CharField(max_length=500)
+    body = models.TextField()
+
+    # Provider message ID for tracking
+    provider_message_id = models.CharField(max_length=255, blank=True)
+    thread_id = models.CharField(max_length=255, blank=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    error_message = models.TextField(blank=True)
+
+    # Tracking
+    sent_at = models.DateTimeField(null=True, blank=True)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    clicked_at = models.DateTimeField(null=True, blank=True)
+    replied_at = models.DateTimeField(null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Sent Email'
+        verbose_name_plural = 'Sent Emails'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"To: {self.recipient_email} - {self.subject[:50]}"
 
 
 class PVP(models.Model):
@@ -195,3 +369,71 @@ class OutreachActivity(models.Model):
 
     def __str__(self):
         return f"{self.get_action_type_display()} - {self.profile} ({self.campaign})"
+
+
+class OutreachSequence(models.Model):
+    """A 4-email outreach sequence for a match."""
+
+    class SequenceType(models.TextChoices):
+        LOOKALIKE = 'lookalike', 'Lookalike Campaign'
+        TRIGGER = 'trigger', 'Trigger-Based'
+        CREATIVE_IDEAS = 'creative_ideas', 'Creative Ideas'
+        POKE_BEAR = 'poke_bear', 'Poke the Bear'
+        SUPER_SHORT = 'super_short', 'Super Short'
+
+    class Status(models.TextChoices):
+        DRAFT = 'draft', 'Draft'
+        READY = 'ready', 'Ready to Send'
+        IN_PROGRESS = 'in_progress', 'In Progress'
+        COMPLETED = 'completed', 'Completed'
+        PAUSED = 'paused', 'Paused'
+
+    user = models.ForeignKey('core.User', on_delete=models.CASCADE, related_name='outreach_sequences')
+    match = models.ForeignKey('matching.SupabaseMatch', on_delete=models.SET_NULL, null=True, blank=True)
+    target_profile = models.ForeignKey('matching.SupabaseProfile', on_delete=models.SET_NULL, null=True, blank=True)
+
+    name = models.CharField(max_length=200)
+    sequence_type = models.CharField(max_length=20, choices=SequenceType.choices, default=SequenceType.LOOKALIKE)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
+
+    # Personalization data
+    trigger_data = models.JSONField(default=dict, blank=True)
+    ai_personalization = models.JSONField(default=dict, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Outreach Sequence'
+        verbose_name_plural = 'Outreach Sequences'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.name} ({self.get_status_display()})"
+
+
+class OutreachEmail(models.Model):
+    """Individual email in a sequence."""
+
+    sequence = models.ForeignKey(OutreachSequence, on_delete=models.CASCADE, related_name='emails')
+
+    email_number = models.IntegerField()  # 1-4
+    is_threaded = models.BooleanField(default=False)
+
+    subject_line = models.CharField(max_length=255)
+    body = models.TextField()
+
+    # Tracking
+    scheduled_for = models.DateTimeField(null=True, blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    replied_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['email_number']
+        unique_together = ['sequence', 'email_number']
+        verbose_name = 'Outreach Email'
+        verbose_name_plural = 'Outreach Emails'
+
+    def __str__(self):
+        return f"Email {self.email_number} - {self.sequence.name}"

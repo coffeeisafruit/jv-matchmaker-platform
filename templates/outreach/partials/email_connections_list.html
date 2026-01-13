@@ -1,0 +1,78 @@
+<!-- Email Connections List Partial -->
+{% if email_connections %}
+<div class="divide-y divide-gray-200">
+    {% for connection in email_connections %}
+    <div class="px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center">
+            <!-- Provider Icon -->
+            {% if connection.provider == 'gmail' %}
+            <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-4">
+                <svg class="w-5 h-5 text-red-600" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20 18h-2V9.25L12 13 6 9.25V18H4V6h1.2l6.8 4.25L18.8 6H20v12zM20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/>
+                </svg>
+            </div>
+            {% else %}
+            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4">
+                <svg class="w-5 h-5 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.4 24H0V12.6h11.4V24zM24 24H12.6V12.6H24V24zM11.4 11.4H0V0h11.4v11.4zm12.6 0H12.6V0H24v11.4z"/>
+                </svg>
+            </div>
+            {% endif %}
+
+            <div>
+                <div class="flex items-center">
+                    <span class="font-medium text-gray-900">{{ connection.email_address }}</span>
+                    {% if connection.is_primary %}
+                    <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-800">
+                        Primary
+                    </span>
+                    {% endif %}
+                </div>
+                <p class="text-sm text-gray-500">
+                    {{ connection.get_provider_display }} &bull; Connected {{ connection.created_at|date:"M j, Y" }}
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            {% if not connection.is_primary %}
+            <form method="post" action="{% url 'outreach:email_disconnect' connection.pk %}"
+                  hx-post="{% url 'outreach:email_disconnect' connection.pk %}"
+                  hx-target="#email-connections-list"
+                  hx-swap="innerHTML"
+                  hx-confirm="Set {{ connection.email_address }} as your primary email?"
+                  class="inline">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="set_primary">
+                <button type="submit"
+                        class="text-sm text-gray-500 hover:text-gray-700">
+                    Set as Primary
+                </button>
+            </form>
+            {% endif %}
+
+            <form method="post" action="{% url 'outreach:email_disconnect' connection.pk %}"
+                  hx-post="{% url 'outreach:email_disconnect' connection.pk %}"
+                  hx-target="#email-connections-list"
+                  hx-swap="innerHTML"
+                  hx-confirm="Disconnect {{ connection.email_address }}?"
+                  class="inline">
+                {% csrf_token %}
+                <button type="submit"
+                        class="text-sm text-red-600 hover:text-red-700">
+                    Disconnect
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="px-6 py-8 text-center">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">No accounts connected</h3>
+    <p class="mt-1 text-sm text-gray-500">Connect an email account below to send pitches directly.</p>
+</div>
+{% endif %}
