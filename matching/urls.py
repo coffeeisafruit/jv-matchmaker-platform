@@ -36,4 +36,7 @@ urlpatterns = [
     path('calculate/<int:pk>/', views.CalculateMatchView.as_view(), name='calculate-match'),
     path('calculate/bulk/', views.CalculateBulkMatchView.as_view(), name='calculate-bulk'),
     path('calculate/recalculate-all/', views.RecalculateAllMatchesView.as_view(), name='recalculate-all'),
+
+    # Demo outreach (promotional mock, no login)
+    path('demo/outreach/', views.DemoOutreachView.as_view(), name='demo-outreach'),
 ]

@@ -46,6 +46,17 @@ Build a full-stack platform that helps entrepreneurs find, pitch, close, and exe
 - **Database**: Supabase (1000+ existing profiles)
 - **AI**: OpenAI GPT-4o-mini / Anthropic Claude
 
+## Demo & GitHub Pages
+
+A **static mock** of the Partner Outreach report (fairy-tale characters) is in `docs/` for sharing with prospects. To publish it on GitHub Pages:
+
+1. Push this repo to GitHub (create a repo first if needed: **Settings → Pages → Source**: Deploy from a branch).
+2. Choose **Branch**: `main`, **Folder**: `/docs`, then Save.
+3. After the deployment finishes, the demo will be at:  
+   **`https://<your-username>.github.io/jv-matchmaker-platform/`**
+
+The same demo is available in the Django app at `/matching/demo/outreach/` when running locally.
+
 ## Documentation
 
 | Document | Description |

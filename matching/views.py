@@ -20,6 +20,7 @@ from django.views.generic import (
     DetailView,
     FormView,
     ListView,
+    TemplateView,
     UpdateView,
 )
 
@@ -779,3 +780,22 @@ class ProfileDeleteView(LoginRequiredMixin, View):
 
         messages.success(request, f'Profile "{name}" deleted.')
         return redirect('matching:profile-list')
+
+
+# =============================================================================
+# DEMO OUTREACH (promotional mock, no login required)
+# =============================================================================
+
+class DemoOutreachView(TemplateView):
+    """
+    Mock Partner Outreach report using fairy tale characters.
+    Shareable at /matching/demo/outreach/ for prospects.
+    """
+    template_name = 'matching/demo_outreach.html'
+
+    def get_context_data(self, **kwargs):
+        from .demo_data import get_demo_outreach_data
+        data = get_demo_outreach_data()
+        context = super().get_context_data(**kwargs)
+        context.update(data)
+        return context
