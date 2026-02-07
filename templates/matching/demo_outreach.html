@@ -1,334 +1,345 @@
-{% extends "base.html" %}
-{% load static %}
-
-{% block title %}{{ client.name }} · Partner Outreach — Demo{% endblock %}
-
-{% block extra_head %}
-<style>
-  .demo-outreach .card-partner {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    border: 1px solid #eee;
-  }
-  .demo-outreach .card-partner:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  }
-  .demo-outreach .badge {
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.2rem 0.5rem;
-    border-radius: 6px;
-  }
-  .demo-outreach .badge-top { background: #DBEAFE; color: #1E40AF; }
-  .demo-outreach .badge-active { background: #D1FAE5; color: #065F46; }
-  .demo-outreach .badge-verify { background: #FEF3C7; color: #92400E; }
-  .demo-outreach .badge-linkedin { background: #E0E7FF; color: #3730A3; }
-  .demo-outreach .badge-networking { background: #F3E8FF; color: #5B21B6; }
-  .demo-outreach .badge-high { background: #FCE7F3; color: #9D174D; }
-  .demo-outreach .detail-block {
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
-</style>
-{% endblock %}
-
-{% block content %}
-<div class="demo-outreach max-w-4xl mx-auto px-6 py-10" x-data="demoOutreach()">
-  <!-- Header -->
-  <header class="mb-8">
-    <h1 class="text-xl font-semibold text-apple-gray-600">
-      {{ client.name }} · Partner Outreach
-    </h1>
-    <p class="mt-1 text-sm text-apple-gray-400">
-      {{ client.name }} · {{ client.updated }} · <a href="{{ client.profile_url }}" class="text-apple-blue hover:underline">View Details</a>
-    </p>
-    <div class="mt-4 flex flex-wrap items-center gap-4">
-      <span class="text-sm font-medium text-apple-gray-600">
-        <span x-text="contactedCount">0</span>/{{ partners|length }} partners contacted
-      </span>
-      <button type="button"
-              @click="resetProgress()"
-              class="text-sm text-apple-blue hover:underline focus:outline-none">
-        Reset Progress
-      </button>
-    </div>
-  </header>
-
-  <!-- Ready to Contact -->
-  <section class="mb-10">
-    <h2 class="text-base font-semibold text-apple-gray-600 mb-1">
-      Ready to Contact <span class="font-normal text-apple-gray-400">({{ partners_ready|length }})</span>
-    </h2>
-    <p class="text-xs text-apple-gray-400 mb-4">Direct emails verified</p>
-    <div class="space-y-4">
-      {% for partner in partners_ready %}
-      <div class="card-partner p-4" x-data="{ open: false }">
-        <div class="flex flex-wrap items-start justify-between gap-2">
-          <div class="min-w-0 flex-1">
-            <p class="font-medium text-apple-gray-600">{{ partner.name }}</p>
-            <p class="text-sm text-apple-gray-400">{{ partner.company }} · {{ partner.tagline }}</p>
-          </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            {% if partner.badge %}
-            <span class="badge {% if partner.badge == 'Top Match' %}badge-top{% elif partner.badge == 'Active JV' %}badge-active{% elif partner.badge == 'Networking' %}badge-networking{% else %}badge-top{% endif %}">{{ partner.badge }}</span>
-            {% endif %}
-            <span class="text-xs text-apple-gray-400">{{ partner.list_size }} List</span>
-          </div>
-        </div>
-        <button type="button"
-                @click="open = !open"
-                class="mt-3 text-xs text-apple-blue hover:underline focus:outline-none">
-          tap for details
-        </button>
-        <div class="detail-block mt-3 border-t border-apple-gray-100 pt-3" x-show="open" x-transition>
-          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            {% if partner.email %}
-            <dt class="text-apple-gray-400">Email</dt>
-            <dd><a href="mailto:{{ partner.email }}" class="text-apple-blue hover:underline">{{ partner.email }}</a></dd>
-            {% endif %}
-            {% if partner.website %}
-            <dt class="text-apple-gray-400">Website</dt>
-            <dd><a href="{{ partner.website }}" target="_blank" rel="noopener" class="text-apple-blue hover:underline">{{ partner.website }}</a></dd>
-            {% endif %}
-            {% if partner.phone %}
-            <dt class="text-apple-gray-400">Phone</dt>
-            <dd>{{ partner.phone }}</dd>
-            {% endif %}
-            {% if partner.linkedin %}
-            <dt class="text-apple-gray-400">LinkedIn</dt>
-            <dd><a href="{{ partner.linkedin }}" target="_blank" rel="noopener" class="text-apple-blue hover:underline">View Profile</a></dd>
-            {% endif %}
-            {% if partner.pr_contact %}
-            <dt class="text-apple-gray-400">PR / best contact</dt>
-            <dd>{{ partner.pr_contact }}</dd>
-            {% endif %}
-            {% if partner.schedule %}
-            <dt class="text-apple-gray-400">Schedule</dt>
-            <dd><a href="{{ partner.schedule }}" target="_blank" rel="noopener" class="text-apple-blue hover:underline">Book</a></dd>
-            {% endif %}
-            <dt class="text-apple-gray-400">Niche</dt>
-            <dd>{{ partner.niche }}</dd>
-          </dl>
-          <div class="mt-3">
-            <p class="text-xs font-medium text-apple-gray-400">Why fit</p>
-            <div class="mt-1 text-sm text-apple-gray-600 space-y-1">
-              {% for line in partner.why_fit %}
-              <p>{{ line }}</p>
-              {% endfor %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ client.name }} · Partner Outreach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --cream: #faf8f5; --ink: #1a1a1a; --forest: #1e3a2f; --gold: #c9a962; --gold-light: #e8d5a8; --muted: #8b8680; --blush: #f4e8e1; --card: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+        .container { max-width: 520px; margin: 0 auto; padding: 24px 20px 120px; position: relative; }
+        .header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--gold-light); margin-bottom: 32px; }
+        .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 500; color: var(--forest); letter-spacing: -0.02em; }
+        .header-meta { margin-top: 12px; font-size: 13px; color: var(--muted); }
+        .header-meta a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .progress { text-align: center; padding: 28px 24px; background: var(--card); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 32px; position: relative; }
+        .progress::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 3px; background: var(--gold); border-radius: 0 0 2px 2px; }
+        .progress-number { font-family: 'Playfair Display', Georgia, serif; font-size: 48px; font-weight: 500; color: var(--forest); line-height: 1; }
+        .progress-number span { color: var(--muted); font-size: 32px; }
+        .progress-label { font-size: 13px; color: var(--muted); margin-top: 8px; letter-spacing: 0.02em; }
+        .progress-bar { height: 3px; background: var(--blush); border-radius: 2px; margin-top: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--forest), var(--gold)); border-radius: 2px; transition: width 0.4s ease; }
+        .reset-btn { margin-top: 16px; padding: 8px 16px; background: transparent; border: 1px solid var(--gold-light); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+        .reset-btn:hover { background: var(--blush); color: var(--forest); border-color: var(--gold); }
+        .section { margin-bottom: 36px; }
+        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--gold-light); }
+        .section-title { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 500; color: var(--forest); }
+        .section-count { font-size: 12px; color: var(--gold); font-weight: 600; }
+        .section-note { font-size: 11px; color: var(--muted); margin-left: auto; font-style: italic; }
+        .card { background: var(--card); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .card.done { opacity: 0.5; }
+        .card.done .card-name { text-decoration: line-through; text-decoration-color: var(--muted); }
+        .card-inner { display: flex; align-items: stretch; }
+        .card-details { display: none; padding: 0 20px 16px 72px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--blush); }
+        .card.expanded .card-details { display: block; }
+        .card-details-inner { padding-top: 12px; }
+        .detail-row { display: flex; gap: 8px; margin-bottom: 6px; }
+        .detail-label { font-weight: 600; color: var(--forest); min-width: 60px; flex-shrink: 0; }
+        .detail-value { color: var(--ink); }
+        .detail-value a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .detail-note { font-style: italic; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--gold-light); }
+        .expand-hint { font-size: 10px; color: var(--gold); margin-top: 6px; opacity: 0.8; }
+        .card.expanded .expand-hint { display: none; }
+        .card-check { width: 52px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-right: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; transition: background 0.15s; }
+        .card-check:hover { background: var(--blush); }
+        .checkbox { width: 22px; height: 22px; border: 2px solid var(--gold-light); border-radius: 50%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .card.done .checkbox { background: var(--forest); border-color: var(--forest); }
+        .card.done .checkbox::after { content: "\2713"; color: white; font-size: 12px; font-weight: 600; }
+        .card-content { flex: 1; padding: 16px 20px; min-width: 0; }
+        .card-name { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+        .card-company { font-size: 13px; color: var(--muted); }
+        .card-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .tag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 3px; letter-spacing: 0.03em; text-transform: uppercase; }
+        .tag-priority { background: var(--forest); color: white; }
+        .tag-fit { background: var(--blush); color: var(--forest); }
+        .tag-warn { background: #fef3c7; color: #92400e; }
+        .card-action { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 16px; gap: 6px; }
+        .card-reach { font-size: 11px; color: var(--muted); font-weight: 500; }
+        .action-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: var(--forest); color: white; border-radius: 8px; text-decoration: none; transition: transform 0.15s, background 0.15s; }
+        .action-btn:hover { transform: scale(1.08); background: var(--gold); }
+        .action-btn:active { transform: scale(0.98); }
+        .action-btn svg { width: 20px; height: 20px; }
+        .action-btn.linkedin { background: #0077b5; }
+        .action-btn.linkedin:hover { background: #005885; }
+        .template-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 2px solid var(--gold); padding: 16px 20px; z-index: 100; }
+        .template-bar-inner { max-width: 520px; margin: 0 auto; display: flex; gap: 12px; }
+        .template-btn { flex: 1; padding: 14px 16px; background: var(--cream); border: 1px solid var(--gold-light); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--forest); cursor: pointer; transition: all 0.15s; }
+        .template-btn:hover { background: var(--blush); border-color: var(--gold); }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(30, 58, 47, 0.6); backdrop-filter: blur(4px); z-index: 200; align-items: flex-end; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: var(--card); width: 100%; max-width: 520px; max-height: 85vh; border-radius: 16px 16px 0 0; overflow: hidden; animation: slideUp 0.25s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--gold-light); }
+        .modal-title { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 500; color: var(--forest); }
+        .modal-close { width: 36px; height: 36px; border: none; background: var(--cream); border-radius: 50%; font-size: 20px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+        .modal-close:hover { background: var(--blush); }
+        .modal-body { padding: 24px; overflow-y: auto; max-height: 55vh; }
+        .template-text { font-size: 14px; line-height: 1.7; white-space: pre-wrap; background: var(--cream); padding: 20px; border-radius: 8px; border: 1px solid var(--gold-light); color: var(--ink); }
+        .modal-action { padding: 20px 24px; border-top: 1px solid var(--gold-light); }
+        .copy-btn { width: 100%; padding: 16px; background: var(--forest); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+        .copy-btn:hover { background: var(--gold); color: var(--ink); }
+        .footer-note { text-align: center; padding: 24px 0 0; font-size: 12px; color: var(--muted); border-top: 1px solid var(--gold-light); margin-top: 8px; }
+        .footer-note a { color: var(--forest); }
+        @media (max-width: 480px) { .container { padding: 16px 16px 120px; } .header h1 { font-size: 24px; } .progress-number { font-size: 40px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-eyebrow">Partner Outreach</div>
+            <h1>{{ client.name }}</h1>
+            <div class="header-meta">
+                {{ client.name }} · {{ client.updated }} · <a href="{{ client.profile_url }}">View Details</a>
             </div>
-          </div>
-        </div>
-      </div>
-      {% endfor %}
-    </div>
-  </section>
+        </header>
 
-  <!-- Needs Verification -->
-  <section class="mb-10">
-    <h2 class="text-base font-semibold text-apple-gray-600 mb-1">
-      Needs Verification <span class="font-normal text-apple-gray-400">({{ partners_verify|length }})</span>
-    </h2>
-    <p class="text-xs text-apple-gray-400 mb-4">Verify contact before reaching out</p>
-    <div class="space-y-4">
-      {% for partner in partners_verify %}
-      <div class="card-partner p-4" x-data="{ open: false }">
-        <div class="flex flex-wrap items-start justify-between gap-2">
-          <div class="min-w-0 flex-1">
-            <p class="font-medium text-apple-gray-600">{{ partner.name }}</p>
-            <p class="text-sm text-apple-gray-400">{{ partner.company }} · {{ partner.tagline }}</p>
-          </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            {% if partner.badge %}
-            <span class="badge badge-verify">{{ partner.badge }}</span>
-            {% endif %}
-            <span class="text-xs text-apple-gray-400">{{ partner.list_size }} List</span>
-          </div>
-        </div>
-        <button type="button"
-                @click="open = !open"
-                class="mt-3 text-xs text-apple-blue hover:underline focus:outline-none">
-          tap for details
-        </button>
-        <div class="detail-block mt-3 border-t border-apple-gray-100 pt-3" x-show="open" x-transition>
-          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            {% if partner.email %}
-            <dt class="text-apple-gray-400">Email</dt>
-            <dd><a href="mailto:{{ partner.email }}" class="text-apple-blue hover:underline">{{ partner.email }}</a></dd>
-            {% endif %}
-            {% if partner.website %}
-            <dt class="text-apple-gray-400">Website</dt>
-            <dd><a href="{{ partner.website }}" target="_blank" rel="noopener" class="text-apple-blue hover:underline">{{ partner.website }}</a></dd>
-            {% endif %}
-            {% if partner.phone %}
-            <dt class="text-apple-gray-400">Phone</dt>
-            <dd>{{ partner.phone }}</dd>
-            {% endif %}
-            {% if partner.linkedin %}
-            <dt class="text-apple-gray-400">LinkedIn</dt>
-            <dd><a href="{{ partner.linkedin }}" target="_blank" rel="noopener" class="text-apple-blue hover:underline">View Profile</a></dd>
-            {% endif %}
-            {% if partner.schedule %}
-            <dt class="text-apple-gray-400">Schedule</dt>
-            <dd><a href="{{ partner.schedule }}" target="_blank" rel="noopener" class="text-apple-blue hover:underline">Book</a></dd>
-            {% endif %}
-            <dt class="text-apple-gray-400">Niche</dt>
-            <dd>{{ partner.niche }}</dd>
-          </dl>
-          <div class="mt-3">
-            <p class="text-xs font-medium text-apple-gray-400">Why fit</p>
-            <div class="mt-1 text-sm text-apple-gray-600 space-y-1">
-              {% for line in partner.why_fit %}
-              <p>{{ line }}</p>
-              {% endfor %}
+        <div class="progress">
+            <div class="progress-number"><span id="doneCount">0</span><span>/</span><span id="totalCount">{{ partners|length }}</span></div>
+            <div class="progress-label">partners contacted</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
             </div>
-          </div>
+            <button class="reset-btn" type="button" onclick="resetProgress()">Reset Progress</button>
         </div>
-      </div>
-      {% endfor %}
-    </div>
-  </section>
 
-  <!-- LinkedIn Outreach -->
-  <section class="mb-10">
-    <h2 class="text-base font-semibold text-apple-gray-600 mb-1">
-      LinkedIn Outreach <span class="font-normal text-apple-gray-400">({{ partners_linkedin|length }})</span>
-    </h2>
-    <p class="text-xs text-apple-gray-400 mb-4">No email — connect via LinkedIn</p>
-    <div class="space-y-4">
-      {% for partner in partners_linkedin %}
-      <div class="card-partner p-4" x-data="{ open: false }">
-        <div class="flex flex-wrap items-start justify-between gap-2">
-          <div class="min-w-0 flex-1">
-            <p class="font-medium text-apple-gray-600">{{ partner.name }}</p>
-            <p class="text-sm text-apple-gray-400">{{ partner.company }} · {{ partner.tagline }}</p>
-          </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            {% if partner.badge %}
-            <span class="badge {% if partner.badge == '1M+ Reach' %}badge-linkedin{% else %}badge-high{% endif %}">{{ partner.badge }}</span>
-            {% endif %}
-            <span class="text-xs text-apple-gray-400">{{ partner.list_size }}</span>
-          </div>
-        </div>
-        <button type="button"
-                @click="open = !open"
-                class="mt-3 text-xs text-apple-blue hover:underline focus:outline-none">
-          tap for details
-        </button>
-        <div class="detail-block mt-3 border-t border-apple-gray-100 pt-3" x-show="open" x-transition>
-          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
-            {% if partner.linkedin %}
-            <dt class="text-apple-gray-400">LinkedIn</dt>
-            <dd><a href="{{ partner.linkedin }}" target="_blank" rel="noopener" class="text-apple-blue hover:underline">View Profile</a></dd>
-            {% endif %}
-            {% if partner.website %}
-            <dt class="text-apple-gray-400">Website</dt>
-            <dd><a href="{{ partner.website }}" target="_blank" rel="noopener" class="text-apple-blue hover:underline">{{ partner.website }}</a></dd>
-            {% endif %}
-            {% if partner.schedule %}
-            <dt class="text-apple-gray-400">Calendar</dt>
-            <dd><a href="{{ partner.schedule }}" target="_blank" rel="noopener" class="text-apple-blue hover:underline">Book</a></dd>
-            {% endif %}
-            <dt class="text-apple-gray-400">Niche</dt>
-            <dd>{{ partner.niche }}</dd>
-          </dl>
-          <div class="mt-3">
-            <p class="text-xs font-medium text-apple-gray-400">Why fit</p>
-            <div class="mt-1 text-sm text-apple-gray-600 space-y-1">
-              {% for line in partner.why_fit %}
-              <p>{{ line }}</p>
-              {% endfor %}
+        <section class="section">
+            <div class="section-header">
+                <span class="section-title">Ready to Contact</span>
+                <span class="section-count">{{ partners_ready|length }}</span>
+                <span class="section-note">Direct emails verified</span>
             </div>
-          </div>
+            {% for partner in partners_ready %}
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">{{ partner.name }}</div>
+                        <div class="card-company">{{ partner.company }} · {{ partner.tagline }}</div>
+                        <div class="card-tags">
+                            {% if partner.badge == "Verify Email" %}<span class="tag tag-warn">Verify Email</span>
+                            {% elif partner.badge == "Top Match" or partner.badge == "Active JV" %}<span class="tag tag-priority">{{ partner.badge }}</span>
+                            {% elif partner.badge %}<span class="tag tag-fit">{{ partner.badge }}</span>{% endif %}
+                            {% if partner.list_size %}<span class="tag tag-fit">{{ partner.list_size }} List</span>{% endif %}
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">{{ partner.list_size }}</span>
+                        {% if partner.email %}
+                        <a href="mailto:{{ partner.email }}" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                        {% else %}
+                        <a href="{{ partner.linkedin|default:'#' }}" target="_blank" rel="noopener" class="action-btn linkedin" onclick="event.stopPropagation()">
+                            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        {% if partner.email %}<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:{{ partner.email }}">{{ partner.email }}</a></span></div>{% endif %}
+                        {% if partner.website %}<div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="{{ partner.website }}" target="_blank" rel="noopener">{{ partner.website }}</a></span></div>{% endif %}
+                        {% if partner.phone %}<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">{{ partner.phone }}</span></div>{% endif %}
+                        {% if partner.linkedin %}<div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="{{ partner.linkedin }}" target="_blank" rel="noopener">View Profile</a></span></div>{% endif %}
+                        {% if partner.pr_contact %}<div class="detail-row"><span class="detail-label">PR / best contact</span><span class="detail-value">{{ partner.pr_contact }}</span></div>{% endif %}
+                        {% if partner.schedule %}<div class="detail-row"><span class="detail-label">Schedule</span><span class="detail-value"><a href="{{ partner.schedule }}" target="_blank" rel="noopener">Book</a></span></div>{% endif %}
+                        <div class="detail-row"><span class="detail-label">Niche</span><span class="detail-value">{{ partner.niche }}</span></div>
+                        <div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">{{ partner.why_fit.0 }}</span></div>
+                        {% if partner.why_fit|length > 1 %}<div class="detail-note">{% for line in partner.why_fit %}{% if not forloop.first %}{{ line }}{% if not forloop.last %} {% endif %}{% endif %}{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <span class="section-title">Needs Verification</span>
+                <span class="section-count">{{ partners_verify|length }}</span>
+                <span class="section-note">Verify contact before reaching out</span>
+            </div>
+            {% for partner in partners_verify %}
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">{{ partner.name }}</div>
+                        <div class="card-company">{{ partner.company }} · {{ partner.tagline }}</div>
+                        <div class="card-tags">
+                            {% if partner.badge %}<span class="tag tag-warn">{{ partner.badge }}</span>{% endif %}
+                            {% if partner.list_size %}<span class="tag tag-fit">{{ partner.list_size }} List</span>{% endif %}
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">{{ partner.list_size }}</span>
+                        {% if partner.email %}
+                        <a href="mailto:{{ partner.email }}" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                        {% else %}
+                        <a href="{{ partner.linkedin|default:'#' }}" target="_blank" rel="noopener" class="action-btn linkedin" onclick="event.stopPropagation()">
+                            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        {% if partner.email %}<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:{{ partner.email }}">{{ partner.email }}</a></span></div>{% endif %}
+                        {% if partner.website %}<div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="{{ partner.website }}" target="_blank" rel="noopener">{{ partner.website }}</a></span></div>{% endif %}
+                        {% if partner.phone %}<div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">{{ partner.phone }}</span></div>{% endif %}
+                        {% if partner.linkedin %}<div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="{{ partner.linkedin }}" target="_blank" rel="noopener">View Profile</a></span></div>{% endif %}
+                        {% if partner.schedule %}<div class="detail-row"><span class="detail-label">Schedule</span><span class="detail-value"><a href="{{ partner.schedule }}" target="_blank" rel="noopener">Book</a></span></div>{% endif %}
+                        <div class="detail-row"><span class="detail-label">Niche</span><span class="detail-value">{{ partner.niche }}</span></div>
+                        <div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">{{ partner.why_fit.0 }}</span></div>
+                        {% if partner.why_fit|length > 1 %}<div class="detail-note">{% for line in partner.why_fit %}{% if not forloop.first %}{{ line }}{% if not forloop.last %} {% endif %}{% endif %}{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+
+        <section class="section">
+            <div class="section-header">
+                <span class="section-title">LinkedIn Outreach</span>
+                <span class="section-count">{{ partners_linkedin|length }}</span>
+                <span class="section-note">No email - connect via LinkedIn</span>
+            </div>
+            {% for partner in partners_linkedin %}
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">{{ partner.name }}</div>
+                        <div class="card-company">{{ partner.company }} · {{ partner.tagline }}</div>
+                        <div class="card-tags">
+                            {% if partner.badge %}<span class="tag tag-priority">{{ partner.badge }}</span>{% endif %}
+                            {% if partner.list_size %}<span class="tag tag-fit">{{ partner.list_size }}</span>{% endif %}
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">{{ partner.list_size }}</span>
+                        <a href="{{ partner.linkedin|default:'#' }}" target="_blank" rel="noopener" class="action-btn linkedin" onclick="event.stopPropagation()">
+                            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        {% if partner.linkedin %}<div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="{{ partner.linkedin }}" target="_blank" rel="noopener">View Profile</a></span></div>{% endif %}
+                        {% if partner.website %}<div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="{{ partner.website }}" target="_blank" rel="noopener">{{ partner.website }}</a></span></div>{% endif %}
+                        {% if partner.schedule %}<div class="detail-row"><span class="detail-label">Calendar</span><span class="detail-value"><a href="{{ partner.schedule }}" target="_blank" rel="noopener">Book</a></span></div>{% endif %}
+                        <div class="detail-row"><span class="detail-label">Niche</span><span class="detail-value">{{ partner.niche }}</span></div>
+                        <div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">{{ partner.why_fit.0 }}</span></div>
+                        {% if partner.why_fit|length > 1 %}<div class="detail-note">{% for line in partner.why_fit %}{% if not forloop.first %}{{ line }}{% if not forloop.last %} {% endif %}{% endif %}{% endfor %}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+
+        <div class="footer-note">
+            {{ client.name }} · <a href="{{ client.profile_url }}">Client Profile</a> · <a href="{{ client.website }}" target="_blank" rel="noopener">{{ client.website }}</a>
         </div>
-      </div>
-      {% endfor %}
     </div>
-  </section>
 
-  <!-- Footer -->
-  <footer class="border-t border-apple-gray-200 pt-6 flex flex-wrap items-center gap-4">
-    <a href="{{ client.profile_url }}" class="text-sm text-apple-blue hover:underline">{{ client.name }} · Client Profile</a>
-    <span class="text-apple-gray-300">·</span>
-    <a href="{{ client.website }}" target="_blank" rel="noopener" class="text-sm text-apple-gray-500 hover:underline">{{ client.website }}</a>
-    <div class="w-full sm:w-auto sm:ml-auto flex gap-3 mt-2 sm:mt-0">
-      <button type="button"
-              @click="copyOutreachEmail()"
-              class="px-4 py-2 text-sm font-medium rounded-lg bg-apple-gray-100 text-apple-gray-600 hover:bg-apple-gray-200 focus:outline-none">
-        Copy Outreach Email
-      </button>
-      <button type="button"
-              @click="copyFollowUp()"
-              class="px-4 py-2 text-sm font-medium rounded-lg bg-apple-gray-100 text-apple-gray-600 hover:bg-apple-gray-200 focus:outline-none">
-        Copy Follow-up
-      </button>
-      <button type="button"
-              @click="templateOpen = true"
-              class="px-4 py-2 text-sm font-medium rounded-lg bg-apple-gray-100 text-apple-gray-600 hover:bg-apple-gray-200 focus:outline-none">
-        Template
-      </button>
+    <div class="template-bar">
+        <div class="template-bar-inner">
+            <button class="template-btn" type="button" onclick="copyOutreach()">Copy Outreach Email</button>
+            <button class="template-btn" type="button" onclick="copyFollowUp()">Copy Follow-up</button>
+            <button class="template-btn" type="button" onclick="showTemplate()">Template</button>
+        </div>
     </div>
-  </footer>
 
-  <!-- Template modal -->
-  <div x-show="templateOpen"
-       x-cloak
-       class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"
-       @keydown.escape.window="templateOpen = false">
-    <div @click.away="templateOpen = false"
-         class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[80vh] overflow-y-auto"
-         role="dialog"
-         aria-labelledby="template-title">
-      <div class="flex justify-between items-center mb-4">
-        <h3 id="template-title" class="text-lg font-semibold text-apple-gray-600">Email Template</h3>
-        <button type="button"
-                @click="templateOpen = false"
-                class="p-2 rounded-lg hover:bg-apple-gray-100 text-apple-gray-500 focus:outline-none"
-                aria-label="Close">
-          &times;
-        </button>
-      </div>
-      <div class="text-sm text-apple-gray-600 whitespace-pre-wrap mb-4" x-text="templateSample"></div>
-      <button type="button"
-              @click="copyTemplate(); templateOpen = false"
-              class="w-full px-4 py-2 text-sm font-medium rounded-lg bg-apple-blue text-white hover:bg-blue-600 focus:outline-none">
-        Copy to Clipboard
-      </button>
+    <div class="modal-overlay" id="modal" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Template</div>
+                <button class="modal-close" type="button" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="template-text" id="modalContent"></div>
+            </div>
+            <div class="modal-action">
+                <button class="copy-btn" type="button" id="copyBtn" onclick="copyAndClose()">Copy to Clipboard</button>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<script>
-  document.addEventListener('alpine:init', function() {
-    Alpine.data('demoOutreach', function() {
-      const total = {{ partners|length }};
-      return {
-        contactedCount: 0,
-        templateOpen: false,
-        templateSample: `Hi [Partner Name],
-
-I'm reaching out from Once Upon a Time Partners. We help leaders and teams with premium events and transformations, and your work in [Niche] looks like a strong fit for our audience.
-
-Would you be open to a short conversation to explore a potential JV or collaboration?
-
-Best,
-[Your name]`,
-        resetProgress() {
-          this.contactedCount = this.contactedCount === total ? 0 : total;
-        },
-        copyOutreachEmail() {
-          const text = `Subject: Partnership idea – Once Upon a Time Partners\n\nHi [Name],\n\nI'd love to connect about a potential JV. Our audiences align around [topic]. Would you be open to a quick call?\n\nBest,\n[Your name]`;
-          navigator.clipboard.writeText(text).then(() => alert('Outreach email copied to clipboard.'));
-        },
-        copyFollowUp() {
-          const text = `Hi [Name],\n\nJust following up on my note below. Would love to find 15 minutes to explore a partnership.\n\nBest,\n[Your name]`;
-          navigator.clipboard.writeText(text).then(() => alert('Follow-up copied to clipboard.'));
-        },
-        copyTemplate() {
-          navigator.clipboard.writeText(this.templateSample).then(() => alert('Template copied to clipboard.'));
+    <script>
+        var templateText = "Hi [Partner Name],\n\nI'm reaching out from Once Upon a Time Partners. We help leaders and teams with premium events and transformations, and your work in [Niche] looks like a strong fit for our audience.\n\nWould you be open to a short conversation to explore a potential JV or collaboration?\n\nBest,\n[Your name]";
+        function showTemplate() {
+            document.getElementById('modalTitle').textContent = 'Template';
+            document.getElementById('modalContent').textContent = templateText;
+            document.getElementById('modal').classList.add('open');
         }
-      };
-    });
-  });
-</script>
-{% endblock %}
+        function closeModal() { document.getElementById('modal').classList.remove('open'); }
+        function copyAndClose() {
+            navigator.clipboard.writeText(templateText).then(function() {
+                var btn = document.getElementById('copyBtn');
+                btn.textContent = 'Copied!';
+                btn.style.background = 'var(--gold)';
+                btn.style.color = 'var(--ink)';
+                setTimeout(function() { closeModal(); btn.textContent = 'Copy to Clipboard'; btn.style.background = ''; btn.style.color = ''; }, 800);
+            });
+        }
+        function copyOutreach() {
+            var text = "Subject: Partnership idea – Once Upon a Time Partners\n\nHi [Name],\n\nI'd love to connect about a potential JV. Our audiences align around [topic]. Would you be open to a quick call?\n\nBest,\n[Your name]";
+            navigator.clipboard.writeText(text).then(function() { alert('Outreach email copied to clipboard.'); });
+        }
+        function copyFollowUp() {
+            var text = "Hi [Name],\n\nJust following up on my note below. Would love to find 15 minutes to explore a partnership.\n\nBest,\n[Your name]";
+            navigator.clipboard.writeText(text).then(function() { alert('Follow-up copied to clipboard.'); });
+        }
+        function toggleCard(card) { card.classList.toggle('done'); updateProgress(); saveState(); }
+        function toggleExpand(card) { card.classList.toggle('expanded'); }
+        function updateProgress() {
+            var total = document.querySelectorAll('.card').length;
+            var done = document.querySelectorAll('.card.done').length;
+            document.getElementById('doneCount').textContent = done;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('progressFill').style.width = (total ? (done / total * 100) : 0) + '%';
+        }
+        function saveState() {
+            var cards = document.querySelectorAll('.card');
+            var state = [];
+            cards.forEach(function(card, i) { if (card.classList.contains('done')) state.push(i); });
+            localStorage.setItem('demo_outreach_v1', JSON.stringify(state));
+        }
+        function loadState() {
+            var saved = localStorage.getItem('demo_outreach_v1');
+            if (saved) {
+                var state = JSON.parse(saved);
+                var cards = document.querySelectorAll('.card');
+                state.forEach(function(i) { if (cards[i]) cards[i].classList.add('done'); });
+            }
+            updateProgress();
+        }
+        function resetProgress() {
+            if (confirm('Clear all progress? This cannot be undone.')) {
+                localStorage.removeItem('demo_outreach_v1');
+                document.querySelectorAll('.card.done').forEach(function(card) { card.classList.remove('done'); });
+                updateProgress();
+            }
+        }
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+        loadState();
+    </script>
+</body>
+</html>
