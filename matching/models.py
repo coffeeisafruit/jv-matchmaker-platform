@@ -36,6 +36,8 @@ class SupabaseProfile(models.Model):
     who_you_serve = models.TextField(null=True, blank=True)
     seeking = models.TextField(null=True, blank=True)
     offering = models.TextField(null=True, blank=True)
+    signature_programs = models.TextField(null=True, blank=True)  # Named courses, books, frameworks
+    booking_link = models.TextField(null=True, blank=True)  # Calendly, Acuity, etc.
     current_projects = models.TextField(null=True, blank=True)
     niche = models.TextField(null=True, blank=True)
     audience_type = models.TextField(null=True, blank=True)

@@ -6,6 +6,17 @@ python-dotenv>=1.0.0
 psycopg2-binary>=2.9.9
 dj-database-url>=2.1.0
 
+# PDF Generation
+reportlab>=4.0.0
+
+# Web Research for Profile Enrichment
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+pydantic>=2.0.0
+
+# Claude Agent SDK (uses Claude Code Max subscription)
+claude-agent-sdk>=0.1.0
+
 # Production
 gunicorn>=21.0.0
 whitenoise>=6.6.0
