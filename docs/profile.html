@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Once Upon a Time Partners · Client Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --cream: #faf8f5; --ink: #1a1a1a; --forest: #1e3a2f; --gold: #c9a962; --gold-light: #e8d5a8; --muted: #8b8680; --blush: #f4e8e1; --card: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+        .container { max-width: 520px; margin: 0 auto; padding: 24px 20px 80px; position: relative; }
+        .header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--gold-light); margin-bottom: 32px; }
+        .back-link { display: inline-block; font-size: 13px; color: var(--muted); text-decoration: none; margin-bottom: 12px; }
+        .back-link:hover { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 500; color: var(--forest); letter-spacing: -0.02em; }
+        .header-meta { margin-top: 12px; font-size: 13px; color: var(--muted); }
+        .header-meta a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .main { margin-bottom: 2rem; }
+        .client-card { background: var(--card); border-radius: 8px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; gap: 1rem; align-items: flex-start; }
+        .client-avatar { width: 56px; height: 56px; background: var(--forest); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 600; font-size: 1.25rem; flex-shrink: 0; }
+        .client-info h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 1.125rem; font-weight: 500; color: var(--forest); }
+        .client-company { color: var(--muted); font-size: 0.875rem; }
+        .client-title { color: var(--ink); font-size: 0.8125rem; margin-top: 0.25rem; }
+        .section { background: var(--card); border-radius: 8px; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; }
+        .section-header { padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--gold-light); background: var(--cream); }
+        .section-title { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 500; color: var(--forest); }
+        .section-body { padding: 1.25rem; }
+        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        @media (max-width: 480px) { .info-grid { grid-template-columns: 1fr; } }
+        .info-item label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.25rem; }
+        .info-item .value { font-weight: 600; font-size: 0.9375rem; color: var(--ink); }
+        .info-item .sub { font-size: 0.75rem; color: var(--muted); }
+        .info-item .highlight { color: var(--gold); }
+        .info-item a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .commission-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+        @media (max-width: 600px) { .commission-grid { grid-template-columns: repeat(2, 1fr); } }
+        .commission-box { text-align: center; padding: 1rem; background: var(--blush); border-radius: 6px; }
+        .commission-box.highlight { background: var(--forest); }
+        .commission-value { font-size: 1.25rem; font-weight: 700; color: var(--ink); }
+        .commission-box.highlight .commission-value { color: var(--gold); }
+        .commission-label { font-size: 0.6875rem; color: var(--muted); margin-top: 0.25rem; }
+        .commission-box.highlight .commission-label { color: var(--gold-light); }
+        .text-block { font-size: 0.875rem; color: var(--ink); }
+        .text-block p { margin-bottom: 1rem; }
+        .text-block p:last-child { margin-bottom: 0; }
+        .text-block strong { color: var(--forest); }
+        .text-block ul { list-style: none; margin: 0.5rem 0; }
+        .text-block li { padding: 0.25rem 0; padding-left: 1rem; position: relative; }
+        .text-block li::before { content: "•"; position: absolute; left: 0; color: var(--gold); }
+        .key-message { background: var(--forest); border-radius: 8px; padding: 1.5rem; text-align: center; margin-bottom: 1.25rem; }
+        .key-message-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold-light); margin-bottom: 0.5rem; }
+        .key-message-text { font-size: 1.125rem; font-weight: 600; white-space: pre-line; color: var(--gold); }
+        .faq-item { border-bottom: 1px solid var(--blush); }
+        .faq-item:last-child { border-bottom: none; }
+        .faq-question { padding: 0.875rem 1.25rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .faq-question:hover { background: var(--blush); }
+        .faq-toggle { color: var(--gold); font-size: 0.75rem; }
+        .faq-answer { display: none; padding: 0 1.25rem 0.875rem 1.25rem; font-size: 0.8125rem; color: var(--muted); }
+        .faq-item.open .faq-answer { display: block; }
+        .faq-item.open .faq-toggle { transform: rotate(180deg); }
+        .contact-footer { background: var(--card); border-radius: 8px; padding: 1.25rem; text-align: center; font-size: 0.8125rem; color: var(--muted); margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .contact-footer a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .footer { border-top: 1px solid var(--gold-light); padding: 1.5rem; text-align: center; font-size: 0.75rem; color: var(--muted); }
+        .footer a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+        @media (max-width: 600px) { .tier-grid { grid-template-columns: 1fr; } }
+        .tier-box { padding: 1rem; background: var(--blush); border-radius: 6px; text-align: center; }
+        .tier-box.highlight { background: var(--forest); color: white; }
+        .tier-name { font-weight: 600; font-size: 0.875rem; margin-bottom: 0.5rem; }
+        .tier-box.highlight .tier-name { color: var(--gold); }
+        .tier-desc { font-size: 0.75rem; color: var(--muted); }
+        .tier-box.highlight .tier-desc { color: var(--gold-light); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <a href="outreach.html" class="back-link">← Back to Partner Outreach</a>
+            <div class="header-eyebrow">Client Profile</div>
+            <h1>Once Upon a Time Partners</h1>
+            <div class="header-meta">
+                Fairy Tale Lead · <a href="outreach.html">View Partner Outreach List</a>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="client-card">
+                <div class="client-avatar">OU</div>
+                <div class="client-info">
+                    <h2>Fairy Tale Lead</h2>
+                    <div class="client-company">Once Upon a Time Partners</div>
+                    <div class="client-title">Creator of Once Upon a Time Partners · Premium events and transformations</div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><span class="section-title">The Offer</span></div>
+                <div class="section-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label>Current Program</label>
+                            <div class="value">Once Upon a Time</div>
+                            <div class="sub">3-tier events and expansion program</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Program Focus</label>
+                            <div class="value highlight">Events &amp; Global Reach</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Target Audience</label>
+                            <div class="value">Leaders &amp; Entrepreneurs</div>
+                            <div class="sub">Ready for premium events and transformation</div>
+                        </div>
+                        <div class="info-item">
+                            <label>Network Reach</label>
+                            <div class="value">50+ Kingdoms</div>
+                            <div class="sub">1,000+ story-led facilitators</div>
+                        </div>
+                    </div>
+                    <div class="tier-grid">
+                        <div class="tier-box">
+                            <div class="tier-name">Tier 1: Once Upon a Time</div>
+                            <div class="tier-desc">Just starting, want to host memorable events</div>
+                        </div>
+                        <div class="tier-box highlight">
+                            <div class="tier-name">Tier 2: Ever After</div>
+                            <div class="tier-desc">Established, ready to scale events globally</div>
+                        </div>
+                        <div class="tier-box">
+                            <div class="tier-name">Tier 3: Happily Ever After</div>
+                            <div class="tier-desc">Advanced, building a global story-led presence</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f0f0f0;">
+                        <div class="info-item">
+                            <label>Main Website</label>
+                            <a href="https://example.com" target="_blank" rel="noopener">example.com</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><span class="section-title">What Once Upon a Time Partners Offers Partners</span></div>
+                <div class="section-body">
+                    <div class="commission-grid">
+                        <div class="commission-box">
+                            <div class="commission-value">1,000+</div>
+                            <div class="commission-label">story-led facilitators</div>
+                        </div>
+                        <div class="commission-box">
+                            <div class="commission-value">50+</div>
+                            <div class="commission-label">kingdoms reached</div>
+                        </div>
+                        <div class="commission-box">
+                            <div class="commission-value">Premium</div>
+                            <div class="commission-label">event credibility</div>
+                        </div>
+                        <div class="commission-box highlight">
+                            <div class="commission-value">ENGAGED</div>
+                            <div class="commission-label">transformation seekers</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="key-message">
+                <div class="key-message-label">Key Positioning Message</div>
+                <div class="key-message-text">"You teach them how to BUILD their business.
+Once Upon a Time teaches them how to make it a STORY worth sharing."</div>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><span class="section-title">About Fairy Tale Lead</span></div>
+                <div class="section-body text-block">
+                    <p><strong>The Story:</strong> Once Upon a Time Partners is the creator of a premium events and transformation program helping leaders and entrepreneurs host unforgettable experiences and build global networks. Built on story-led methodology with a network of facilitators across 50+ kingdoms.</p>
+                    <p><strong>Shared Stage With:</strong></p>
+                    <ul>
+                        <li>The Grand Ball</li>
+                        <li>Kingdom Summit</li>
+                        <li>Forest Council</li>
+                        <li>Tower Retreat</li>
+                        <li>Castle Conference</li>
+                        <li>Enchanted Workshop</li>
+                    </ul>
+                    <p><strong>Credentials:</strong></p>
+                    <ul>
+                        <li>Creator of Once Upon a Time Partners</li>
+                        <li>Premium events and transformation methodology</li>
+                        <li>Global network of 1,000+ story-led facilitators in 50+ kingdoms</li>
+                        <li>Featured at major kingdom events worldwide</li>
+                        <li>Transformation leader for 15+ years</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><span class="section-title">Ideal Partner Profile</span></div>
+                <div class="section-body text-block">
+                    <p>Coaches, entrepreneurs, and transformation leaders who serve <strong>purpose-driven individuals ready to expand their impact through premium events and storytelling</strong>.</p>
+                    <p style="color: var(--muted);">Their clients learn to build their business — Once Upon a Time teaches them to make it a story worth sharing.</p>
+                    <p><strong>Perfect For:</strong></p>
+                    <ul>
+                        <li>Business coaches ready to offer clients event and visibility pathways</li>
+                        <li>Transformation leaders with audiences seeking purpose and impact</li>
+                        <li>Event hosts and retreat leaders with engaged communities</li>
+                        <li>Speakers and authors looking for collaborative storytelling opportunities</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><span class="section-title">What Fairy Tale Lead Is Seeking</span></div>
+                <div class="section-body text-block">
+                    <p><strong>JV Partnership Goals:</strong></p>
+                    <ul>
+                        <li>Partners with audiences of leaders and entrepreneurs</li>
+                        <li>Speakers for joint events, summits, and retreats</li>
+                        <li>Podcast hosts in personal development and business spaces</li>
+                        <li>Complementary program owners for cross-promotion</li>
+                        <li>Influencers in transformation and purpose-driven business</li>
+                    </ul>
+                    <p style="margin-top: 1rem;"><strong>Program Focus:</strong> Once Upon a Time Partners — helping leaders and entrepreneurs expand their reach through premium events and a proven story-led network.</p>
+                </div>
+            </div>
+
+            <div class="section">
+                <div class="section-header"><span class="section-title">Partner FAQs</span></div>
+                <div style="padding: 0;">
+                    <div class="faq-item" onclick="this.classList.toggle('open')">
+                        <div class="faq-question">What makes Once Upon a Time different? <span class="faq-toggle">▼</span></div>
+                        <div class="faq-answer">Once Upon a Time Partners provides direct access to premium event experiences, story-led methodology, and a global network of facilitators. The proven track record and network across 50+ kingdoms provide real expansion opportunities for leaders ready to host memorable events.</div>
+                    </div>
+                    <div class="faq-item" onclick="this.classList.toggle('open')">
+                        <div class="faq-question">Who is the ideal referral? <span class="faq-toggle">▼</span></div>
+                        <div class="faq-answer">Leaders and entrepreneurs at any stage who want to expand through events and storytelling. The 3-tier program meets them where they are — whether just starting or ready to scale globally.</div>
+                    </div>
+                    <div class="faq-item" onclick="this.classList.toggle('open')">
+                        <div class="faq-question">What's the partnership structure? <span class="faq-toggle">▼</span></div>
+                        <div class="faq-answer">Various collaboration options: joint events, podcast appearances, summit speaking, cross-promotion, and affiliate partnerships. Flexible to fit partner needs.</div>
+                    </div>
+                    <div class="faq-item" onclick="this.classList.toggle('open')">
+                        <div class="faq-question">What results have partners seen? <span class="faq-toggle">▼</span></div>
+                        <div class="faq-answer">Partners gain access to an engaged audience and global network. Many have seen list growth and new client acquisition through collaborative events and storytelling.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contact-footer">
+                <div>Questions or updates?</div>
+                <a href="mailto:hello@example.com">hello@example.com</a>
+            </div>
+        </main>
+
+        <div class="footer">
+            Once Upon a Time Partners · <a href="index.html">Partner report</a> · <a href="profile.html">Client Profile</a> · <a href="outreach.html">Partner Outreach</a> · <a href="https://example.com" target="_blank" rel="noopener">example.com</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -799,3 +799,26 @@ class DemoOutreachView(TemplateView):
         context = super().get_context_data(**kwargs)
         context.update(data)
         return context
+
+
+class DemoProfileView(TemplateView):
+    """
+    Mock Client Profile one-pager (fairy tale).
+    Shareable at /matching/demo/profile/ for prospects.
+    """
+    template_name = 'matching/demo_profile.html'
+
+    def get_context_data(self, **kwargs):
+        from .demo_data import get_demo_profile_data
+        data = get_demo_profile_data()
+        context = super().get_context_data(**kwargs)
+        context.update(data)
+        return context
+
+
+class DemoReportView(TemplateView):
+    """
+    Demo Partner Report hub (like Janet index).
+    /matching/demo/ with links to Outreach and Client Profile.
+    """
+    template_name = 'matching/demo_report.html'

@@ -13,6 +13,66 @@ DEMO_CLIENT = {
     "updated": "Updated Feb 2025",
 }
 
+# Demo client profile (one-pager for Client Profile page)
+DEMO_PROFILE = {
+    "client": DEMO_CLIENT,
+    "contact_name": "Fairy Tale Lead",
+    "avatar_initials": "OU",
+    "title": "Creator of Once Upon a Time Partners · Premium events and transformations",
+    "program_name": "Once Upon a Time",
+    "program_sub": "3-tier events and expansion program",
+    "program_focus": "Events & Global Reach",
+    "target_audience": "Leaders & Entrepreneurs",
+    "target_audience_sub": "Ready for premium events and transformation",
+    "network_reach": "50+ Kingdoms",
+    "network_reach_sub": "1,000+ story-led facilitators",
+    "tiers": [
+        {"name": "Tier 1: Once Upon a Time", "desc": "Just starting, want to host memorable events", "highlight": False},
+        {"name": "Tier 2: Ever After", "desc": "Established, ready to scale events globally", "highlight": True},
+        {"name": "Tier 3: Happily Ever After", "desc": "Advanced, building a global story-led presence", "highlight": False},
+    ],
+    "main_website": "https://example.com",
+    "offers_partners": [
+        {"value": "1,000+", "label": "story-led facilitators", "highlight": False},
+        {"value": "50+", "label": "kingdoms reached", "highlight": False},
+        {"value": "Premium", "label": "event credibility", "highlight": False},
+        {"value": "ENGAGED", "label": "transformation seekers", "highlight": True},
+    ],
+    "key_message": '"You teach them how to BUILD their business.\nOnce Upon a Time teaches them how to make it a STORY worth sharing."',
+    "about_story": "Once Upon a Time Partners is the creator of a premium events and transformation program helping leaders and entrepreneurs host unforgettable experiences and build global networks. Built on story-led methodology with a network of facilitators across 50+ kingdoms.",
+    "shared_stage": ["The Grand Ball", "Kingdom Summit", "Forest Council", "Tower Retreat", "Castle Conference", "Enchanted Workshop"],
+    "credentials": [
+        "Creator of Once Upon a Time Partners",
+        "Premium events and transformation methodology",
+        "Global network of 1,000+ story-led facilitators in 50+ kingdoms",
+        "Featured at major kingdom events worldwide",
+        "Transformation leader for 15+ years",
+    ],
+    "ideal_partner_intro": "Coaches, entrepreneurs, and transformation leaders who serve <strong>purpose-driven individuals ready to expand their impact through premium events and storytelling</strong>.",
+    "ideal_partner_sub": "Their clients learn to build their business — Once Upon a Time teaches them to make it a story worth sharing.",
+    "perfect_for": [
+        "Business coaches ready to offer clients event and visibility pathways",
+        "Transformation leaders with audiences seeking purpose and impact",
+        "Event hosts and retreat leaders with engaged communities",
+        "Speakers and authors looking for collaborative storytelling opportunities",
+    ],
+    "seeking_goals": [
+        "Partners with audiences of leaders and entrepreneurs",
+        "Speakers for joint events, summits, and retreats",
+        "Podcast hosts in personal development and business spaces",
+        "Complementary program owners for cross-promotion",
+        "Influencers in transformation and purpose-driven business",
+    ],
+    "seeking_focus": "Once Upon a Time Partners — helping leaders and entrepreneurs expand their reach through premium events and a proven story-led network.",
+    "faqs": [
+        {"q": "What makes Once Upon a Time different?", "a": "Once Upon a Time Partners provides direct access to premium event experiences, story-led methodology, and a global network of facilitators. The proven track record and network across 50+ kingdoms provide real expansion opportunities for leaders ready to host memorable events."},
+        {"q": "Who is the ideal referral?", "a": "Leaders and entrepreneurs at any stage who want to expand through events and storytelling. The 3-tier program meets them where they are — whether just starting or ready to scale globally."},
+        {"q": "What's the partnership structure?", "a": "Various collaboration options: joint events, podcast appearances, summit speaking, cross-promotion, and affiliate partnerships. Flexible to fit partner needs."},
+        {"q": "What results have partners seen?", "a": "Partners gain access to an engaged audience and global network. Many have seen list growth and new client acquisition through collaborative events and storytelling."},
+    ],
+    "contact_email": "hello@example.com",
+}
+
 # Demo partners: section is one of 'ready' | 'verify' | 'linkedin'
 # Contact fields optional; use None or omit for "—" or hidden
 DEMO_PARTNERS = [
@@ -259,3 +319,8 @@ def get_demo_outreach_data():
         "partners_verify": [p for p in DEMO_PARTNERS if p["section"] == "verify"],
         "partners_linkedin": [p for p in DEMO_PARTNERS if p["section"] == "linkedin"],
     }
+
+
+def get_demo_profile_data():
+    """Return profile dict for the demo Client Profile template."""
+    return DEMO_PROFILE

@@ -85,6 +85,8 @@
         .modal-action { padding: 20px 24px; border-top: 1px solid var(--gold-light); }
         .copy-btn { width: 100%; padding: 16px; background: var(--forest); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
         .copy-btn:hover { background: var(--gold); color: var(--ink); }
+        .hub-link { margin-bottom: 16px; font-size: 13px; }
+        .hub-link a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
         .footer-note { text-align: center; padding: 24px 0 0; font-size: 12px; color: var(--muted); border-top: 1px solid var(--gold-light); margin-top: 8px; }
         .footer-note a { color: var(--forest); }
         @media (max-width: 480px) { .container { padding: 16px 16px 120px; } .header h1 { font-size: 24px; } .progress-number { font-size: 40px; } }
@@ -92,11 +94,12 @@
 </head>
 <body>
     <div class="container">
+        <p class="hub-link"><a href="{% url 'matching:demo-report' %}">← Partner report home</a></p>
         <header class="header">
             <div class="header-eyebrow">Partner Outreach</div>
             <h1>{{ client.name }}</h1>
             <div class="header-meta">
-                {{ client.name }} · {{ client.updated }} · <a href="{{ client.profile_url }}">View Details</a>
+                <a href="{% url 'matching:demo-report' %}">Partner report</a> · {{ client.name }} · {{ client.updated }} · <a href="{{ client.profile_url }}">View Details</a>
             </div>
         </header>
 
@@ -205,7 +208,7 @@
         </section>
 
         <div class="footer-note">
-            {{ client.name }} · <a href="{{ client.profile_url }}">Client Profile</a> · <a href="{{ client.website }}" target="_blank" rel="noopener">{{ client.website }}</a>
+            {{ client.name }} · <a href="{% url 'matching:demo-report' %}">Partner report</a> · <a href="{{ client.profile_url }}">Client Profile</a> · <a href="{{ client.website }}" target="_blank" rel="noopener">{{ client.website }}</a>
         </div>
     </div>
 
