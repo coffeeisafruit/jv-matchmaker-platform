@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Profile - Penelope Jane Smith</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f8f9fa;
+            color: #1a1a2e;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            background: #1a1a2e;
+            color: white;
+            padding: 1.5rem;
+        }
+        .header-inner {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .back-link {
+            color: #a0a0b0;
+            font-size: 0.8125rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-bottom: 0.75rem;
+        }
+        .back-link:hover {
+            color: white;
+        }
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .header-subtitle {
+            color: #a0a0b0;
+            font-size: 0.875rem;
+        }
+
+        /* Main */
+        .main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* Client Card */
+        .client-card {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+        .client-avatar {
+            width: 56px;
+            height: 56px;
+            background: #1a1a2e;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #e8c547;
+            font-weight: 700;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .client-info h2 {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        .client-company {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        .client-title {
+            color: #1a1a2e;
+            font-size: 0.8125rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Section */
+        .section {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .section-header {
+            padding: 0.875rem 1.25rem;
+            border-bottom: 1px solid #e5e5e5;
+            background: #fafafa;
+        }
+        .section-title {
+            font-size: 0.8125rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #4b5563;
+        }
+        .section-body {
+            padding: 1.25rem;
+        }
+
+        /* Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        @media (max-width: 480px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .info-item label {
+            display: block;
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #9ca3af;
+            margin-bottom: 0.25rem;
+        }
+        .info-item .value {
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: #1a1a2e;
+        }
+        .info-item .sub {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        .info-item .highlight {
+            color: #e8c547;
+        }
+        .info-item a {
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .info-item a:hover {
+            text-decoration: underline;
+        }
+
+        /* Commission boxes */
+        .commission-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+        @media (max-width: 600px) {
+            .commission-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        .commission-box {
+            text-align: center;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .commission-box.highlight {
+            background: #1a1a2e;
+        }
+        .commission-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+        .commission-box.highlight .commission-value {
+            color: #e8c547;
+        }
+        .commission-label {
+            font-size: 0.6875rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+        }
+        .commission-box.highlight .commission-label {
+            color: #a0a0b0;
+        }
+
+        /* Earnings */
+        .earnings-row {
+            padding: 0.875rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .earnings-row:last-child {
+            border-bottom: none;
+        }
+        .earnings-row.featured {
+            background: #fafafa;
+        }
+        .earnings-label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        .earnings-calc {
+            font-size: 0.8125rem;
+            color: #6b7280;
+        }
+        .earnings-total {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        /* Text content */
+        .text-block {
+            font-size: 0.875rem;
+            color: #374151;
+        }
+        .text-block p {
+            margin-bottom: 1rem;
+        }
+        .text-block p:last-child {
+            margin-bottom: 0;
+        }
+        .text-block strong {
+            color: #1a1a2e;
+        }
+        .text-block ul {
+            list-style: none;
+            margin: 0.5rem 0;
+        }
+        .text-block li {
+            padding: 0.25rem 0;
+            padding-left: 1rem;
+            position: relative;
+        }
+        .text-block li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #9ca3af;
+        }
+
+        /* Key message */
+        .key-message {
+            background: #1a1a2e;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .key-message-label {
+            font-size: 0.6875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #a0a0b0;
+            margin-bottom: 0.5rem;
+        }
+        .key-message-text {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #e8c547;
+        }
+
+        /* Partners list */
+        .partner-item {
+            padding: 0.5rem 0;
+            font-size: 0.875rem;
+        }
+        .partner-item strong {
+            color: #1a1a2e;
+        }
+        .partner-item span {
+            color: #6b7280;
+        }
+
+        /* FAQs */
+        .faq-item {
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+        .faq-question {
+            padding: 0.875rem 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .faq-question:hover {
+            background: #fafafa;
+        }
+        .faq-toggle {
+            color: #9ca3af;
+            font-size: 0.75rem;
+        }
+        .faq-answer {
+            display: none;
+            padding: 0 1.25rem 0.875rem 1.25rem;
+            font-size: 0.8125rem;
+            color: #6b7280;
+        }
+        .faq-item.open .faq-answer {
+            display: block;
+        }
+        .faq-item.open .faq-toggle {
+            transform: rotate(180deg);
+        }
+
+        /* Contact footer */
+        .contact-footer {
+            background: white;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.25rem;
+            text-align: center;
+            font-size: 0.8125rem;
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+        }
+        .contact-footer a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+        .contact-footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            border-top: 1px solid #e5e5e5;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #9ca3af;
+        }
+        .footer a {
+            color: #6366f1;
+            text-decoration: none;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="penelope_report.html" class="back-link">&larr; Back to Partner List</a>
+            <h1>Client Profile</h1>
+            <p class="header-subtitle">Reference document for partner outreach</p>
+        </div>
+    </header>
+
+    <main class="main">
+        <!-- Client Card -->
+        <div class="client-card">
+            <div class="client-avatar">PJ</div>
+            <div class="client-info">
+                <h2>Penelope Jane Smith</h2>
+                <div class="client-company">Real Prosperity Inc</div>
+                <div class="client-title">Financial Freedom Coach for Women Entrepreneurs</div>
+            </div>
+        </div>
+
+        <!-- The Offer -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">The Offer</span>
+            </div>
+            <div class="section-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>Frontend Event</label>
+                        <div class="value">Financial Freedom 101</div>
+                        <div class="sub">3-day virtual event</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Launch Date</label>
+                        <div class="value highlight">February 10, 2026</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Frontend Price</label>
+                        <div class="value">$97 deposit</div>
+                        <div class="sub">(refundable if attended)</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Backend Program</label>
+                        <div class="value">FF Accelerator</div>
+                        <div class="sub">$20K - $65K</div>
+                    </div>
+                </div>
+                <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f0f0f0;">
+                    <div class="info-item">
+                        <label>Affiliate Page</label>
+                        <a href="https://realprosperityinc.com/affiliates/" target="_blank">realprosperityinc.com/affiliates/</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Commission Structure -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">Commission Structure</span>
+            </div>
+            <div class="section-body">
+                <div class="commission-grid">
+                    <div class="commission-box">
+                        <div class="commission-value">$1</div>
+                        <div class="commission-label">per opt-in</div>
+                    </div>
+                    <div class="commission-box">
+                        <div class="commission-value">$50</div>
+                        <div class="commission-label">per registration</div>
+                    </div>
+                    <div class="commission-box">
+                        <div class="commission-value">$1K-3.5K</div>
+                        <div class="commission-label">per backend sale</div>
+                    </div>
+                    <div class="commission-box highlight">
+                        <div class="commission-value">LIFETIME</div>
+                        <div class="commission-label">future commissions</div>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem; padding: 0.75rem; background: #fafafa; border-radius: 6px; font-size: 0.875rem;">
+                    <strong>Average Sale:</strong> ~$10,000
+                </div>
+            </div>
+        </div>
+
+        <!-- Example Earnings -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">Example Earnings (to share with partners)</span>
+            </div>
+            <div class="section-body" style="padding: 0;">
+                <div class="earnings-row">
+                    <div class="earnings-label">Small List (500 subscribers)</div>
+                    <div class="earnings-calc">100 opt-ins ($100) + 20 regs ($1,000) + 2 sales ($4,000) = <span class="earnings-total">$5,100</span></div>
+                </div>
+                <div class="earnings-row">
+                    <div class="earnings-label">Medium List (5,000 subscribers)</div>
+                    <div class="earnings-calc">500 opt-ins ($500) + 100 regs ($5,000) + 10 sales ($20,000) = <span class="earnings-total">$25,500</span></div>
+                </div>
+                <div class="earnings-row featured">
+                    <div class="earnings-label">Large List (50,000 subscribers)</div>
+                    <div class="earnings-calc">5,000 opt-ins ($5,000) + 1,000 regs ($50,000) + 100 sales ($200,000) = <span class="earnings-total">$255,000</span></div>
+                </div>
+                <div style="padding: 0.75rem 1rem; font-size: 0.75rem; color: #9ca3af; font-style: italic;">
+                    + lifetime commissions on all future purchases
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Message -->
+        <div class="key-message">
+            <div class="key-message-label">Key Positioning Message</div>
+            <div class="key-message-text">"You teach them how to MAKE money.<br>Penelope teaches them how to GROW it."</div>
+        </div>
+
+        <!-- About Penelope -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">About Penelope</span>
+            </div>
+            <div class="section-body text-block">
+                <p><strong>The Story:</strong> In 2008, Penelope lost everything in the financial crash. Rather than give up, she rebuilt her wealth from scratch and developed a proven system for financial freedom. Now she teaches other women entrepreneurs how to grow and protect their wealth.</p>
+
+                <p><strong>Shared Stage With:</strong></p>
+                <ul>
+                    <li>Mark Victor Hansen (Chicken Soup for the Soul)</li>
+                    <li>T. Harv Eker (Secrets of the Millionaire Mind)</li>
+                    <li>Alex Mandossian (Marketing Legend)</li>
+                    <li>Loral Langemeier (The Millionaire Maker)</li>
+                    <li>Ali Brown (Women Entrepreneur Pioneer)</li>
+                </ul>
+
+                <p><strong>Credentials:</strong></p>
+                <ul>
+                    <li>Author: "The Little Book of Prosperity"</li>
+                    <li>20+ years teaching experience</li>
+                    <li>Certified Trainer</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Past JV Partners -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">Past Successful JV Partners</span>
+            </div>
+            <div class="section-body">
+                <div class="partner-item"><strong>Vrinda Normand</strong> <span>— The Irresistible Marketing Mentor</span></div>
+                <div class="partner-item"><strong>Sharla Jacobs</strong> <span>— Thrive Academy (multi-7-figure company)</span></div>
+                <div class="partner-item"><strong>Shannon Grainger</strong> <span>— Big Impact HQ</span></div>
+            </div>
+        </div>
+
+        <!-- Ideal Partner Profile -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">Ideal Partner Profile</span>
+            </div>
+            <div class="section-body text-block">
+                <p>Business coaches, marketing experts, and sales trainers who serve <strong>women entrepreneurs, coaches, and consultants</strong> with 6-7 figure businesses.</p>
+                <p style="color: #6b7280;">Their clients learn to make money — Penelope teaches them to grow it.</p>
+            </div>
+        </div>
+
+        <!-- FAQs -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-title">Partner FAQs</span>
+            </div>
+            <div style="padding: 0;">
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-question">
+                        How do commissions get paid?
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">PayPal or direct deposit within 30 days of confirmed sale. Tracked via unique affiliate links.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-question">
+                        What's the refund policy?
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">$97 deposit is fully refundable if attendees show up. Backend has satisfaction guarantee.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-question">
+                        Do partners need to be available during the event?
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">No. Just send promotional emails before. Penelope handles all content delivery and sales.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-question">
+                        What if referral doesn't buy right away?
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">Lifetime cookie tracking. Any future purchase = commission to original referrer.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-question">
+                        What makes this different from other money programs?
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">PRACTICAL wealth-building strategies, not just mindset. 20+ years experience. Personal comeback story adds credibility.</div>
+                </div>
+                <div class="faq-item" onclick="this.classList.toggle('open')">
+                    <div class="faq-question">
+                        When do partners get paid?
+                        <span class="faq-toggle">▼</span>
+                    </div>
+                    <div class="faq-answer">Commissions calculated Feb 25, paid out March 1.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact -->
+        <div class="contact-footer">
+            <div>Questions or updates?</div>
+            <a href="mailto:chelsea@sharkmarketing.co">chelsea@sharkmarketing.co</a>
+            <div style="margin-top: 0.5rem;">JV Manager: Shannon Grainger</div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        Client Profile — For Validation &middot; <a href="penelope_report.html">View Partner Outreach List &rarr;</a>
+    </footer>
+</body>
+</html>

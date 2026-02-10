@@ -1,0 +1,4 @@
+profile_id,name,company,email,method,list_size,enriched_at
+f0dc39d3-5894-462f-8cb2-120910961f41,Teresa Yeung,Pureland International Qi Gong,support@purelandqigong.com,website_scrape,159980,2026-02-10T02:33:39.533110
+5672ac06-2f0d-4fb4-ba6a-78f43cffc2d2,Desi Bolin,Virtually Sourced LLC,desi@virtuallysourced.com,website_scrape,24000,2026-02-10T02:33:59.988891
+a58bce47-7b79-4935-a239-a8b3950f68f5,Morry Zelcovitch,Morry Zelcovitch Brainwave,themorrymethod@gmail.com,website_scrape,15000,2026-02-10T02:34:06.448218

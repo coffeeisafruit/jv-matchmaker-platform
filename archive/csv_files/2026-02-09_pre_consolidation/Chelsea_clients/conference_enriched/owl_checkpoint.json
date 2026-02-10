@@ -1,0 +1,12 @@
+{
+  "last_processed_index": 122,
+  "total_profiles": 10,
+  "completed": 123,
+  "failed": 0,
+  "skipped": 0,
+  "started_at": "2026-02-03T21:10:03.417301",
+  "last_updated": "2026-02-03T23:33:35.512529",
+  "failed_profiles": [],
+  "avg_verified_fields": 6.317073170731708,
+  "total_sources_found": 0
+}

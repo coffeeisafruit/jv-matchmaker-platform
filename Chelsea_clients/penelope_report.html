@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Freedom 101 · Partner Outreach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #faf8f5;
+            --ink: #1a1a1a;
+            --forest: #1e3a2f;
+            --gold: #c9a962;
+            --gold-light: #e8d5a8;
+            --muted: #8b8680;
+            --blush: #f4e8e1;
+            --card: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        /* Subtle texture overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        /* === LAYOUT === */
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 24px 20px 120px;
+            position: relative;
+        }
+
+        /* === HEADER === */
+        .header {
+            text-align: center;
+            padding: 32px 0 24px;
+            border-bottom: 1px solid var(--gold-light);
+            margin-bottom: 32px;
+        }
+        .header-eyebrow {
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+        .header h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--forest);
+            letter-spacing: -0.02em;
+        }
+        .header-meta {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .header-meta a {
+            color: var(--forest);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+
+        /* === PROGRESS === */
+        .progress {
+            text-align: center;
+            padding: 28px 24px;
+            background: var(--card);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            margin-bottom: 32px;
+            position: relative;
+        }
+        .progress::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 3px;
+            background: var(--gold);
+            border-radius: 0 0 2px 2px;
+        }
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--blush);
+        }
+        .countdown-item {
+            text-align: center;
+        }
+        .countdown-number {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--forest);
+            line-height: 1;
+        }
+        .countdown-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+        .countdown-urgent .countdown-number {
+            color: #b91c1c;
+        }
+        .progress-number {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 48px;
+            font-weight: 500;
+            color: var(--forest);
+            line-height: 1;
+        }
+        .progress-number span {
+            color: var(--muted);
+            font-size: 32px;
+        }
+        .progress-label {
+            font-size: 13px;
+            color: var(--muted);
+            margin-top: 8px;
+            letter-spacing: 0.02em;
+        }
+        .progress-bar {
+            height: 3px;
+            background: var(--blush);
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--forest), var(--gold));
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
+        .reset-btn {
+            margin-top: 16px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--gold-light);
+            border-radius: 4px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 11px;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .reset-btn:hover {
+            background: var(--blush);
+            color: var(--forest);
+            border-color: var(--gold);
+        }
+
+        /* === SECTION === */
+        .section {
+            margin-bottom: 36px;
+        }
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--gold-light);
+        }
+        .section-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--forest);
+        }
+        .section-count {
+            font-size: 12px;
+            color: var(--gold);
+            font-weight: 600;
+        }
+        .section-note {
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: auto;
+            font-style: italic;
+        }
+
+        /* === PARTNER CARD === */
+        .card {
+            background: var(--card);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            overflow: hidden;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+        .card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        .card.done {
+            opacity: 0.5;
+        }
+        .card.done .card-name {
+            text-decoration: line-through;
+            text-decoration-color: var(--muted);
+        }
+
+        .card-inner {
+            display: flex;
+            align-items: stretch;
+        }
+
+        /* Expandable details */
+        .card-details {
+            display: none;
+            padding: 0 20px 16px 72px;
+            font-size: 13px;
+            color: var(--muted);
+            border-top: 1px solid var(--blush);
+            margin-top: 0;
+        }
+        .card.expanded .card-details {
+            display: block;
+        }
+        .card-details-inner {
+            padding-top: 12px;
+        }
+        .detail-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: var(--forest);
+            min-width: 60px;
+            flex-shrink: 0;
+        }
+        .detail-value {
+            color: var(--ink);
+        }
+        .detail-value a {
+            color: var(--forest);
+            text-decoration: underline;
+            text-underline-offset: 2px;
+        }
+        .detail-note {
+            font-style: italic;
+            color: var(--muted);
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--gold-light);
+        }
+        .expand-hint {
+            font-size: 10px;
+            color: var(--gold);
+            margin-top: 6px;
+            opacity: 0.8;
+        }
+        .card.expanded .expand-hint {
+            display: none;
+        }
+
+        /* Checkbox */
+        .card-check {
+            width: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-right: 1px solid rgba(0,0,0,0.05);
+            flex-shrink: 0;
+            transition: background 0.15s;
+        }
+        .card-check:hover {
+            background: var(--blush);
+        }
+        .checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid var(--gold-light);
+            border-radius: 50%;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card.done .checkbox {
+            background: var(--forest);
+            border-color: var(--forest);
+        }
+        .card.done .checkbox::after {
+            content: "✓";
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* Content */
+        .card-content {
+            flex: 1;
+            padding: 16px 20px;
+            min-width: 0;
+        }
+        .card-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+        .card-company {
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .card-tags {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .tag {
+            font-size: 10px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 3px;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+        .tag-priority {
+            background: var(--forest);
+            color: white;
+        }
+        .tag-fit {
+            background: var(--blush);
+            color: var(--forest);
+        }
+        .tag-warn {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Action */
+        .card-action {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 16px;
+            gap: 6px;
+        }
+        .card-reach {
+            font-size: 11px;
+            color: var(--muted);
+            font-weight: 500;
+        }
+        .action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: var(--forest);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: transform 0.15s, background 0.15s;
+        }
+        .action-btn:hover {
+            transform: scale(1.08);
+            background: var(--gold);
+        }
+        .action-btn:active {
+            transform: scale(0.98);
+        }
+        .action-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        .action-btn.secondary {
+            background: var(--blush);
+            color: var(--forest);
+        }
+        .action-btn.apply {
+            background: var(--gold);
+            color: var(--ink);
+        }
+
+        /* === TEMPLATE BAR === */
+        .template-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border-top: 2px solid var(--gold);
+            padding: 16px 20px;
+            z-index: 100;
+        }
+        .template-bar-inner {
+            max-width: 520px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+        }
+        .template-btn {
+            flex: 1;
+            padding: 14px 16px;
+            background: var(--cream);
+            border: 1px solid var(--gold-light);
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--forest);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .template-btn:hover {
+            background: var(--blush);
+            border-color: var(--gold);
+        }
+
+        /* === MODAL === */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(30, 58, 47, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        .modal-overlay.open {
+            display: flex;
+        }
+        .modal {
+            background: var(--card);
+            width: 100%;
+            max-width: 520px;
+            max-height: 85vh;
+            border-radius: 16px 16px 0 0;
+            overflow: hidden;
+            animation: slideUp 0.25s ease;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); opacity: 0.8; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--gold-light);
+        }
+        .modal-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--forest);
+        }
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--cream);
+            border-radius: 50%;
+            font-size: 20px;
+            color: var(--muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.15s;
+        }
+        .modal-close:hover {
+            background: var(--blush);
+        }
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            max-height: 55vh;
+        }
+        .template-text {
+            font-size: 14px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            background: var(--cream);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--gold-light);
+            color: var(--ink);
+        }
+        .modal-action {
+            padding: 20px 24px;
+            border-top: 1px solid var(--gold-light);
+        }
+        .copy-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--forest);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .copy-btn:hover {
+            background: var(--gold);
+            color: var(--ink);
+        }
+
+        /* === FOOTER NOTE === */
+        .footer-note {
+            text-align: center;
+            padding: 24px 0 0;
+            font-size: 12px;
+            color: var(--muted);
+            border-top: 1px solid var(--gold-light);
+            margin-top: 8px;
+        }
+        .footer-note a {
+            color: var(--forest);
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container {
+                padding: 16px 16px 120px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .progress-number {
+                font-size: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-eyebrow">Partner Outreach</div>
+            <h1>Financial Freedom 101</h1>
+            <div class="header-meta">
+                Penelope Jane Smith · Feb 10, 2026 · <a href="penelope_client_profile.html">View Details</a>
+            </div>
+        </header>
+
+        <div class="progress">
+            <div class="countdown" id="countdown">
+                <div class="countdown-item">
+                    <div class="countdown-number" id="countDays">--</div>
+                    <div class="countdown-label">Days</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="countHours">--</div>
+                    <div class="countdown-label">Hours</div>
+                </div>
+                <div class="countdown-item">
+                    <div class="countdown-number" id="countMins">--</div>
+                    <div class="countdown-label">Mins</div>
+                </div>
+            </div>
+            <div class="progress-number"><span id="doneCount">0</span><span>/</span><span id="totalCount">19</span></div>
+            <div class="progress-label">partners contacted</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <button class="reset-btn" onclick="resetProgress()">Reset Progress</button>
+        </div>
+
+        <!-- PRIORITY -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-title">Priority Contacts</span>
+                <span class="section-count">7</span>
+                <span class="section-note">Direct emails, high response</span>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Suzanne Evans</div>
+                        <div class="card-company">Driven Inc · Business coaching for women</div>
+                        <div class="card-tags">
+                            <span class="tag tag-priority">Active JV</span>
+                            <span class="tag tag-fit">Women</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">91K</span>
+                        <a href="mailto:suzanne@driveninc.com" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:suzanne@driveninc.com">suzanne@driveninc.com</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">30K+ women entrepreneurs building 6-7 figure businesses</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Her clients make money but need wealth strategy. Perfect complement.</span>
+                        </div>
+                        <div class="detail-note">Known JV partner, regularly promotes complementary offers.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Milana Leshinsky</div>
+                        <div class="card-company">Simplicity Circle · Coaching business expert</div>
+                        <div class="card-tags">
+                            <span class="tag tag-priority">Active JV</span>
+                            <span class="tag tag-fit">Women</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">50K+</span>
+                        <a href="mailto:milanaleshinsky@gmail.com" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:milanaleshinsky@gmail.com">milanaleshinsky@gmail.com</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Women coaches building leveraged, simple businesses</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Teaches business simplicity. Penelope adds the wealth component.</span>
+                        </div>
+                        <div class="detail-note">Very active JV promoter. Hosted many virtual summits.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">David Riklan</div>
+                        <div class="card-company">SelfGrowth.com · Personal development platform</div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">295K</span>
+                        <a href="mailto:david@selfgrowth.com" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:david@selfgrowth.com">david@selfgrowth.com</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">295K subscribers interested in personal development, self-improvement</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Broad personal development audience includes financial wellness seekers.</span>
+                        </div>
+                        <div class="detail-note">Large platform, promotes events regularly. Worth the reach.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Toni Kaufman</div>
+                        <div class="card-company">Standout Stars · Speaker/visibility training</div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">130K</span>
+                        <a href="mailto:toni@standoutstars.com" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:toni@standoutstars.com">toni@standoutstars.com</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Coaches, speakers, entrepreneurs wanting visibility and authority</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Her clients are building revenue. Penelope helps them manage it.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Andie Monet</div>
+                        <div class="card-company">Billionaire Women Rising · Women's wealth</div>
+                        <div class="card-tags">
+                            <span class="tag tag-fit">Women</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">26K</span>
+                        <a href="mailto:andie@ssd-intl.com" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:andie@ssd-intl.com">andie@ssd-intl.com</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Women entrepreneurs focused on wealth and abundance mindset</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Direct overlap — her audience is primed for financial freedom content.</span>
+                        </div>
+                        <div class="detail-note">Strong alignment with Penelope's message and audience.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Cathy Smith</div>
+                        <div class="card-company">Cathy Smith Coaching · Women's business coaching</div>
+                        <div class="card-tags">
+                            <span class="tag tag-fit">Women</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">14K</span>
+                        <a href="mailto:coach@cathysmith.com.au" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:coach@cathysmith.com.au">coach@cathysmith.com.au</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Women entrepreneurs in Australia building coaching businesses</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Business coaching + financial freedom = complete entrepreneur support.</span>
+                        </div>
+                        <div class="detail-note">Australian timezone — schedule outreach accordingly.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Leslie Capps</div>
+                        <div class="card-company">Wild Woman Marketing · Marketing for women authors</div>
+                        <div class="card-tags">
+                            <span class="tag tag-fit">Women</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">9K</span>
+                        <a href="mailto:Leslie@WildWomanMarketing.com" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:Leslie@WildWomanMarketing.com">Leslie@WildWomanMarketing.com</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Women authors and speakers building personal brands</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Authors earning royalties need wealth management strategy.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- THIS WEEK -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-title">This Week</span>
+                <span class="section-count">5</span>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Brandi Cox</div>
+                        <div class="card-company">Quest for Clients · Affiliate marketing training</div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">274K</span>
+                        <a href="mailto:brandicox0703@gmail.com" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:brandicox0703@gmail.com">brandicox0703@gmail.com</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Entrepreneurs learning affiliate marketing and list building</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Large list of income-seekers who need wealth management skills.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Diane Forster</div>
+                        <div class="card-company">I Have Today TV · Reinvention for women 40+</div>
+                        <div class="card-tags">
+                            <span class="tag tag-fit">Women 40+</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">172K</span>
+                        <a href="mailto:diane@dianeforster.com" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:diane@dianeforster.com">diane@dianeforster.com</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Women 40+ reinventing themselves and starting new chapters</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Financial freedom is key to reinvention. Strong demographic match.</span>
+                        </div>
+                        <div class="detail-note">Her 2008 story parallels Penelope's — mention this connection.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Tom Poland</div>
+                        <div class="card-company">Leadsology · Lead generation for coaches</div>
+                        <div class="card-tags">
+                            <span class="tag tag-priority">Active JV</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">27K</span>
+                        <a href="mailto:tom@leadsology.guru" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:tom@leadsology.guru">tom@leadsology.guru</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Coaches and consultants learning to generate leads</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">His clients get leads → make sales → need wealth strategy.</span>
+                        </div>
+                        <div class="detail-note">Highly active JV partner. Known for strong promotions.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Helen Vandenberghe</div>
+                        <div class="card-company">Get Clients Fast · Events & client attraction</div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">50K</span>
+                        <a href="mailto:helen@helenvandenberghe.com" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:helen@helenvandenberghe.com">helen@helenvandenberghe.com</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Coaches and service providers learning client attraction</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Complements business growth with financial growth strategy.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Elisa Boogaerts</div>
+                        <div class="card-company">Inspiration By Elisa · Spiritual business coaching</div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">2.3K</span>
+                        <a href="mailto:elisa@inspirationbyelisa.com" class="action-btn" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:elisa@inspirationbyelisa.com">elisa@inspirationbyelisa.com</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Spiritual entrepreneurs building heart-centered businesses</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Smaller list but highly engaged. Good conversion potential.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GENERIC -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-title">Lower Priority</span>
+                <span class="section-count">3</span>
+                <span class="section-note">Generic emails</span>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Sandra Yancey</div>
+                        <div class="card-company">eWomenNetwork · Women's business networking</div>
+                        <div class="card-tags">
+                            <span class="tag tag-warn">Generic</span>
+                            <span class="tag tag-fit">Women</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">500K+</span>
+                        <a href="mailto:members@ewomennetwork.com" class="action-btn secondary" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:members@ewomennetwork.com">members@ewomennetwork.com</a> (generic)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">500K+ women entrepreneurs in networking community</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Massive women's network. Perfect audience if we can reach Sandra.</span>
+                        </div>
+                        <div class="detail-note">Try LinkedIn or look for speaking event contacts to find direct email.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Rachel Rodgers</div>
+                        <div class="card-company">Hello Seven · "We Should All Be Millionaires"</div>
+                        <div class="card-tags">
+                            <span class="tag tag-warn">Generic</span>
+                            <span class="tag tag-fit">Women</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">200K+</span>
+                        <a href="mailto:info@helloseven.co" class="action-btn secondary" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:info@helloseven.co">info@helloseven.co</a> (generic)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Women building million-dollar businesses. Author of bestseller.</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">PERFECT overlap — her whole brand is about women + wealth.</span>
+                        </div>
+                        <div class="detail-note">High value but may be hard to reach. Worth the effort.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Sally Sparks-Cousins</div>
+                        <div class="card-company">Sparkle Class Academy · Personal branding</div>
+                        <div class="card-tags">
+                            <span class="tag tag-warn">Generic</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">125K</span>
+                        <a href="mailto:hello@teamsparkle.com.au" class="action-btn secondary" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><a href="mailto:hello@teamsparkle.com.au">hello@teamsparkle.com.au</a> (generic)</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Entrepreneurs learning personal branding and visibility</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Branding leads to sales leads to needing wealth management.</span>
+                        </div>
+                        <div class="detail-note">Australian timezone — same as Cathy Smith.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- JV PROGRAMS -->
+        <section class="section">
+            <div class="section-header">
+                <span class="section-title">JV Programs</span>
+                <span class="section-count">4</span>
+                <span class="section-note">Apply online</span>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Sage Lavine</div>
+                        <div class="card-company">Women Rocking Business · Women entrepreneurs</div>
+                        <div class="card-tags">
+                            <span class="tag tag-priority">Active JV</span>
+                            <span class="tag tag-fit">Perfect Fit</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">~100K</span>
+                        <a href="https://sagelavine.com/jvpartners/" target="_blank" class="action-btn apply" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Apply at</span>
+                            <span class="detail-value"><a href="https://sagelavine.com/jvpartners/" target="_blank">sagelavine.com/jvpartners/</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">~100K women entrepreneurs building heart-centered businesses</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">PERFECT alignment. Women + business + financial growth mindset.</span>
+                        </div>
+                        <div class="detail-note">Top priority JV application. Very active partner program.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Lisa Nichols</div>
+                        <div class="card-company">Motivating the Masses · Featured in The Secret</div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">80M</span>
+                        <a href="https://motivatingthemasses.com/join-our-affiliate-program/" target="_blank" class="action-btn apply" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Apply at</span>
+                            <span class="detail-value"><a href="https://motivatingthemasses.com/join-our-affiliate-program/" target="_blank">motivatingthemasses.com/affiliate</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">80M+ reach. Hay House author, featured in The Secret.</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Transformation + empowerment audience ready for financial freedom.</span>
+                        </div>
+                        <div class="detail-note">Massive reach. Long-shot but worth applying.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Natalie Sisson</div>
+                        <div class="card-company">Suitcase Entrepreneur · Location-free business</div>
+                        <div class="card-tags">
+                            <span class="tag tag-fit">Women</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">—</span>
+                        <a href="https://suitcaseentrepreneur.com/affiliate" target="_blank" class="action-btn apply" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Apply at</span>
+                            <span class="detail-value"><a href="https://suitcaseentrepreneur.com/affiliate" target="_blank">suitcaseentrepreneur.com/affiliate</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">Women building location-independent businesses. HuffPost Top 50.</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Freedom-focused audience aligns with financial freedom message.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Sigrun</div>
+                        <div class="card-company">SOMBA · Online business for women</div>
+                        <div class="card-tags">
+                            <span class="tag tag-fit">Women</span>
+                        </div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action">
+                        <span class="card-reach">9K+</span>
+                        <a href="https://sigrun.com/partner-hub" target="_blank" class="action-btn apply" onclick="event.stopPropagation()">
+                            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row">
+                            <span class="detail-label">Apply at</span>
+                            <span class="detail-value"><a href="https://sigrun.com/partner-hub" target="_blank">sigrun.com/partner-hub</a></span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Audience</span>
+                            <span class="detail-value">9K+ students building 6-7 figure online businesses</span>
+                        </div>
+                        <div class="detail-row">
+                            <span class="detail-label">Why fit</span>
+                            <span class="detail-value">Her students are making money — need wealth management next.</span>
+                        </div>
+                        <div class="detail-note">Known for $1K+ commission per sale. European audience.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="footer-note">
+            Commission: $50/reg + $1K–3.5K/sale + lifetime · <a href="https://realprosperityinc.com/affiliates/" target="_blank">Affiliate page</a>
+        </div>
+    </div>
+
+    <!-- TEMPLATE BAR -->
+    <div class="template-bar">
+        <div class="template-bar-inner">
+            <button class="template-btn" onclick="showTemplate('initial')">Copy Outreach Email</button>
+            <button class="template-btn" onclick="showTemplate('followup')">Copy Follow-up</button>
+        </div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modal" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Template</div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="template-text" id="modalContent"></div>
+            </div>
+            <div class="modal-action">
+                <button class="copy-btn" onclick="copyAndClose()">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const templates = {
+        initial: {
+            title: 'Initial Outreach',
+            text: `Subject: Your [audience] are making money... but are they keeping it?
+
+Hi [Name],
+
+I've been following [their work] and love how you help [their audience] [what they do].
+
+Here's something I've noticed: Your clients are getting good at MAKING money. But many don't know what to DO with it once it arrives.
+
+That's where Penelope Jane Smith comes in. She's hosting Financial Freedom 101 (Feb 10) — a 3-day event teaching women entrepreneurs how to GROW and PROTECT their wealth.
+
+You teach them to make it. Penelope teaches them to grow it.
+
+Commission: $50/reg + $1K-3.5K/sale + LIFETIME commissions
+
+Worth a quick conversation?
+
+[Signature]`
+        },
+        followup: {
+            title: 'Follow-up',
+            text: `Subject: Re: [Original subject]
+
+Hi [Name] — bumping this up in case it got buried.
+
+Feb 10 launch approaching. Affiliate page: realprosperityinc.com/affiliates/
+
+[Signature]`
+        }
+    };
+
+    let currentTemplate = null;
+
+    function showTemplate(id) {
+        currentTemplate = id;
+        document.getElementById('modalTitle').textContent = templates[id].title;
+        document.getElementById('modalContent').textContent = templates[id].text;
+        document.getElementById('modal').classList.add('open');
+    }
+
+    function closeModal() {
+        document.getElementById('modal').classList.remove('open');
+    }
+
+    function copyAndClose() {
+        navigator.clipboard.writeText(templates[currentTemplate].text).then(() => {
+            const btn = document.querySelector('.copy-btn');
+            btn.textContent = 'Copied!';
+            btn.style.background = 'var(--gold)';
+            btn.style.color = 'var(--ink)';
+            setTimeout(() => {
+                closeModal();
+                btn.textContent = 'Copy to Clipboard';
+                btn.style.background = '';
+                btn.style.color = '';
+            }, 800);
+        });
+    }
+
+    function toggleCard(card) {
+        card.classList.toggle('done');
+        updateProgress();
+        saveState();
+    }
+
+    function toggleExpand(card) {
+        card.classList.toggle('expanded');
+    }
+
+    function updateProgress() {
+        const total = document.querySelectorAll('.card').length;
+        const done = document.querySelectorAll('.card.done').length;
+        document.getElementById('doneCount').textContent = done;
+        document.getElementById('totalCount').textContent = total;
+        document.getElementById('progressFill').style.width = (done / total * 100) + '%';
+    }
+
+    function saveState() {
+        const cards = document.querySelectorAll('.card');
+        const state = [];
+        cards.forEach((card, i) => {
+            if (card.classList.contains('done')) state.push(i);
+        });
+        localStorage.setItem('penelope_v3', JSON.stringify(state));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem('penelope_v3');
+        if (saved) {
+            const state = JSON.parse(saved);
+            const cards = document.querySelectorAll('.card');
+            state.forEach(i => {
+                if (cards[i]) cards[i].classList.add('done');
+            });
+        }
+        updateProgress();
+    }
+
+    function resetProgress() {
+        if (confirm('Clear all progress? This cannot be undone.')) {
+            localStorage.removeItem('penelope_v3');
+            document.querySelectorAll('.card.done').forEach(card => {
+                card.classList.remove('done');
+            });
+            updateProgress();
+        }
+    }
+
+    function updateCountdown() {
+        const launchDate = new Date('2026-02-10T09:00:00');
+        const now = new Date();
+        const diff = launchDate - now;
+
+        if (diff <= 0) {
+            document.getElementById('countdown').innerHTML = '<div class="countdown-label" style="color: var(--forest); font-weight: 600;">Launch Day!</div>';
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+        document.getElementById('countDays').textContent = days;
+        document.getElementById('countHours').textContent = hours;
+        document.getElementById('countMins').textContent = mins;
+
+        // Add urgency styling if less than 7 days
+        if (days < 7) {
+            document.getElementById('countdown').classList.add('countdown-urgent');
+        }
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
+
+    loadState();
+    updateCountdown();
+    setInterval(updateCountdown, 60000); // Update every minute
+    </script>
+</body>
+</html>

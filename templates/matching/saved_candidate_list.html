@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Saved candidates{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Saved candidates</h1>
+            <p class="mt-1 text-sm text-gray-500">Candidates you saved for later. Run a match report or add them to the directory.</p>
+        </div>
+        <a href="{% url 'matching:guest-candidate-match' %}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-apple-blue hover:bg-blue-600">
+            Find matches for a new candidate
+        </a>
+    </div>
+
+    <div class="mb-4">
+        <a href="{% url 'matching:partners' %}" class="text-sm text-gray-500 hover:text-gray-700">← Back to Partners</a>
+    </div>
+
+    {% if saved_candidates %}
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <ul class="divide-y divide-gray-200">
+            {% for saved in saved_candidates %}
+            <li class="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 hover:bg-gray-50">
+                <div class="min-w-0 flex-1">
+                    <a href="{% url 'matching:saved-candidate-detail' saved.pk %}" class="font-medium text-apple-blue hover:text-blue-800 truncate block">
+                        {{ saved.name }}
+                    </a>
+                    <div class="flex flex-wrap items-center gap-2 mt-1 text-sm text-gray-500">
+                        {% if saved.company %}<span>{{ saved.company }}</span>{% endif %}
+                        {% if saved.niche %}<span class="text-gray-400">·</span><span>{{ saved.niche }}</span>{% endif %}
+                        <span class="text-gray-400">·</span>
+                        <span>Saved {{ saved.created_at|timesince }} ago</span>
+                        {% if saved.added_to_directory_id %}
+                        <a href="{% url 'matching:partner-detail' saved.added_to_directory_id %}" class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                            In directory
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="flex gap-2 flex-shrink-0">
+                    {% if not saved.added_to_directory_id %}
+                    <form method="post" action="{% url 'matching:add-candidate-to-directory' saved.pk %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded text-white bg-apple-blue hover:bg-blue-600">
+                            Add to directory
+                        </button>
+                    </form>
+                    {% endif %}
+                    <a href="{% url 'matching:saved-candidate-detail' saved.pk %}" class="inline-flex items-center px-3 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50">
+                        View
+                    </a>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% if page_obj.has_other_pages %}
+        <div class="px-6 py-3 border-t border-gray-200 flex items-center justify-between text-sm">
+            <span class="text-gray-500">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+            <div class="flex gap-2">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}" class="text-apple-blue hover:text-blue-800">Previous</a>
+                {% endif %}
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}" class="text-apple-blue hover:text-blue-800">Next</a>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="bg-white shadow rounded-lg p-12 text-center text-gray-500">
+        <p>No saved candidates yet.</p>
+        <p class="mt-2 text-sm">When you run "Find matches" and check "Save for later", candidates appear here.</p>
+        <a href="{% url 'matching:guest-candidate-match' %}" class="mt-4 inline-flex items-center text-apple-blue hover:text-blue-800 font-medium">
+            Find matches for a candidate →
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

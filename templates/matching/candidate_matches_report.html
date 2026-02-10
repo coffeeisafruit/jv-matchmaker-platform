@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Match Report: {{ candidate.name }}{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-2">
+            {% if is_guest_report %}
+            <a href="{% url 'matching:guest-candidate-match' %}" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Try another candidate
+            </a>
+            <a href="{% url 'matching:saved-candidates' %}" class="text-sm text-apple-blue hover:text-blue-800">Saved candidates</a>
+            {% else %}
+            <a href="{% url 'matching:partner-detail' candidate.pk %}" class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700">
+                <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+                Back to {{ candidate.name }}
+            </a>
+            {% endif %}
+        </div>
+        <div class="flex gap-2">
+            {% if is_guest_report %}
+            <a href="{% url 'matching:guest-candidate-report' %}?format=csv"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="mr-2 h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Download CSV
+            </a>
+            <form method="post" action="{% url 'matching:add-candidate-to-directory-session' %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-apple-blue hover:bg-blue-600">
+                    Add to directory
+                </button>
+            </form>
+            {% else %}
+            <a href="{% url 'matching:candidate-matches-report' candidate.pk %}?format=csv"
+               class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                <svg class="mr-2 h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                Download CSV
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Candidate summary -->
+    <div class="bg-white shadow rounded-lg overflow-hidden mb-8">
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-900">Match Report: {{ candidate.name }}</h1>
+            <p class="mt-1 text-sm text-gray-500">
+                {{ total_matches }} suggested partner{{ total_matches|pluralize }}
+                {% if is_guest_report %}
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 ml-2">Estimated match (on-the-fly)</span>
+                {% endif %}
+            </p>
+        </div>
+        <div class="px-6 py-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+            <div>
+                <span class="text-gray-500 block">Company</span>
+                <span class="font-medium text-gray-900">{{ candidate.company|default:"—" }}</span>
+            </div>
+            <div>
+                <span class="text-gray-500 block">Niche</span>
+                <span class="font-medium text-gray-900">{{ candidate.niche|default:"—" }}</span>
+            </div>
+            <div>
+                <span class="text-gray-500 block">List size</span>
+                <span class="font-medium text-gray-900">{{ candidate.list_size|default:0|intcomma }}</span>
+            </div>
+            <div>
+                <span class="text-gray-500 block">Status</span>
+                <span class="font-medium text-gray-900">{% if is_guest_report %}—{% else %}{{ candidate.status|default:"—" }}{% endif %}</span>
+            </div>
+        </div>
+        {% if candidate.seeking or candidate.offering %}
+        <div class="px-6 py-4 border-t border-gray-100 text-sm space-y-2">
+            {% if candidate.seeking %}
+            <div>
+                <span class="text-gray-500">Seeking:</span>
+                <span class="text-gray-900">{{ candidate.seeking }}</span>
+            </div>
+            {% endif %}
+            {% if candidate.offering %}
+            <div>
+                <span class="text-gray-500">Offering:</span>
+                <span class="text-gray-900">{{ candidate.offering }}</span>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Matches table -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-lg font-semibold text-gray-900">Suggested partners</h2>
+            <p class="text-sm text-gray-500">
+                {% if is_guest_report %}On-the-fly scores (seeking↔offering, niche, scale).{% else %}Pre-computed matches (seeking↔offering alignment), ordered by score.{% endif %}
+            </p>
+        </div>
+        {% if match_rows %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">#</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Partner</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Niche</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">List size</th>
+                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Score</th>
+                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Match reason</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for row in match_rows %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ forloop.counter }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <a href="{% url 'matching:partner-detail' row.partner.pk %}" class="text-apple-blue hover:text-blue-800 font-medium">
+                                {{ row.partner.name }}
+                            </a>
+                            {% if row.partner.email %}
+                            <div class="text-xs text-gray-500">{{ row.partner.email }}</div>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ row.partner.company|default:"—" }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title="{{ row.partner.niche }}">{{ row.partner.niche|default:"—" }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">{{ row.partner.list_size|default:0|intcomma }}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                            {% if is_guest_report %}
+                            {% with score=row.score %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if score >= 8 %}bg-green-100 text-green-800
+                                {% elif score >= 6 %}bg-blue-100 text-blue-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ score|floatformat:1 }}
+                            </span>
+                            {% endwith %}
+                            {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if row.match.harmonic_mean >= 80 %}bg-green-100 text-green-800
+                                {% elif row.match.harmonic_mean >= 60 %}bg-blue-100 text-blue-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                {{ row.match.harmonic_mean|floatformat:0 }}%
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-600 max-w-md">
+                            {% if is_guest_report %}{{ row.reason|truncatewords:20|default:"—" }}{% else %}{{ row.match.match_reason|truncatewords:20|default:"—" }}{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-12 text-center text-gray-500">
+            {% if is_guest_report %}
+            <p>No matches found. Add more detail (seeking, offering, niche) and try again.</p>
+            {% else %}
+            <p>No pre-computed matches for this candidate.</p>
+            <p class="mt-2 text-sm">Matches are generated by the jv-matcher pipeline; if this profile was added recently, matches may not exist yet.</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

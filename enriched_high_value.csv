@@ -1,0 +1,7 @@
+profile_id,name,company,list_size,email,phone,linkedin,title,confidence,apollo_id,source,notes
+01e29ed4-2881-422d-a6f0-de57d6ed6dc7,Audio Book,Audible Inc.,6581000,,,,,,,Apollo.io Bulk,Batch 1
+a6f8e3c2-1bbd-4e3f-8fc4-6b4b29e2c5b8,Joe Vitale,None,2570000,,,,,,,Apollo.io Bulk,Batch 1
+5e7c4a3d-9f2e-4b1a-8d6c-3e9f7a1b2c4d,Lumosity Brain Training,None,2506000,,,,,,,Apollo.io Bulk,Batch 1
+d3c5b7be-d4f3-43ef-9ab5-8f56959bc580,John Assaraf,NeuroGym,1154000,,,http://www.linkedin.com/in/johnassaraf,,unavailable,67ff2faf2dcf7e0001fc5da9,Apollo.io Bulk,Batch 1
+94c4defe-47d7-43ab-acac-af367fed653c,Rebecca Murtagh,Human AI Institute,1027500,,,,,,,Apollo.io Bulk,Batch 1
+6d1714ec-d4a7-4de9-be2d-b0bb1dece013,Kim Serafini,Positive Prime Technology,1010000,,,http://www.linkedin.com/in/kimserafini,CEO,,696dc2178e40f8000199050f,Apollo.io Bulk,Batch 1

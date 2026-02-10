@@ -1,0 +1,1200 @@
+"""
+Match Enrichment and Verification Service
+
+This service:
+1. Enriches raw match data with full profile fields (seeking, offering, who_they_serve)
+2. Generates compelling mutual benefit reasoning using actual profile data
+3. Verifies match quality before PDF generation using MULTIPLE specialized agents
+4. Sanitizes all text for PDF rendering (encoding, formatting, capitalization)
+"""
+
+import re
+import logging
+from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass, field
+from enum import Enum
+
+logger = logging.getLogger(__name__)
+
+
+# =============================================================================
+# TEXT SANITIZATION - Fix encoding, truncation, capitalization
+# =============================================================================
+
+class TextSanitizer:
+    """
+    Sanitizes text for PDF rendering.
+    Fixes: Unicode chars, word truncation, capitalization, formatting.
+    """
+
+    # Unicode characters that don't render well in PDFs
+    UNICODE_REPLACEMENTS = {
+        '\u2014': '-',   # em-dash
+        '\u2013': '-',   # en-dash
+        '\u2212': '-',   # minus sign
+        '\u2010': '-',   # hyphen
+        '\u2011': '-',   # non-breaking hyphen
+        '\u00ad': '-',   # soft hyphen
+        '\u2018': "'",   # left single quote
+        '\u2019': "'",   # right single quote
+        '\u201c': '"',   # left double quote
+        '\u201d': '"',   # right double quote
+        '\u2026': '...',  # ellipsis
+        '\u00a0': ' ',   # non-breaking space
+        '\u200b': '',    # zero-width space
+        '\u200c': '',    # zero-width non-joiner
+        '\u200d': '',    # zero-width joiner
+        '\ufeff': '',    # byte order mark
+        '\u25a0': '-',   # black square (fallback for bad dashes)
+        '\u25aa': '-',   # small black square
+        '\u25cf': '*',   # black circle -> bullet
+        '\u2022': '*',   # bullet point
+        '\u00b7': '*',   # middle dot
+    }
+
+    @classmethod
+    def sanitize(cls, text: str) -> str:
+        """Full sanitization pipeline for any text."""
+        if not text:
+            return ''
+
+        # Step 1: Replace known problematic Unicode
+        result = cls._replace_unicode(text)
+
+        # Step 2: Remove any remaining non-ASCII that could cause issues
+        result = cls._clean_non_ascii(result)
+
+        # Step 3: Normalize whitespace
+        result = cls._normalize_whitespace(result)
+
+        return result.strip()
+
+    @classmethod
+    def _replace_unicode(cls, text: str) -> str:
+        """Replace known problematic Unicode characters."""
+        for unicode_char, replacement in cls.UNICODE_REPLACEMENTS.items():
+            text = text.replace(unicode_char, replacement)
+        return text
+
+    @classmethod
+    def _clean_non_ascii(cls, text: str) -> str:
+        """Remove non-ASCII chars that might cause rendering issues."""
+        # Keep standard printable ASCII, newlines, and tabs
+        cleaned = []
+        for char in text:
+            if ord(char) < 128 or char in '\n\t':
+                cleaned.append(char)
+            elif ord(char) >= 128:
+                # Try to transliterate common extended chars
+                cleaned.append(cls._transliterate(char))
+        return ''.join(cleaned)
+
+    @classmethod
+    def _transliterate(cls, char: str) -> str:
+        """Transliterate common extended Latin characters."""
+        transliterations = {
+            'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e',
+            'á': 'a', 'à': 'a', 'â': 'a', 'ä': 'a', 'ã': 'a',
+            'í': 'i', 'ì': 'i', 'î': 'i', 'ï': 'i',
+            'ó': 'o', 'ò': 'o', 'ô': 'o', 'ö': 'o', 'õ': 'o',
+            'ú': 'u', 'ù': 'u', 'û': 'u', 'ü': 'u',
+            'ñ': 'n', 'ç': 'c', 'ß': 'ss',
+        }
+        return transliterations.get(char, '')
+
+    @classmethod
+    def _normalize_whitespace(cls, text: str) -> str:
+        """Normalize whitespace without breaking intentional line breaks."""
+        # Replace multiple spaces with single space
+        text = re.sub(r'[ \t]+', ' ', text)
+        # Replace more than 2 consecutive newlines with 2
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        return text
+
+    @classmethod
+    def truncate_safe(cls, text: str, max_length: int, suffix: str = '...') -> str:
+        """
+        Truncate text at word boundary - NEVER cut words mid-way.
+        """
+        if not text or len(text) <= max_length:
+            return text
+
+        # Find the last space before max_length
+        truncate_at = max_length - len(suffix)
+
+        # Look for word boundary
+        last_space = text.rfind(' ', 0, truncate_at)
+
+        if last_space == -1:
+            # No space found, truncate at max_length (rare edge case)
+            return text[:truncate_at] + suffix
+
+        return text[:last_space] + suffix
+
+    @classmethod
+    def capitalize_bullet(cls, text: str) -> str:
+        """Capitalize the first letter after a bullet point."""
+        if not text:
+            return text
+
+        # Handle bullet at start of string
+        if text.startswith('* ') or text.startswith('- '):
+            if len(text) > 2:
+                return text[:2] + text[2].upper() + text[3:]
+
+        # Capitalize first character if it's lowercase
+        if text[0].islower():
+            return text[0].upper() + text[1:]
+
+        return text
+
+    @classmethod
+    def format_bullet_list(cls, items: List[str], bullet: str = '*') -> str:
+        """Format a list of items as properly capitalized bullets."""
+        formatted = []
+        for item in items:
+            item = cls.sanitize(item)
+            item = cls.capitalize_bullet(item)
+            formatted.append(f"{bullet} {item}")
+        return '\n'.join(formatted)
+
+
+class VerificationStatus(Enum):
+    PASSED = "passed"
+    NEEDS_ENRICHMENT = "needs_enrichment"
+    REJECTED = "rejected"
+
+
+@dataclass
+class VerificationResult:
+    status: VerificationStatus
+    score: float  # 0-100
+    issues: List[str]
+    suggestions: List[str]
+
+
+@dataclass
+class EnrichedMatch:
+    """A match with full profile data and compelling reasoning."""
+    name: str
+    company: str
+    email: str
+    linkedin: str
+    website: str
+    niche: str
+    list_size: int
+    social_reach: int
+    score: float
+
+    # Rich profile data (the gold we were missing!)
+    who_they_serve: str
+    what_they_do: str
+    seeking: str
+    offering: str
+    notes: str  # Calendar links, best contact method, etc.
+
+    # Generated compelling reasoning
+    why_fit: str
+    mutual_benefit: str
+    outreach_message: str
+
+    # Verification
+    verification_score: float
+    verification_passed: bool
+
+    # Data quality tracking - what sources did we use?
+    data_quality: str = 'unknown'  # 'rich', 'partial', 'sparse'
+    has_explicit_seeking: bool = False
+    has_explicit_offering: bool = False
+
+
+class MatchEnrichmentService:
+    """
+    Enriches matches with full profile data and generates compelling mutual benefit reasoning.
+    """
+
+    def __init__(self, client_profile: Dict):
+        """
+        Initialize with client profile (e.g., Janet Bray Attwood's data).
+
+        Args:
+            client_profile: Dict with keys: name, company, what_you_do, who_you_serve, seeking, offering
+        """
+        self.client = client_profile
+        self.client_name = client_profile.get('name', 'Client')
+        self.client_first_name = self.client_name.split()[0]
+
+    def enrich_match(self, match_data: Dict, partner_profile: Optional[Dict] = None) -> EnrichedMatch:
+        """
+        Enrich a single match with full profile data and generate compelling reasoning.
+
+        Args:
+            match_data: Basic match data (name, score, niche, etc.)
+            partner_profile: Optional full profile data (if available from Supabase)
+
+        Returns:
+            EnrichedMatch with compelling mutual benefit reasoning
+        """
+        # Extract partner data (prefer full profile if available)
+        partner = partner_profile or match_data
+
+        name = match_data.get('name', '')
+        company = match_data.get('company', '')
+
+        # Get the rich data - with FALLBACKS for sparse profiles
+        who_they_serve = partner.get('who_you_serve') or partner.get('who_they_serve') or ''
+        what_they_do = partner.get('what_you_do') or partner.get('what_they_do') or ''
+        seeking = partner.get('seeking') or ''
+        offering = partner.get('offering') or ''
+
+        # FALLBACK: Use business_focus/niche if primary fields are empty
+        business_focus = partner.get('business_focus') or partner.get('niche') or match_data.get('niche', '')
+        if not what_they_do and business_focus:
+            what_they_do = business_focus
+        if not offering and business_focus:
+            # Infer offering from their business focus
+            offering = f"expertise in {business_focus}"
+
+        # Track data quality for content generation
+        has_explicit_seeking = bool(partner.get('seeking'))
+        has_explicit_offering = bool(partner.get('offering'))
+
+        # Calculate data quality score
+        quality_score = sum([
+            bool(who_they_serve),
+            has_explicit_seeking,
+            has_explicit_offering,
+            bool(partner.get('what_you_do')),
+        ])
+        if quality_score >= 3:
+            data_quality = 'rich'
+        elif quality_score >= 1:
+            data_quality = 'partial'
+        else:
+            data_quality = 'sparse'
+
+        # DON'T infer seeking - it's misleading to claim they want something they didn't say
+        # Instead, we'll use different content templates for sparse profiles
+
+        # Generate compelling reasoning using actual data
+        why_fit = self._generate_why_fit(name, company, who_they_serve, what_they_do, seeking, offering, match_data)
+        mutual_benefit = self._generate_mutual_benefit(name, company, who_they_serve, seeking, offering, match_data)
+        outreach_message = self._generate_outreach(name, company, who_they_serve, seeking, offering, match_data)
+
+        # Create enriched match
+        enriched = EnrichedMatch(
+            name=name,
+            company=company,
+            email=match_data.get('email', ''),
+            linkedin=match_data.get('linkedin', ''),
+            website=partner.get('website') or match_data.get('website', ''),
+            niche=match_data.get('niche', ''),
+            list_size=match_data.get('list_size', 0),
+            social_reach=partner.get('social_reach', 0) or 0,
+            score=match_data.get('score', 0),
+            who_they_serve=who_they_serve,
+            what_they_do=what_they_do,
+            seeking=seeking,
+            offering=offering,
+            notes=partner.get('notes', '') or '',
+            why_fit=why_fit,
+            mutual_benefit=mutual_benefit,
+            outreach_message=outreach_message,
+            verification_score=0,
+            verification_passed=False,
+            data_quality=data_quality,
+            has_explicit_seeking=has_explicit_seeking,
+            has_explicit_offering=has_explicit_offering,
+        )
+
+        return enriched
+
+    def _generate_why_fit(self, name: str, company: str, who_they_serve: str,
+                          what_they_do: str, seeking: str, offering: str,
+                          match_data: Dict) -> str:
+        """Generate compelling 'why this is a good fit' reasoning using actual profile data."""
+
+        first_name = name.split()[0] if name else 'Partner'
+        list_size = match_data.get('list_size', 0)
+        niche = match_data.get('niche', '')
+
+        # Sanitize inputs first - prevents encoding issues
+        who_they_serve = TextSanitizer.sanitize(who_they_serve)
+        seeking = TextSanitizer.sanitize(seeking)
+        offering = TextSanitizer.sanitize(offering)
+
+        parts = []
+
+        # 1. Audience alignment (using who_they_serve)
+        if who_they_serve:
+            client_audience = self.client.get('who_you_serve', '')
+            # Find overlap in audiences
+            overlap = self._find_audience_overlap(who_they_serve, client_audience)
+
+            # Use safe truncation - never cut words
+            audience_snippet = TextSanitizer.truncate_safe(who_they_serve, 100)
+
+            if overlap:
+                parts.append(f"AUDIENCE ALIGNMENT: {first_name} serves {audience_snippet} - these are exactly the people who need {self.client_first_name}'s clarity methodology before they can fully benefit from {first_name}'s expertise.")
+            else:
+                short_audience = TextSanitizer.truncate_safe(who_they_serve, 80)
+                parts.append(f"AUDIENCE SYNERGY: {first_name}'s audience ({short_audience}) are growth-minded individuals actively investing in themselves - prime candidates for passion clarity.")
+
+        # 2. What they're actively seeking (the gold!)
+        if seeking:
+            # Parse what they want
+            seeking_lower = seeking.lower()
+            seeking_snippet = TextSanitizer.truncate_safe(seeking, 100)
+
+            # Match their seeking to what client offers
+            if any(kw in seeking_lower for kw in ['cross-promotion', 'promotion', 'email', 'list']):
+                parts.append(f"THEY WANT THIS: {first_name} is actively seeking '{seeking_snippet}' - {self.client_first_name} offers exactly this with a global facilitator network and engaged audience.")
+            elif any(kw in seeking_lower for kw in ['speaking', 'interview', 'podcast', 'guest']):
+                parts.append(f"THEY WANT THIS: {first_name} wants '{seeking_snippet}' - {self.client_first_name} can provide speaking platforms and interview opportunities through facilitator events.")
+            elif any(kw in seeking_lower for kw in ['affiliate', 'partner', 'jv', 'joint venture']):
+                parts.append(f"THEY WANT THIS: {first_name} is seeking '{seeking_snippet}' - perfectly aligned with {self.client_first_name}'s JV partnership goals.")
+            elif seeking:
+                long_seeking = TextSanitizer.truncate_safe(seeking, 150)
+                parts.append(f"ACTIVE INTEREST: {first_name} has stated they're seeking: {long_seeking}")
+
+        # 3. Scale match (always include partner's name for personalization)
+        if list_size >= 50000:
+            parts.append(f"SCALE: {first_name}'s reach of {list_size:,} subscribers provides significant cross-promotion value for {self.client_first_name}.")
+        elif list_size >= 10000:
+            parts.append(f"ENGAGED AUDIENCE: {first_name} has {list_size:,} subscribers in a complementary niche.")
+
+        # 4. What they offer (potential for client) - use actual data only
+        if offering:
+            offering_snippet = TextSanitizer.truncate_safe(offering, 150)
+            parts.append(f"THEY OFFER: {first_name} brings {offering_snippet}")
+
+        # 5. For sparse profiles, use business focus factually (not as inference)
+        if not parts and what_they_do:
+            # State what we KNOW, not what we assume they want
+            focus_snippet = TextSanitizer.truncate_safe(what_they_do, 120)
+            parts.append(f"EXPERTISE: {first_name} specializes in {focus_snippet} - a complementary area for {self.client_first_name}'s audience.")
+
+        # Ensure we always have personalized content with the partner's name
+        if not parts:
+            # Minimal fallback - focuses on scale if available
+            if list_size >= 10000:
+                parts.append(f"REACH: {first_name} has built an audience of {list_size:,} in the {niche or 'personal development'} space.")
+            else:
+                parts.append(f"COMPLEMENTARY: {first_name} operates in {niche or 'personal development'} - explore potential synergies.")
+
+        # SMART LENGTH MANAGEMENT: Keep up to 3 sections, max 520 chars
+        # Tighter PDF spacing allows for more content now
+        MAX_LENGTH = 520
+        MAX_SECTIONS = 3  # Allow up to 3 sections for more info
+
+        result_parts = []
+        current_length = 0
+
+        for part in parts[:MAX_SECTIONS]:  # Limit to top 3
+            section_length = len(part) + 4  # +4 for '\n\n' separator
+            if current_length + section_length <= MAX_LENGTH:
+                result_parts.append(part)
+                current_length += section_length
+            # Don't break - try to fit what we can
+
+        result = '\n\n'.join(result_parts)
+        return TextSanitizer.sanitize(result)
+
+    def _generate_mutual_benefit(self, name: str, company: str, who_they_serve: str,
+                                  seeking: str, offering: str, match_data: Dict) -> str:
+        """Generate clear mutual benefit statement with proper formatting."""
+
+        first_name = name.split()[0] if name else 'Partner'
+        list_size = match_data.get('list_size', 0)
+
+        # What partner gets
+        partner_gets = []
+        if seeking:
+            # Parse their seeking to describe what they'll get
+            seeking_lower = seeking.lower()
+            if 'cross-promotion' in seeking_lower or 'email' in seeking_lower:
+                partner_gets.append(f"Exposure to {self.client_first_name}'s global network of 5,000+ certified facilitators")
+            if 'speaking' in seeking_lower or 'interview' in seeking_lower:
+                partner_gets.append("Speaking opportunities at Passion Test events and facilitator trainings")
+            if 'affiliate' in seeking_lower:
+                partner_gets.append("Affiliate partnership with proven high-conversion programs")
+            if 'podcast' in seeking_lower or 'guest' in seeking_lower:
+                partner_gets.append("Guest appearance opportunities with bestselling author")
+
+        if not partner_gets:
+            partner_gets.append(f"Access to {self.client_first_name}'s engaged audience")
+
+        # What client gets
+        client_gets = []
+        if list_size >= 10000:
+            client_gets.append(f"Promotion to {list_size:,} subscribers")
+        if offering:
+            offering_lower = offering.lower()
+            if 'podcast' in offering_lower:
+                client_gets.append("Podcast guest opportunity")
+            elif 'email' in offering_lower or 'list' in offering_lower:
+                client_gets.append("Email promotion to their list")
+            elif 'speaking' in offering_lower:
+                client_gets.append("Speaking platform access")
+
+        if not client_gets:
+            client_gets.append(f"Access to {first_name}'s complementary audience")
+
+        # LIMIT to 2 bullets each to fit PDF space (max ~300 chars for STRATEGY)
+        partner_bullets = TextSanitizer.format_bullet_list(partner_gets[:2])
+        client_bullets = TextSanitizer.format_bullet_list(client_gets[:2])
+
+        benefit = f"""WHAT {first_name.upper()} GETS:
+{partner_bullets}
+
+WHAT {self.client_first_name.upper()} GETS:
+{client_bullets}"""
+
+        return TextSanitizer.sanitize(benefit)
+
+    def _generate_outreach(self, name: str, company: str, who_they_serve: str,
+                           seeking: str, offering: str, match_data: Dict) -> str:
+        """
+        Generate warm, relationship-focused outreach.
+
+        Per Chelsea's feedback: Be WARM, not transactional. Focus on connection
+        and mutual values, not bullet points and numbers.
+        """
+
+        first_name = name.split()[0] if name else 'there'
+
+        # Handle Dr. prefix
+        if first_name.lower() == 'dr.':
+            parts = name.split()
+            first_name = parts[1] if len(parts) > 1 else first_name
+
+        # Sanitize inputs
+        seeking = TextSanitizer.sanitize(seeking)
+        who_they_serve = TextSanitizer.sanitize(who_they_serve)
+        offering = TextSanitizer.sanitize(offering)
+        company = TextSanitizer.sanitize(company)
+
+        # Build warm, personalized opening based on their profile
+        if seeking:
+            # Reference what resonated without quoting numbers
+            seeking_preview = TextSanitizer.truncate_safe(seeking, 80, '')
+            if 'partner' in seeking.lower() or 'collaborat' in seeking.lower():
+                warm_hook = f"I came across your JV Directory profile and really resonated with how you approach partnerships"
+                warm_detail = "- especially the emphasis on collaboration and long-term alignment"
+            elif 'speaking' in seeking.lower() or 'event' in seeking.lower():
+                warm_hook = f"I noticed we share a similar passion for transformational events and speaking"
+                warm_detail = ""
+            else:
+                warm_hook = f"Your profile caught my attention"
+                warm_detail = "- I love the work you're doing"
+        elif who_they_serve:
+            audience_preview = TextSanitizer.truncate_safe(who_they_serve, 60, '')
+            warm_hook = f"I love that you serve {audience_preview}"
+            warm_detail = "- it's so aligned with the community I've built"
+        elif company:
+            warm_hook = f"I've admired what you're building with {company}"
+            warm_detail = ""
+        else:
+            warm_hook = "Your work in the transformation space caught my attention"
+            warm_detail = ""
+
+        # Build the connection bridge - focus on values, not offers
+        connection_text = """I'm Janet Attwood, co-creator of The Passion Test. Over the years, we've built a global community around purpose-driven work, and I'm always interested in connecting with people who value meaningful, win-win partnerships as much as we do."""
+
+        # Soft, non-transactional invitation
+        invitation = """There may be some natural ways we could support one another that I'd love to chat about.
+
+If you're open to it, I'd love to hop on a short call to get to know each other and see if there's a mutual fit."""
+
+        message = f"""Subject: Connection from Janet Attwood
+
+Hi {first_name},
+
+{warm_hook}{warm_detail}.
+
+{connection_text}
+
+{invitation}
+
+You can grab a time that works for you here: [calendar link]
+
+Looking forward to connecting,
+Janet"""
+
+        return TextSanitizer.sanitize(message)
+
+    def _find_audience_overlap(self, their_audience: str, our_audience: str) -> bool:
+        """Check if there's meaningful audience overlap."""
+        their_lower = their_audience.lower()
+        our_lower = our_audience.lower()
+
+        overlap_keywords = [
+            'coach', 'entrepreneur', 'leader', 'speaker', 'author',
+            'trainer', 'consultant', 'professional', 'business owner',
+            'seeker', 'transform', 'growth', 'development'
+        ]
+
+        their_matches = sum(1 for kw in overlap_keywords if kw in their_lower)
+        our_matches = sum(1 for kw in overlap_keywords if kw in our_lower)
+
+        return their_matches >= 2 or our_matches >= 2
+
+
+# =============================================================================
+# MULTI-AGENT VERIFICATION SYSTEM
+# Each agent is specialized to catch specific issues
+# =============================================================================
+
+@dataclass
+class VerificationIssue:
+    """A single verification issue found by an agent."""
+    agent: str
+    severity: str  # 'critical', 'warning', 'info'
+    issue: str
+    suggestion: str
+    location: str  # which field: 'why_fit', 'mutual_benefit', 'outreach', etc.
+
+
+class BaseVerificationAgent:
+    """Base class for all verification agents."""
+
+    name: str = "base"
+
+    def verify(self, match: 'EnrichedMatch') -> List[VerificationIssue]:
+        """Return list of issues found. Empty list = passed."""
+        raise NotImplementedError
+
+
+class EncodingVerificationAgent(BaseVerificationAgent):
+    """
+    AGENT 1: Encoding Verification
+    Catches any remaining problematic characters that could render as boxes.
+    """
+
+    name = "encoding"
+
+    # Characters that commonly cause rendering issues
+    PROBLEMATIC_PATTERNS = [
+        (r'[\u2014\u2013\u2212\u2010\u2011]', 'em/en-dash'),  # Various dashes
+        (r'[\u2018\u2019\u201c\u201d]', 'smart quotes'),  # Curly quotes
+        (r'[\u25a0\u25aa\u25cf\u25cb]', 'geometric shapes'),  # Squares/circles
+        (r'[\u00ad\u200b\u200c\u200d\ufeff]', 'invisible chars'),  # Zero-width
+        (r'[^\x00-\x7F]', 'non-ASCII'),  # Anything outside basic ASCII
+    ]
+
+    def verify(self, match: EnrichedMatch) -> List[VerificationIssue]:
+        issues = []
+
+        # Check all text fields
+        fields_to_check = [
+            ('why_fit', match.why_fit),
+            ('mutual_benefit', match.mutual_benefit),
+            ('outreach_message', match.outreach_message),
+            ('seeking', match.seeking),
+            ('offering', match.offering),
+            ('who_they_serve', match.who_they_serve),
+        ]
+
+        for field_name, text in fields_to_check:
+            if not text:
+                continue
+
+            for pattern, desc in self.PROBLEMATIC_PATTERNS:
+                matches = re.findall(pattern, text)
+                if matches:
+                    # Only flag non-ASCII if there are problematic chars
+                    if desc == 'non-ASCII':
+                        # Filter to only truly problematic chars
+                        bad_chars = [c for c in matches if ord(c) > 127 and c not in '\n\t']
+                        if bad_chars:
+                            issues.append(VerificationIssue(
+                                agent=self.name,
+                                severity='critical',
+                                issue=f"Found {len(bad_chars)} problematic characters ({desc}): {bad_chars[:5]}",
+                                suggestion="Run through TextSanitizer.sanitize()",
+                                location=field_name
+                            ))
+                    else:
+                        issues.append(VerificationIssue(
+                            agent=self.name,
+                            severity='critical',
+                            issue=f"Found {desc}: '{matches[:3]}'",
+                            suggestion="Replace with ASCII equivalent",
+                            location=field_name
+                        ))
+
+        return issues
+
+
+class FormattingVerificationAgent(BaseVerificationAgent):
+    """
+    AGENT 2: Formatting Verification
+    Ensures proper structure, spacing, bullets, and readability.
+    """
+
+    name = "formatting"
+
+    def verify(self, match: EnrichedMatch) -> List[VerificationIssue]:
+        issues = []
+
+        # Check WHY FIT has proper section breaks
+        if match.why_fit:
+            sections = match.why_fit.split('\n\n')
+            if len(sections) == 1 and len(match.why_fit) > 200:
+                issues.append(VerificationIssue(
+                    agent=self.name,
+                    severity='warning',
+                    issue="WHY FIT is one large block without section breaks",
+                    suggestion="Add paragraph breaks between AUDIENCE, THEY WANT, SCALE sections",
+                    location='why_fit'
+                ))
+
+        # Check MUTUAL BENEFIT has both GETS sections
+        if match.mutual_benefit:
+            mb_upper = match.mutual_benefit.upper()
+
+            if 'WHAT' not in mb_upper:
+                issues.append(VerificationIssue(
+                    agent=self.name,
+                    severity='critical',
+                    issue="MUTUAL BENEFIT missing WHAT X GETS structure",
+                    suggestion="Include 'WHAT [NAME] GETS:' and 'WHAT [CLIENT] GETS:' sections",
+                    location='mutual_benefit'
+                ))
+
+            # Check BOTH parties' benefits are included (not just one)
+            gets_count = mb_upper.count('GETS:')
+            if gets_count < 2:
+                issues.append(VerificationIssue(
+                    agent=self.name,
+                    severity='critical',
+                    issue=f"MUTUAL BENEFIT only shows {gets_count} party's benefits (need both)",
+                    suggestion="Ensure both 'WHAT [PARTNER] GETS:' and 'WHAT [CLIENT] GETS:' are present",
+                    location='mutual_benefit'
+                ))
+
+            # Check for actual bullet content
+            if match.mutual_benefit.count('*') < 2:
+                issues.append(VerificationIssue(
+                    agent=self.name,
+                    severity='warning',
+                    issue="MUTUAL BENEFIT has fewer than 2 bullet points",
+                    suggestion="Add specific benefits for each party",
+                    location='mutual_benefit'
+                ))
+
+            # Check for content length that will be truncated in PDF
+            if len(match.mutual_benefit) > 450:
+                issues.append(VerificationIssue(
+                    agent=self.name,
+                    severity='warning',
+                    issue=f"MUTUAL BENEFIT is {len(match.mutual_benefit)} chars (will be truncated at 450)",
+                    suggestion="Condense bullet points to fit within PDF space",
+                    location='mutual_benefit'
+                ))
+
+        # Check WHY FIT length
+        if match.why_fit and len(match.why_fit) > 600:
+            issues.append(VerificationIssue(
+                agent=self.name,
+                severity='warning',
+                issue=f"WHY FIT is {len(match.why_fit)} chars (will be truncated at 600)",
+                suggestion="Condense sections to fit within PDF space",
+                location='why_fit'
+            ))
+
+        # Check outreach has proper structure
+        if match.outreach_message:
+            if 'Subject:' not in match.outreach_message:
+                issues.append(VerificationIssue(
+                    agent=self.name,
+                    severity='warning',
+                    issue="Outreach missing Subject line",
+                    suggestion="Add 'Subject: [personalized subject]'",
+                    location='outreach_message'
+                ))
+
+        return issues
+
+
+class ContentVerificationAgent(BaseVerificationAgent):
+    """
+    AGENT 3: Content Verification
+    Checks for empty sections, generic text, and missing specificity.
+    """
+
+    name = "content"
+
+    GENERIC_PHRASES = [
+        'your work resonates',
+        'aligned business',
+        'great synergy',
+        'perfect fit',
+        'complementary services',
+        'win-win',
+    ]
+
+    def verify(self, match: EnrichedMatch) -> List[VerificationIssue]:
+        issues = []
+
+        first_name = match.name.split()[0] if match.name else 'Partner'
+
+        # Check for empty sections
+        if not match.why_fit or len(match.why_fit.strip()) < 50:
+            issues.append(VerificationIssue(
+                agent=self.name,
+                severity='critical',
+                issue="WHY FIT is empty or too short",
+                suggestion="Generate compelling reasoning using profile data",
+                location='why_fit'
+            ))
+
+        if not match.mutual_benefit or len(match.mutual_benefit.strip()) < 50:
+            issues.append(VerificationIssue(
+                agent=self.name,
+                severity='critical',
+                issue="MUTUAL BENEFIT is empty or too short",
+                suggestion="Add specific benefits for both parties",
+                location='mutual_benefit'
+            ))
+
+        # Check for "WHAT X GETS:" followed by nothing
+        if match.mutual_benefit:
+            # Look for pattern like "GETS:\n*" with nothing or "GETS:\n\n"
+            empty_section_pattern = r'GETS:\s*\n\s*(\n|$|\*\s*$)'
+            if re.search(empty_section_pattern, match.mutual_benefit):
+                issues.append(VerificationIssue(
+                    agent=self.name,
+                    severity='critical',
+                    issue=f"Found empty 'WHAT X GETS' section with no content",
+                    suggestion="Ensure each GETS section has actual bullet points",
+                    location='mutual_benefit'
+                ))
+
+        # Check name is used
+        if match.why_fit and first_name.lower() not in match.why_fit.lower():
+            issues.append(VerificationIssue(
+                agent=self.name,
+                severity='warning',
+                issue=f"WHY FIT doesn't mention partner's name ({first_name})",
+                suggestion="Include their name for personalization",
+                location='why_fit'
+            ))
+
+        # Check for too many generic phrases
+        all_text = (match.why_fit + match.mutual_benefit).lower()
+        generic_count = sum(1 for phrase in self.GENERIC_PHRASES if phrase in all_text)
+        if generic_count >= 2:
+            issues.append(VerificationIssue(
+                agent=self.name,
+                severity='warning',
+                issue=f"Content uses {generic_count} generic phrases",
+                suggestion="Replace with specific references to their profile data",
+                location='why_fit'
+            ))
+
+        # Check if seeking data is being used
+        if match.seeking and len(match.seeking) > 20:
+            if match.seeking[:30].lower() not in match.why_fit.lower():
+                issues.append(VerificationIssue(
+                    agent=self.name,
+                    severity='warning',
+                    issue="Not directly quoting what they're seeking",
+                    suggestion=f"Reference their seeking: '{match.seeking[:50]}...'",
+                    location='why_fit'
+                ))
+
+        return issues
+
+
+class CapitalizationVerificationAgent(BaseVerificationAgent):
+    """
+    AGENT 4: Capitalization Verification
+    Ensures proper capitalization on bullet points and section headers.
+    """
+
+    name = "capitalization"
+
+    def verify(self, match: EnrichedMatch) -> List[VerificationIssue]:
+        issues = []
+
+        # Check all text fields with bullets
+        fields_to_check = [
+            ('mutual_benefit', match.mutual_benefit),
+            ('outreach_message', match.outreach_message),
+        ]
+
+        for field_name, text in fields_to_check:
+            if not text:
+                continue
+
+            # Find ACTUAL bullet points (at start of line) and check capitalization
+            # Pattern: start of line or after newline, bullet marker, space, lowercase letter
+            bullet_patterns = [
+                (r'(?:^|\n)\s*\* ([a-z])', '*'),   # * at line start
+                (r'(?:^|\n)\s*• ([a-z])', '•'),   # • at line start
+                (r'(?:^|\n)\s*- ([a-z])', '-'),   # - at line start (actual list item)
+            ]
+
+            for pattern, bullet in bullet_patterns:
+                matches = re.findall(pattern, text)
+                if matches:
+                    issues.append(VerificationIssue(
+                        agent=self.name,
+                        severity='warning',
+                        issue=f"Found {len(matches)} bullet(s) starting with lowercase: '{bullet} {matches[0]}...'",
+                        suggestion="Capitalize first letter after bullet point",
+                        location=field_name
+                    ))
+
+        # Check section headers are uppercase
+        if match.why_fit:
+            header_pattern = r'^([A-Z][A-Z ]+):'
+            headers = re.findall(header_pattern, match.why_fit, re.MULTILINE)
+            if not headers and 'AUDIENCE' in match.why_fit.upper():
+                # Check if headers are mixed case
+                if 'Audience' in match.why_fit or 'They Want' in match.why_fit:
+                    issues.append(VerificationIssue(
+                        agent=self.name,
+                        severity='info',
+                        issue="Section headers are not consistently uppercase",
+                        suggestion="Use 'AUDIENCE ALIGNMENT:' not 'Audience Alignment:'",
+                        location='why_fit'
+                    ))
+
+        return issues
+
+
+class TruncationVerificationAgent(BaseVerificationAgent):
+    """
+    AGENT 5: Truncation Verification
+    Catches cut-off words and improper truncation.
+    """
+
+    name = "truncation"
+
+    # Patterns that indicate bad truncation
+    TRUNCATION_PATTERNS = [
+        (r'\w+[—–-]$', 'word ending in dash'),  # "opportu—"
+        (r'\w+\.\.\.$', 'triple dot truncation'),  # Could be OK, check context
+        (r'\w{1,3}\.\.\.', 'very short word before ellipsis'),  # "op..."
+        (r'[a-z]{1,2}$', 'ends with 1-2 lowercase letters (possible cut)'),  # "o" or "op"
+    ]
+
+    def verify(self, match: EnrichedMatch) -> List[VerificationIssue]:
+        issues = []
+
+        fields_to_check = [
+            ('why_fit', match.why_fit),
+            ('mutual_benefit', match.mutual_benefit),
+            ('outreach_message', match.outreach_message),
+        ]
+
+        for field_name, text in fields_to_check:
+            if not text:
+                continue
+
+            # Check for words cut off by dashes
+            dash_truncated = re.findall(r'(\w+)[—–-](?:\s|$)', text)
+            for word in dash_truncated:
+                if len(word) > 2:  # Ignore intentional hyphens like "self-"
+                    issues.append(VerificationIssue(
+                        agent=self.name,
+                        severity='critical',
+                        issue=f"Word appears truncated: '{word}—'",
+                        suggestion="Use TextSanitizer.truncate_safe() for word-safe truncation",
+                        location=field_name
+                    ))
+
+            # Check for lines that end abruptly (possible truncation)
+            lines = text.split('\n')
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+
+                # Check if line ends with partial word
+                if re.search(r'\b\w{1,2}$', line) and not line.endswith(('a', 'I', 'to', 'in', 'on', 'of', 'or', 'an', 'at', 'by', 'is', 'be', 'we', 'up', 'so', 'no', 'go', 'me', 'my', 'do', 'if', 'as', 'it', 'us', 'am', '5K', '10')):
+                    # Could be a truncation issue
+                    last_word = line.split()[-1] if line.split() else ''
+                    if len(last_word) <= 2 and last_word.isalpha():
+                        issues.append(VerificationIssue(
+                            agent=self.name,
+                            severity='info',
+                            issue=f"Line may be truncated: '...{line[-30:]}'",
+                            suggestion="Verify text is complete",
+                            location=field_name
+                        ))
+
+        return issues
+
+
+class DataQualityVerificationAgent(BaseVerificationAgent):
+    """
+    AGENT 6: Data Quality Verification
+    Catches useless boilerplate text, misplaced data, and field content issues.
+    """
+
+    name = "data_quality"
+
+    # Patterns that indicate boilerplate/useless text (not actual contact info)
+    BOILERPLATE_PATTERNS = [
+        r'you can contact me',
+        r'feel free to',
+        r'in a variety of ways',
+        r'including the following',
+        r'reach out to me',
+        r'don\'t hesitate to',
+        r'any of the following',
+        r'various ways',
+    ]
+
+    # Patterns that indicate actual contact information
+    ACTUAL_CONTACT_PATTERNS = [
+        r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',  # Email
+        r'\d{3}[-.]?\d{3}[-.]?\d{4}',  # Phone (xxx-xxx-xxxx)
+        r'\+\d{1,3}[-\s]?\d+',  # International phone
+        r'calendly\.com',  # Calendly link
+        r'cal\.com',  # Cal.com link
+        r'Email:',  # Explicit email label
+        r'Phone:',  # Explicit phone label
+        r'Text:',  # Explicit text label
+    ]
+
+    def verify(self, match: EnrichedMatch) -> List[VerificationIssue]:
+        issues = []
+
+        # Check if website is actually a LinkedIn URL (confusing UX)
+        if match.website:
+            website_lower = match.website.lower()
+            if 'linkedin.com' in website_lower:
+                issues.append(VerificationIssue(
+                    agent=self.name,
+                    severity='warning',
+                    issue=f"Website field contains LinkedIn URL: {match.website[:50]}",
+                    suggestion="Move LinkedIn URL to linkedin field; use actual website or leave empty",
+                    location='website'
+                ))
+
+        # Check notes for boilerplate in "Best contact" section
+        if match.notes:
+            notes_lower = match.notes.lower()
+
+            # Look for "best contact" section with boilerplate instead of actual info
+            has_best_contact = 'best contact' in notes_lower or 'best way to contact' in notes_lower
+
+            if has_best_contact:
+                # Check if it's just boilerplate intro text
+                has_boilerplate = any(re.search(pattern, notes_lower) for pattern in self.BOILERPLATE_PATTERNS)
+                has_actual_contact = any(re.search(pattern, match.notes, re.IGNORECASE) for pattern in self.ACTUAL_CONTACT_PATTERNS)
+
+                if has_boilerplate and not has_actual_contact:
+                    issues.append(VerificationIssue(
+                        agent=self.name,
+                        severity='critical',
+                        issue="'Best contact' section contains intro text instead of actual contact info",
+                        suggestion="Extract actual contact methods (Email:, Phone:) not intro sentences",
+                        location='notes'
+                    ))
+
+        # Check for empty required fields
+        if not match.name or len(match.name.strip()) < 2:
+            issues.append(VerificationIssue(
+                agent=self.name,
+                severity='critical',
+                issue="Name field is empty or too short",
+                suggestion="Ensure valid name is provided",
+                location='name'
+            ))
+
+        # Check for nonsense email values
+        if match.email:
+            email_lower = match.email.lower()
+            if email_lower in ['update', 'n/a', 'none', 'na', '-', '.']:
+                issues.append(VerificationIssue(
+                    agent=self.name,
+                    severity='warning',
+                    issue=f"Email field contains placeholder value: '{match.email}'",
+                    suggestion="Leave email empty rather than using placeholder",
+                    location='email'
+                ))
+
+        # Check for URL in wrong fields
+        if match.email and ('http' in match.email or '.com/' in match.email):
+            issues.append(VerificationIssue(
+                agent=self.name,
+                severity='warning',
+                issue="Email field contains URL instead of email address",
+                suggestion="Move URL to website field",
+                location='email'
+            ))
+
+        return issues
+
+
+class MatchVerificationAgent:
+    """
+    MASTER VERIFICATION AGENT
+    Coordinates multiple specialized agents to ensure PERFECT quality.
+    """
+
+    # Minimum score to pass (each agent contributes to total)
+    MIN_SCORE_TO_PASS = 85  # Stricter threshold
+    MAX_RETRY_ATTEMPTS = 3
+
+    def __init__(self):
+        # Initialize all specialized agents
+        self.agents = [
+            EncodingVerificationAgent(),
+            FormattingVerificationAgent(),
+            ContentVerificationAgent(),
+            CapitalizationVerificationAgent(),
+            TruncationVerificationAgent(),
+            DataQualityVerificationAgent(),  # NEW: Catches boilerplate, misplaced data
+        ]
+
+        # Points deducted per issue severity
+        self.severity_penalties = {
+            'critical': 15,
+            'warning': 5,
+            'info': 1,
+        }
+
+    def verify(self, enriched_match: EnrichedMatch) -> VerificationResult:
+        """
+        Run ALL verification agents and aggregate results.
+        """
+        all_issues = []
+
+        # Run each specialized agent
+        for agent in self.agents:
+            try:
+                agent_issues = agent.verify(enriched_match)
+                all_issues.extend(agent_issues)
+                logger.debug(f"{agent.name}: Found {len(agent_issues)} issues")
+            except Exception as e:
+                logger.error(f"Agent {agent.name} failed: {e}")
+
+        # Calculate score (start at 100, deduct for issues)
+        score = 100.0
+        for issue in all_issues:
+            penalty = self.severity_penalties.get(issue.severity, 5)
+            score -= penalty
+
+        score = max(0, score)  # Don't go negative
+
+        # Determine status
+        critical_issues = [i for i in all_issues if i.severity == 'critical']
+
+        if critical_issues:
+            status = VerificationStatus.REJECTED if score < 50 else VerificationStatus.NEEDS_ENRICHMENT
+        elif score >= self.MIN_SCORE_TO_PASS:
+            status = VerificationStatus.PASSED
+        elif score >= 60:
+            status = VerificationStatus.NEEDS_ENRICHMENT
+        else:
+            status = VerificationStatus.REJECTED
+
+        # Format issues and suggestions for output
+        issue_strings = [f"[{i.agent}] {i.issue}" for i in all_issues]
+        suggestion_strings = [f"[{i.agent}] {i.suggestion}" for i in all_issues if i.severity in ('critical', 'warning')]
+
+        return VerificationResult(
+            status=status,
+            score=score,
+            issues=issue_strings,
+            suggestions=suggestion_strings
+        )
+
+    def verify_and_fix(self, enriched_match: EnrichedMatch) -> Tuple[EnrichedMatch, VerificationResult]:
+        """
+        Verify and attempt to fix issues automatically.
+        Returns the fixed match and verification result.
+        """
+        # First, apply automatic fixes
+        fixed_match = self._apply_auto_fixes(enriched_match)
+
+        # Then verify
+        result = self.verify(fixed_match)
+
+        return fixed_match, result
+
+    def _apply_auto_fixes(self, match: EnrichedMatch) -> EnrichedMatch:
+        """Apply automatic fixes for common issues."""
+        # Create a copy with fixed fields
+        return EnrichedMatch(
+            name=match.name,
+            company=match.company,
+            email=match.email,
+            linkedin=match.linkedin,
+            website=match.website,
+            niche=match.niche,
+            list_size=match.list_size,
+            social_reach=match.social_reach,
+            score=match.score,
+            who_they_serve=TextSanitizer.sanitize(match.who_they_serve),
+            what_they_do=TextSanitizer.sanitize(match.what_they_do),
+            seeking=TextSanitizer.sanitize(match.seeking),
+            offering=TextSanitizer.sanitize(match.offering),
+            notes=match.notes,
+            why_fit=TextSanitizer.sanitize(match.why_fit),
+            mutual_benefit=TextSanitizer.sanitize(match.mutual_benefit),
+            outreach_message=TextSanitizer.sanitize(match.outreach_message),
+            verification_score=match.verification_score,
+            verification_passed=match.verification_passed,
+        )
+
+
+def enrich_and_verify_matches(
+    matches: List[Dict],
+    client_profile: Dict,
+    supabase_profiles: Optional[Dict[str, Dict]] = None
+) -> List[EnrichedMatch]:
+    """
+    Main entry point: Enrich matches with full data, verify quality, and auto-fix issues.
+
+    Args:
+        matches: List of basic match dicts
+        client_profile: Client's profile data
+        supabase_profiles: Optional dict mapping names to full Supabase profiles
+
+    Returns:
+        List of EnrichedMatch objects that passed verification (with auto-fixes applied)
+    """
+    enrichment_service = MatchEnrichmentService(client_profile)
+    verification_agent = MatchVerificationAgent()
+
+    verified_matches = []
+
+    for match_data in matches:
+        name = match_data.get('name', '')
+
+        # Get full profile if available
+        full_profile = None
+        if supabase_profiles:
+            full_profile = supabase_profiles.get(name.lower())
+
+        # Enrich
+        enriched = enrichment_service.enrich_match(match_data, full_profile)
+
+        # Verify AND auto-fix issues
+        fixed_match, result = verification_agent.verify_and_fix(enriched)
+
+        fixed_match.verification_score = result.score
+        fixed_match.verification_passed = result.status == VerificationStatus.PASSED
+
+        if result.status == VerificationStatus.PASSED:
+            verified_matches.append(fixed_match)
+            logger.info(f"✓ {name}: Verified (score: {result.score})")
+        elif result.status == VerificationStatus.NEEDS_ENRICHMENT:
+            # Still include but flag for review
+            logger.warning(f"⚠ {name}: Needs review (score: {result.score})")
+            for issue in result.issues[:3]:  # Show top 3 issues
+                logger.warning(f"   - {issue}")
+            verified_matches.append(fixed_match)
+        else:
+            logger.warning(f"✗ {name}: Rejected (score: {result.score})")
+            for issue in result.issues:
+                logger.warning(f"   - {issue}")
+
+    return verified_matches

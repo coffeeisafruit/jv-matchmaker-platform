@@ -1,0 +1,1 @@
+Note: owl_enrichment_output/ kept as source of truth for OWL data

@@ -1,0 +1,83 @@
+/Users/josephtepe/Projects/jv-matchmaker-platform/scripts/progressive_enrich.py:214: RuntimeWarning: coroutine 'SmartEnrichmentService.enrich_contact' was never awaited
+  self.stats['errors'] += 1
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+======================================================================
+PROGRESSIVE ENRICHMENT (SmartEnrichmentService)
+======================================================================
+Mode: LIVE ENRICHMENT
+Priority: high-value
+Limit: 10
+
+Found 10 profiles to enrich
+
+
+Enriching: Audio Book
+  Company: Audible Inc.
+  List size: 6,581,000
+  Current email: None
+  ❌ Error: 'coroutine' object has no attribute 'get'
+
+Enriching: Joe Vitale
+  Company: None
+  List size: 2,570,000
+  Current email: None
+  ❌ Error: 'coroutine' object has no attribute 'get'
+
+Enriching: Lumosity Brain Training
+  Company: None
+  List size: 2,506,000
+  Current email: None
+  ❌ Error: 'coroutine' object has no attribute 'get'
+
+Enriching: Noom Weight Loss Program
+  Company: None
+  List size: 1,407,700
+  Current email: None
+  ❌ Error: 'coroutine' object has no attribute 'get'
+
+Enriching: John Assaraf
+  Company: NeuroGym
+  List size: 1,154,000
+  Current email: None
+  ❌ Error: 'coroutine' object has no attribute 'get'
+
+Enriching: Rebecca Murtagh
+  Company: Human AI Institute
+  List size: 1,027,500
+  Current email: None
+  ❌ Error: 'coroutine' object has no attribute 'get'
+
+Enriching: Kim Serafini
+  Company: Positive Prime Technology
+  List size: 1,010,000
+  Current email: None
+  ❌ Error: 'coroutine' object has no attribute 'get'
+
+Enriching: James Clear
+  Company: None
+  List size: 1,000,000
+  Current email: None
+  ❌ Error: 'coroutine' object has no attribute 'get'
+
+Enriching: John Deerbitblinc LLC
+  Company: None
+  List size: 1,000,000
+  Current email: None
+  ❌ Error: 'coroutine' object has no attribute 'get'
+
+Enriching: C.F. Jackson
+  Company: More InfoiDefine TV
+  List size: 861,690
+  Current email: None
+  ❌ Error: 'coroutine' object has no attribute 'get'
+
+======================================================================
+ENRICHMENT SUMMARY
+======================================================================
+Processed: 10
+Enriched: 0
+Skipped: 0
+Errors: 10
+Fields added: 0
+
+⚠️  No profiles were enriched
