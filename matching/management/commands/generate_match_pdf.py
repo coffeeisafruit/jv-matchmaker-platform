@@ -1,14 +1,20 @@
 """
-Generate Janet Bray Attwood's PDF report with ENRICHED match data.
+Generate JV match PDF report with ENRICHED match data.
+Supports any client profile (defaults to Janet Bray Attwood for backward compatibility).
 Uses full profile data (seeking, offering, who_they_serve) for compelling reasoning.
 TOP 10 matches only with verification.
+
+Usage:
+    python manage.py generate_match_pdf                           # Default: Janet
+    python manage.py generate_match_pdf --client-name "Jane Doe"  # Load from Supabase by name
+    python manage.py generate_match_pdf --client-profile-id UUID  # Load from Supabase by ID
 """
 
 import csv
 import logging
 import re
 from datetime import datetime
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
 from pathlib import Path
 
@@ -55,9 +61,21 @@ JANET_PROFILE = {
 
 
 class Command(BaseCommand):
-    help = 'Generate Janet Bray Attwood PDF report with ENRICHED match data (top 10)'
+    help = 'Generate JV match PDF report with ENRICHED match data (top 10). Supports any client.'
 
     def add_arguments(self, parser):
+        parser.add_argument(
+            '--client-name',
+            type=str,
+            default=None,
+            help='Client name to load from Supabase (default: Janet Bray Attwood)'
+        )
+        parser.add_argument(
+            '--client-profile-id',
+            type=str,
+            default=None,
+            help='Client Supabase profile UUID to load'
+        )
         parser.add_argument(
             '--skip-verification',
             action='store_true',
@@ -89,6 +107,44 @@ class Command(BaseCommand):
             help='Use OWL multi-agent research with source verification (requires owl_framework venv)'
         )
 
+    def _resolve_client_profile(self, options) -> dict:
+        """Resolve client profile from CLI args or default to JANET_PROFILE."""
+        client_profile_id = options.get('client_profile_id')
+        client_name = options.get('client_name')
+
+        if client_profile_id:
+            profile = SupabaseProfile.objects.filter(id=client_profile_id).first()
+            if not profile:
+                raise CommandError(f"No profile found with ID: {client_profile_id}")
+            return self._supabase_to_client_dict(profile)
+
+        if client_name:
+            profile = SupabaseProfile.objects.filter(name__iexact=client_name).first()
+            if not profile:
+                profile = SupabaseProfile.objects.filter(name__icontains=client_name).first()
+            if not profile:
+                raise CommandError(f"No profile found matching name: {client_name}")
+            return self._supabase_to_client_dict(profile)
+
+        # Default: Janet Bray Attwood
+        return JANET_PROFILE
+
+    @staticmethod
+    def _supabase_to_client_dict(profile) -> dict:
+        """Convert a SupabaseProfile instance to a client profile dict."""
+        return {
+            'name': profile.name,
+            'company': profile.company or '',
+            'what_you_do': profile.what_you_do or '',
+            'who_you_serve': profile.who_you_serve or '',
+            'seeking': profile.seeking or '',
+            'offering': profile.offering or '',
+            'bio': profile.bio or '',
+            'signature_programs': profile.signature_programs or '',
+            'niche': profile.niche or '',
+            'list_size': profile.list_size or 0,
+        }
+
     def handle(self, *args, **options):
         skip_verification = options.get('skip_verification', False)
         use_ai_verification = options.get('ai_verification', False)
@@ -97,8 +153,12 @@ class Command(BaseCommand):
         deep_research = options.get('deep_research', False)
         owl_research = options.get('owl_research', False)
 
+        # Resolve client profile
+        client_profile = self._resolve_client_profile(options)
+        client_name = client_profile.get('name', 'Client')
+
         self.stdout.write(self.style.SUCCESS('\n' + '='*60))
-        self.stdout.write(self.style.SUCCESS('JANET BRAY ATTWOOD - ENRICHED JV REPORT'))
+        self.stdout.write(self.style.SUCCESS(f'{client_name.upper()} - ENRICHED JV REPORT'))
         self.stdout.write(self.style.SUCCESS('='*60 + '\n'))
 
         # Step 1: Load scraped contact info (for emails, phones)
@@ -400,7 +460,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING('  (Use --ai-verification for intelligent AI-powered checks)'))
         self.stdout.write('')
 
-        enrichment_service = MatchEnrichmentService(JANET_PROFILE)
+        enrichment_service = MatchEnrichmentService(client_profile)
 
         # Choose verification agent based on flag
         if use_ai_verification:
@@ -560,13 +620,13 @@ class Command(BaseCommand):
 
         # Step 7: Build member data for PDF
         member_data = {
-            'participant': 'Janet Bray Attwood',
+            'participant': client_name,
             'date': datetime.now().strftime("%B %d, %Y"),
             'profile': {
-                'what_you_do': JANET_PROFILE['what_you_do'],
-                'who_you_serve': JANET_PROFILE['who_you_serve'],
-                'seeking': JANET_PROFILE['seeking'],
-                'offering': JANET_PROFILE['offering'],
+                'what_you_do': client_profile.get('what_you_do', ''),
+                'who_you_serve': client_profile.get('who_you_serve', ''),
+                'seeking': client_profile.get('seeking', ''),
+                'offering': client_profile.get('offering', ''),
             },
             'matches': pdf_matches,
         }

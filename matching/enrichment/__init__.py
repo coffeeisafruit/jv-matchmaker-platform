@@ -6,6 +6,7 @@ Provides:
 - MatchEnrichmentService: Enrich matches with full profile data
 - MatchVerificationAgent: Coordinate multiple verification agents
 - Specialized agents: Encoding, Formatting, Content, Capitalization, Truncation
+- VerificationGate: 3-layer pre-Supabase verification gate
 """
 
 from .match_enrichment import (
@@ -33,6 +34,26 @@ from .match_enrichment import (
     enrich_and_verify_matches,
 )
 
+from .verification_gate import (
+    VerificationGate,
+    GateVerdict,
+    GateStatus,
+    FieldVerdict,
+    FieldStatus,
+    QuarantineRecord,
+    DeterministicChecker,
+    SourceQuoteVerifier,
+)
+
+from .retry_strategy import (
+    FailureClassifier,
+    FailureType,
+    FieldFailure,
+    RetryStrategySelector,
+    RetryPlan,
+    LearningLog,
+)
+
 __all__ = [
     'TextSanitizer',
     'EnrichedMatch',
@@ -47,4 +68,18 @@ __all__ = [
     'CapitalizationVerificationAgent',
     'TruncationVerificationAgent',
     'enrich_and_verify_matches',
+    'VerificationGate',
+    'GateVerdict',
+    'GateStatus',
+    'FieldVerdict',
+    'FieldStatus',
+    'QuarantineRecord',
+    'DeterministicChecker',
+    'SourceQuoteVerifier',
+    'FailureClassifier',
+    'FailureType',
+    'FieldFailure',
+    'RetryStrategySelector',
+    'RetryPlan',
+    'LearningLog',
 ]

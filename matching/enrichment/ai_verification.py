@@ -52,6 +52,10 @@ class ClaudeVerificationService:
 
         self.max_tokens = 1024
 
+    def is_available(self) -> bool:
+        """Check if the verification service has a configured API key."""
+        return self.api_key is not None
+
     def _call_claude(self, prompt: str) -> str:
         """Call Claude via OpenRouter or Anthropic API."""
         if not self.api_key:
@@ -274,13 +278,13 @@ Return ONLY the rewritten content, no explanation."""
     def _parse_response(self, response: str, field_name: str) -> AIVerificationResult:
         """Parse JSON response from Claude."""
         if not response:
-            # Fallback if API fails
+            # Fail-closed: reject when AI verification is unavailable
             return AIVerificationResult(
-                passed=True,
-                score=100,
-                issues=[],
-                suggestions=[],
-                reasoning="AI verification unavailable, passed by default"
+                passed=False,
+                score=0,
+                issues=["AI verification unavailable — fail-cautious"],
+                suggestions=["Retry when API is available"],
+                reasoning="AI verification unavailable — fail-cautious"
             )
 
         try:
@@ -310,11 +314,11 @@ Return ONLY the rewritten content, no explanation."""
         except (json.JSONDecodeError, KeyError) as e:
             logger.warning(f"Failed to parse AI response for {field_name}: {e}")
             return AIVerificationResult(
-                passed=True,
-                score=100,
-                issues=[],
-                suggestions=[],
-                reasoning=f"Parse error: {str(e)}"
+                passed=False,
+                score=0,
+                issues=[f"AI response parse error: {str(e)}"],
+                suggestions=["Retry verification"],
+                reasoning=f"AI response parse error — fail-cautious: {str(e)}"
             )
 
 

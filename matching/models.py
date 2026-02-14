@@ -46,6 +46,22 @@ class SupabaseProfile(models.Model):
     profile_updated_at = models.DateTimeField(null=True, blank=True)
     last_active_at = models.DateTimeField(null=True, blank=True)
 
+    # Enrichment metadata (exist in Supabase, previously invisible to Django ORM)
+    enrichment_metadata = models.JSONField(null=True, blank=True)
+    profile_confidence = models.FloatField(null=True, blank=True)
+    last_enriched_at = models.DateTimeField(null=True, blank=True)
+
+    # Network centrality (computed by management commands)
+    pagerank_score = models.FloatField(null=True, blank=True)
+    degree_centrality = models.FloatField(null=True, blank=True)
+    betweenness_centrality = models.FloatField(null=True, blank=True)
+    network_role = models.CharField(max_length=50, null=True, blank=True)
+    centrality_updated_at = models.DateTimeField(null=True, blank=True)
+
+    # Recommendation pressure
+    recommendation_pressure_30d = models.IntegerField(null=True, blank=True)
+    pressure_updated_at = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         managed = False  # Django won't create/modify this table
         db_table = 'profiles'
@@ -340,3 +356,183 @@ class MatchFeedback(models.Model):
 
     def __str__(self):
         return f"Feedback for {self.match}: {self.rating}/5"
+
+
+class SavedCandidate(models.Model):
+    """
+    A candidate saved by a user (e.g., from a guest matching flow)
+    before being added to the JV directory.
+    """
+    user = models.ForeignKey(
+        'core.User',
+        on_delete=models.CASCADE,
+        related_name='saved_candidates'
+    )
+    name = models.CharField(max_length=255)
+    company = models.CharField(max_length=255, null=True, blank=True)
+    seeking = models.TextField(null=True, blank=True)
+    offering = models.TextField(null=True, blank=True)
+    niche = models.CharField(max_length=255, null=True, blank=True)
+    list_size = models.IntegerField(default=0)
+    who_you_serve = models.TextField(null=True, blank=True)
+    what_you_do = models.TextField(null=True, blank=True)
+    added_to_directory = models.ForeignKey(
+        SupabaseProfile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='saved_candidate_source',
+        help_text='Set when user adds this candidate to the JV directory'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Saved candidate'
+        verbose_name_plural = 'Saved candidates'
+
+    def __str__(self):
+        return f"{self.name} ({self.company or 'No company'})"
+
+
+class PartnerRecommendation(models.Model):
+    """
+    Tracks when a partner is recommended to a user, with behavioral signals.
+    Used for recommendation pressure, feedback loops, and match quality analysis.
+    """
+
+    class Context(models.TextChoices):
+        GUEST_MATCH = 'guest_match', 'Guest Candidate Match'
+        DIRECTORY_MATCH = 'directory_match', 'Directory Match'
+        PARTNER_DETAIL = 'partner_detail', 'Partner Detail View'
+        SIMILAR_PARTNERS = 'similar_partners', 'Similar Partners'
+
+    user = models.ForeignKey(
+        'core.User',
+        on_delete=models.CASCADE,
+        related_name='recommendations_made'
+    )
+    partner = models.ForeignKey(
+        SupabaseProfile,
+        on_delete=models.CASCADE,
+        related_name='recommendations_received'
+    )
+    candidate = models.ForeignKey(
+        SavedCandidate,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='recommendations_made',
+        help_text='The candidate being matched (if applicable)'
+    )
+    recommended_at = models.DateTimeField(auto_now_add=True)
+    context = models.CharField(
+        max_length=50,
+        choices=Context.choices,
+        default=Context.DIRECTORY_MATCH
+    )
+
+    # Existing behavioral signals
+    was_viewed = models.BooleanField(default=False)
+    viewed_at = models.DateTimeField(null=True, blank=True)
+    was_contacted = models.BooleanField(default=False)
+    contacted_at = models.DateTimeField(null=True, blank=True)
+
+    # B3: New behavioral tracking fields
+    outreach_message_used = models.BooleanField(default=False)
+    time_to_first_action = models.DurationField(
+        null=True, blank=True,
+        help_text='Time between recommendation and first contact (conversion intent)'
+    )
+    view_count = models.IntegerField(default=0)
+    explanation_source = models.CharField(
+        max_length=20, null=True, blank=True,
+        help_text='How the match explanation was generated: llm_verified, llm_partial, template_fallback'
+    )
+
+    # B4: Tier 2 prompted feedback
+    class FeedbackOutcome(models.TextChoices):
+        CONNECTED_PROMISING = 'connected_promising', 'Connected and promising'
+        CONNECTED_NOT_FIT = 'connected_not_fit', 'Connected but not a fit'
+        NO_RESPONSE = 'no_response', 'No response'
+        DID_NOT_REACH_OUT = 'did_not_reach_out', 'Decided not to reach out'
+
+    feedback_outcome = models.CharField(
+        max_length=30, choices=FeedbackOutcome.choices,
+        null=True, blank=True,
+        help_text='Tier 2 follow-up feedback after 7-14 days'
+    )
+    feedback_notes = models.TextField(
+        null=True, blank=True,
+        help_text='Optional notes from the user about the outcome'
+    )
+    feedback_recorded_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-recommended_at']
+        verbose_name = 'Partner Recommendation'
+        verbose_name_plural = 'Partner Recommendations'
+        indexes = [
+            models.Index(fields=['partner', 'recommended_at']),
+            models.Index(fields=['partner', 'was_contacted']),
+            models.Index(fields=['user', 'recommended_at']),
+        ]
+
+    def __str__(self):
+        return f"Recommendation: {self.partner} → {self.user} ({self.context})"
+
+
+class MatchLearningSignal(models.Model):
+    """
+    Captures learning signals from match outcomes (B5).
+
+    Each record ties a match outcome to the conditions at generation time,
+    enabling analysis of what factors predict successful partnerships.
+    Designed for batch analysis once 200+ outcomes exist.
+    """
+
+    class SignalType(models.TextChoices):
+        FEEDBACK_TIER2 = 'feedback_tier2', 'Tier 2 Prompted Feedback'
+        CONTACT_MADE = 'contact_made', 'Contact Initiated'
+        VIEW_PATTERN = 'view_pattern', 'View Pattern Signal'
+        OUTREACH_USED = 'outreach_used', 'Outreach Message Used'
+
+    match = models.ForeignKey(
+        PartnerRecommendation,
+        on_delete=models.CASCADE,
+        related_name='learning_signals',
+    )
+    outcome = models.CharField(max_length=50)
+    outcome_timestamp = models.DateTimeField()
+    match_score = models.FloatField()
+    explanation_source = models.CharField(
+        max_length=20, blank=True, default='',
+        help_text='llm_verified, llm_partial, or template_fallback at generation time'
+    )
+    reciprocity_balance = models.CharField(
+        max_length=30, blank=True, default='',
+        help_text='balanced, slightly_asymmetric, or significantly_asymmetric'
+    )
+    confidence_at_generation = models.JSONField(
+        default=dict,
+        help_text='Snapshot of confidence scores when the match was generated'
+    )
+    signal_type = models.CharField(max_length=50, choices=SignalType.choices)
+    signal_details = models.JSONField(
+        default=dict,
+        help_text='Additional context: view_count, time_to_action, outreach_used, etc.'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Match Learning Signal'
+        verbose_name_plural = 'Match Learning Signals'
+        indexes = [
+            models.Index(fields=['signal_type', 'outcome']),
+            models.Index(fields=['explanation_source', 'outcome']),
+        ]
+
+    def __str__(self):
+        return f"Signal: {self.signal_type} → {self.outcome} (match #{self.match_id})"

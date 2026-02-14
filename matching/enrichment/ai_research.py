@@ -43,6 +43,12 @@ class ProfileResearchService:
             self.model = None
 
         self.max_tokens = 2048
+        # Cache raw website content for downstream verification (Layer 2)
+        self._content_cache: Dict[str, str] = {}
+
+    def get_cached_content(self, key: str) -> Optional[str]:
+        """Retrieve cached raw content for a profile (used by verification gate Layer 2)."""
+        return self._content_cache.get(key)
 
     def research_profile(self, name: str, website: str, existing_data: Dict) -> Dict:
         """
@@ -72,6 +78,10 @@ class ProfileResearchService:
         if not content:
             logger.warning(f"Could not fetch website for {name}: {website}")
             return {}
+
+        # Cache raw content for downstream verification (gate Layer 2)
+        cache_key = name.lower().strip()
+        self._content_cache[cache_key] = content
 
         # Extract profile data using AI
         researched = self._extract_profile_data(name, content, website, existing_data)
@@ -230,8 +240,9 @@ IMPORTANT:
             return None
 
     def _parse_research_response(self, response: str, name: str, existing: Dict) -> Dict:
-        """Parse AI response and merge with existing data."""
+        """Parse AI response and merge with existing data, preserving extraction metadata."""
         import json
+        from datetime import datetime
 
         result = {}
 
@@ -263,6 +274,15 @@ IMPORTANT:
                 for quote in source_quotes[:2]:
                     logger.info(f"  Quote: '{quote[:80]}...'")
 
+            # Preserve extraction metadata for downstream verification (gate, provenance)
+            extraction_metadata = {
+                'source': 'website_research',
+                'confidence': confidence,
+                'source_quotes': source_quotes,
+                'extracted_at': datetime.now().isoformat(),
+                'fields_updated': [],
+            }
+
             # Only use high/medium confidence results
             if confidence in ('high', 'medium'):
                 # Only add fields that are non-empty AND not already well-populated
@@ -275,15 +295,20 @@ IMPORTANT:
                     # 2. Existing value is empty or very short
                     if new_value and (not existing_value or len(existing_value) < 10):
                         result[field] = new_value
+                        extraction_metadata['fields_updated'].append(field)
                         logger.info(f"  Added {field}: {new_value[:60]}...")
 
                 # Add social proof if not already present
                 social_proof = data.get('social_proof', '').strip()
                 if social_proof and not existing.get('bio'):
                     result['bio'] = social_proof
+                    extraction_metadata['fields_updated'].append('bio')
 
             else:
                 logger.info(f"  Low confidence, skipping update for {name}")
+
+            # Always attach metadata so callers can inspect provenance
+            result['_extraction_metadata'] = extraction_metadata
 
         except (json.JSONDecodeError, KeyError) as e:
             logger.warning(f"Failed to parse research response for {name}: {e}")
@@ -379,12 +404,25 @@ def research_and_enrich_profile(
         researched = service.research_profile(name, website, existing_data)
 
         if researched:
-            # Merge with existing data
-            merged = {**existing_data, **researched}
+            # Extract metadata before merging (not a profile field)
+            extraction_metadata = researched.pop('_extraction_metadata', {})
 
-            # Cache the result
+            # Provenance-aware merge: only overwrite fields that research
+            # explicitly updated (tracked in extraction_metadata)
+            merged = dict(existing_data)
+            updated_fields = extraction_metadata.get('fields_updated', [])
+
+            for field in updated_fields:
+                if field in researched:
+                    merged[field] = researched[field]
+
+            # Attach provenance metadata for downstream consumers (gate, Supabase write)
+            merged['_extraction_metadata'] = extraction_metadata
+
+            # Cache the result (without internal metadata)
             if use_cache:
-                cache.set(name, merged)
+                cache_data = {k: v for k, v in merged.items() if not k.startswith('_')}
+                cache.set(name, cache_data)
 
             return merged, True
 

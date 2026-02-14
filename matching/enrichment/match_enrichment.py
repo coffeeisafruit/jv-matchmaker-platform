@@ -8,11 +8,14 @@ This service:
 4. Sanitizes all text for PDF rendering (encoding, formatting, capitalization)
 """
 
+import json
 import re
 import logging
 from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass, field
 from enum import Enum
+
+from matching.enrichment.ai_verification import ClaudeVerificationService
 
 logger = logging.getLogger(__name__)
 
@@ -206,6 +209,7 @@ class EnrichedMatch:
     data_quality: str = 'unknown'  # 'rich', 'partial', 'sparse'
     has_explicit_seeking: bool = False
     has_explicit_offering: bool = False
+    explanation_source: str = 'template_fallback'  # 'llm_verified', 'llm_partial', 'template_fallback'
 
 
 class MatchEnrichmentService:
@@ -223,6 +227,7 @@ class MatchEnrichmentService:
         self.client = client_profile
         self.client_name = client_profile.get('name', 'Client')
         self.client_first_name = self.client_name.split()[0]
+        self.ai_service = ClaudeVerificationService()
 
     def enrich_match(self, match_data: Dict, partner_profile: Optional[Dict] = None) -> EnrichedMatch:
         """
@@ -276,9 +281,21 @@ class MatchEnrichmentService:
         # DON'T infer seeking - it's misleading to claim they want something they didn't say
         # Instead, we'll use different content templates for sparse profiles
 
-        # Generate compelling reasoning using actual data
-        why_fit = self._generate_why_fit(name, company, who_they_serve, what_they_do, seeking, offering, match_data)
-        mutual_benefit = self._generate_mutual_benefit(name, company, who_they_serve, seeking, offering, match_data)
+        # Try LLM explanation first, fall back to templates
+        explanation_source = 'template_fallback'
+        llm_explanation = None
+
+        if self.ai_service.is_available():
+            llm_explanation, explanation_source = self.generate_llm_explanation(partner)
+
+        if llm_explanation and explanation_source in ('llm_verified', 'llm_partial'):
+            why_fit = self._format_llm_why_fit(llm_explanation, name)
+            mutual_benefit = self._format_llm_mutual_benefit(llm_explanation, name)
+        else:
+            why_fit = self._generate_why_fit(name, company, who_they_serve, what_they_do, seeking, offering, match_data)
+            mutual_benefit = self._generate_mutual_benefit(name, company, who_they_serve, seeking, offering, match_data)
+
+        # Outreach stays template-based (works well, LLM variability adds risk)
         outreach_message = self._generate_outreach(name, company, who_they_serve, seeking, offering, match_data)
 
         # Create enriched match
@@ -305,9 +322,333 @@ class MatchEnrichmentService:
             data_quality=data_quality,
             has_explicit_seeking=has_explicit_seeking,
             has_explicit_offering=has_explicit_offering,
+            explanation_source=explanation_source,
         )
 
         return enriched
+
+    # =========================================================================
+    # LLM MATCH EXPLANATIONS (B2) — Generate + Verify + Fallback
+    # =========================================================================
+
+    def _build_enriched_context(self, profile: dict) -> str:
+        """Build enriched context from all available data beyond structured fields."""
+        parts = []
+        if profile.get('bio'):
+            parts.append(f"Credentials/social proof: {profile['bio']}")
+        if profile.get('signature_programs'):
+            parts.append(f"Signature programs: {profile['signature_programs']}")
+        if profile.get('current_projects'):
+            parts.append(f"Current projects: {profile['current_projects']}")
+        if profile.get('tags'):
+            tags = profile['tags'] if isinstance(profile['tags'], list) else []
+            if tags:
+                parts.append(f"Keywords/tags: {', '.join(tags)}")
+        if not parts:
+            return "--- Additional Context ---\nNo enriched data available. Analysis based on profile fields only."
+        return "--- Additional Context (from enrichment) ---\n" + "\n".join(parts)
+
+    def _generate_llm_explanation(self, partner_profile: dict) -> Optional[dict]:
+        """
+        Generate match explanation via LLM (Call 1: Generation).
+
+        Returns structured JSON dict or None on any failure.
+        """
+        if not self.ai_service.is_available():
+            return None
+
+        client_context = self._build_enriched_context(self.client)
+        partner_context = self._build_enriched_context(partner_profile)
+
+        prompt = (
+            "You are analyzing a potential JV (Joint Venture) partnership between two professionals. "
+            "Your goal is to help both parties immediately see why this connection is worth pursuing "
+            "— both the clear synergies and the less obvious opportunities they might not see on their own.\n\n"
+            f"=== PARTNER A (the client) ===\n"
+            f"Name: {self.client.get('name', '')}\n"
+            f"Serves: {self.client.get('who_you_serve', '')}\n"
+            f"What they do: {self.client.get('what_you_do', '')}\n"
+            f"Seeking: {self.client.get('seeking', '')}\n"
+            f"Offering: {self.client.get('offering', '')}\n"
+            f"Audience size: {self.client.get('list_size', '')}\n"
+            f"{client_context}\n\n"
+            f"=== PARTNER B (the match) ===\n"
+            f"Name: {partner_profile.get('name', '')}\n"
+            f"Serves: {partner_profile.get('who_you_serve', '')}\n"
+            f"What they do: {partner_profile.get('what_you_do', '')}\n"
+            f"Seeking: {partner_profile.get('seeking', '')}\n"
+            f"Offering: {partner_profile.get('offering', '')}\n"
+            f"Audience size: {partner_profile.get('list_size', '')}\n"
+            f"{partner_context}\n\n"
+            "=== INSTRUCTIONS ===\n\n"
+            "Analyze the mutual value of this partnership. Include BOTH:\n"
+            "- Clear, obvious connections (audience overlap, complementary offerings, direct need/offer matches)\n"
+            "- Non-obvious insights (unexpected synergies, strategic positioning opportunities, timing advantages, audience psychology connections)\n\n"
+            "For each claim, reference ONLY data explicitly present in the profiles above. "
+            "If a field is empty or missing, do not invent information for it. "
+            'If you must make a reasonable inference, explicitly label it as "[inferred from: field_name]".\n\n'
+            "Respond in this exact JSON structure:\n\n"
+            "{\n"
+            '  "what_partner_b_brings_to_a": {\n'
+            '    "summary": "2-3 sentences explaining the specific value Partner B offers Partner A. Be concrete — name the audiences, offerings, and mechanisms.",\n'
+            '    "key_points": ["point 1", "point 2"]\n'
+            "  },\n"
+            '  "what_partner_a_brings_to_b": {\n'
+            '    "summary": "2-3 sentences explaining the specific value Partner A offers Partner B. Be concrete.",\n'
+            '    "key_points": ["point 1", "point 2"]\n'
+            "  },\n"
+            '  "connection_insights": [\n'
+            "    {\n"
+            '      "type": "obvious",\n'
+            '      "insight": "The clear, direct reason these two should connect"\n'
+            "    },\n"
+            "    {\n"
+            '      "type": "non_obvious",\n'
+            '      "insight": "A deeper or unexpected reason this partnership has high potential"\n'
+            "    }\n"
+            "  ],\n"
+            '  "reciprocity_assessment": {\n'
+            '    "balance": "balanced | slightly_asymmetric | significantly_asymmetric",\n'
+            '    "stronger_side": "partner_a | partner_b | neither",\n'
+            '    "explanation": "1 sentence explaining the balance or imbalance",\n'
+            '    "gap": "If asymmetric: what\'s missing or unclear about the weaker side\'s contribution. null if balanced."\n'
+            "  },\n"
+            '  "citations": {\n'
+            '    "each claim text": "source_field_name (e.g., \'partner_b.seeking\', \'partner_a.enriched_bio\')"\n'
+            "  },\n"
+            '  "confidence": {\n'
+            '    "data_richness": "high | medium | low — based on how much profile data was available",\n'
+            '    "explanation_confidence": "high | medium | low — how confident you are in the analysis"\n'
+            "  }\n"
+            "}\n\n"
+            "=== EXAMPLES OF GOOD CONNECTION INSIGHTS ===\n\n"
+            "Example 1 (Health coaching + Software):\n"
+            '- Obvious: "Sarah\'s health coaching audience of 12,000 subscribers is the exact buyer demographic '
+            "for Marcus's meal planning software — they're already investing in nutrition guidance and would see "
+            'the software as a natural next step."\n'
+            '- Non-obvious: "Marcus\'s SaaS platform could solve the #1 support burden for Sarah\'s team — clients '
+            "constantly asking for structured meal plans. An integration lets Sarah offer more value to existing "
+            'clients while generating recurring affiliate revenue from a problem she\'s currently solving manually."\n\n'
+            "Example 2 (Business consultant + Course creator):\n"
+            '- Obvious: "David\'s consulting clients are mid-stage entrepreneurs who need exactly the kind of '
+            "systems training Rachel's 'Scale Your Operations' course provides. Her course solves the "
+            'implementation gap his consulting identifies."\n'
+            "- Non-obvious: \"Rachel's course completion data shows her students' biggest struggle is financial "
+            "modeling — which is David's core expertise. A co-created bonus module on financial projections for "
+            "Rachel's course positions David as the go-to consultant for her graduates when they're ready for "
+            '1:1 help."\n\n'
+            "Example 3 (Podcast host + Event producer):\n"
+            "- Obvious: \"Maria's podcast reaches 5,000 weekly listeners in the personal development space — "
+            'the same audience James needs for his live workshop events."\n'
+            "- Non-obvious: \"James's event attendees are highly engaged but have no ongoing community after "
+            "events end. Maria's podcast could become the continuity vehicle — attendees subscribe to stay "
+            'connected, giving Maria a warm audience segment with proven willingness to invest in experiences."\n\n'
+            "Note: These examples show the quality bar. Your insights should be THIS specific — referencing "
+            "actual data points from the profiles, not generic statements."
+        )
+
+        try:
+            response = self.ai_service._call_claude(prompt)
+            if not response:
+                return None
+
+            # Strip markdown code fences if present
+            text = response.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            elif text.startswith("```"):
+                text = text[3:]
+            if text.endswith("```"):
+                text = text[:-3]
+            text = text.strip()
+
+            data = json.loads(text)
+
+            # Validate required top-level keys
+            required = ['what_partner_b_brings_to_a', 'what_partner_a_brings_to_b']
+            if not all(k in data for k in required):
+                logger.warning(f"LLM response missing required keys: {list(data.keys())}")
+                return None
+
+            return data
+
+        except json.JSONDecodeError as e:
+            logger.error(f"LLM explanation JSON parse failed: {e}")
+            return None
+        except Exception as e:
+            logger.error(f"LLM explanation generation failed: {e}")
+            return None
+
+    def _verify_explanation(self, explanation: dict, partner_profile: dict) -> dict:
+        """
+        Verify LLM explanation grounding via fact-check (Call 2: Verification).
+
+        Returns dict with 'claims', 'grounded_percentage', 'recommendation'.
+        """
+        fallback = {'claims': [], 'grounded_percentage': 0.0, 'recommendation': 'fall_back_to_template'}
+
+        if not self.ai_service.is_available():
+            return fallback
+
+        client_context = self._build_enriched_context(self.client)
+        partner_context = self._build_enriched_context(partner_profile)
+
+        profile_block = (
+            f"=== PARTNER A (the client) ===\n"
+            f"Name: {self.client.get('name', '')}\n"
+            f"Serves: {self.client.get('who_you_serve', '')}\n"
+            f"What they do: {self.client.get('what_you_do', '')}\n"
+            f"Seeking: {self.client.get('seeking', '')}\n"
+            f"Offering: {self.client.get('offering', '')}\n"
+            f"Audience size: {self.client.get('list_size', '')}\n"
+            f"{client_context}\n\n"
+            f"=== PARTNER B (the match) ===\n"
+            f"Name: {partner_profile.get('name', '')}\n"
+            f"Serves: {partner_profile.get('who_you_serve', '')}\n"
+            f"What they do: {partner_profile.get('what_you_do', '')}\n"
+            f"Seeking: {partner_profile.get('seeking', '')}\n"
+            f"Offering: {partner_profile.get('offering', '')}\n"
+            f"Audience size: {partner_profile.get('list_size', '')}\n"
+            f"{partner_context}"
+        )
+
+        prompt = (
+            "You are a fact-checker verifying a JV match explanation against source profile data.\n\n"
+            f"ORIGINAL PROFILES:\n{profile_block}\n\n"
+            f"GENERATED EXPLANATION:\n{json.dumps(explanation, indent=2)}\n\n"
+            "For each factual claim in the explanation:\n"
+            "1. Identify the specific profile field that supports it\n"
+            '2. Rate it: "grounded" (directly stated in profile), "inferred" (reasonable inference '
+            'from available data), or "ungrounded" (not supported by any profile data)\n\n'
+            "Respond in JSON:\n"
+            "{\n"
+            '  "claims": [\n'
+            '    {"claim": "...", "status": "grounded|inferred|ungrounded", "source_field": "...", "note": "..."}\n'
+            "  ],\n"
+            '  "grounded_percentage": 0.0-1.0,\n'
+            '  "recommendation": "use_as_is | remove_ungrounded | fall_back_to_template"\n'
+            "}"
+        )
+
+        try:
+            response = self.ai_service._call_claude(prompt)
+            if not response:
+                return fallback
+
+            text = response.strip()
+            if text.startswith("```json"):
+                text = text[7:]
+            elif text.startswith("```"):
+                text = text[3:]
+            if text.endswith("```"):
+                text = text[:-3]
+            text = text.strip()
+
+            data = json.loads(text)
+
+            if 'grounded_percentage' not in data:
+                return fallback
+
+            return data
+
+        except (json.JSONDecodeError, Exception) as e:
+            logger.error(f"LLM verification failed: {e}")
+            return fallback
+
+    def generate_llm_explanation(self, partner_profile: dict) -> Tuple[Optional[dict], str]:
+        """
+        Public orchestrator: generate + verify LLM explanation.
+
+        Returns (explanation_dict or None, explanation_source).
+        """
+        # Call 1: Generate
+        explanation = self._generate_llm_explanation(partner_profile)
+        if not explanation:
+            logger.info("LLM generation returned None — using template fallback")
+            return None, 'template_fallback'
+
+        # Call 2: Verify
+        verification = self._verify_explanation(explanation, partner_profile)
+        grounded_pct = verification.get('grounded_percentage', 0.0)
+
+        # Log cost estimate (2 calls, rough token counts)
+        logger.info(
+            f"LLM explanation: {grounded_pct:.0%} grounded, "
+            f"{len(verification.get('claims', []))} claims checked, "
+            f"model={self.ai_service.model}, "
+            f"est_cost=$0.01-0.03 (2 calls)"
+        )
+
+        # Classify based on grounding
+        if grounded_pct >= 0.8:
+            return explanation, 'llm_verified'
+        elif grounded_pct >= 0.5:
+            return explanation, 'llm_partial'
+        else:
+            logger.warning(
+                f"LLM explanation too speculative ({grounded_pct:.0%} grounded) — template fallback"
+            )
+            return None, 'template_fallback'
+
+    def _format_llm_why_fit(self, explanation: dict, partner_name: str) -> str:
+        """Format LLM explanation into the WHY FIT section for PDF."""
+        first_name = partner_name.split()[0] if partner_name else 'Partner'
+        parts = []
+
+        # What partner brings to client
+        b_brings = explanation.get('what_partner_b_brings_to_a', {})
+        summary = b_brings.get('summary', '') if isinstance(b_brings, dict) else str(b_brings)
+        if summary:
+            parts.append(TextSanitizer.sanitize(summary))
+
+        # Connection insights
+        insights = explanation.get('connection_insights', [])
+        for insight_obj in insights:
+            if isinstance(insight_obj, dict):
+                insight_text = insight_obj.get('insight', '')
+                insight_type = insight_obj.get('type', '')
+                if insight_text:
+                    label = "Key insight" if insight_type == 'non_obvious' else "Connection"
+                    parts.append(f"{label}: {TextSanitizer.sanitize(insight_text)}")
+
+        result = '\n\n'.join(parts) if parts else f"{first_name} is a strong potential JV partner."
+        return TextSanitizer.truncate_safe(result, 520)
+
+    def _format_llm_mutual_benefit(self, explanation: dict, partner_name: str) -> str:
+        """Format LLM explanation into the MUTUAL BENEFIT section for PDF."""
+        first_name = partner_name.split()[0] if partner_name else 'Partner'
+
+        # What partner gets from client
+        a_brings = explanation.get('what_partner_a_brings_to_b', {})
+        partner_gets = a_brings.get('key_points', []) if isinstance(a_brings, dict) else []
+
+        # What client gets from partner
+        b_brings = explanation.get('what_partner_b_brings_to_a', {})
+        client_gets = b_brings.get('key_points', []) if isinstance(b_brings, dict) else []
+
+        # Sanitize
+        partner_gets = [TextSanitizer.sanitize(p) for p in partner_gets[:3] if p]
+        client_gets = [TextSanitizer.sanitize(p) for p in client_gets[:3] if p]
+
+        sections = []
+        if client_gets:
+            bullets = TextSanitizer.format_bullet_list(client_gets)
+            sections.append(f"WHAT {self.client_first_name.upper()} GETS:\n{bullets}")
+        if partner_gets:
+            bullets = TextSanitizer.format_bullet_list(partner_gets)
+            sections.append(f"WHAT {first_name.upper()} GETS:\n{bullets}")
+
+        # Reciprocity note
+        recip = explanation.get('reciprocity_assessment', {})
+        if isinstance(recip, dict) and recip.get('explanation'):
+            sections.append(f"Balance: {TextSanitizer.sanitize(recip['explanation'])}")
+
+        result = '\n\n'.join(sections) if sections else "Mutual cross-promotion and audience sharing opportunity."
+        return TextSanitizer.truncate_safe(result, 450)
+
+    # =========================================================================
+    # TEMPLATE EXPLANATIONS (original)
+    # =========================================================================
 
     def _generate_why_fit(self, name: str, company: str, who_they_serve: str,
                           what_they_do: str, seeking: str, offering: str,
@@ -328,6 +669,7 @@ class MatchEnrichmentService:
         # 1. Audience alignment (using who_they_serve)
         if who_they_serve:
             client_audience = self.client.get('who_you_serve', '')
+            client_methodology = self.client.get('methodology', self.client.get('what_you_do', 'their expertise'))
             # Find overlap in audiences
             overlap = self._find_audience_overlap(who_they_serve, client_audience)
 
@@ -335,10 +677,10 @@ class MatchEnrichmentService:
             audience_snippet = TextSanitizer.truncate_safe(who_they_serve, 100)
 
             if overlap:
-                parts.append(f"AUDIENCE ALIGNMENT: {first_name} serves {audience_snippet} - these are exactly the people who need {self.client_first_name}'s clarity methodology before they can fully benefit from {first_name}'s expertise.")
+                parts.append(f"AUDIENCE ALIGNMENT: {first_name} serves {audience_snippet} - these are exactly the people who need {self.client_first_name}'s {TextSanitizer.truncate_safe(client_methodology, 60)} before they can fully benefit from {first_name}'s expertise.")
             else:
                 short_audience = TextSanitizer.truncate_safe(who_they_serve, 80)
-                parts.append(f"AUDIENCE SYNERGY: {first_name}'s audience ({short_audience}) are growth-minded individuals actively investing in themselves - prime candidates for passion clarity.")
+                parts.append(f"AUDIENCE SYNERGY: {first_name}'s audience ({short_audience}) are growth-minded individuals actively investing in themselves - prime candidates for {self.client_first_name}'s offerings.")
 
         # 2. What they're actively seeking (the gold!)
         if seeking:
@@ -347,10 +689,12 @@ class MatchEnrichmentService:
             seeking_snippet = TextSanitizer.truncate_safe(seeking, 100)
 
             # Match their seeking to what client offers
+            client_offering_desc = self.client.get('offering', 'their network and engaged audience')
+            client_programs = self.client.get('signature_programs', 'their programs')
             if any(kw in seeking_lower for kw in ['cross-promotion', 'promotion', 'email', 'list']):
-                parts.append(f"THEY WANT THIS: {first_name} is actively seeking '{seeking_snippet}' - {self.client_first_name} offers exactly this with a global facilitator network and engaged audience.")
+                parts.append(f"THEY WANT THIS: {first_name} is actively seeking '{seeking_snippet}' - {self.client_first_name} offers exactly this with {TextSanitizer.truncate_safe(client_offering_desc, 80)}.")
             elif any(kw in seeking_lower for kw in ['speaking', 'interview', 'podcast', 'guest']):
-                parts.append(f"THEY WANT THIS: {first_name} wants '{seeking_snippet}' - {self.client_first_name} can provide speaking platforms and interview opportunities through facilitator events.")
+                parts.append(f"THEY WANT THIS: {first_name} wants '{seeking_snippet}' - {self.client_first_name} can provide speaking platforms and interview opportunities through {TextSanitizer.truncate_safe(client_programs, 60)}.")
             elif any(kw in seeking_lower for kw in ['affiliate', 'partner', 'jv', 'joint venture']):
                 parts.append(f"THEY WANT THIS: {first_name} is seeking '{seeking_snippet}' - perfectly aligned with {self.client_first_name}'s JV partnership goals.")
             elif seeking:
@@ -408,18 +752,25 @@ class MatchEnrichmentService:
         list_size = match_data.get('list_size', 0)
 
         # What partner gets
+        client_audience_desc = self.client.get('audience_description',
+                                               self.client.get('offering', 'their engaged audience'))
+        client_programs = self.client.get('signature_programs', 'their programs')
+        client_credentials = self.client.get('credentials',
+                                              self.client.get('bio', ''))
+
         partner_gets = []
         if seeking:
             # Parse their seeking to describe what they'll get
             seeking_lower = seeking.lower()
             if 'cross-promotion' in seeking_lower or 'email' in seeking_lower:
-                partner_gets.append(f"Exposure to {self.client_first_name}'s global network of 5,000+ certified facilitators")
+                partner_gets.append(f"Exposure to {self.client_first_name}'s {TextSanitizer.truncate_safe(client_audience_desc, 80)}")
             if 'speaking' in seeking_lower or 'interview' in seeking_lower:
-                partner_gets.append("Speaking opportunities at Passion Test events and facilitator trainings")
+                partner_gets.append(f"Speaking opportunities through {TextSanitizer.truncate_safe(client_programs, 60)}")
             if 'affiliate' in seeking_lower:
                 partner_gets.append("Affiliate partnership with proven high-conversion programs")
             if 'podcast' in seeking_lower or 'guest' in seeking_lower:
-                partner_gets.append("Guest appearance opportunities with bestselling author")
+                cred_snippet = f" with {TextSanitizer.truncate_safe(client_credentials, 40)}" if client_credentials else ''
+                partner_gets.append(f"Guest appearance opportunities{cred_snippet}")
 
         if not partner_gets:
             partner_gets.append(f"Access to {self.client_first_name}'s engaged audience")
@@ -499,14 +850,18 @@ WHAT {self.client_first_name.upper()} GETS:
             warm_detail = ""
 
         # Build the connection bridge - focus on values, not offers
-        connection_text = """I'm Janet Attwood, co-creator of The Passion Test. Over the years, we've built a global community around purpose-driven work, and I'm always interested in connecting with people who value meaningful, win-win partnerships as much as we do."""
+        client_company = self.client.get('company', '')
+        client_role = self.client.get('role', 'founder')
+        client_what = self.client.get('what_you_do', 'building meaningful partnerships')
+        company_intro = f", {client_role} of {client_company}" if client_company else ''
+        connection_text = f"I'm {self.client_name}{company_intro}. Over the years, we've built a community around {TextSanitizer.truncate_safe(client_what, 80)}, and I'm always interested in connecting with people who value meaningful, win-win partnerships as much as we do."
 
         # Soft, non-transactional invitation
         invitation = """There may be some natural ways we could support one another that I'd love to chat about.
 
 If you're open to it, I'd love to hop on a short call to get to know each other and see if there's a mutual fit."""
 
-        message = f"""Subject: Connection from Janet Attwood
+        message = f"""Subject: Connection from {self.client_first_name}
 
 Hi {first_name},
 
@@ -519,7 +874,7 @@ Hi {first_name},
 You can grab a time that works for you here: [calendar link]
 
 Looking forward to connecting,
-Janet"""
+{self.client_first_name}"""
 
         return TextSanitizer.sanitize(message)
 

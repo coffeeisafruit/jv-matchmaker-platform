@@ -1,0 +1,3014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JV Matchmaker Platform — Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232736;
+    --border: #2d3148;
+    --text: #e4e6f0;
+    --text-dim: #8b90a8;
+    --accent-blue: #5b8af5;
+    --accent-purple: #a87bf5;
+    --accent-green: #4ecb8d;
+    --accent-orange: #f0a04b;
+    --accent-red: #f06b6b;
+    --accent-cyan: #4ec8cb;
+    --accent-pink: #e87bb5;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  /* Header */
+  .header {
+    padding: 32px 48px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .header h1 span { color: var(--accent-blue); }
+  .header .stats {
+    display: flex;
+    gap: 24px;
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .header .stats strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  /* Tab Navigation */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    padding: 16px 48px 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--accent-blue);
+    border-bottom-color: var(--accent-blue);
+  }
+  .tab.highlight {
+    color: var(--accent-green);
+    border-bottom-color: var(--accent-green);
+  }
+
+  /* Content Area */
+  .content { padding: 32px 48px; }
+  .view { display: none; }
+  .view.active { display: block; }
+  #view-community { margin: -16px -24px 0; padding: 12px 24px; }
+
+  /* ===== OVERVIEW (SVG diagram) ===== */
+  svg.arch-svg {
+    width: 100%;
+    height: auto;
+  }
+
+  /* ===== HOW IT WORKS ===== */
+  .how-it-works {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .how-hero {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+  .how-hero h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  .how-hero h2 span { color: var(--accent-blue); }
+  .how-hero p {
+    font-size: 18px;
+    color: var(--text-dim);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .how-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .how-step {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    transition: all 0.25s;
+  }
+  .how-step:hover {
+    border-color: rgba(255,255,255,0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+  }
+  .how-number {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+  .how-arrow {
+    display: flex;
+    justify-content: center;
+    padding: 2px 0;
+    color: var(--border);
+    font-size: 20px;
+  }
+  .how-step-content {
+    flex: 1;
+  }
+  .how-step-content h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .how-step-content p {
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    margin-bottom: 12px;
+  }
+  .how-detail-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .how-chip {
+    font-size: 12px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .how-result {
+    margin-top: 40px;
+    padding: 32px;
+    background: linear-gradient(135deg, rgba(91,138,245,0.08), rgba(168,123,245,0.08));
+    border: 1px solid rgba(91,138,245,0.2);
+    border-radius: 16px;
+    text-align: center;
+  }
+  .how-result h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .how-result p {
+    font-size: 15px;
+    color: var(--text-dim);
+    line-height: 1.6;
+  }
+  .how-result .result-stats {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    margin-top: 20px;
+  }
+  .result-stat {
+    text-align: center;
+  }
+  .result-stat .num {
+    font-size: 36px;
+    font-weight: 800;
+    display: block;
+  }
+  .result-stat .label {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+
+  /* ===== APPS VIEW ===== */
+  .apps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 20px;
+  }
+  .app-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+  .app-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .app-card:hover {
+    border-color: var(--accent-blue);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .app-card .app-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
+  .app-card h3 { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+  .app-card p { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 14px; }
+  .app-card .models-list {
+    display: flex; flex-wrap: wrap; gap: 6px;
+  }
+  .model-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--surface2);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+
+  /* Card accent colors */
+  .app-card.core::before { background: var(--accent-blue); }
+  .app-card.core .app-icon { background: rgba(91,138,245,0.15); color: var(--accent-blue); }
+  .app-card.matching::before { background: var(--accent-purple); }
+  .app-card.matching .app-icon { background: rgba(168,123,245,0.15); color: var(--accent-purple); }
+  .app-card.positioning::before { background: var(--accent-green); }
+  .app-card.positioning .app-icon { background: rgba(78,203,141,0.15); color: var(--accent-green); }
+  .app-card.outreach::before { background: var(--accent-orange); }
+  .app-card.outreach .app-icon { background: rgba(240,160,75,0.15); color: var(--accent-orange); }
+  .app-card.playbook::before { background: var(--accent-pink); }
+  .app-card.playbook .app-icon { background: rgba(232,123,181,0.15); color: var(--accent-pink); }
+  .app-card.enrichment::before { background: var(--accent-cyan); }
+  .app-card.enrichment .app-icon { background: rgba(78,200,203,0.15); color: var(--accent-cyan); }
+
+  /* ===== DETAIL PANEL ===== */
+  .detail-panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-top: 20px;
+    animation: slideIn 0.3s ease;
+  }
+  .detail-panel.open { display: block; }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .detail-panel h3 { font-size: 18px; margin-bottom: 16px; }
+  .detail-section { margin-bottom: 20px; }
+  .detail-section h4 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .detail-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .detail-table td:first-child {
+    color: var(--accent-blue);
+    font-weight: 500;
+    white-space: nowrap;
+    width: 180px;
+  }
+  .close-detail {
+    float: right;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 20px;
+    cursor: pointer;
+  }
+  .close-detail:hover { color: var(--text); }
+
+  /* ===== PIPELINE VIEW ===== */
+  .pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .pipeline-step {
+    display: flex;
+    align-items: stretch;
+    min-height: 80px;
+  }
+  .pipeline-line {
+    width: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+  }
+  .pipeline-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    z-index: 1;
+    margin-top: 20px;
+    flex-shrink: 0;
+  }
+  .pipeline-connector {
+    flex: 1;
+    width: 2px;
+    background: var(--border);
+  }
+  .pipeline-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 6px 0;
+    transition: all 0.2s;
+  }
+  .pipeline-card:hover {
+    border-color: var(--accent-cyan);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+  .pipeline-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pipeline-card p { font-size: 12px; color: var(--text-dim); line-height: 1.5; }
+  .cost-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+  .cost-free { background: rgba(78,203,141,0.15); color: var(--accent-green); }
+  .cost-paid { background: rgba(240,160,75,0.15); color: var(--accent-orange); }
+  .cost-expensive { background: rgba(240,107,107,0.15); color: var(--accent-red); }
+
+  .pipeline-fan {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .fan-card {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .fan-card h4 { font-size: 14px; margin-bottom: 4px; }
+  .fan-card p { font-size: 12px; color: var(--text-dim); }
+
+  /* ===== SCORING VIEW ===== */
+  .scoring-container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .score-component {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .score-component:hover {
+    border-color: var(--accent-purple);
+  }
+  .score-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .score-header h4 { font-size: 16px; font-weight: 600; }
+  .score-weight {
+    font-size: 24px;
+    font-weight: 700;
+    opacity: 0.3;
+  }
+  .score-bar {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    margin: 12px 0 10px;
+    overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+  }
+  .score-factors {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .score-component.expanded .score-factors { display: block; }
+  .factor {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 13px;
+  }
+  .factor-name { color: var(--text-dim); }
+  .factor-weight { color: var(--text); font-weight: 500; }
+
+  .formula-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+    text-align: center;
+  }
+  .formula-box h4 {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+  }
+  .formula {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    color: var(--accent-purple);
+    font-weight: 600;
+  }
+  .formula-note {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  /* ===== INTEGRATIONS VIEW ===== */
+  .integrations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .integration-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  .integration-card h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .integration-card .api-type {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+  .integration-card .purpose {
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .integration-card .env-var {
+    font-family: monospace;
+    font-size: 11px;
+    background: var(--surface2);
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+    display: inline-block;
+    color: var(--accent-green);
+  }
+
+  /* Legend for overview */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-dim);
+  }
+  .legend-swatch {
+    width: 12px; height: 12px;
+    border-radius: 3px;
+  }
+
+  /* ===== DATABASE VIEW ===== */
+  .db-container {
+    max-width: 780px;
+    margin: 0 auto;
+  }
+  .db-hero {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .db-hero h2 {
+    font-size: 26px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .db-hero p {
+    font-size: 15px;
+    color: var(--text-dim);
+  }
+  .db-hero .db-count {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 12px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    background: rgba(78,203,141,0.1);
+    color: var(--accent-green);
+    font-weight: 600;
+  }
+
+  /* Sample profile card */
+  .db-sample {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    margin-bottom: 32px;
+  }
+  .db-sample-top {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .db-avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-purple);
+    flex-shrink: 0;
+  }
+  .db-sample-name { font-size: 16px; font-weight: 700; }
+  .db-sample-co { font-size: 12px; color: var(--text-dim); }
+  .db-sample-badge {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+  .db-sample-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px 24px;
+  }
+  .db-sample-field .sf-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    margin-bottom: 3px;
+  }
+  .db-sample-field .sf-value {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+  .db-sample-field.full { grid-column: 1 / -1; }
+  .db-sample-metrics {
+    display: flex;
+    gap: 0;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+  }
+  .db-metric {
+    flex: 1;
+    text-align: center;
+    border-right: 1px solid var(--border);
+  }
+  .db-metric:last-child { border-right: none; }
+  .db-metric .m-num { font-size: 20px; font-weight: 800; display: block; }
+  .db-metric .m-label { font-size: 10px; color: var(--text-dim); }
+
+  /* Field sections */
+  .db-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 12px;
+    overflow: hidden;
+  }
+  .db-section-header {
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .db-section-header:hover { background: var(--surface2); }
+  .db-section-header h4 {
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .db-section-header .db-chevron {
+    color: var(--text-dim);
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+  .db-section.open .db-chevron { transform: rotate(90deg); }
+  .db-section-header .db-field-count {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-weight: 400;
+  }
+  .db-section-body {
+    display: none;
+    padding: 0 20px 16px;
+  }
+  .db-section.open .db-section-body { display: block; }
+  .db-row {
+    display: flex;
+    align-items: center;
+    padding: 7px 0;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(45,49,72,0.4);
+  }
+  .db-row:last-child { border-bottom: none; }
+  .db-row-name {
+    font-weight: 600;
+    width: 180px;
+    flex-shrink: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+  }
+  .db-row-desc {
+    color: var(--text-dim);
+    font-size: 12px;
+    flex: 1;
+  }
+  .db-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-right: 10px;
+  }
+
+  /* Relationship diagram */
+  .db-relations {
+    margin-top: 28px;
+    padding: 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .db-relations h4 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .db-rel-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(45,49,72,0.4);
+    font-size: 13px;
+  }
+  .db-rel-row:last-child { border-bottom: none; }
+  .db-rel-table {
+    font-weight: 600;
+    min-width: 150px;
+  }
+  .db-rel-arrow {
+    color: var(--text-dim);
+    font-size: 16px;
+  }
+  .db-rel-desc {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  /* ===== COMMUNITY GRAPH ===== */
+  .community-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .community-nav {
+    display: flex;
+    gap: 4px;
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 4px;
+    border: 1px solid var(--border);
+  }
+  .community-nav button {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .community-nav button:hover { color: var(--text); }
+  .community-nav button.active {
+    background: var(--accent-blue);
+    color: #fff;
+  }
+  .community-controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+  .community-controls label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+    user-select: none;
+  }
+  .community-controls input[type="checkbox"] {
+    accent-color: var(--accent-blue);
+    width: 14px;
+    height: 14px;
+  }
+  .community-canvas-wrap {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    height: calc(100vh - 350px);
+    min-height: 300px;
+  }
+  .community-canvas-wrap canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .community-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: rgba(15, 17, 23, 0.95);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--text);
+    max-width: 260px;
+    display: none;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+  }
+  .community-tooltip .tt-name {
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+  .community-tooltip .tt-company {
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .community-tooltip .tt-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    gap: 12px;
+  }
+  .community-tooltip .tt-label {
+    color: var(--text-dim);
+  }
+  .community-tooltip .tt-val {
+    font-weight: 600;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text-dim);
+  }
+  .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .community-view-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    padding: 4px 0 8px;
+    line-height: 1.4;
+  }
+  .community-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--text-dim);
+    background: var(--surface);
+    z-index: 5;
+  }
+  .community-bottom {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    align-items: stretch;
+  }
+  .community-legend {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    align-content: flex-start;
+  }
+  .community-roles-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 11px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .role-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .role-item .rb-ring {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 2px solid;
+    flex-shrink: 0;
+  }
+  .role-item-sep {
+    border-top: 1px solid var(--border);
+    margin: 2px 0;
+  }
+
+  /* Search bar */
+  .community-search {
+    position: relative;
+    flex: 1;
+    max-width: 260px;
+  }
+  .community-search input {
+    width: 100%;
+    padding: 7px 12px 7px 30px;
+    font-size: 12px;
+    font-family: inherit;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .community-search input:focus { border-color: var(--accent-blue); }
+  .community-search input::placeholder { color: var(--text-dim); }
+  .community-search .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-dim);
+    font-size: 12px;
+    pointer-events: none;
+  }
+  .community-search .search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 20;
+    display: none;
+  }
+  .community-search .search-results.visible { display: block; }
+  .community-search .sr-item {
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .community-search .sr-item:last-child { border-bottom: none; }
+  .community-search .sr-item:hover { background: var(--surface2); }
+  .community-search .sr-name { font-weight: 600; }
+  .community-search .sr-niche { color: var(--text-dim); font-size: 11px; }
+
+  /* Detail side panel */
+  .community-detail-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 320px;
+    height: 100%;
+    background: rgba(15, 17, 23, 0.97);
+    border-left: 1px solid var(--border);
+    border-radius: 0 12px 12px 0;
+    padding: 20px;
+    z-index: 15;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    backdrop-filter: blur(12px);
+  }
+  .community-detail-panel.open { transform: translateX(0); }
+  .community-detail-panel .dp-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+  }
+  .community-detail-panel .dp-close:hover { color: var(--text); border-color: var(--text-dim); }
+  .community-detail-panel .dp-name {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 2px;
+    padding-right: 32px;
+  }
+  .community-detail-panel .dp-company {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+  .community-detail-panel .dp-role-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .community-detail-panel .dp-section {
+    margin-bottom: 14px;
+  }
+  .community-detail-panel .dp-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-dim);
+    margin-bottom: 4px;
+  }
+  .community-detail-panel .dp-section-body {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .community-detail-panel .dp-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .community-detail-panel .dp-metric {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .community-detail-panel .dp-metric-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-blue);
+  }
+  .community-detail-panel .dp-metric-label {
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+
+  /* Size toggle */
+  .community-size-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px;
+    font-size: 11px;
+  }
+  .community-size-toggle button {
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+  .community-size-toggle button.active {
+    background: var(--accent-blue);
+    color: #fff;
+  }
+
+  /* Niche filter */
+  .community-niche-filter select {
+    padding: 7px 10px;
+    font-size: 12px;
+    font-family: inherit;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    cursor: pointer;
+    outline: none;
+    max-width: 180px;
+  }
+  .community-niche-filter select:focus { border-color: var(--accent-blue); }
+
+  /* Leaderboard panel */
+  .community-leaderboard {
+    display: none;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-top: 8px;
+  }
+  .community-leaderboard.visible { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .community-leaderboard h4 {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .community-leaderboard h4 .lb-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+  .community-leaderboard ol {
+    list-style: none;
+    counter-reset: lb;
+    padding: 0;
+    margin: 0;
+  }
+  .community-leaderboard ol li {
+    counter-increment: lb;
+    font-size: 11px;
+    padding: 3px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-dim);
+    border-bottom: 1px solid rgba(45,49,72,0.4);
+  }
+  .community-leaderboard ol li:last-child { border-bottom: none; }
+  .community-leaderboard ol li::before {
+    content: counter(lb) ".";
+    font-weight: 700;
+    color: var(--text-dim);
+    min-width: 18px;
+  }
+  .community-leaderboard .lb-name {
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .community-leaderboard .lb-val {
+    font-size: 10px;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  /* Unconnected breakdown */
+  .community-unconnected {
+    display: none;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-top: 8px;
+  }
+  .community-unconnected.visible { display: block; }
+  .community-unconnected h4 {
+    font-size: 12px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .community-unconnected .uc-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .community-unconnected .uc-stat {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 8px 10px;
+  }
+  .community-unconnected .uc-stat-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent-orange);
+  }
+  .community-unconnected .uc-stat-label {
+    font-size: 10px;
+    color: var(--text-dim);
+  }
+  .community-unconnected .uc-niches {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+  }
+  .community-unconnected .uc-niches span {
+    display: inline-block;
+    background: var(--surface2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 2px 4px 2px 0;
+  }
+
+  /* Toggle buttons row */
+  .community-toggles {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .community-toggles button {
+    padding: 6px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .community-toggles button:hover { color: var(--text); }
+  .community-toggles button.active {
+    border-color: var(--accent-blue);
+    color: var(--accent-blue);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>JV</span> Matchmaker Platform</h1>
+  <div class="stats">
+    <div><strong>5</strong> Django Apps</div>
+    <div><strong>3,143+</strong> Profiles</div>
+    <div><strong>6</strong> API Integrations</div>
+    <div><strong>54</strong> Launch Plays</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active highlight" onclick="switchTab('howitworks')">How It Works</button>
+  <button class="tab" onclick="switchTab('overview')">System Overview</button>
+  <button class="tab" onclick="switchTab('apps')">Django Apps</button>
+  <button class="tab" onclick="switchTab('pipeline')">Enrichment Pipeline</button>
+  <button class="tab" onclick="switchTab('scoring')">ISMC Scoring</button>
+  <button class="tab" onclick="switchTab('database')">Database</button>
+  <button class="tab" onclick="switchTab('integrations')">Integrations</button>
+  <button class="tab" onclick="switchTab('community')">Community</button>
+</div>
+
+<div class="content">
+
+<!-- ===== HOW IT WORKS (non-technical) ===== -->
+<div id="view-howitworks" class="view active">
+  <div class="how-it-works">
+    <div class="how-hero">
+      <h2>Find Your <span>Perfect JV Partner</span></h2>
+      <p>We use AI to research thousands of potential partners, score how well they match with you, and help you reach out — all automatically.</p>
+    </div>
+
+    <div class="how-steps">
+      <div class="how-step" style="border-color:rgba(91,138,245,0.2)">
+        <div class="how-number" style="background:rgba(91,138,245,0.12);color:var(--accent-blue)">1</div>
+        <div class="how-step-content">
+          <h3 style="color:var(--accent-blue)">Tell Us Who You're Looking For</h3>
+          <p>Define your Ideal Customer Profile (ICP) — who you serve, what you offer, and the kind of partner that would be a win-win. Upload your contact list or browse our database of 3,143+ potential JV partners.</p>
+          <div class="how-detail-chips">
+            <span class="how-chip" style="background:rgba(91,138,245,0.1);color:var(--accent-blue)">Your niche & audience</span>
+            <span class="how-chip" style="background:rgba(91,138,245,0.1);color:var(--accent-blue)">What you're seeking</span>
+            <span class="how-chip" style="background:rgba(91,138,245,0.1);color:var(--accent-blue)">What you can offer</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="how-arrow">&#8595;</div>
+
+      <div class="how-step" style="border-color:rgba(78,200,203,0.2)">
+        <div class="how-number" style="background:rgba(78,200,203,0.12);color:var(--accent-cyan)">2</div>
+        <div class="how-step-content">
+          <h3 style="color:var(--accent-cyan)">AI Researches Every Partner</h3>
+          <p>Our AI automatically visits each partner's website, LinkedIn, and other sources to learn about their business — who they serve, what they offer, their audience size, and whether they're actively looking for partnerships.</p>
+          <div class="how-detail-chips">
+            <span class="how-chip" style="background:rgba(78,200,203,0.1);color:var(--accent-cyan)">Scans websites</span>
+            <span class="how-chip" style="background:rgba(78,200,203,0.1);color:var(--accent-cyan)">Checks LinkedIn</span>
+            <span class="how-chip" style="background:rgba(78,200,203,0.1);color:var(--accent-cyan)">Verifies contact info</span>
+            <span class="how-chip" style="background:rgba(78,200,203,0.1);color:var(--accent-cyan)">Cross-checks sources</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="how-arrow">&#8595;</div>
+
+      <div class="how-step" style="border-color:rgba(168,123,245,0.2)">
+        <div class="how-number" style="background:rgba(168,123,245,0.12);color:var(--accent-purple)">3</div>
+        <div class="how-step-content">
+          <h3 style="color:var(--accent-purple)">Smart Matching Scores Every Fit</h3>
+          <p>Each partner gets a match score based on four things: how eager they are to partner (<strong>Intent</strong>), how well your audiences complement each other (<strong>Synergy</strong>), how active they are right now (<strong>Momentum</strong>), and how relevant they are to your situation (<strong>Context</strong>).</p>
+          <div class="how-detail-chips">
+            <span class="how-chip" style="background:rgba(168,123,245,0.1);color:var(--accent-purple)">Intent — 45%</span>
+            <span class="how-chip" style="background:rgba(168,123,245,0.1);color:var(--accent-purple)">Synergy — 25%</span>
+            <span class="how-chip" style="background:rgba(168,123,245,0.1);color:var(--accent-purple)">Momentum — 20%</span>
+            <span class="how-chip" style="background:rgba(168,123,245,0.1);color:var(--accent-purple)">Context — 10%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="how-arrow">&#8595;</div>
+
+      <div class="how-step" style="border-color:rgba(240,160,75,0.2)">
+        <div class="how-number" style="background:rgba(240,160,75,0.12);color:var(--accent-orange)">4</div>
+        <div class="how-step-content">
+          <h3 style="color:var(--accent-orange)">Personalized Outreach, Ready to Send</h3>
+          <p>For your top matches, AI writes a personalized message (a "Permissionless Value Proposition") that leads with value — not a pitch. Connect your Gmail or Outlook, and send directly from the platform with tracking.</p>
+          <div class="how-detail-chips">
+            <span class="how-chip" style="background:rgba(240,160,75,0.1);color:var(--accent-orange)">AI-written PVPs</span>
+            <span class="how-chip" style="background:rgba(240,160,75,0.1);color:var(--accent-orange)">Email sequences</span>
+            <span class="how-chip" style="background:rgba(240,160,75,0.1);color:var(--accent-orange)">Open & reply tracking</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="how-result">
+      <h3>The Result</h3>
+      <p>Instead of spending weeks manually researching potential partners, you get a ranked list of your best matches with ready-to-send outreach — in minutes.</p>
+      <div class="result-stats">
+        <div class="result-stat">
+          <span class="num" style="color:var(--accent-blue)">3,143+</span>
+          <span class="label">Partners in database</span>
+        </div>
+        <div class="result-stat">
+          <span class="num" style="color:var(--accent-purple)">4</span>
+          <span class="label">Scoring dimensions</span>
+        </div>
+        <div class="result-stat">
+          <span class="num" style="color:var(--accent-green)">5</span>
+          <span class="label">Research sources</span>
+        </div>
+        <div class="result-stat">
+          <span class="num" style="color:var(--accent-orange)">54</span>
+          <span class="label">Launch playbook steps</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OVERVIEW (fixed SVG) ===== -->
+<div id="view-overview" class="view">
+  <div class="legend">
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-blue)"></div> Core (Auth & Dashboard)</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-purple)"></div> Matching Engine</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-cyan)"></div> Enrichment Pipeline</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-green)"></div> Positioning & ICP</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-orange)"></div> Outreach</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-pink)"></div> Playbook</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#555"></div> External Service</div>
+  </div>
+
+  <svg class="arch-svg" viewBox="0 0 1100 820" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+        <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1a1d27" stroke-width="0.5"/>
+      </pattern>
+      <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6" fill="#4a4e68" />
+      </marker>
+      <marker id="arrow-cyan" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6" fill="#4ec8cb" />
+      </marker>
+      <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6" fill="#4ecb8d" />
+      </marker>
+      <marker id="arrow-purple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6" fill="#a87bf5" />
+      </marker>
+      <marker id="arrow-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+        <path d="M0,0 L8,3 L0,6" fill="#f0a04b" />
+      </marker>
+    </defs>
+    <rect width="1100" height="820" fill="var(--bg)"/>
+    <rect width="1100" height="820" fill="url(#grid)"/>
+
+    <!-- ===== USER LAYER ===== -->
+    <text x="550" y="28" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">USER LAYER</text>
+    <rect x="400" y="40" width="300" height="48" rx="10" fill="#1a1d27" stroke="#5b8af5" stroke-width="1.5"/>
+    <text x="550" y="61" text-anchor="middle" fill="#5b8af5" font-size="13" font-weight="700">Django Frontend</text>
+    <text x="550" y="78" text-anchor="middle" fill="#8b90a8" font-size="10">HTMX + Alpine.js + Tailwind</text>
+
+    <!-- Arrow down from frontend -->
+    <line x1="550" y1="88" x2="550" y2="120" stroke="#4a4e68" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+    <!-- ===== CORE APP ===== -->
+    <rect x="420" y="120" width="260" height="48" rx="10" fill="rgba(91,138,245,0.08)" stroke="#5b8af5" stroke-width="1.2"/>
+    <text x="550" y="147" text-anchor="middle" fill="#5b8af5" font-size="13" font-weight="700">Core App</text>
+    <text x="550" y="161" text-anchor="middle" fill="#8b90a8" font-size="9">Authentication, Users, Dashboard, Tier Management</text>
+
+    <!-- Arrows from Core to three apps -->
+    <line x1="460" y1="168" x2="220" y2="220" stroke="#4a4e68" stroke-width="1" marker-end="url(#arrow)"/>
+    <line x1="550" y1="168" x2="550" y2="220" stroke="#4a4e68" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="640" y1="168" x2="880" y2="220" stroke="#4a4e68" stroke-width="1" marker-end="url(#arrow)"/>
+
+    <!-- ===== POSITIONING APP ===== -->
+    <rect x="80" y="220" width="260" height="90" rx="10" fill="rgba(78,203,141,0.06)" stroke="#4ecb8d" stroke-width="1.2"/>
+    <text x="210" y="248" text-anchor="middle" fill="#4ecb8d" font-size="14" font-weight="700">Positioning</text>
+    <text x="210" y="268" text-anchor="middle" fill="#8b90a8" font-size="10">ICP Definition</text>
+    <text x="210" y="284" text-anchor="middle" fill="#8b90a8" font-size="10">Transformation Analysis</text>
+    <text x="210" y="300" text-anchor="middle" fill="#8b90a8" font-size="10">Lead Magnet Concepts</text>
+
+    <!-- ===== MATCHING APP ===== -->
+    <rect x="400" y="220" width="300" height="110" rx="10" fill="rgba(168,123,245,0.06)" stroke="#a87bf5" stroke-width="1.2"/>
+    <text x="550" y="248" text-anchor="middle" fill="#a87bf5" font-size="14" font-weight="700">Matching Engine</text>
+    <text x="550" y="270" text-anchor="middle" fill="#8b90a8" font-size="10">ISMC Scoring: Intent 45% | Synergy 25%</text>
+    <text x="550" y="286" text-anchor="middle" fill="#8b90a8" font-size="10">Momentum 20% | Context 10%</text>
+    <text x="550" y="306" text-anchor="middle" fill="#8b90a8" font-size="10">3,143+ Profiles  |  Weighted Harmonic Mean</text>
+    <text x="550" y="322" text-anchor="middle" fill="#8b90a8" font-size="10">PDF Reports & Match Analysis</text>
+
+    <!-- ===== OUTREACH APP ===== -->
+    <rect x="760" y="220" width="260" height="90" rx="10" fill="rgba(240,160,75,0.06)" stroke="#f0a04b" stroke-width="1.2"/>
+    <text x="890" y="248" text-anchor="middle" fill="#f0a04b" font-size="14" font-weight="700">Outreach</text>
+    <text x="890" y="268" text-anchor="middle" fill="#8b90a8" font-size="10">PVP Generation</text>
+    <text x="890" y="284" text-anchor="middle" fill="#8b90a8" font-size="10">Email Campaigns (Gmail/Outlook)</text>
+    <text x="890" y="300" text-anchor="middle" fill="#8b90a8" font-size="10">Multi-Step Sequences</text>
+
+    <!-- Positioning feeds into Matching -->
+    <line x1="340" y1="265" x2="400" y2="265" stroke="#4ecb8d" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrow-green)"/>
+    <text x="370" y="258" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="500">ICP</text>
+
+    <!-- Matching feeds into Outreach -->
+    <line x1="700" y1="265" x2="760" y2="265" stroke="#a87bf5" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrow-purple)"/>
+    <text x="730" y="258" text-anchor="middle" fill="#a87bf5" font-size="9" font-weight="500">matches</text>
+
+    <!-- ===== PLAYBOOK APP ===== -->
+    <rect x="810" y="340" width="210" height="70" rx="10" fill="rgba(232,123,181,0.06)" stroke="#e87bb5" stroke-width="1.2"/>
+    <text x="915" y="368" text-anchor="middle" fill="#e87bb5" font-size="14" font-weight="700">Playbook</text>
+    <text x="915" y="388" text-anchor="middle" fill="#8b90a8" font-size="10">54-Step Launch Framework</text>
+    <text x="915" y="402" text-anchor="middle" fill="#8b90a8" font-size="10">Small / Medium / Large plans</text>
+
+    <!-- Outreach feeds playbook -->
+    <line x1="915" y1="310" x2="915" y2="340" stroke="#f0a04b" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arrow-orange)"/>
+
+    <!-- ===== ENRICHMENT PIPELINE section label ===== -->
+    <text x="430" y="380" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">ENRICHMENT PIPELINE</text>
+
+    <!-- Pipeline box -->
+    <rect x="80" y="395" width="680" height="200" rx="12" fill="rgba(78,200,203,0.03)" stroke="#4ec8cb" stroke-width="1.2" stroke-dasharray="6,4"/>
+
+    <!-- Free steps row -->
+    <rect x="105" y="415" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="180" y="436" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">1. Website Scrape</text>
+    <text x="180" y="452" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
+
+    <rect x="275" y="415" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="350" y="436" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">2. LinkedIn</text>
+    <text x="350" y="452" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
+
+    <rect x="445" y="415" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="520" y="436" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">3. Email Domain</text>
+    <text x="520" y="452" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
+
+    <!-- Arrows between free steps -->
+    <line x1="255" y1="439" x2="275" y2="439" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <line x1="425" y1="439" x2="445" y2="439" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+
+    <!-- "if gaps remain" label -->
+    <text x="350" y="482" text-anchor="middle" fill="#4ec8cb" font-size="9" font-style="italic">if gaps remain, escalate to paid sources</text>
+
+    <!-- Paid steps row -->
+    <rect x="160" y="494" width="170" height="48" rx="6" fill="rgba(240,160,75,0.1)" stroke="#f0a04b" stroke-width="0.8"/>
+    <text x="245" y="515" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="600">4. Apollo.io API</text>
+    <text x="245" y="531" text-anchor="middle" fill="#8b90a8" font-size="9">PAID  ~$0.002/search</text>
+
+    <rect x="360" y="494" width="200" height="48" rx="6" fill="rgba(240,107,107,0.1)" stroke="#f06b6b" stroke-width="0.8"/>
+    <text x="460" y="515" text-anchor="middle" fill="#f06b6b" font-size="11" font-weight="600">5. OWL Deep Research</text>
+    <text x="460" y="531" text-anchor="middle" fill="#8b90a8" font-size="9">HIGH-PRIORITY ONLY</text>
+
+    <!-- Down arrows from free to paid -->
+    <path d="M 245 463 L 245 494" fill="none" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <path d="M 460 463 L 460 494" fill="none" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+
+    <!-- Verification row -->
+    <rect x="105" y="558" width="210" height="28" rx="5" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
+    <text x="210" y="577" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Confidence Scorer</text>
+
+    <rect x="335" y="558" width="210" height="28" rx="5" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
+    <text x="440" y="577" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Verification Agents (5)</text>
+
+    <!-- Arrows from paid to verification -->
+    <line x1="245" y1="542" x2="210" y2="558" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <line x1="460" y1="542" x2="440" y2="558" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+
+    <!-- Arrow from enrichment up to matching -->
+    <path d="M 420 395 L 420 355 L 550 355 L 550 330" fill="none" stroke="#4ec8cb" stroke-width="1.5" marker-end="url(#arrow-cyan)" stroke-dasharray="5,3"/>
+    <rect x="440" y="345" width="106" height="18" rx="4" fill="var(--bg)"/>
+    <text x="493" y="358" text-anchor="middle" fill="#4ec8cb" font-size="9" font-weight="500">enriched profiles</text>
+
+    <!-- CSV Import -->
+    <rect x="80" y="340" width="110" height="40" rx="6" fill="#1a1d27" stroke="#555" stroke-width="1"/>
+    <text x="135" y="356" text-anchor="middle" fill="#8b90a8" font-size="10" font-weight="500">CSV Import</text>
+    <text x="135" y="370" text-anchor="middle" fill="#555" font-size="8">or Supabase pull</text>
+    <line x1="135" y1="380" x2="135" y2="395" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+
+    <!-- ===== DATA LAYER ===== -->
+    <text x="550" y="635" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">DATA & EXTERNAL SERVICES</text>
+
+    <!-- Supabase -->
+    <rect x="60" y="652" width="180" height="54" rx="8" fill="#1a1d27" stroke="#4ecb8d" stroke-width="1"/>
+    <text x="150" y="676" text-anchor="middle" fill="#4ecb8d" font-size="12" font-weight="600">Supabase PostgreSQL</text>
+    <text x="150" y="694" text-anchor="middle" fill="#8b90a8" font-size="9">3,143+ profiles, matches</text>
+
+    <!-- Claude/OpenRouter -->
+    <rect x="270" y="652" width="180" height="54" rx="8" fill="#1a1d27" stroke="#a87bf5" stroke-width="1"/>
+    <text x="360" y="676" text-anchor="middle" fill="#a87bf5" font-size="12" font-weight="600">Claude Sonnet</text>
+    <text x="360" y="694" text-anchor="middle" fill="#8b90a8" font-size="9">via OpenRouter / Anthropic</text>
+
+    <!-- Apollo -->
+    <rect x="480" y="652" width="140" height="54" rx="8" fill="#1a1d27" stroke="#f0a04b" stroke-width="1"/>
+    <text x="550" y="676" text-anchor="middle" fill="#f0a04b" font-size="12" font-weight="600">Apollo.io</text>
+    <text x="550" y="694" text-anchor="middle" fill="#8b90a8" font-size="9">Email enrichment</text>
+
+    <!-- Tavily + DDG -->
+    <rect x="650" y="652" width="140" height="54" rx="8" fill="#1a1d27" stroke="#4ec8cb" stroke-width="1"/>
+    <text x="720" y="676" text-anchor="middle" fill="#4ec8cb" font-size="12" font-weight="600">Tavily + DDG</text>
+    <text x="720" y="694" text-anchor="middle" fill="#8b90a8" font-size="9">Web search</text>
+
+    <!-- Gmail/Outlook -->
+    <rect x="820" y="652" width="160" height="54" rx="8" fill="#1a1d27" stroke="#f0a04b" stroke-width="1"/>
+    <text x="900" y="676" text-anchor="middle" fill="#f0a04b" font-size="12" font-weight="600">Gmail / Outlook</text>
+    <text x="900" y="694" text-anchor="middle" fill="#8b90a8" font-size="9">OAuth email sending</text>
+
+    <!-- Connection lines from services up (subtle) -->
+    <line x1="150" y1="652" x2="350" y2="590" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <line x1="360" y1="652" x2="380" y2="590" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <line x1="550" y1="652" x2="280" y2="542" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <line x1="720" y1="652" x2="500" y2="542" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <line x1="900" y1="652" x2="890" y2="310" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+
+    <!-- Scale callout -->
+    <rect x="700" y="750" width="300" height="50" rx="10" fill="rgba(240,160,75,0.06)" stroke="#f0a04b" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="850" y="772" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="500">Scale trigger: >500 profiles/month</text>
+    <text x="850" y="790" text-anchor="middle" fill="#8b90a8" font-size="9">Vast.ai GPU rental — $0.75/hr — 90% cost reduction</text>
+  </svg>
+</div>
+
+<!-- ===== APPS VIEW ===== -->
+<div id="view-apps" class="view">
+  <div class="apps-grid">
+    <div class="app-card core" onclick="toggleDetail('core-detail')">
+      <div class="app-icon">C</div>
+      <h3>Core</h3>
+      <p>Authentication, user management, tiered subscriptions (Free/Starter/Growth/Pro), and the main dashboard with usage tracking.</p>
+      <div class="models-list">
+        <span class="model-tag">User (AbstractUser)</span>
+        <span class="model-tag">APIKey (BYOK)</span>
+        <span class="model-tag">4 Tiers</span>
+      </div>
+    </div>
+
+    <div class="app-card matching" onclick="toggleDetail('matching-detail')">
+      <div class="app-icon">M</div>
+      <h3>Matching Engine</h3>
+      <p>ISMC scoring algorithm with weighted harmonic mean. Manages 3,143+ Supabase profiles, custom profiles, and PDF report generation.</p>
+      <div class="models-list">
+        <span class="model-tag">SupabaseProfile</span>
+        <span class="model-tag">SupabaseMatch</span>
+        <span class="model-tag">Profile</span>
+        <span class="model-tag">Match</span>
+        <span class="model-tag">MatchFeedback</span>
+      </div>
+    </div>
+
+    <div class="app-card positioning" onclick="toggleDetail('positioning-detail')">
+      <div class="app-icon">P</div>
+      <h3>Positioning</h3>
+      <p>ICP (Ideal Customer Profile) definition, AI-powered transformation analysis, pain signal detection, and lead magnet concepts.</p>
+      <div class="models-list">
+        <span class="model-tag">ICP</span>
+        <span class="model-tag">TransformationAnalysis</span>
+        <span class="model-tag">PainSignal</span>
+        <span class="model-tag">LeadMagnetConcept</span>
+      </div>
+    </div>
+
+    <div class="app-card outreach" onclick="toggleDetail('outreach-detail')">
+      <div class="app-icon">O</div>
+      <h3>Outreach</h3>
+      <p>PVP (Permissionless Value Proposition) generation, Gmail/Outlook OAuth integration, email campaigns, and multi-step sequences.</p>
+      <div class="models-list">
+        <span class="model-tag">PVP</span>
+        <span class="model-tag">EmailConnection</span>
+        <span class="model-tag">SentEmail</span>
+        <span class="model-tag">OutreachCampaign</span>
+        <span class="model-tag">OutreachSequence</span>
+      </div>
+    </div>
+
+    <div class="app-card playbook" onclick="toggleDetail('playbook-detail')">
+      <div class="app-icon">L</div>
+      <h3>Playbook</h3>
+      <p>54-step launch execution framework with 6 phases. Customizable plans in Small (12), Medium (29), and Large (54) sizes.</p>
+      <div class="models-list">
+        <span class="model-tag">LaunchPlay (54)</span>
+        <span class="model-tag">GeneratedPlaybook</span>
+        <span class="model-tag">GeneratedPlay</span>
+      </div>
+    </div>
+
+    <div class="app-card enrichment" onclick="toggleDetail('enrichment-detail')">
+      <div class="app-icon">E</div>
+      <h3>Enrichment Pipeline</h3>
+      <p>Progressive enrichment: free methods first (website, LinkedIn, email domain), then paid APIs (Apollo, OWL). 5-agent verification system.</p>
+      <div class="models-list">
+        <span class="model-tag">ProfileResearchService</span>
+        <span class="model-tag">SmartEnrichmentService</span>
+        <span class="model-tag">ConfidenceScorer</span>
+        <span class="model-tag">OWL Agent</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Panels -->
+  <div id="core-detail" class="detail-panel">
+    <button class="close-detail" onclick="toggleDetail('core-detail')">&times;</button>
+    <h3 style="color:var(--accent-blue)">Core App — Detail</h3>
+    <div class="detail-section">
+      <h4>Models</h4>
+      <table class="detail-table">
+        <tr><td>User</td><td>Custom AbstractUser with tier system (FREE/STARTER/GROWTH/PRO), monthly usage tracking, onboarding status</td></tr>
+        <tr><td>APIKey</td><td>Encrypted BYOK support for Anthropic and OpenAI keys</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Key Views</h4>
+      <table class="detail-table">
+        <tr><td>HomeView</td><td>Landing page — shows partner/founder counts</td></tr>
+        <tr><td>DashboardView</td><td>Main dashboard with tier limits, progress bars, usage stats</td></tr>
+        <tr><td>DashboardStatsView</td><td>HTMX endpoint for live stats updates</td></tr>
+        <tr><td>ICPReviewView</td><td>Monthly ICP review prompt for users</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>URLs</h4>
+      <table class="detail-table">
+        <tr><td>/</td><td>Home (landing)</td></tr>
+        <tr><td>/dashboard/</td><td>Main dashboard</td></tr>
+        <tr><td>/login/, /logout/</td><td>Authentication</td></tr>
+        <tr><td>/signup/</td><td>Registration</td></tr>
+        <tr><td>/dashboard/stats/</td><td>HTMX stats endpoint</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="matching-detail" class="detail-panel">
+    <button class="close-detail" onclick="toggleDetail('matching-detail')">&times;</button>
+    <h3 style="color:var(--accent-purple)">Matching Engine — Detail</h3>
+    <div class="detail-section">
+      <h4>Models</h4>
+      <table class="detail-table">
+        <tr><td>SupabaseProfile</td><td>Unmanaged, read-only from Supabase. 3,143+ JV partner profiles with niche, offerings, seeking, social metrics</td></tr>
+        <tr><td>SupabaseMatch</td><td>Pre-computed matches with bi-directional scoring (score_ab, score_ba), trust levels (platinum/gold/bronze)</td></tr>
+        <tr><td>Profile</td><td>User's custom enrichment profiles with JSON enrichment data, collaboration history</td></tr>
+        <tr><td>Match</td><td>ISMC-scored matches: Intent (45%), Synergy (25%), Momentum (20%), Context (10%)</td></tr>
+        <tr><td>MatchFeedback</td><td>User ratings (1-5) and outcome tracking</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Services</h4>
+      <table class="detail-table">
+        <tr><td>MatchScoringService</td><td>ISMC scoring with weighted harmonic mean — penalizes unbalanced profiles</td></tr>
+        <tr><td>PartnershipAnalyzer</td><td>Analyzes partnerships using Supabase matches, ICP, and Transformation data</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Key URLs</h4>
+      <table class="detail-table">
+        <tr><td>/matching/partners/</td><td>Browse 3,143+ partner profiles with search and filters</td></tr>
+        <tr><td>/matching/matches/</td><td>View scored matches</td></tr>
+        <tr><td>/matching/calculate/&lt;id&gt;/</td><td>Calculate match score for a profile</td></tr>
+        <tr><td>/matching/profiles/import/</td><td>Bulk CSV import</td></tr>
+        <tr><td>/matching/demo/</td><td>Marketing demo (no login)</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="positioning-detail" class="detail-panel">
+    <button class="close-detail" onclick="toggleDetail('positioning-detail')">&times;</button>
+    <h3 style="color:var(--accent-green)">Positioning — Detail</h3>
+    <div class="detail-section">
+      <h4>Models</h4>
+      <table class="detail-table">
+        <tr><td>ICP</td><td>Ideal Customer Profile: B2B (company_size) or B2C (demographics), pain_points, goals, budget_range</td></tr>
+        <tr><td>TransformationAnalysis</td><td>Before/after states, obstacles, value drivers — AI-generated from ICP</td></tr>
+        <tr><td>PainSignal</td><td>Types: hiring, tech change, funding, expansion, complaint. Weighted keyword detection</td></tr>
+        <tr><td>LeadMagnetConcept</td><td>Formats: PDF, VIDEO, CHECKLIST, TEMPLATE, QUIZ, CALCULATOR</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Services</h4>
+      <table class="detail-table">
+        <tr><td>TransformationService</td><td>Uses Claude to generate transformation analysis JSON with obstacles, value drivers, emotional journey</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="outreach-detail" class="detail-panel">
+    <button class="close-detail" onclick="toggleDetail('outreach-detail')">&times;</button>
+    <h3 style="color:var(--accent-orange)">Outreach — Detail</h3>
+    <div class="detail-section">
+      <h4>Models</h4>
+      <table class="detail-table">
+        <tr><td>PVP</td><td>Permissionless Value Proposition — 5 patterns: pain_solution, insight_share, mutual_benefit, social_proof, curiosity_hook</td></tr>
+        <tr><td>EmailConnection</td><td>OAuth tokens (encrypted) for Gmail/Outlook, scopes, expiration tracking</td></tr>
+        <tr><td>SentEmail</td><td>Full tracking: status (pending/sent/failed/bounced), opens, clicks, replies</td></tr>
+        <tr><td>OutreachCampaign</td><td>Campaign management with template assignment</td></tr>
+        <tr><td>OutreachSequence</td><td>Multi-email automated sequences</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Services</h4>
+      <table class="detail-table">
+        <tr><td>PVPGeneratorService</td><td>Generates compelling PVPs from match data using Claude</td></tr>
+        <tr><td>EmailService</td><td>Gmail/Outlook OAuth integration, delivery tracking</td></tr>
+        <tr><td>SequenceGeneratorService</td><td>Creates multi-step email sequences</td></tr>
+        <tr><td>ClayWebhookService</td><td>Processes enriched data from Clay.com webhooks</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="playbook-detail" class="detail-panel">
+    <button class="close-detail" onclick="toggleDetail('playbook-detail')">&times;</button>
+    <h3 style="color:var(--accent-pink)">Playbook — Detail</h3>
+    <div class="detail-section">
+      <h4>Models</h4>
+      <table class="detail-table">
+        <tr><td>LaunchPlay</td><td>54 pre-defined plays across 6 phases: Pre-Launch, Announcement, Nurture, Urgency, Post-Buyers, Post-Non-Buyers</td></tr>
+        <tr><td>GeneratedPlaybook</td><td>User's customized playbook — Small (12), Medium (29), or Large (54) plays</td></tr>
+        <tr><td>GeneratedPlay</td><td>Individual play with custom content, hook, CTA, scheduled date, completion tracking</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Launch Phases</h4>
+      <table class="detail-table">
+        <tr><td>PRE_LAUNCH</td><td>Build anticipation and warm audience</td></tr>
+        <tr><td>LAUNCH_ANNOUNCEMENT</td><td>Announce and open</td></tr>
+        <tr><td>LAUNCH_NURTURE</td><td>Deepen engagement</td></tr>
+        <tr><td>LAUNCH_URGENCY</td><td>Drive conversions</td></tr>
+        <tr><td>POST_BUYERS</td><td>Onboard and retain</td></tr>
+        <tr><td>POST_NON_BUYERS</td><td>Re-engage and learn</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div id="enrichment-detail" class="detail-panel">
+    <button class="close-detail" onclick="toggleDetail('enrichment-detail')">&times;</button>
+    <h3 style="color:var(--accent-cyan)">Enrichment Pipeline — Detail</h3>
+    <div class="detail-section">
+      <h4>Key Services</h4>
+      <table class="detail-table">
+        <tr><td>ProfileResearchService</td><td>Website fetching + Claude extraction for who_you_serve, what_you_do, seeking, offering</td></tr>
+        <tr><td>SmartEnrichmentService</td><td>Progressive strategy: website > LinkedIn > email domain > Apollo > OWL. 4x fewer API calls</td></tr>
+        <tr><td>ConfidenceScorer</td><td>Source-based scoring with exponential age decay. Cross-validation boost (+0.20 if sources agree)</td></tr>
+        <tr><td>ProfileMerger</td><td>Merges data from multiple sources with conflict resolution</td></tr>
+        <tr><td>ClaudeVerificationService</td><td>5 specialized verification agents: encoding, formatting, content, capitalization, truncation</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Confidence Scoring</h4>
+      <table class="detail-table">
+        <tr><td>manual</td><td>1.00 base confidence</td></tr>
+        <tr><td>apollo_verified</td><td>0.95 base confidence</td></tr>
+        <tr><td>apollo</td><td>0.80 base confidence</td></tr>
+        <tr><td>website_scraped</td><td>0.70 base confidence</td></tr>
+        <tr><td>Age decay</td><td>email: 90 days, seeking: 30 days, linkedin: 180 days</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PIPELINE VIEW ===== -->
+<div id="view-pipeline" class="view">
+  <div class="pipeline">
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-cyan)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>CSV / Supabase Input <span class="cost-badge cost-free">INPUT</span></h4>
+        <p>Profiles imported from CSV upload or pulled from Supabase (3,143+ existing). Fields: name, email, company, website, LinkedIn URL.</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-green)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>Step 1: Website Scraping <span class="cost-badge cost-free">FREE</span></h4>
+        <p><strong>ProfileResearchService</strong> — Fetches website with BeautifulSoup, then uses Claude Sonnet to extract: what_you_do, who_you_serve, seeking, offering. Gets 60-75% data completeness. Results cached.</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-green)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>Step 2: LinkedIn Scraping <span class="cost-badge cost-free">FREE</span></h4>
+        <p>Supplements website data with LinkedIn profile info. Gets contact details, verifies professional identity. Marked as verified source in confidence scoring.</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-green)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>Step 3: Email Domain Research <span class="cost-badge cost-free">FREE</span></h4>
+        <p>Extracts company from email domain, researches company background. Enriches company context for profiles where website was unavailable.</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-orange)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>Step 4: Apollo.io API <span class="cost-badge cost-paid">PAID — $0.002/search</span></h4>
+        <p><strong>Only triggered if free methods leave gaps.</strong> Email verification (most reliable), contact enrichment. Used selectively to minimize cost.</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-red)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>Step 5: OWL Deep Research <span class="cost-badge cost-expensive">HIGH-PRIORITY ONLY</span></h4>
+        <p><strong>ProfileEnrichmentAgent</strong> — Multi-source research with DuckDuckGo (free) + Tavily verification ($0.004/search). Mandatory source citations for all extracted fields. Only for high-value profiles.</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-purple)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>Verification & Confidence Scoring</h4>
+        <p><strong>5 Verification Agents</strong>: Encoding, Formatting, Content, Capitalization, Truncation.<br/>
+        <strong>ConfidenceScorer</strong>: Source-based base score (manual: 1.0, apollo_verified: 0.95, website: 0.70) with exponential age decay and cross-validation boost (+0.20).</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-blue)"></div>
+        <div class="pipeline-connector" style="background:transparent"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>Output <span class="cost-badge cost-free">COMPLETE</span></h4>
+        <p>Enriched profile stored in Supabase / Django DB. Exported as CSV. Fed into ISMC Matching Engine for scoring.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="pipeline-fan" style="max-width:800px;margin:24px auto 0;">
+    <div class="fan-card">
+      <h4 style="color:var(--accent-purple)">Matching</h4>
+      <p>ISMC scoring against user's ICP</p>
+    </div>
+    <div class="fan-card">
+      <h4 style="color:var(--accent-orange)">PVP Generation</h4>
+      <p>Personalized outreach content</p>
+    </div>
+    <div class="fan-card">
+      <h4 style="color:var(--accent-pink)">PDF Reports</h4>
+      <p>Partner analysis documents</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCORING VIEW ===== -->
+<div id="view-scoring" class="view">
+  <div class="scoring-container">
+    <div class="score-component" onclick="this.classList.toggle('expanded')" style="border-left:3px solid var(--accent-blue)">
+      <div class="score-header">
+        <h4 style="color:var(--accent-blue)">Intent</h4>
+        <div class="score-weight" style="color:var(--accent-blue)">45%</div>
+      </div>
+      <div class="score-bar"><div class="score-fill" style="width:45%;background:var(--accent-blue)"></div></div>
+      <p style="font-size:12px;color:var(--text-dim)">Partnership willingness signals — the strongest predictor of successful JV partnerships</p>
+      <div class="score-factors">
+        <div class="factor"><span class="factor-name">Collaboration history</span><span class="factor-weight">weight: 3.0</span></div>
+        <div class="factor"><span class="factor-name">LinkedIn presence</span><span class="factor-weight">weight: 2.5</span></div>
+        <div class="factor"><span class="factor-name">Website presence</span><span class="factor-weight">weight: 2.0</span></div>
+        <div class="factor"><span class="factor-name">Contact availability</span><span class="factor-weight">weight: 1.5</span></div>
+      </div>
+    </div>
+
+    <div class="score-component" onclick="this.classList.toggle('expanded')" style="border-left:3px solid var(--accent-green)">
+      <div class="score-header">
+        <h4 style="color:var(--accent-green)">Synergy</h4>
+        <div class="score-weight" style="color:var(--accent-green)">25%</div>
+      </div>
+      <div class="score-bar"><div class="score-fill" style="width:25%;background:var(--accent-green)"></div></div>
+      <p style="font-size:12px;color:var(--text-dim)">Audience and content alignment — complementary audiences create win-win partnerships</p>
+      <div class="score-factors">
+        <div class="factor"><span class="factor-name">Audience size compatibility</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">Industry alignment</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">Content style match</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">Services complementarity</span><span class="factor-weight">evaluated</span></div>
+      </div>
+    </div>
+
+    <div class="score-component" onclick="this.classList.toggle('expanded')" style="border-left:3px solid var(--accent-orange)">
+      <div class="score-header">
+        <h4 style="color:var(--accent-orange)">Momentum</h4>
+        <div class="score-weight" style="color:var(--accent-orange)">20%</div>
+      </div>
+      <div class="score-bar"><div class="score-fill" style="width:20%;background:var(--accent-orange)"></div></div>
+      <p style="font-size:12px;color:var(--text-dim)">Recent activity and growth — active partners are more likely to engage</p>
+      <div class="score-factors">
+        <div class="factor"><span class="factor-name">Website updates</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">LinkedIn activity</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">Content publication frequency</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">Business growth signals</span><span class="factor-weight">evaluated</span></div>
+      </div>
+    </div>
+
+    <div class="score-component" onclick="this.classList.toggle('expanded')" style="border-left:3px solid var(--accent-purple)">
+      <div class="score-header">
+        <h4 style="color:var(--accent-purple)">Context</h4>
+        <div class="score-weight" style="color:var(--accent-purple)">10%</div>
+      </div>
+      <div class="score-bar"><div class="score-fill" style="width:10%;background:var(--accent-purple)"></div></div>
+      <p style="font-size:12px;color:var(--text-dim)">Situational relevance — geographic, stage, and network factors</p>
+      <div class="score-factors">
+        <div class="factor"><span class="factor-name">Geographic match</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">Business stage alignment</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">Network overlap</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">ICP fit</span><span class="factor-weight">evaluated</span></div>
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <h4>Final Score Formula</h4>
+      <div class="formula">H = &Sigma;w<sub>i</sub> / &Sigma;(w<sub>i</sub> / x<sub>i</sub>)</div>
+      <div class="formula-note">
+        Weighted Harmonic Mean — penalizes low scores heavily.<br/>
+        A profile scoring 90/90/90/90 beats 100/100/100/20 because<br/>
+        the harmonic mean rewards <em>balanced</em> performance across all dimensions.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== INTEGRATIONS VIEW ===== -->
+<div id="view-integrations" class="view">
+  <div class="integrations-grid">
+    <div class="integration-card" style="border-left:3px solid var(--accent-purple)">
+      <h4>Claude Sonnet (Primary LLM)</h4>
+      <div class="api-type">AI / Language Model</div>
+      <div class="purpose">Profile extraction, PVP generation, transformation analysis, content verification. Used across all apps for intelligent processing.</div>
+      <div class="env-var">OPENROUTER_API_KEY</div>
+      <div class="env-var">ANTHROPIC_API_KEY</div>
+    </div>
+
+    <div class="integration-card" style="border-left:3px solid var(--accent-green)">
+      <h4>Supabase PostgreSQL</h4>
+      <div class="api-type">Database</div>
+      <div class="purpose">Primary database with 3,143+ JV partner profiles and pre-computed match suggestions. Read via unmanaged Django models.</div>
+      <div class="env-var">SUPABASE_URL</div>
+      <div class="env-var">SUPABASE_KEY</div>
+    </div>
+
+    <div class="integration-card" style="border-left:3px solid var(--accent-orange)">
+      <h4>Apollo.io</h4>
+      <div class="api-type">Data Enrichment API</div>
+      <div class="purpose">Email verification and contact enrichment. Used as paid fallback when free scraping methods leave data gaps. ~$0.002 per search.</div>
+      <div class="env-var">APOLLO_API_KEY</div>
+    </div>
+
+    <div class="integration-card" style="border-left:3px solid var(--accent-cyan)">
+      <h4>Tavily Search</h4>
+      <div class="api-type">Web Search API</div>
+      <div class="purpose">Source verification during OWL deep research. $0.004 per search — used sparingly for high-priority profiles only.</div>
+      <div class="env-var">TAVILY_API_KEY</div>
+    </div>
+
+    <div class="integration-card" style="border-left:3px solid var(--accent-cyan)">
+      <h4>DuckDuckGo</h4>
+      <div class="api-type">Web Search (Free)</div>
+      <div class="purpose">Primary free search engine for OWL profile research. No rate limits, no API key needed. Unlimited usage.</div>
+      <div class="env-var" style="color:var(--text-dim)">No key required</div>
+    </div>
+
+    <div class="integration-card" style="border-left:3px solid var(--accent-orange)">
+      <h4>Gmail OAuth</h4>
+      <div class="api-type">Email Integration</div>
+      <div class="purpose">Send outreach emails through user's Gmail account. OAuth2 flow with encrypted token storage and expiration tracking.</div>
+      <div class="env-var">GOOGLE_OAUTH_CLIENT_ID</div>
+    </div>
+
+    <div class="integration-card" style="border-left:3px solid var(--accent-orange)">
+      <h4>Outlook OAuth</h4>
+      <div class="api-type">Email Integration</div>
+      <div class="purpose">Send outreach emails through user's Outlook account. Same OAuth2 pattern as Gmail integration.</div>
+      <div class="env-var">MICROSOFT_OAUTH_CLIENT_ID</div>
+    </div>
+
+    <div class="integration-card" style="border-left:3px solid var(--accent-pink)">
+      <h4>Clay.com Webhooks</h4>
+      <div class="api-type">Data Enrichment Webhook</div>
+      <div class="purpose">Receives enriched contact data from Clay workflows. Processes and stores incoming webhook payloads.</div>
+      <div class="env-var">CLAY_WEBHOOK_SECRET</div>
+    </div>
+
+    <div class="integration-card" style="border-left:3px solid var(--text-dim);border-style:dashed">
+      <h4>Vast.ai (Planned)</h4>
+      <div class="api-type">GPU Rental — Future</div>
+      <div class="purpose">Trigger: >500 profiles/month or >$150/month AI costs. Rent GPU ($0.75/hr), run OSS 120B model as Claude drop-in. 90%+ cost reduction.</div>
+      <div class="env-var" style="color:var(--text-dim)">See v2.0/docs/planning/</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DATABASE VIEW ===== -->
+<div id="view-database" class="view">
+  <div class="db-container">
+
+    <div class="db-hero">
+      <h2>Partner Profile Anatomy</h2>
+      <p>Every person in the database is described by these fields</p>
+      <span class="db-count">3,143+ profiles in Supabase PostgreSQL</span>
+    </div>
+
+    <!-- Sample card -->
+    <div class="db-sample">
+      <div class="db-sample-top">
+        <div class="db-avatar">JT</div>
+        <div>
+          <div class="db-sample-name">Jane Thompson</div>
+          <div class="db-sample-co">Luminous Leadership Co.</div>
+        </div>
+        <span class="db-sample-badge" style="background:rgba(78,203,141,0.12);color:var(--accent-green)">Member</span>
+      </div>
+      <div class="db-sample-grid">
+        <div class="db-sample-field">
+          <div class="sf-label">What they do</div>
+          <div class="sf-value">Executive coaching for women in tech</div>
+        </div>
+        <div class="db-sample-field">
+          <div class="sf-label">Who they serve</div>
+          <div class="sf-value">Women leaders at Series B+ startups</div>
+        </div>
+        <div class="db-sample-field">
+          <div class="sf-label">Seeking from partners</div>
+          <div class="sf-value">Podcast guests, summit speakers</div>
+        </div>
+        <div class="db-sample-field">
+          <div class="sf-label">Offering to partners</div>
+          <div class="sf-value">Email list swaps, affiliate promos</div>
+        </div>
+        <div class="db-sample-field">
+          <div class="sf-label">Niche</div>
+          <div class="sf-value">Leadership & Personal Dev</div>
+        </div>
+        <div class="db-sample-field">
+          <div class="sf-label">Signature Program</div>
+          <div class="sf-value">The Luminous Leader Accelerator</div>
+        </div>
+      </div>
+      <div class="db-sample-metrics">
+        <div class="db-metric"><span class="m-num" style="color:var(--accent-blue)">12.4K</span><span class="m-label">Email List</span></div>
+        <div class="db-metric"><span class="m-num" style="color:var(--accent-purple)">28.1K</span><span class="m-label">Social Reach</span></div>
+        <div class="db-metric"><span class="m-num" style="color:var(--accent-green)">Active</span><span class="m-label">Last 7 days</span></div>
+      </div>
+    </div>
+
+    <!-- Collapsible field sections -->
+    <div class="db-section open" onclick="this.classList.toggle('open')">
+      <div class="db-section-header">
+        <h4><div class="db-dot" style="background:var(--accent-purple)"></div> Business Profile <span class="db-field-count">— the matching core</span></h4>
+        <span class="db-chevron">&#9654;</span>
+      </div>
+      <div class="db-section-body">
+        <div class="db-row"><span class="db-row-name">what_you_do</span><span class="db-row-desc">Their services, expertise, and main business activity</span></div>
+        <div class="db-row"><span class="db-row-name">who_you_serve</span><span class="db-row-desc">Target audience and ideal customer description</span></div>
+        <div class="db-row"><span class="db-row-name">seeking</span><span class="db-row-desc">What kind of partnerships or collaborations they want</span></div>
+        <div class="db-row"><span class="db-row-name">offering</span><span class="db-row-desc">What they can bring to a JV partnership</span></div>
+        <div class="db-row"><span class="db-row-name">niche</span><span class="db-row-desc">Industry or market vertical</span></div>
+        <div class="db-row"><span class="db-row-name">business_focus</span><span class="db-row-desc">Primary area of business focus</span></div>
+        <div class="db-row"><span class="db-row-name">signature_programs</span><span class="db-row-desc">Flagship courses, programs, or offerings</span></div>
+        <div class="db-row"><span class="db-row-name">current_projects</span><span class="db-row-desc">What they're working on right now</span></div>
+      </div>
+    </div>
+
+    <div class="db-section" onclick="this.classList.toggle('open')">
+      <div class="db-section-header">
+        <h4><div class="db-dot" style="background:var(--accent-blue)"></div> Identity & Contact <span class="db-field-count">— 8 fields</span></h4>
+        <span class="db-chevron">&#9654;</span>
+      </div>
+      <div class="db-section-body">
+        <div class="db-row"><span class="db-row-name">name</span><span class="db-row-desc">Full name (required)</span></div>
+        <div class="db-row"><span class="db-row-name">email</span><span class="db-row-desc">Primary email address</span></div>
+        <div class="db-row"><span class="db-row-name">phone</span><span class="db-row-desc">Phone number</span></div>
+        <div class="db-row"><span class="db-row-name">company</span><span class="db-row-desc">Company or business name</span></div>
+        <div class="db-row"><span class="db-row-name">website</span><span class="db-row-desc">Business website URL</span></div>
+        <div class="db-row"><span class="db-row-name">linkedin</span><span class="db-row-desc">LinkedIn profile URL</span></div>
+        <div class="db-row"><span class="db-row-name">avatar_url</span><span class="db-row-desc">Profile photo</span></div>
+        <div class="db-row"><span class="db-row-name">booking_link</span><span class="db-row-desc">Calendly or scheduling link</span></div>
+      </div>
+    </div>
+
+    <div class="db-section" onclick="this.classList.toggle('open')">
+      <div class="db-section-header">
+        <h4><div class="db-dot" style="background:var(--accent-cyan)"></div> Audience & Reach <span class="db-field-count">— 4 fields</span></h4>
+        <span class="db-chevron">&#9654;</span>
+      </div>
+      <div class="db-section-body">
+        <div class="db-row"><span class="db-row-name">list_size</span><span class="db-row-desc">Email subscriber count</span></div>
+        <div class="db-row"><span class="db-row-name">social_reach</span><span class="db-row-desc">Combined followers across social platforms</span></div>
+        <div class="db-row"><span class="db-row-name">audience_type</span><span class="db-row-desc">Type of audience (B2B, B2C, etc.)</span></div>
+        <div class="db-row"><span class="db-row-name">business_size</span><span class="db-row-desc">Scale of their business</span></div>
+      </div>
+    </div>
+
+    <div class="db-section" onclick="this.classList.toggle('open')">
+      <div class="db-section-header">
+        <h4><div class="db-dot" style="background:var(--accent-orange)"></div> Status & Metadata <span class="db-field-count">— 5 fields</span></h4>
+        <span class="db-chevron">&#9654;</span>
+      </div>
+      <div class="db-section-body">
+        <div class="db-row"><span class="db-row-name">status</span><span class="db-row-desc">Member, Non Member Resource, or Pending</span></div>
+        <div class="db-row"><span class="db-row-name">role</span><span class="db-row-desc">Admin, member, or viewer</span></div>
+        <div class="db-row"><span class="db-row-name">tags</span><span class="db-row-desc">Categorization labels (array)</span></div>
+        <div class="db-row"><span class="db-row-name">bio</span><span class="db-row-desc">Free-text biography</span></div>
+        <div class="db-row"><span class="db-row-name">notes</span><span class="db-row-desc">Internal notes about this person</span></div>
+      </div>
+    </div>
+
+    <div class="db-section" onclick="this.classList.toggle('open')">
+      <div class="db-section-header">
+        <h4><div class="db-dot" style="background:var(--text-dim)"></div> Timestamps <span class="db-field-count">— 4 fields</span></h4>
+        <span class="db-chevron">&#9654;</span>
+      </div>
+      <div class="db-section-body">
+        <div class="db-row"><span class="db-row-name">created_at</span><span class="db-row-desc">When the profile was first created</span></div>
+        <div class="db-row"><span class="db-row-name">updated_at</span><span class="db-row-desc">Last modification timestamp</span></div>
+        <div class="db-row"><span class="db-row-name">profile_updated_at</span><span class="db-row-desc">When the person last updated their own profile</span></div>
+        <div class="db-row"><span class="db-row-name">last_active_at</span><span class="db-row-desc">Last activity on the platform</span></div>
+      </div>
+    </div>
+
+    <!-- Relationships -->
+    <div class="db-relations">
+      <h4>How Tables Connect</h4>
+      <div class="db-rel-row">
+        <span class="db-rel-table" style="color:var(--accent-green)">SupabaseProfile</span>
+        <span class="db-rel-arrow">&#8594;</span>
+        <span class="db-rel-table" style="color:var(--accent-purple)">SupabaseMatch</span>
+        <span class="db-rel-desc">Pre-computed bi-directional scores with trust levels (platinum/gold/bronze)</span>
+      </div>
+      <div class="db-rel-row">
+        <span class="db-rel-table" style="color:var(--accent-blue)">User</span>
+        <span class="db-rel-arrow">&#8594;</span>
+        <span class="db-rel-table" style="color:var(--accent-cyan)">Profile</span>
+        <span class="db-rel-desc">User-created profiles with enrichment data from the pipeline</span>
+      </div>
+      <div class="db-rel-row">
+        <span class="db-rel-table" style="color:var(--accent-cyan)">Profile</span>
+        <span class="db-rel-arrow">&#8594;</span>
+        <span class="db-rel-table" style="color:var(--accent-blue)">Match</span>
+        <span class="db-rel-desc">ISMC-scored matches: intent (45%), synergy (25%), momentum (20%), context (10%)</span>
+      </div>
+      <div class="db-rel-row">
+        <span class="db-rel-table" style="color:var(--accent-blue)">Match</span>
+        <span class="db-rel-arrow">&#8594;</span>
+        <span class="db-rel-table" style="color:var(--accent-orange)">MatchFeedback</span>
+        <span class="db-rel-desc">User ratings (1-5) and outcome tracking (successful/unsuccessful/pending)</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== COMMUNITY GRAPH ===== -->
+<div id="view-community" class="view">
+
+  <div class="community-header">
+    <div class="community-nav">
+      <button class="active" data-view="full">Full Community</button>
+      <button data-view="connectors">Super Connectors</button>
+      <button data-view="aggregators">Aggregators</button>
+    </div>
+    <div class="community-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="community-search-input" placeholder="Search by name..." autocomplete="off">
+      <div class="search-results" id="community-search-results"></div>
+    </div>
+    <div class="community-size-toggle" id="community-size-toggle">
+      <button class="active" data-size="connections">Connections</button>
+      <button data-size="audience">Audience</button>
+    </div>
+    <div class="community-niche-filter">
+      <select id="community-niche-select">
+        <option value="">All Niches</option>
+      </select>
+    </div>
+    <div class="community-controls">
+      <label><input type="checkbox" id="edge-matches" checked> Match Lines</label>
+      <label><input type="checkbox" id="edge-niche"> Niche Grouping</label>
+    </div>
+  </div>
+
+  <div class="community-view-desc" id="community-view-desc">Every connected profile in the community. Scroll to zoom, drag to pan, hover for details.</div>
+
+  <div class="community-canvas-wrap" id="community-canvas-wrap">
+    <canvas id="community-canvas"></canvas>
+    <div class="community-tooltip" id="community-tooltip">
+      <div class="tt-name"></div>
+      <div class="tt-company"></div>
+      <div class="tt-row"><span class="tt-label">Niche</span><span class="tt-val tt-niche"></span></div>
+      <div class="tt-row"><span class="tt-label">Connections</span><span class="tt-val tt-degree"></span></div>
+      <div class="tt-row"><span class="tt-label">List Size</span><span class="tt-val tt-list"></span></div>
+      <div class="tt-row"><span class="tt-label">Role</span><span class="tt-val tt-role"></span></div>
+    </div>
+    <div class="community-detail-panel" id="community-detail-panel">
+      <button class="dp-close" id="dp-close">&times;</button>
+      <div class="dp-name" id="dp-name"></div>
+      <div class="dp-company" id="dp-company"></div>
+      <div id="dp-role-badge" class="dp-role-badge"></div>
+      <div class="dp-metrics" id="dp-metrics"></div>
+      <div id="dp-sections"></div>
+    </div>
+    <div class="community-loading" id="community-loading">Loading community data...</div>
+  </div>
+
+  <div class="community-bottom">
+    <div class="community-legend" id="community-legend"></div>
+    <div class="community-roles-legend">
+      <span class="role-item"><span class="rb-ring" style="border-color:#f0a04b"></span> Hub — many direct connections (top 10%)</span>
+      <span class="role-item"><span class="rb-ring" style="border-color:#4ec8cb"></span> Bridge — connects different niches together</span>
+      <span class="role-item"><span class="rb-ring" style="border-color:#a87bf5"></span> Specialist — few connections, but to important people</span>
+      <span class="role-item-sep"></span>
+      <span class="role-item">Bigger dot = more connections</span>
+      <span class="role-item"><span class="rb-ring" style="border-color:#f06b6b;border-style:dashed"></span> Not yet enriched (zoom to see)</span>
+    </div>
+  </div>
+
+  <div class="community-toggles">
+    <button id="toggle-leaderboard">Top 10 Leaderboard</button>
+    <button id="toggle-unconnected">Unconnected Breakdown</button>
+  </div>
+
+  <div class="community-leaderboard" id="community-leaderboard"></div>
+  <div class="community-unconnected" id="community-unconnected"></div>
+
+</div>
+
+</div><!-- end .content -->
+
+<script src="community_graph_data.js"></script>
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.remove('active');
+    t.classList.remove('highlight');
+  });
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('view-' + name).classList.add('active');
+  document.querySelectorAll('.detail-panel').forEach(d => d.classList.remove('open'));
+}
+
+function toggleDetail(id) {
+  const panel = document.getElementById(id);
+  const wasOpen = panel.classList.contains('open');
+  document.querySelectorAll('.detail-panel').forEach(d => d.classList.remove('open'));
+  if (!wasOpen) {
+    panel.classList.add('open');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+// ===== COMMUNITY GRAPH =====
+(function() {
+  var graphData = null;
+  var currentView = 'full';
+  var simulation = null;
+  var transform = d3.zoomIdentity;
+  var hoveredNode = null;
+  var selectedNode = null;
+  var highlightedNodeId = null;
+  var highlightedNeighbors = null;
+  var sizeMode = 'connections'; // 'connections' or 'audience'
+  var nicheFilter = '';
+  var currentNodes = [];
+  var currentLinks = [];
+  var currentDraw = null;
+  var currentZoomBehavior = null;
+
+  var ROLE_COLORS = {
+    hub: '#f0a04b',
+    bridge: '#4ec8cb',
+    specialist: '#a87bf5',
+    newcomer: '#555',
+  };
+
+  var ROLE_LABELS = {
+    hub: 'Hub',
+    bridge: 'Bridge',
+    specialist: 'Specialist',
+    newcomer: 'Newcomer',
+  };
+
+  function initCommunityGraph() {
+    if (graphData) return;
+
+    var data = window.COMMUNITY_GRAPH_DATA;
+    if (!data) {
+      document.getElementById('community-loading').textContent =
+        'Could not load graph data. Run: python scripts/export_community_graph.py';
+      return;
+    }
+    graphData = data;
+    document.getElementById('community-loading').style.display = 'none';
+    populateLegend(data.niche_colors);
+    populateNicheFilter(data.niche_colors);
+    populateLeaderboard(data.leaderboard);
+    populateUnconnected(data.unconnected);
+    renderView(currentView);
+  }
+
+  function populateLegend(nicheColors) {
+    var el = document.getElementById('community-legend');
+    while (el.firstChild) el.removeChild(el.firstChild);
+    // Show all categories (there are only ~11 now)
+    Object.entries(nicheColors).forEach(function(entry) {
+      var category = entry[0], color = entry[1];
+      if (category === 'Unknown') return; // skip Unknown in legend
+      var span = document.createElement('span');
+      span.className = 'legend-item';
+      span.style.cursor = 'pointer';
+      var dot = document.createElement('span');
+      dot.className = 'legend-dot';
+      dot.style.background = color;
+      span.appendChild(dot);
+      span.appendChild(document.createTextNode(category));
+      // Click legend item to filter
+      span.addEventListener('click', function() {
+        var select = document.getElementById('community-niche-select');
+        select.value = (nicheFilter === category) ? '' : category;
+        nicheFilter = select.value;
+        if (currentDraw) currentDraw();
+      });
+      el.appendChild(span);
+    });
+  }
+
+  // ---- Niche Filter ----
+  function populateNicheFilter(nicheColors) {
+    var select = document.getElementById('community-niche-select');
+    // Categories are already clean — just add them
+    Object.keys(nicheColors).sort().forEach(function(category) {
+      if (category === 'Unknown') return;
+      var opt = document.createElement('option');
+      opt.value = category;
+      opt.textContent = category;
+      select.appendChild(opt);
+    });
+    select.addEventListener('change', function() {
+      nicheFilter = this.value;
+      if (currentDraw) currentDraw();
+    });
+  }
+
+  // ---- Leaderboard ----
+  function populateLeaderboard(lb) {
+    if (!lb) return;
+    var el = document.getElementById('community-leaderboard');
+    var html = '';
+
+    html += '<div><h4><span class="lb-dot" style="background:#f0a04b"></span> Top Hubs (Most Connected)</h4><ol>';
+    (lb.hubs || []).forEach(function(h) {
+      html += '<li><span class="lb-name">' + escHtml(h.name) + '</span><span class="lb-val">' +
+        (h.list_size || 0).toLocaleString() + ' list</span></li>';
+    });
+    html += '</ol></div>';
+
+    html += '<div><h4><span class="lb-dot" style="background:#4ec8cb"></span> Top Bridges (Niche Connectors)</h4><ol>';
+    (lb.bridges || []).forEach(function(b) {
+      html += '<li><span class="lb-name">' + escHtml(b.name) + '</span><span class="lb-val">' +
+        escHtml((b.niche || '').substring(0, 20)) + '</span></li>';
+    });
+    html += '</ol></div>';
+
+    el.innerHTML = html;
+  }
+
+  // ---- Unconnected Breakdown ----
+  function populateUnconnected(uc) {
+    if (!uc) return;
+    var el = document.getElementById('community-unconnected');
+    var html = '<h4>' + (uc.count || 0).toLocaleString() + ' Profiles With No Matches — Why?</h4>';
+    html += '<div class="uc-stats">';
+    html += '<div class="uc-stat"><div class="uc-stat-val">' + (uc.missing_niche || 0).toLocaleString() + '</div><div class="uc-stat-label">Missing Niche</div></div>';
+    html += '<div class="uc-stat"><div class="uc-stat-val">' + (uc.missing_what_you_do || 0).toLocaleString() + '</div><div class="uc-stat-label">Missing "What You Do"</div></div>';
+    html += '<div class="uc-stat"><div class="uc-stat-val">' + (uc.missing_who_you_serve || 0).toLocaleString() + '</div><div class="uc-stat-label">Missing "Who You Serve"</div></div>';
+    html += '<div class="uc-stat"><div class="uc-stat-val">' + (uc.missing_seeking || 0).toLocaleString() + '</div><div class="uc-stat-label">Missing "Seeking"</div></div>';
+    html += '<div class="uc-stat"><div class="uc-stat-val" style="color:var(--accent-green)">' + (uc.enriched || 0).toLocaleString() + '</div><div class="uc-stat-label">Enriched</div></div>';
+    html += '<div class="uc-stat"><div class="uc-stat-val">' + (uc.count - (uc.enriched || 0)).toLocaleString() + '</div><div class="uc-stat-label">Not Enriched</div></div>';
+    html += '</div>';
+
+    // Enrichment insight
+    var stats = graphData ? graphData.stats : {};
+    if (stats.enriched_connected || stats.enriched_unconnected) {
+      html += '<div class="uc-niches" style="margin-bottom:6px">';
+      html += '<strong>Enrichment:</strong> ' +
+        (stats.enriched_connected || 0) + ' connected enriched' +
+        (stats.avg_confidence_connected ? ' (avg confidence ' + Math.round(stats.avg_confidence_connected * 100) + '%)' : '') +
+        ' vs ' + (stats.enriched_unconnected || 0) + ' unconnected enriched' +
+        (stats.avg_confidence_unconnected ? ' (avg confidence ' + Math.round(stats.avg_confidence_unconnected * 100) + '%)' : '');
+      html += '</div>';
+    }
+
+    if (uc.top_niches && uc.top_niches.length) {
+      html += '<div class="uc-niches">Top niches among unconnected: ';
+      uc.top_niches.forEach(function(n) {
+        html += '<span>' + escHtml(n.niche) + ' (' + n.count + ')</span>';
+      });
+      html += '</div>';
+    }
+    el.innerHTML = html;
+  }
+
+  function escHtml(str) {
+    var d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  // ---- Size modes ----
+  function getNodeRadius(node) {
+    if (sizeMode === 'audience') {
+      var ls = node.list_size || 0;
+      return Math.max(3, Math.sqrt(ls) * 0.15 + 3);
+    }
+    return Math.max(3, (node.degree || 0) * 30 + 3);
+  }
+
+  function getNodeColor(node, nicheColors) {
+    return nicheColors[node.category] || '#555';
+  }
+
+  // ---- Detail Panel ----
+  function openDetailPanel(node) {
+    selectedNode = node;
+    var panel = document.getElementById('community-detail-panel');
+    document.getElementById('dp-name').textContent = node.name || 'Unknown';
+    document.getElementById('dp-company').textContent = node.company || '';
+
+    var badge = document.getElementById('dp-role-badge');
+    if (node.role && ROLE_COLORS[node.role]) {
+      badge.style.display = 'inline-block';
+      badge.style.background = ROLE_COLORS[node.role] + '30';
+      badge.style.color = ROLE_COLORS[node.role];
+      badge.textContent = ROLE_LABELS[node.role] || node.role;
+    } else {
+      badge.style.display = 'none';
+    }
+
+    var metricsEl = document.getElementById('dp-metrics');
+    var confColor = (node.confidence || 0) >= 0.8 ? 'var(--accent-green)' :
+                    (node.confidence || 0) >= 0.5 ? 'var(--accent-orange)' : 'var(--text-dim)';
+    var confLabel = node.enriched ? (Math.round((node.confidence || 0) * 100) + '%') : 'N/A';
+    metricsEl.innerHTML =
+      '<div class="dp-metric"><div class="dp-metric-val">' + Math.round((node.degree || 0) * 100) + '%</div><div class="dp-metric-label">Connections</div></div>' +
+      '<div class="dp-metric"><div class="dp-metric-val">' + (node.list_size || 0).toLocaleString() + '</div><div class="dp-metric-label">List Size</div></div>' +
+      '<div class="dp-metric"><div class="dp-metric-val" style="color:' + confColor + '">' + confLabel + '</div><div class="dp-metric-label">Confidence</div></div>' +
+      '<div class="dp-metric"><div class="dp-metric-val">' + (node.pressure || 0) + '</div><div class="dp-metric-label">Rec. Pressure (30d)</div></div>';
+
+    var sectionsEl = document.getElementById('dp-sections');
+    var shtml = '';
+
+    // Enrichment status indicator
+    if (node.enriched) {
+      shtml += '<div class="dp-section"><div class="dp-section-title">Enrichment</div>' +
+        '<div class="dp-section-body" style="color:var(--accent-green)">Enriched</div></div>';
+    } else {
+      shtml += '<div class="dp-section"><div class="dp-section-title">Enrichment</div>' +
+        '<div class="dp-section-body" style="color:var(--text-dim)">Not yet enriched</div></div>';
+    }
+
+    var fields = [
+      ['Niche', node.niche],
+      ['What They Do', node.what_you_do],
+      ['Who They Serve', node.who_you_serve],
+      ['Seeking', node.seeking],
+      ['Offering', node.offering],
+      ['Signature Programs', node.signature_programs],
+    ];
+    fields.forEach(function(f) {
+      if (f[1]) {
+        shtml += '<div class="dp-section"><div class="dp-section-title">' + f[0] + '</div>' +
+          '<div class="dp-section-body">' + escHtml(f[1]) + '</div></div>';
+      }
+    });
+    sectionsEl.innerHTML = shtml;
+
+    panel.classList.add('open');
+  }
+
+  function closeDetailPanel() {
+    document.getElementById('community-detail-panel').classList.remove('open');
+    selectedNode = null;
+    highlightedNodeId = null;
+    highlightedNeighbors = null;
+    if (currentDraw) currentDraw();
+  }
+
+  document.getElementById('dp-close').addEventListener('click', closeDetailPanel);
+
+  // ---- Search ----
+  var searchInput = document.getElementById('community-search-input');
+  var searchResults = document.getElementById('community-search-results');
+
+  searchInput.addEventListener('input', function() {
+    var query = this.value.toLowerCase().trim();
+    if (query.length < 2 || !graphData) {
+      searchResults.classList.remove('visible');
+      return;
+    }
+
+    var viewData = graphData.views[currentView];
+    if (!viewData) return;
+
+    var matches = viewData.nodes
+      .filter(function(n) {
+        return (n.name || '').toLowerCase().indexOf(query) !== -1 ||
+               (n.company || '').toLowerCase().indexOf(query) !== -1;
+      })
+      .slice(0, 8);
+
+    if (matches.length === 0) {
+      searchResults.classList.remove('visible');
+      return;
+    }
+
+    searchResults.innerHTML = '';
+    matches.forEach(function(m) {
+      var item = document.createElement('div');
+      item.className = 'sr-item';
+      item.innerHTML = '<span class="sr-name">' + escHtml(m.name || 'Unknown') + '</span>' +
+        '<span class="sr-niche">' + escHtml(m.category || 'Unknown') + '</span>';
+      item.addEventListener('click', function() {
+        zoomToNode(m.id);
+        searchResults.classList.remove('visible');
+        searchInput.value = m.name || '';
+      });
+      searchResults.appendChild(item);
+    });
+    searchResults.classList.add('visible');
+  });
+
+  searchInput.addEventListener('blur', function() {
+    setTimeout(function() { searchResults.classList.remove('visible'); }, 200);
+  });
+
+  searchInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      searchResults.classList.remove('visible');
+      this.blur();
+      highlightedNodeId = null;
+      highlightedNeighbors = null;
+      if (currentDraw) currentDraw();
+    }
+  });
+
+  function zoomToNode(nodeId) {
+    var node = currentNodes.find(function(n) { return n.id === nodeId; });
+    if (!node) return;
+
+    // Find neighbors for highlight
+    highlightedNodeId = nodeId;
+    highlightedNeighbors = new Set();
+    currentLinks.forEach(function(l) {
+      var sid = typeof l.source === 'object' ? l.source.id : l.source;
+      var tid = typeof l.target === 'object' ? l.target.id : l.target;
+      if (sid === nodeId) highlightedNeighbors.add(tid);
+      if (tid === nodeId) highlightedNeighbors.add(sid);
+    });
+
+    // Animate zoom to node
+    var canvas = document.getElementById('community-canvas');
+    var wrap = document.getElementById('community-canvas-wrap');
+    var targetK = 3;
+    var targetX = wrap.clientWidth / 2 - node.x * targetK;
+    var targetY = wrap.clientHeight / 2 - node.y * targetK;
+    var targetTransform = d3.zoomIdentity.translate(targetX, targetY).scale(targetK);
+
+    d3.select(canvas).transition().duration(750)
+      .call(currentZoomBehavior.transform, targetTransform);
+  }
+
+  // ---- Render ----
+  function renderView(viewName) {
+    if (!graphData) return;
+
+    var wrap = document.getElementById('community-canvas-wrap');
+    var canvas = document.getElementById('community-canvas');
+    var ctx = canvas.getContext('2d');
+    var dpr = window.devicePixelRatio || 1;
+    var width = wrap.clientWidth;
+    var height = wrap.clientHeight;
+
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    var viewData = graphData.views[viewName];
+    if (!viewData) return;
+
+    var nodes = viewData.nodes.map(function(n) {
+      return Object.assign({}, n, {
+        x: n.x * width * 0.8 + width * 0.1,
+        y: n.y * height * 0.8 + height * 0.1,
+      });
+    });
+    currentNodes = nodes;
+
+    var nodeMap = new Map(nodes.map(function(n) { return [n.id, n]; }));
+
+    var links = viewData.edges
+      .map(function(e) {
+        return {
+          source: nodeMap.get(e.source),
+          target: nodeMap.get(e.target),
+          score: e.score || e.count || 50,
+          trust: e.trust || 'legacy',
+        };
+      })
+      .filter(function(e) { return e.source && e.target; });
+    currentLinks = links;
+
+    if (simulation) simulation.stop();
+
+    var n = nodes.length;
+    var charge = n > 500 ? -30 : -80;
+    var linkDist = n > 500 ? 30 : 60;
+    var linkStr = n > 500 ? 0.1 : 0.3;
+
+    simulation = d3.forceSimulation(nodes)
+      .force('link', d3.forceLink(links).id(function(d) { return d.id; }).distance(linkDist).strength(linkStr))
+      .force('charge', d3.forceManyBody().strength(charge))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('collision', d3.forceCollide().radius(function(d) { return getNodeRadius(d) + 1; }))
+      .alphaDecay(0.02)
+      .on('tick', draw);
+
+    var zoomBehavior = d3.zoom()
+      .scaleExtent([0.2, 8])
+      .on('zoom', function(event) {
+        transform = event.transform;
+        draw();
+      });
+    currentZoomBehavior = zoomBehavior;
+
+    d3.select(canvas).call(zoomBehavior);
+    transform = d3.zoomIdentity;
+
+    var quadtree = d3.quadtree()
+      .x(function(d) { return d.x; })
+      .y(function(d) { return d.y; });
+
+    // Mouse move — hover tooltip
+    canvas.onmousemove = function(event) {
+      var rect = canvas.getBoundingClientRect();
+      var mx = (event.clientX - rect.left - transform.x) / transform.k;
+      var my = (event.clientY - rect.top - transform.y) / transform.k;
+
+      quadtree.removeAll(quadtree.data() || []);
+      quadtree.addAll(nodes);
+
+      var found = quadtree.find(mx, my, 20);
+      hoveredNode = found;
+
+      var tooltip = document.getElementById('community-tooltip');
+      if (found) {
+        canvas.style.cursor = 'pointer';
+        tooltip.style.display = 'block';
+        tooltip.style.left = (event.clientX - rect.left + 16) + 'px';
+        tooltip.style.top = (event.clientY - rect.top - 10) + 'px';
+
+        tooltip.querySelector('.tt-name').textContent = found.name || 'Unknown';
+        tooltip.querySelector('.tt-company').textContent = found.company || '';
+        tooltip.querySelector('.tt-niche').textContent = found.niche || '-';
+        tooltip.querySelector('.tt-degree').textContent = Math.round((found.degree || 0) * 100) + '%';
+        tooltip.querySelector('.tt-list').textContent = (found.list_size || 0).toLocaleString();
+        tooltip.querySelector('.tt-role').textContent = found.role || 'member';
+      } else {
+        canvas.style.cursor = 'default';
+        tooltip.style.display = 'none';
+      }
+    };
+
+    // Click — open detail panel + highlight connections
+    canvas.onclick = function(event) {
+      var rect = canvas.getBoundingClientRect();
+      var mx = (event.clientX - rect.left - transform.x) / transform.k;
+      var my = (event.clientY - rect.top - transform.y) / transform.k;
+
+      quadtree.removeAll(quadtree.data() || []);
+      quadtree.addAll(nodes);
+
+      var found = quadtree.find(mx, my, 20);
+      if (found) {
+        highlightedNodeId = found.id;
+        highlightedNeighbors = new Set();
+        links.forEach(function(l) {
+          var sid = typeof l.source === 'object' ? l.source.id : l.source;
+          var tid = typeof l.target === 'object' ? l.target.id : l.target;
+          if (sid === found.id) highlightedNeighbors.add(tid);
+          if (tid === found.id) highlightedNeighbors.add(sid);
+        });
+        openDetailPanel(found);
+        draw();
+      } else {
+        closeDetailPanel();
+      }
+    };
+
+    canvas.onmouseleave = function() {
+      hoveredNode = null;
+      document.getElementById('community-tooltip').style.display = 'none';
+    };
+
+    var showMatches = document.getElementById('edge-matches');
+    var showNiche = document.getElementById('edge-niche');
+
+    function draw() {
+      ctx.save();
+      ctx.clearRect(0, 0, width, height);
+      ctx.translate(transform.x, transform.y);
+      ctx.scale(transform.k, transform.k);
+
+      var nicheColors = graphData.niche_colors;
+      var hasHighlight = !!highlightedNodeId;
+      var hasNicheFilter = !!nicheFilter;
+
+      // Draw edges (match lines)
+      if (showMatches.checked) {
+        links.forEach(function(link) {
+          var sid = typeof link.source === 'object' ? link.source.id : link.source;
+          var tid = typeof link.target === 'object' ? link.target.id : link.target;
+
+          var isHighlightEdge = hasHighlight && (sid === highlightedNodeId || tid === highlightedNodeId);
+          if (hasHighlight && !isHighlightEdge) {
+            ctx.globalAlpha = 0.03;
+          } else if (isHighlightEdge) {
+            ctx.globalAlpha = 0.6;
+          } else {
+            ctx.globalAlpha = 0.15;
+          }
+
+          ctx.beginPath();
+          ctx.moveTo(link.source.x, link.source.y);
+          ctx.lineTo(link.target.x, link.target.y);
+          var score = (typeof link.score === 'number') ? link.score : 50;
+          ctx.strokeStyle = isHighlightEdge ? '#5b8af5' : (score > 70 ? 'rgba(91,138,245,0.5)' : 'rgba(139,144,168,0.3)');
+          ctx.lineWidth = isHighlightEdge ? 1.5 : 0.5;
+          ctx.stroke();
+        });
+        ctx.globalAlpha = 1;
+      }
+
+      // Niche grouping (enclosing circles per niche)
+      if (showNiche.checked) {
+        var nicheGroups = {};
+        nodes.forEach(function(n) {
+          var niche = n.category || 'Unknown';
+          if (!nicheGroups[niche]) nicheGroups[niche] = [];
+          nicheGroups[niche].push(n);
+        });
+
+        Object.keys(nicheGroups).forEach(function(niche) {
+          var members = nicheGroups[niche];
+          if (members.length < 3) return;
+          if (hasNicheFilter && niche !== nicheFilter) return;
+          var color = nicheColors[niche] || '#555';
+          var cx = members.reduce(function(s, m) { return s + m.x; }, 0) / members.length;
+          var cy = members.reduce(function(s, m) { return s + m.y; }, 0) / members.length;
+          var maxDist = members.reduce(function(mx, m) {
+            var d = Math.sqrt(Math.pow(m.x - cx, 2) + Math.pow(m.y - cy, 2));
+            return Math.max(mx, d);
+          }, 0);
+          ctx.beginPath();
+          ctx.arc(cx, cy, maxDist + 20, 0, Math.PI * 2);
+          ctx.fillStyle = color + '08';
+          ctx.fill();
+          ctx.strokeStyle = color + '20';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        });
+      }
+
+      // Draw nodes
+      nodes.forEach(function(node) {
+        var r = getNodeRadius(node);
+        var color = getNodeColor(node, nicheColors);
+        var isHovered = hoveredNode && hoveredNode.id === node.id;
+        var isSelected = highlightedNodeId === node.id;
+        var isNeighbor = highlightedNeighbors && highlightedNeighbors.has(node.id);
+        var matchesNiche = !hasNicheFilter || node.category === nicheFilter;
+
+        // Dimming logic
+        if (hasHighlight && !isSelected && !isNeighbor) {
+          ctx.globalAlpha = 0.12;
+        } else if (hasNicheFilter && !matchesNiche) {
+          ctx.globalAlpha = 0.12;
+        } else {
+          ctx.globalAlpha = isHovered || isSelected ? 1 : 0.85;
+        }
+
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = isHovered || isSelected ? '#fff' : color;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Role ring
+        var role = node.role;
+        if (role && ROLE_COLORS[role] && role !== 'newcomer') {
+          var ringAlpha = (hasHighlight && !isSelected && !isNeighbor) ? 0.1 : 1;
+          ctx.globalAlpha = ringAlpha;
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, r + 2, 0, Math.PI * 2);
+          ctx.strokeStyle = ROLE_COLORS[role];
+          ctx.lineWidth = 2;
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+
+        // Enrichment indicator (dashed ring for un-enriched when zoomed in)
+        if (!node.enriched && node.degree > 0 && transform.k > 1.2) {
+          var eAlpha = (hasHighlight && !isSelected && !isNeighbor) ? 0.05 : 0.4;
+          ctx.globalAlpha = eAlpha;
+          ctx.beginPath();
+          ctx.setLineDash([3, 3]);
+          ctx.arc(node.x, node.y, r + 4, 0, Math.PI * 2);
+          ctx.strokeStyle = '#f06b6b';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.globalAlpha = 1;
+        }
+
+        // Labels
+        var showLabel = (r > 5 && transform.k > 1.5) || isSelected || isNeighbor;
+        if (showLabel && !(hasHighlight && !isSelected && !isNeighbor)) {
+          ctx.font = (isSelected ? 'bold 11px' : '9px') + ' Inter, sans-serif';
+          ctx.fillStyle = '#e4e6f0';
+          ctx.textAlign = 'center';
+          var label = (node.name || '').split(' ')[0];
+          if (label) {
+            ctx.fillText(label, node.x, node.y + r + 12);
+          }
+        }
+      });
+
+      ctx.restore();
+    }
+
+    currentDraw = draw;
+    showMatches.onchange = draw;
+    showNiche.onchange = draw;
+  }
+
+  var VIEW_DESCRIPTIONS = {
+    full: 'All profiles. Connected profiles cluster in the center, unconnected ones ring the outside. Click a node for details.',
+    connectors: 'Super Connectors (Hubs) — the 50 most-connected people. Partner with them for instant reach across the community.',
+    aggregators: 'Aggregators (Bridges) — people who link different niches together. They can introduce you to communities you wouldn\'t normally access.',
+  };
+
+  function updateViewDesc(viewName) {
+    document.getElementById('community-view-desc').textContent = VIEW_DESCRIPTIONS[viewName] || '';
+  }
+
+  // ---- Size toggle ----
+  document.querySelectorAll('#community-size-toggle button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#community-size-toggle button').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      sizeMode = this.dataset.size;
+      if (currentDraw) currentDraw();
+    });
+  });
+
+  // ---- Leaderboard + Unconnected toggles ----
+  document.getElementById('toggle-leaderboard').addEventListener('click', function() {
+    var el = document.getElementById('community-leaderboard');
+    var isVisible = el.classList.contains('visible');
+    el.classList.toggle('visible');
+    this.classList.toggle('active');
+    if (!isVisible) {
+      document.getElementById('community-unconnected').classList.remove('visible');
+      document.getElementById('toggle-unconnected').classList.remove('active');
+    }
+  });
+
+  document.getElementById('toggle-unconnected').addEventListener('click', function() {
+    var el = document.getElementById('community-unconnected');
+    var isVisible = el.classList.contains('visible');
+    el.classList.toggle('visible');
+    this.classList.toggle('active');
+    if (!isVisible) {
+      document.getElementById('community-leaderboard').classList.remove('visible');
+      document.getElementById('toggle-leaderboard').classList.remove('active');
+    }
+  });
+
+  // View switching
+  document.querySelectorAll('.community-nav button').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.community-nav button').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      currentView = this.dataset.view;
+      updateViewDesc(currentView);
+      closeDetailPanel();
+      highlightedNodeId = null;
+      highlightedNeighbors = null;
+      searchInput.value = '';
+      renderView(currentView);
+    });
+  });
+
+  // Init on tab switch
+  var origSwitchTab = window.switchTab || switchTab;
+  window.switchTab = function(name) {
+    origSwitchTab(name);
+    if (name === 'community') {
+      initCommunityGraph();
+      setTimeout(function() { renderView(currentView); }, 100);
+    }
+  };
+
+  // Handle resize
+  var resizeTimer;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+      if (document.getElementById('view-community').classList.contains('active')) {
+        renderView(currentView);
+      }
+    }, 200);
+  });
+})();
+</script>
+</body>
+</html>

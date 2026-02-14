@@ -33,6 +33,7 @@ django.setup()
 import psycopg2
 from psycopg2.extras import RealDictCursor, execute_batch
 from dotenv import load_dotenv
+from matching.enrichment import VerificationGate, GateStatus
 
 load_dotenv()
 
@@ -49,6 +50,9 @@ class SafeEnrichmentPipeline:
         self.dry_run = dry_run
         self.batch_size = batch_size
 
+        # Verification gate (Layer 1 only — no AI, no raw_content in this pipeline)
+        self.gate = VerificationGate(enable_ai_verification=False)
+
         self.stats = {
             'total': 0,
             'enriched': 0,
@@ -57,8 +61,20 @@ class SafeEnrichmentPipeline:
             'linkedin_scrape': 0,
             'apollo_api': 0,
             'failed': 0,
-            'time_taken': 0
+            'time_taken': 0,
+            'gate_verified': 0,
+            'gate_unverified': 0,
+            'gate_quarantined': 0,
         }
+
+    def _ensure_quarantine_dir(self) -> str:
+        """Ensure quarantine directory exists and return path."""
+        quarantine_dir = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            'enrichment_batches', 'quarantine'
+        )
+        os.makedirs(quarantine_dir, exist_ok=True)
+        return quarantine_dir
 
     def get_profiles_to_enrich(self, limit=20, priority='high-value') -> List[Dict]:
         """Get profiles needing enrichment"""
@@ -434,12 +450,17 @@ class SafeEnrichmentPipeline:
         print(f"  Apollo API:        {self.stats['apollo_api']} (verified by Apollo)")
         print()
         print("✅ All emails are VERIFIED (no guessing)")
+        print()
+        print("Verification gate:")
+        print(f"  Verified:     {self.stats['gate_verified']} (full confidence)")
+        print(f"  Unverified:   {self.stats['gate_unverified']} (reduced confidence)")
+        print(f"  Quarantined:  {self.stats['gate_quarantined']} (not written)")
 
         if self.stats['apollo_api'] > 0:
             print(f"\n💰 Apollo cost: ${self.stats['apollo_api'] * 0.10:.2f}")
 
     async def consolidate_to_supabase_batch(self, results: List[Dict]):
-        """Batch consolidate to Supabase"""
+        """Batch consolidate to Supabase with verification gate."""
         from matching.enrichment.confidence.confidence_scorer import ConfidenceScorer
 
         scorer = ConfidenceScorer()
@@ -453,15 +474,53 @@ class SafeEnrichmentPipeline:
         }
 
         updates = []
+        quarantined_records = []
+
         for result in results:
             profile_id = result['profile_id']
             email = result['email']
             method = result['method']
             enriched_at = datetime.fromisoformat(result['enriched_at'])
 
+            # Run through verification gate (Layer 1 only — no raw_content in scraping pipeline)
+            profile_data = {
+                'email': email,
+                'name': result.get('name', ''),
+                'company': result.get('company', ''),
+            }
+            verdict = self.gate.evaluate(
+                data=profile_data,
+                raw_content=None,
+                extraction_metadata=None,
+            )
+
+            # Apply auto-fixes (e.g. clear placeholder, fix URL scheme)
+            fixed_data = VerificationGate.apply_fixes(profile_data, verdict)
+            email = fixed_data.get('email', email)
+
+            if verdict.status == GateStatus.QUARANTINED:
+                quarantined_records.append({
+                    'profile_id': profile_id,
+                    'name': result.get('name', ''),
+                    'email': result['email'],
+                    'method': method,
+                    'issues': verdict.issues_summary,
+                    'failed_fields': verdict.failed_fields,
+                    'timestamp': datetime.now().isoformat(),
+                })
+                self.stats['gate_quarantined'] += 1
+                continue
+
             source = source_map.get(method, 'unknown')
-            confidence = scorer.calculate_confidence('email', source, enriched_at)
+            base_confidence = scorer.calculate_confidence('email', source, enriched_at)
             confidence_expires_at = scorer.calculate_expires_at('email', enriched_at)
+
+            if verdict.status == GateStatus.VERIFIED:
+                confidence = base_confidence
+                self.stats['gate_verified'] += 1
+            else:  # UNVERIFIED
+                confidence = base_confidence * verdict.overall_confidence
+                self.stats['gate_unverified'] += 1
 
             email_metadata = {
                 'source': source,
@@ -471,7 +530,9 @@ class SafeEnrichmentPipeline:
                 'confidence_expires_at': confidence_expires_at.isoformat(),
                 'verification_count': 1 if method == 'apollo_api' else 0,
                 'enrichment_method': method,
-                'verified': True  # All methods are verified
+                'verified': True,
+                'verification_status': verdict.status.value,
+                'verification_confidence': verdict.overall_confidence,
             }
 
             updates.append((
@@ -483,25 +544,41 @@ class SafeEnrichmentPipeline:
                 profile_id
             ))
 
-        execute_batch(cursor, """
-            UPDATE profiles
-            SET email = %s,
-                enrichment_metadata = jsonb_set(
-                    COALESCE(enrichment_metadata, '{}'::jsonb),
-                    '{email}',
-                    %s::jsonb
-                ),
-                profile_confidence = %s,
-                last_enriched_at = %s,
-                updated_at = %s
-            WHERE id = %s
-        """, updates)
+        if updates:
+            execute_batch(cursor, """
+                UPDATE profiles
+                SET email = %s,
+                    enrichment_metadata = jsonb_set(
+                        COALESCE(enrichment_metadata, '{}'::jsonb),
+                        '{email}',
+                        %s::jsonb
+                    ),
+                    profile_confidence = %s,
+                    last_enriched_at = %s,
+                    updated_at = %s
+                WHERE id = %s
+            """, updates)
+            conn.commit()
 
-        conn.commit()
         cursor.close()
         conn.close()
 
-        print(f"✅ Batch updated {len(updates)} profiles with VERIFIED emails")
+        # Write quarantined profiles to JSONL for later retry (A6)
+        if quarantined_records and not self.dry_run:
+            quarantine_dir = self._ensure_quarantine_dir()
+            quarantine_file = os.path.join(
+                quarantine_dir,
+                f"quarantine_{datetime.now().strftime('%Y%m%d')}.jsonl"
+            )
+            with open(quarantine_file, 'a', encoding='utf-8') as f:
+                for record in quarantined_records:
+                    f.write(json.dumps(record) + '\n')
+
+        # Summary
+        print(f"\n  Gate: {self.stats['gate_verified']} verified, "
+              f"{self.stats['gate_unverified']} unverified, "
+              f"{self.stats['gate_quarantined']} quarantined")
+        print(f"  Batch updated {len(updates)} profiles to Supabase")
 
 
 def main():
