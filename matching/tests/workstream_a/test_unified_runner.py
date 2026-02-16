@@ -126,13 +126,11 @@ class TestPass1Delegation:
     """pass1_unenriched delegates to SafeEnrichmentPipeline."""
 
     def test_pass1_creates_pipeline(self, runner):
-        with patch('scripts.run_enrichment.SafeEnrichmentPipeline') as MockPipeline:
+        with patch('scripts.automated_enrichment_pipeline_safe.SafeEnrichmentPipeline') as MockPipeline:
             mock_instance = MockPipeline.return_value
             mock_instance.get_profiles_to_enrich.return_value = []
 
-            # Override the import inside pass1
-            with patch.dict('sys.modules', {}):
-                runner.pass1_unenriched()
+            runner.pass1_unenriched()
 
             # In dry_run mode with no profiles, should just print and return
             assert runner.stats['pass1_processed'] == 0
@@ -247,12 +245,11 @@ class TestStatsAccumulation:
         assert runner.stats['pass3_refreshed'] == 0
 
         # Run pass1 (no profiles found)
-        with patch('scripts.run_enrichment.SafeEnrichmentPipeline') as MockPipeline:
+        with patch('scripts.automated_enrichment_pipeline_safe.SafeEnrichmentPipeline') as MockPipeline:
             mock_inst = MockPipeline.return_value
             mock_inst.get_profiles_to_enrich.return_value = []
 
-            with patch.dict('sys.modules', {}):
-                runner.pass1_unenriched()
+            runner.pass1_unenriched()
 
         # Run pass3 (1 stale profile found)
         with patch('scripts.run_enrichment.psycopg2') as mock_pg:

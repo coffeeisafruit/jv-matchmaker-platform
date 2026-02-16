@@ -331,6 +331,63 @@ class MatchEnrichmentService:
     # LLM MATCH EXPLANATIONS (B2) — Generate + Verify + Fallback
     # =========================================================================
 
+    @staticmethod
+    def _format_jv_history(jv_history) -> str:
+        """Format jv_history list into readable text.
+
+        Args:
+            jv_history: List of dicts with keys: partner_name, format, source_quote.
+
+        Returns:
+            Formatted string, e.g. "Podcast guest with John Smith, Bundle with Acme Corp"
+            or "No disclosed partnerships" if empty/None.
+        """
+        if not jv_history or not isinstance(jv_history, list):
+            return "No disclosed partnerships"
+
+        parts = []
+        for entry in jv_history:
+            if not isinstance(entry, dict):
+                continue
+            fmt = entry.get('format', 'Partnership')
+            partner = entry.get('partner_name', 'Unknown')
+            parts.append(f"{fmt} with {partner}")
+
+        return ", ".join(parts) if parts else "No disclosed partnerships"
+
+    @staticmethod
+    def _format_content_platforms(content_platforms) -> str:
+        """Format content_platforms dict into readable text.
+
+        Args:
+            content_platforms: Dict with keys like podcast_name, youtube_channel,
+                instagram_handle, facebook_group, tiktok_handle, newsletter_name.
+
+        Returns:
+            Formatted string listing non-empty platforms, e.g.
+            "Podcast: The Marketing Show, YouTube: @handle"
+            or "Not specified" if empty/None.
+        """
+        if not content_platforms or not isinstance(content_platforms, dict):
+            return "Not specified"
+
+        label_map = {
+            'podcast_name': 'Podcast',
+            'youtube_channel': 'YouTube',
+            'instagram_handle': 'Instagram',
+            'facebook_group': 'Facebook Group',
+            'tiktok_handle': 'TikTok',
+            'newsletter_name': 'Newsletter',
+        }
+
+        parts = []
+        for key, label in label_map.items():
+            value = content_platforms.get(key)
+            if value:
+                parts.append(f"{label}: {value}")
+
+        return ", ".join(parts) if parts else "Not specified"
+
     def _build_enriched_context(self, profile: dict) -> str:
         """Build enriched context from all available data beyond structured fields."""
         parts = []
@@ -344,6 +401,26 @@ class MatchEnrichmentService:
             tags = profile['tags'] if isinstance(profile['tags'], list) else []
             if tags:
                 parts.append(f"Keywords/tags: {', '.join(tags)}")
+
+        # New enrichment fields (safe access for older profiles)
+        revenue_tier = profile.get('revenue_tier') if isinstance(profile, dict) else getattr(profile, 'revenue_tier', None)
+        if revenue_tier:
+            parts.append(f"Revenue tier: {revenue_tier}")
+
+        jv_history = profile.get('jv_history') if isinstance(profile, dict) else getattr(profile, 'jv_history', None)
+        formatted_jv = self._format_jv_history(jv_history)
+        if formatted_jv != "No disclosed partnerships":
+            parts.append(f"Past JV partnerships: {formatted_jv}")
+
+        content_platforms = profile.get('content_platforms') if isinstance(profile, dict) else getattr(profile, 'content_platforms', None)
+        formatted_platforms = self._format_content_platforms(content_platforms)
+        if formatted_platforms != "Not specified":
+            parts.append(f"Content platforms: {formatted_platforms}")
+
+        audience_engagement_score = profile.get('audience_engagement_score') if isinstance(profile, dict) else getattr(profile, 'audience_engagement_score', None)
+        if audience_engagement_score is not None:
+            parts.append(f"Audience engagement score: {audience_engagement_score}")
+
         if not parts:
             return "--- Additional Context ---\nNo enriched data available. Analysis based on profile fields only."
         return "--- Additional Context (from enrichment) ---\n" + "\n".join(parts)
@@ -371,6 +448,10 @@ class MatchEnrichmentService:
             f"Seeking: {self.client.get('seeking', '')}\n"
             f"Offering: {self.client.get('offering', '')}\n"
             f"Audience size: {self.client.get('list_size', '')}\n"
+            f"Revenue tier: {self.client.get('revenue_tier') or 'Not disclosed'}\n"
+            f"Past JV partnerships: {self._format_jv_history(self.client.get('jv_history'))}\n"
+            f"Content platforms: {self._format_content_platforms(self.client.get('content_platforms'))}\n"
+            f"Audience engagement: {self.client.get('audience_engagement_score') or 'Unknown'}\n"
             f"{client_context}\n\n"
             f"=== PARTNER B (the match) ===\n"
             f"Name: {partner_profile.get('name', '')}\n"
@@ -379,11 +460,20 @@ class MatchEnrichmentService:
             f"Seeking: {partner_profile.get('seeking', '')}\n"
             f"Offering: {partner_profile.get('offering', '')}\n"
             f"Audience size: {partner_profile.get('list_size', '')}\n"
+            f"Revenue tier: {partner_profile.get('revenue_tier') or 'Not disclosed'}\n"
+            f"Past JV partnerships: {self._format_jv_history(partner_profile.get('jv_history'))}\n"
+            f"Content platforms: {self._format_content_platforms(partner_profile.get('content_platforms'))}\n"
+            f"Audience engagement: {partner_profile.get('audience_engagement_score') or 'Unknown'}\n"
             f"{partner_context}\n\n"
             "=== INSTRUCTIONS ===\n\n"
             "Analyze the mutual value of this partnership. Include BOTH:\n"
             "- Clear, obvious connections (audience overlap, complementary offerings, direct need/offer matches)\n"
             "- Non-obvious insights (unexpected synergies, strategic positioning opportunities, timing advantages, audience psychology connections)\n\n"
+            "When analyzing partnership fit, also consider:\n"
+            "- Revenue tier alignment (similar pricing = similar customer base)\n"
+            "- Past JV history (experienced JV partners are lower-risk)\n"
+            "- Content platform overlap (shared platforms = easier cross-promotion)\n"
+            "- Specific partnership formats they've done before (podcast swaps, bundles, affiliates)\n\n"
             "For each claim, reference ONLY data explicitly present in the profiles above. "
             "If a field is empty or missing, do not invent information for it. "
             'If you must make a reasonable inference, explicitly label it as "[inferred from: field_name]".\n\n'
@@ -501,6 +591,10 @@ class MatchEnrichmentService:
             f"Seeking: {self.client.get('seeking', '')}\n"
             f"Offering: {self.client.get('offering', '')}\n"
             f"Audience size: {self.client.get('list_size', '')}\n"
+            f"Revenue tier: {self.client.get('revenue_tier') or 'Not disclosed'}\n"
+            f"Past JV partnerships: {self._format_jv_history(self.client.get('jv_history'))}\n"
+            f"Content platforms: {self._format_content_platforms(self.client.get('content_platforms'))}\n"
+            f"Audience engagement: {self.client.get('audience_engagement_score') or 'Unknown'}\n"
             f"{client_context}\n\n"
             f"=== PARTNER B (the match) ===\n"
             f"Name: {partner_profile.get('name', '')}\n"
@@ -509,6 +603,10 @@ class MatchEnrichmentService:
             f"Seeking: {partner_profile.get('seeking', '')}\n"
             f"Offering: {partner_profile.get('offering', '')}\n"
             f"Audience size: {partner_profile.get('list_size', '')}\n"
+            f"Revenue tier: {partner_profile.get('revenue_tier') or 'Not disclosed'}\n"
+            f"Past JV partnerships: {self._format_jv_history(partner_profile.get('jv_history'))}\n"
+            f"Content platforms: {self._format_content_platforms(partner_profile.get('content_platforms'))}\n"
+            f"Audience engagement: {partner_profile.get('audience_engagement_score') or 'Unknown'}\n"
             f"{partner_context}"
         )
 

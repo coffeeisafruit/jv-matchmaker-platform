@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Profile · {{ report.company_name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --cream: #faf8f5; --ink: #1a1a1a; --forest: #1e3a2f; --gold: #c9a962; --gold-light: #e8d5a8; --muted: #8b8680; --blush: #f4e8e1; --card: #ffffff; --error: #c0392b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+        .container { max-width: 520px; margin: 0 auto; padding: 24px 20px 80px; position: relative; }
+        .back-link { display: inline-block; font-size: 13px; color: var(--muted); text-decoration: none; margin-bottom: 12px; }
+        .back-link:hover { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .header { text-align: center; padding: 16px 0 24px; border-bottom: 1px solid var(--gold-light); margin-bottom: 32px; }
+        .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 500; color: var(--forest); letter-spacing: -0.02em; }
+        .header-meta { margin-top: 8px; font-size: 13px; color: var(--muted); }
+        .section { background: var(--card); border-radius: 8px; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; }
+        .section-header { padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--gold-light); background: var(--cream); }
+        .section-title { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 500; color: var(--forest); }
+        .section-body { padding: 1.25rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group:last-child { margin-bottom: 0; }
+        .form-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.375rem; font-weight: 500; }
+        .form-group input,
+        .form-group textarea,
+        .form-group select { transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-group input:focus,
+        .form-group textarea:focus { outline: none; border-color: var(--forest); box-shadow: 0 0 0 2px rgba(30, 58, 47, 0.12); }
+        .form-group textarea { resize: vertical; }
+        .form-group .help-text { font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem; }
+        .errorlist { list-style: none; margin: 0.25rem 0 0; padding: 0; }
+        .errorlist li { font-size: 0.75rem; color: var(--error); }
+        .messages { margin-bottom: 1.25rem; }
+        .messages .message { padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.875rem; margin-bottom: 0.5rem; }
+        .messages .error { background: #fde8e8; color: var(--error); border: 1px solid #f5c6c6; }
+        .messages .success { background: #e8f5e9; color: #1b5e20; border: 1px solid #c8e6c9; }
+        .btn-submit { display: block; width: 100%; padding: 0.875rem; background: var(--forest); color: var(--gold); border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; cursor: pointer; letter-spacing: 0.02em; transition: opacity 0.2s; }
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-cancel { display: block; text-align: center; margin-top: 0.75rem; font-size: 0.875rem; color: var(--muted); text-decoration: none; }
+        .btn-cancel:hover { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .footer { border-top: 1px solid var(--gold-light); padding: 1.5rem; text-align: center; font-size: 0.75rem; color: var(--muted); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'matching:report-profile' report.id %}" class="back-link">&#8592; Back to Profile</a>
+        <header class="header">
+            <div class="header-eyebrow">Edit Profile</div>
+            <h1>{{ report.member_name }}</h1>
+            <div class="header-meta">Update your profile information below</div>
+        </header>
+
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            <!-- Identity -->
+            <div class="section">
+                <div class="section-header"><span class="section-title">Identity</span></div>
+                <div class="section-body">
+                    <div class="form-group">
+                        <label for="id_name">{{ form.name.label }}</label>
+                        {{ form.name }}
+                        {{ form.name.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_company">{{ form.company.label }}</label>
+                        {{ form.company }}
+                        {{ form.company.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_email">{{ form.email.label }}</label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_phone">{{ form.phone.label }}</label>
+                        {{ form.phone }}
+                        {{ form.phone.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Online Presence -->
+            <div class="section">
+                <div class="section-header"><span class="section-title">Online Presence</span></div>
+                <div class="section-body">
+                    <div class="form-group">
+                        <label for="id_website">{{ form.website.label }}</label>
+                        {{ form.website }}
+                        {{ form.website.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_linkedin">{{ form.linkedin.label }}</label>
+                        {{ form.linkedin }}
+                        {{ form.linkedin.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_booking_link">{{ form.booking_link.label }}</label>
+                        {{ form.booking_link }}
+                        <div class="help-text">Calendly, Acuity, or other scheduling link</div>
+                        {{ form.booking_link.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Profile -->
+            <div class="section">
+                <div class="section-header"><span class="section-title">Business Profile</span></div>
+                <div class="section-body">
+                    <div class="form-group">
+                        <label for="id_what_you_do">{{ form.what_you_do.label }}</label>
+                        {{ form.what_you_do }}
+                        <div class="help-text">A clear description of your business or service</div>
+                        {{ form.what_you_do.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_who_you_serve">{{ form.who_you_serve.label }}</label>
+                        {{ form.who_you_serve }}
+                        <div class="help-text">Your ideal client or target audience</div>
+                        {{ form.who_you_serve.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_niche">{{ form.niche.label }}</label>
+                        {{ form.niche }}
+                        {{ form.niche.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_offering">{{ form.offering.label }}</label>
+                        {{ form.offering }}
+                        <div class="help-text">What you can offer to potential JV partners</div>
+                        {{ form.offering.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_seeking">{{ form.seeking.label }}</label>
+                        {{ form.seeking }}
+                        <div class="help-text">The types of partnerships or collaborations you want</div>
+                        {{ form.seeking.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- About You -->
+            <div class="section">
+                <div class="section-header"><span class="section-title">About You</span></div>
+                <div class="section-body">
+                    <div class="form-group">
+                        <label for="id_bio">{{ form.bio.label }}</label>
+                        {{ form.bio }}
+                        {{ form.bio.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_social_proof">{{ form.social_proof.label }}</label>
+                        {{ form.social_proof }}
+                        <div class="help-text">Awards, bestseller status, media appearances, certifications</div>
+                        {{ form.social_proof.errors }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_signature_programs">{{ form.signature_programs.label }}</label>
+                        {{ form.signature_programs }}
+                        <div class="help-text">Named courses, books, or frameworks you've created</div>
+                        {{ form.signature_programs.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reach -->
+            <div class="section">
+                <div class="section-header"><span class="section-title">Reach</span></div>
+                <div class="section-body">
+                    <div class="form-group">
+                        <label for="id_list_size">{{ form.list_size.label }}</label>
+                        {{ form.list_size }}
+                        <div class="help-text">Total email subscribers</div>
+                        {{ form.list_size.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Save Changes</button>
+            <a href="{% url 'matching:report-profile' report.id %}" class="btn-cancel">Cancel</a>
+        </form>
+
+        <div class="footer">
+            {{ report.company_name }} &middot; Edit Profile
+        </div>
+    </div>
+</body>
+</html>

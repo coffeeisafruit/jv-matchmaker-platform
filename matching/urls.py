@@ -37,6 +37,14 @@ urlpatterns = [
     path('calculate/bulk/', views.CalculateBulkMatchView.as_view(), name='calculate-bulk'),
     path('calculate/recalculate-all/', views.RecalculateAllMatchesView.as_view(), name='recalculate-all'),
 
+    # Member Reports (code-gated, no login required)
+    path('report/', views.ReportAccessView.as_view(), name='report-access'),
+    path('report/<int:report_id>/', views.ReportHubView.as_view(), name='report-hub'),
+    path('report/<int:report_id>/outreach/', views.ReportOutreachView.as_view(), name='report-outreach'),
+    path('report/<int:report_id>/profile/', views.ReportProfileView.as_view(), name='report-profile'),
+    path('report/<int:report_id>/profile/edit/', views.ReportProfileEditView.as_view(), name='report-profile-edit'),
+    path('report/<int:report_id>/profile/confirm/', views.ReportProfileConfirmView.as_view(), name='report-profile-confirm'),
+
     # Demo (promotional mock, no login)
     path('demo/', views.DemoReportView.as_view(), name='demo-report'),
     path('demo/outreach/', views.DemoOutreachView.as_view(), name='demo-outreach'),

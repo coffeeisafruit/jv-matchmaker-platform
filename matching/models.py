@@ -17,6 +17,7 @@ class SupabaseProfile(models.Model):
     auth_user_id = models.UUIDField(null=True, blank=True)
     name = models.TextField()
     email = models.TextField(null=True, blank=True)
+    secondary_emails = ArrayField(models.TextField(), default=list, blank=True)
     phone = models.TextField(null=True, blank=True)
     company = models.TextField(null=True, blank=True)
     website = models.TextField(null=True, blank=True)
@@ -57,6 +58,12 @@ class SupabaseProfile(models.Model):
     betweenness_centrality = models.FloatField(null=True, blank=True)
     network_role = models.CharField(max_length=50, null=True, blank=True)
     centrality_updated_at = models.DateTimeField(null=True, blank=True)
+
+    # Enrichment: Revenue, JV history, content platforms, engagement
+    revenue_tier = models.CharField(max_length=20, null=True, blank=True)  # micro, emerging, established, premium, enterprise
+    jv_history = models.JSONField(null=True, blank=True)  # [{partner_name, format, source_quote}]
+    content_platforms = models.JSONField(null=True, blank=True)  # {podcast_name, youtube_channel, instagram_handle, ...}
+    audience_engagement_score = models.FloatField(null=True, blank=True)  # 0.0-1.0
 
     # Recommendation pressure
     recommendation_pressure_30d = models.IntegerField(null=True, blank=True)
@@ -536,3 +543,137 @@ class MatchLearningSignal(models.Model):
 
     def __str__(self):
         return f"Signal: {self.signal_type} → {self.outcome} (match #{self.match_id})"
+
+
+# =============================================================================
+# MEMBER REPORT MODELS (Access-coded monthly partner reports)
+# =============================================================================
+
+class MemberReport(models.Model):
+    """
+    A monthly partner report for a paying member ($100/month tier).
+    Accessed via unique code — no platform login required.
+    """
+    member_name = models.CharField(max_length=255)
+    member_email = models.EmailField()
+    company_name = models.CharField(max_length=255)
+
+    # Access control
+    access_code = models.CharField(max_length=20, unique=True, db_index=True)
+    month = models.DateField(help_text='First day of the month this report covers')
+    expires_at = models.DateTimeField(help_text='When this access code stops working')
+    is_active = models.BooleanField(default=True)
+
+    # Client profile data (rendered on the Client Profile page)
+    client_profile = models.JSONField(
+        default=dict,
+        help_text='Client one-pager data matching DEMO_PROFILE structure'
+    )
+
+    # Optional FK to source profile in the directory
+    supabase_profile = models.ForeignKey(
+        SupabaseProfile, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='member_reports'
+    )
+
+    # Outreach email templates (rendered in the template modal)
+    outreach_templates = models.JSONField(
+        default=dict,
+        help_text='{"initial": {"title": "...", "text": "..."}, "followup": {"title": "...", "text": "..."}}'
+    )
+
+    # Optional launch date for countdown timer
+    launch_date = models.DateTimeField(null=True, blank=True)
+
+    # Footer text (e.g., commission info)
+    footer_text = models.CharField(max_length=500, blank=True)
+
+    # Tracking
+    last_accessed_at = models.DateTimeField(null=True, blank=True)
+    access_count = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-month', '-created_at']
+        verbose_name = 'Member Report'
+        verbose_name_plural = 'Member Reports'
+
+    def __str__(self):
+        return f"{self.member_name} - {self.month.strftime('%B %Y')}"
+
+    @property
+    def is_expired(self):
+        from django.utils import timezone
+        return timezone.now() > self.expires_at
+
+    @property
+    def is_accessible(self):
+        return self.is_active and not self.is_expired
+
+    @property
+    def is_stale(self):
+        """Report is stale if older than 30 days."""
+        from django.utils import timezone
+        return (timezone.now() - self.created_at).days >= 30
+
+
+class ReportPartner(models.Model):
+    """
+    A partner included in a member's monthly report.
+    Stores a snapshot of partner data at report generation time.
+    """
+    report = models.ForeignKey(
+        MemberReport, on_delete=models.CASCADE, related_name='partners'
+    )
+
+    # Display order and section
+    rank = models.IntegerField(default=0)
+    section = models.CharField(
+        max_length=20,
+        help_text='priority, this_week, low_priority, jv_programs'
+    )
+    section_label = models.CharField(max_length=100, blank=True)
+    section_note = models.CharField(max_length=200, blank=True)
+
+    # Partner identity
+    name = models.CharField(max_length=255)
+    company = models.CharField(max_length=255, blank=True)
+    tagline = models.CharField(max_length=500, blank=True)
+
+    # Contact info (TextField, not URLField — Supabase data is messy)
+    email = models.TextField(blank=True)
+    website = models.TextField(blank=True)
+    phone = models.CharField(max_length=50, blank=True)
+    linkedin = models.TextField(blank=True)
+    apply_url = models.TextField(blank=True, help_text='For JV Programs with application links')
+    schedule = models.TextField(blank=True)
+
+    # Display fields
+    badge = models.CharField(max_length=50, blank=True)
+    badge_style = models.CharField(
+        max_length=20, default='fit',
+        help_text='priority, fit, or warn'
+    )
+    list_size = models.CharField(max_length=20, blank=True, help_text='Display format: 295K, 91K')
+    audience = models.TextField(blank=True, help_text='Audience description for expanded view')
+    why_fit = models.TextField(blank=True)
+    detail_note = models.TextField(blank=True, help_text='Italic note below why-fit')
+    tags = models.JSONField(
+        default=list,
+        help_text='[{"label": "Women", "style": "fit"}, {"label": "Active JV", "style": "priority"}]'
+    )
+
+    # Score and traceability
+    match_score = models.FloatField(null=True, blank=True)
+    source_profile = models.ForeignKey(
+        SupabaseProfile, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='report_appearances'
+    )
+
+    class Meta:
+        ordering = ['report', 'section', 'rank']
+        verbose_name = 'Report Partner'
+        verbose_name_plural = 'Report Partners'
+
+    def __str__(self):
+        return f"{self.name} (in {self.report})"

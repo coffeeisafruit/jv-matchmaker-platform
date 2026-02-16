@@ -6,6 +6,7 @@ Provides profile management, match listing, and score calculation endpoints.
 
 import csv
 import io
+import time
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -25,7 +26,7 @@ from django.views.generic import (
 )
 
 from .forms import ProfileForm, ProfileImportForm, MatchStatusForm
-from .models import Match, Profile, SupabaseProfile, SupabaseMatch
+from .models import Match, MemberReport, Profile, SupabaseProfile, SupabaseMatch
 from .services import MatchScoringService, PartnershipAnalyzer
 from positioning.models import ICP, TransformationAnalysis
 
@@ -822,3 +823,308 @@ class DemoReportView(TemplateView):
     /matching/demo/ with links to Outreach and Client Profile.
     """
     template_name = 'matching/demo_report.html'
+
+
+# =============================================================================
+# MEMBER REPORTS (access-coded, no login required)
+# =============================================================================
+
+class ReportAccessMixin:
+    """Mixin that verifies session-based report access."""
+
+    def get_report_or_redirect(self, request, report_id):
+        from .models import MemberReport
+        report = get_object_or_404(MemberReport, id=report_id)
+        if not request.session.get(f'report_access_{report.id}'):
+            return None, redirect('matching:report-access')
+        if not report.is_accessible:
+            return None, redirect('matching:report-access')
+        return report, None
+
+
+class ReportAccessView(View):
+    """
+    Code-gated entry point for member reports.
+    No login required -- members authenticate via access code.
+    """
+
+    def get(self, request):
+        return render(request, 'matching/report_access.html')
+
+    def post(self, request):
+        code = request.POST.get('code', '').strip().upper()
+
+        # --- Rate limiting: 5 attempts per 15 minutes via session ---
+        now = time.time()
+        attempts = request.session.get('report_access_attempts', [])
+        # Prune attempts older than 15 minutes
+        window = 15 * 60
+        attempts = [t for t in attempts if now - t < window]
+
+        if len(attempts) >= 5:
+            messages.error(
+                request,
+                'Too many attempts. Please wait 15 minutes before trying again.',
+            )
+            return render(request, 'matching/report_access.html')
+
+        attempts.append(now)
+        request.session['report_access_attempts'] = attempts
+
+        # --- Look up the report ---
+        try:
+            report = MemberReport.objects.get(access_code=code)
+        except MemberReport.DoesNotExist:
+            messages.error(request, 'Invalid access code.')
+            return render(request, 'matching/report_access.html')
+
+        if not report.is_accessible:
+            messages.error(request, 'This report is no longer accessible.')
+            return render(request, 'matching/report_access.html')
+
+        # --- Grant access ---
+        request.session[f'report_access_{report.id}'] = True
+
+        # Update tracking fields
+        from django.utils import timezone
+        report.last_accessed_at = timezone.now()
+        report.access_count += 1
+        report.save(update_fields=['last_accessed_at', 'access_count'])
+
+        return redirect('matching:report-hub', report_id=report.id)
+
+
+class ReportHubView(ReportAccessMixin, View):
+    """
+    Report landing page showing navigation links for a member report.
+    No login required -- access is verified via session.
+    """
+
+    def get(self, request, report_id):
+        report, error_redirect = self.get_report_or_redirect(request, report_id)
+        if error_redirect:
+            return error_redirect
+        return render(request, 'matching/report_hub.html', {'report': report})
+
+
+class ReportOutreachView(ReportAccessMixin, View):
+    """
+    Partner outreach list grouped by section.
+    No login required -- access is verified via session.
+    """
+
+    def get(self, request, report_id):
+        report, error_redirect = self.get_report_or_redirect(request, report_id)
+        if error_redirect:
+            return error_redirect
+
+        partners = report.partners.all()
+
+        sections = []
+        for section_key in ['priority', 'this_week', 'low_priority', 'jv_programs']:
+            section_partners = partners.filter(section=section_key)
+            if section_partners.exists():
+                first = section_partners.first()
+                sections.append({
+                    'key': section_key,
+                    'label': first.section_label or section_key.replace('_', ' ').title(),
+                    'note': first.section_note or '',
+                    'partners': section_partners,
+                })
+
+        context = {
+            'report': report,
+            'sections': sections,
+            'total_partners': partners.count(),
+        }
+        return render(request, 'matching/report_outreach.html', context)
+
+
+class ReportProfileView(ReportAccessMixin, View):
+    """
+    Client profile one-pager derived from live SupabaseProfile data.
+    Falls back to report.client_profile JSON if no linked profile.
+    No login required -- access is verified via session.
+    """
+
+    def get(self, request, report_id):
+        report, error_redirect = self.get_report_or_redirect(request, report_id)
+        if error_redirect:
+            return error_redirect
+
+        sp = report.supabase_profile
+        if sp:
+            context = _build_profile_context(sp, report)
+        else:
+            context = {**report.client_profile, 'report': report}
+        return render(request, 'matching/report_profile.html', context)
+
+
+class ReportProfileEditView(ReportAccessMixin, View):
+    """
+    Edit form for client profile fields on SupabaseProfile.
+    Stamps changed fields with client_ingest provenance.
+    """
+
+    def get(self, request, report_id):
+        report, error_redirect = self.get_report_or_redirect(request, report_id)
+        if error_redirect:
+            return error_redirect
+
+        sp = report.supabase_profile
+        if not sp:
+            messages.info(request, 'No linked profile available to edit.')
+            return redirect('matching:report-profile', report_id=report.id)
+
+        from .forms import ClientProfileForm
+        form = ClientProfileForm(instance=sp)
+        return render(request, 'matching/report_profile_edit.html', {
+            'report': report,
+            'form': form,
+        })
+
+    def post(self, request, report_id):
+        report, error_redirect = self.get_report_or_redirect(request, report_id)
+        if error_redirect:
+            return error_redirect
+
+        sp = report.supabase_profile
+        if not sp:
+            messages.info(request, 'No linked profile available to edit.')
+            return redirect('matching:report-profile', report_id=report.id)
+
+        from .forms import ClientProfileForm
+        from django.utils import timezone
+
+        form = ClientProfileForm(request.POST, instance=sp)
+        if form.is_valid():
+            sp = form.save(commit=False)
+
+            # Stamp provenance on changed fields
+            now = timezone.now()
+            meta = sp.enrichment_metadata or {}
+            field_meta = meta.get('field_meta', {})
+            for field_name in form.changed_data:
+                field_meta[field_name] = {
+                    'source': 'client_ingest',
+                    'updated_at': now.isoformat(),
+                }
+            meta['field_meta'] = field_meta
+            sp.enrichment_metadata = meta
+            sp.save()
+
+            messages.success(request, 'Profile updated. Review and confirm your changes.')
+            return redirect('matching:report-profile', report_id=report.id)
+
+        return render(request, 'matching/report_profile_edit.html', {
+            'report': report,
+            'form': form,
+        })
+
+
+class ReportProfileConfirmView(ReportAccessMixin, View):
+    """
+    Upgrades client_ingest fields to client_confirmed (priority 100).
+    After confirmation, no AI enrichment can overwrite these fields.
+    """
+
+    def post(self, request, report_id):
+        report, error_redirect = self.get_report_or_redirect(request, report_id)
+        if error_redirect:
+            return error_redirect
+
+        sp = report.supabase_profile
+        if not sp:
+            messages.info(request, 'No linked profile to confirm.')
+            return redirect('matching:report-profile', report_id=report.id)
+
+        from django.utils import timezone
+        now = timezone.now()
+
+        meta = sp.enrichment_metadata or {}
+        field_meta = meta.get('field_meta', {})
+        confirmed_count = 0
+        for field_name, info in field_meta.items():
+            if info.get('source') == 'client_ingest':
+                info['source'] = 'client_confirmed'
+                info['updated_at'] = now.isoformat()
+                confirmed_count += 1
+
+        meta['field_meta'] = field_meta
+        sp.enrichment_metadata = meta
+        sp.save(update_fields=['enrichment_metadata'])
+
+        if confirmed_count:
+            messages.success(request, f'{confirmed_count} field(s) confirmed. Your data is now protected from AI updates.')
+        else:
+            messages.info(request, 'No pending changes to confirm.')
+        return redirect('matching:report-profile', report_id=report.id)
+
+
+# ---------------------------------------------------------------------------
+# Report profile helpers
+# ---------------------------------------------------------------------------
+
+def _build_profile_context(sp, report):
+    """Build template context from live SupabaseProfile data."""
+    name = sp.name or ''
+    company = sp.company or ''
+    first_name = name.split()[0] if name else ''
+
+    seeking_goals = [s.strip() for s in (sp.seeking or '').split(',') if s.strip()][:5]
+
+    credentials = []
+    if company and company != name:
+        credentials.append(f'Founder of {company}')
+    if sp.signature_programs:
+        credentials.append(sp.signature_programs)
+    if sp.social_proof:
+        credentials.append(sp.social_proof)
+
+    meta = sp.enrichment_metadata or {}
+    field_meta = meta.get('field_meta', {})
+    has_unconfirmed = any(
+        info.get('source') == 'client_ingest'
+        for info in field_meta.values()
+    )
+
+    return {
+        'report': report,
+        'contact_name': name,
+        'avatar_initials': ''.join(w[0].upper() for w in name.split()[:2]) if name else '??',
+        'title': f'{name} \u00b7 {company}' if company else name,
+        'program_name': company,
+        'program_sub': sp.offering or '',
+        'program_focus': sp.niche or 'Business Growth',
+        'target_audience': 'Target Audience',
+        'target_audience_sub': sp.who_you_serve or '',
+        'network_reach': _format_list_size(sp.list_size) if sp.list_size else 'Growing',
+        'network_reach_sub': f"{first_name}'s subscriber network",
+        'main_website': sp.website or '',
+        'key_message': sp.offering or '',
+        'about_story': sp.bio or (f'{name} is the founder of {company}.' if company else ''),
+        'credentials': credentials,
+        'ideal_partner_intro': f'Partners serving <strong>{sp.who_you_serve or "entrepreneurs and business owners"}</strong>.',
+        'ideal_partner_sub': sp.seeking or '',
+        'seeking_goals': seeking_goals,
+        'seeking_focus': sp.seeking or '',
+        'contact_email': sp.email or '',
+        'tiers': [],
+        'offers_partners': [],
+        'shared_stage': [],
+        'perfect_for': [],
+        'faqs': [],
+        'has_unconfirmed_edits': has_unconfirmed,
+        'has_supabase_profile': True,
+    }
+
+
+def _format_list_size(size):
+    """Format an integer list size into a human-readable string."""
+    if not size:
+        return ''
+    if size >= 1_000_000:
+        return f'{size / 1_000_000:.1f}M'
+    if size >= 1_000:
+        return f'{size / 1_000:.0f}K'
+    return str(size)

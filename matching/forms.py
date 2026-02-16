@@ -5,7 +5,7 @@ Forms for the JV Matcher module.
 from django import forms
 from django.core.validators import FileExtensionValidator
 
-from .models import Match, Profile
+from .models import Match, Profile, SupabaseProfile
 
 
 class ProfileForm(forms.ModelForm):
@@ -130,3 +130,71 @@ class MatchFilterForm(forms.Form):
             'hx-swap': 'innerHTML',
         })
     )
+
+
+# ---------------------------------------------------------------------------
+# Client Profile Edit (report system — uses report design CSS, not Tailwind)
+# ---------------------------------------------------------------------------
+
+_INPUT_STYLE = (
+    'width: 100%; padding: 0.625rem 0.875rem; border: 1px solid #d4d0cb; '
+    'border-radius: 6px; font-family: DM Sans, sans-serif; font-size: 0.875rem; '
+    'background: #fff; color: #1a1a1a;'
+)
+
+_TEXTAREA_STYLE = _INPUT_STYLE
+
+
+class ClientProfileForm(forms.ModelForm):
+    """Client-facing profile edit form for SupabaseProfile."""
+
+    class Meta:
+        model = SupabaseProfile
+        fields = [
+            'name', 'company', 'email', 'phone', 'website', 'linkedin',
+            'what_you_do', 'who_you_serve', 'seeking', 'offering', 'niche',
+            'bio', 'signature_programs', 'booking_link',
+            'list_size',
+        ]
+        labels = {
+            'name': 'Full Name',
+            'company': 'Company',
+            'email': 'Email',
+            'phone': 'Phone',
+            'website': 'Website',
+            'linkedin': 'LinkedIn URL',
+            'what_you_do': 'What You Do',
+            'who_you_serve': 'Who You Serve',
+            'seeking': 'What You Are Seeking',
+            'offering': 'What You Are Offering',
+            'niche': 'Your Niche',
+            'bio': 'About You',
+
+            'signature_programs': 'Signature Programs',
+            'booking_link': 'Booking / Calendar Link',
+            'list_size': 'Email List Size',
+        }
+        widgets = {
+            'name': forms.TextInput(attrs={'style': _INPUT_STYLE, 'placeholder': 'Your full name'}),
+            'company': forms.TextInput(attrs={'style': _INPUT_STYLE, 'placeholder': 'Company name'}),
+            'email': forms.EmailInput(attrs={'style': _INPUT_STYLE, 'placeholder': 'you@company.com'}),
+            'phone': forms.TextInput(attrs={'style': _INPUT_STYLE, 'placeholder': '+1 (555) 123-4567'}),
+            'website': forms.URLInput(attrs={'style': _INPUT_STYLE, 'placeholder': 'https://yoursite.com'}),
+            'linkedin': forms.URLInput(attrs={'style': _INPUT_STYLE, 'placeholder': 'https://linkedin.com/in/you'}),
+            'what_you_do': forms.Textarea(attrs={'style': _TEXTAREA_STYLE, 'rows': 3, 'placeholder': 'Describe your business or service...'}),
+            'who_you_serve': forms.Textarea(attrs={'style': _TEXTAREA_STYLE, 'rows': 3, 'placeholder': 'Who is your ideal client or audience?'}),
+            'seeking': forms.Textarea(attrs={'style': _TEXTAREA_STYLE, 'rows': 3, 'placeholder': 'What kind of JV partnerships are you looking for?'}),
+            'offering': forms.Textarea(attrs={'style': _TEXTAREA_STYLE, 'rows': 3, 'placeholder': 'What can you offer potential partners?'}),
+            'niche': forms.TextInput(attrs={'style': _INPUT_STYLE, 'placeholder': 'e.g., Health & Wellness, Business Coaching'}),
+            'bio': forms.Textarea(attrs={'style': _TEXTAREA_STYLE, 'rows': 4, 'placeholder': 'Tell your story...'}),
+
+            'signature_programs': forms.Textarea(attrs={'style': _TEXTAREA_STYLE, 'rows': 2, 'placeholder': 'Named courses, books, or frameworks...'}),
+            'booking_link': forms.URLInput(attrs={'style': _INPUT_STYLE, 'placeholder': 'https://calendly.com/you'}),
+            'list_size': forms.NumberInput(attrs={'style': _INPUT_STYLE, 'placeholder': 'e.g., 5000', 'min': '0'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # All fields optional for client edits
+        for field in self.fields.values():
+            field.required = False

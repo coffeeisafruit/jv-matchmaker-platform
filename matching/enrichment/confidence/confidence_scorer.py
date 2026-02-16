@@ -51,6 +51,10 @@ class ConfidenceScorer:
         'niche': 180,          # Rarely changes
         'company': 180,        # Company rarely changes
         'name': 365,           # Name very stable
+        'revenue_tier': 120,   # Revenue tier changes slowly
+        'jv_history': 180,     # Historical facts, very stable
+        'content_platforms': 120,  # Platform presence changes slowly
+        'audience_engagement_score': 45,  # Engagement quality shifts moderately
     }
 
     def calculate_confidence(
@@ -286,6 +290,10 @@ class ConfidenceScorer:
             'niche': 1.0,
             'company': 1.0,
             'website': 1.0,
+            'revenue_tier': 1.5,
+            'jv_history': 1.5,
+            'content_platforms': 1.0,
+            'audience_engagement_score': 1.5,
         }
 
         total_weighted_confidence = 0.0

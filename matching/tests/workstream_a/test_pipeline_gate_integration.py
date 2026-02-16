@@ -16,6 +16,7 @@ import asyncio
 import json
 import os
 import sys
+from contextlib import contextmanager
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
@@ -48,7 +49,11 @@ def pipeline(tmp_path, monkeypatch):
 
 
 def _make_result(profile_id, email, method='website_scrape', name='Test User', company='TestCo'):
-    """Build a single enrichment result dict."""
+    """Build a single enrichment result dict.
+
+    NOTE: Do NOT use @example.com emails for verified tests — the
+    DeterministicChecker flags example.com as a suspicious domain.
+    """
     return {
         'profile_id': profile_id,
         'email': email,
@@ -59,6 +64,14 @@ def _make_result(profile_id, email, method='website_scrape', name='Test User', c
     }
 
 
+def _mock_get_conn(mock_conn):
+    """Return a context manager that yields mock_conn, for patching _get_conn."""
+    @contextmanager
+    def _ctx():
+        yield mock_conn
+    return _ctx
+
+
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
@@ -67,14 +80,13 @@ class TestVerifiedEmailWritten:
     """A VERIFIED email should be included in the execute_batch call."""
 
     def test_verified_email_is_batched(self, pipeline, tmp_path):
-        results = [_make_result('p1', 'valid@example.com')]
+        results = [_make_result('p1', 'valid@acmecorp.com')]
 
-        with patch('scripts.automated_enrichment_pipeline_safe.psycopg2') as mock_pg, \
-             patch('scripts.automated_enrichment_pipeline_safe.ConfidenceScorer') as MockScorer, \
+        mock_conn = MagicMock()
+        with patch.object(pipeline, '_get_conn', _mock_get_conn(mock_conn)), \
+             patch('matching.enrichment.confidence.confidence_scorer.ConfidenceScorer') as MockScorer, \
              patch('scripts.automated_enrichment_pipeline_safe.execute_batch') as mock_exec:
 
-            mock_conn = MagicMock()
-            mock_pg.connect.return_value = mock_conn
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.80
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
@@ -85,7 +97,7 @@ class TestVerifiedEmailWritten:
             assert mock_exec.called
             updates = mock_exec.call_args[0][2]
             assert len(updates) == 1
-            assert updates[0][0] == 'valid@example.com'  # email value
+            assert updates[0][0] == 'valid@acmecorp.com'  # email value
 
 
 class TestQuarantinedEmailSkipped:
@@ -95,12 +107,11 @@ class TestQuarantinedEmailSkipped:
         # An invalid email triggers quarantine via the gate's Layer 1
         results = [_make_result('p2', 'not-an-email', method='website_scrape')]
 
-        with patch('scripts.automated_enrichment_pipeline_safe.psycopg2') as mock_pg, \
-             patch('scripts.automated_enrichment_pipeline_safe.ConfidenceScorer') as MockScorer, \
+        mock_conn = MagicMock()
+        with patch.object(pipeline, '_get_conn', _mock_get_conn(mock_conn)), \
+             patch('matching.enrichment.confidence.confidence_scorer.ConfidenceScorer') as MockScorer, \
              patch('scripts.automated_enrichment_pipeline_safe.execute_batch') as mock_exec:
 
-            mock_conn = MagicMock()
-            mock_pg.connect.return_value = mock_conn
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.80
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
@@ -124,11 +135,10 @@ class TestQuarantineJSONL:
     def test_quarantine_jsonl_written(self, pipeline, tmp_path):
         results = [_make_result('p3', 'http://example.com', method='website_scrape')]
 
-        with patch('scripts.automated_enrichment_pipeline_safe.psycopg2') as mock_pg, \
-             patch('scripts.automated_enrichment_pipeline_safe.ConfidenceScorer'), \
+        mock_conn = MagicMock()
+        with patch.object(pipeline, '_get_conn', _mock_get_conn(mock_conn)), \
+             patch('matching.enrichment.confidence.confidence_scorer.ConfidenceScorer'), \
              patch('scripts.automated_enrichment_pipeline_safe.execute_batch'):
-
-            mock_pg.connect.return_value = MagicMock()
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
 
@@ -153,12 +163,11 @@ class TestUnverifiedConfidenceReduced:
         # Instead, let's test with a valid email but patch the gate to return UNVERIFIED.
         results = [_make_result('p4', 'real@company.com')]
 
-        with patch('scripts.automated_enrichment_pipeline_safe.psycopg2') as mock_pg, \
-             patch('scripts.automated_enrichment_pipeline_safe.ConfidenceScorer') as MockScorer, \
+        mock_conn = MagicMock()
+        with patch.object(pipeline, '_get_conn', _mock_get_conn(mock_conn)), \
+             patch('matching.enrichment.confidence.confidence_scorer.ConfidenceScorer') as MockScorer, \
              patch('scripts.automated_enrichment_pipeline_safe.execute_batch') as mock_exec:
 
-            mock_conn = MagicMock()
-            mock_pg.connect.return_value = mock_conn
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.80
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
@@ -191,12 +200,11 @@ class TestVerifiedConfidenceUnmodified:
     def test_verified_gets_full_confidence(self, pipeline, tmp_path):
         results = [_make_result('p5', 'good@company.com')]
 
-        with patch('scripts.automated_enrichment_pipeline_safe.psycopg2') as mock_pg, \
-             patch('scripts.automated_enrichment_pipeline_safe.ConfidenceScorer') as MockScorer, \
+        mock_conn = MagicMock()
+        with patch.object(pipeline, '_get_conn', _mock_get_conn(mock_conn)), \
+             patch('matching.enrichment.confidence.confidence_scorer.ConfidenceScorer') as MockScorer, \
              patch('scripts.automated_enrichment_pipeline_safe.execute_batch') as mock_exec:
 
-            mock_conn = MagicMock()
-            mock_pg.connect.return_value = mock_conn
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.90
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
@@ -213,14 +221,13 @@ class TestEmailMetadataFields:
     """email_metadata should include verification_status and verification_confidence."""
 
     def test_metadata_has_verification_fields(self, pipeline, tmp_path):
-        results = [_make_result('p6', 'meta@example.com')]
+        results = [_make_result('p6', 'meta@acmecorp.com')]
 
-        with patch('scripts.automated_enrichment_pipeline_safe.psycopg2') as mock_pg, \
-             patch('scripts.automated_enrichment_pipeline_safe.ConfidenceScorer') as MockScorer, \
+        mock_conn = MagicMock()
+        with patch.object(pipeline, '_get_conn', _mock_get_conn(mock_conn)), \
+             patch('matching.enrichment.confidence.confidence_scorer.ConfidenceScorer') as MockScorer, \
              patch('scripts.automated_enrichment_pipeline_safe.execute_batch') as mock_exec:
 
-            mock_conn = MagicMock()
-            mock_pg.connect.return_value = mock_conn
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.85
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
@@ -246,11 +253,11 @@ class TestGateStatsCounting:
             _make_result('p12', 'not-an-email'),           # quarantined
         ]
 
-        with patch('scripts.automated_enrichment_pipeline_safe.psycopg2') as mock_pg, \
-             patch('scripts.automated_enrichment_pipeline_safe.ConfidenceScorer') as MockScorer, \
+        mock_conn = MagicMock()
+        with patch.object(pipeline, '_get_conn', _mock_get_conn(mock_conn)), \
+             patch('matching.enrichment.confidence.confidence_scorer.ConfidenceScorer') as MockScorer, \
              patch('scripts.automated_enrichment_pipeline_safe.execute_batch'):
 
-            mock_pg.connect.return_value = MagicMock()
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.80
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
@@ -271,12 +278,11 @@ class TestAutoFixApplied:
     def test_auto_fix_changes_email_in_update(self, pipeline, tmp_path):
         results = [_make_result('p13', 'good@company.com')]
 
-        with patch('scripts.automated_enrichment_pipeline_safe.psycopg2') as mock_pg, \
-             patch('scripts.automated_enrichment_pipeline_safe.ConfidenceScorer') as MockScorer, \
+        mock_conn = MagicMock()
+        with patch.object(pipeline, '_get_conn', _mock_get_conn(mock_conn)), \
+             patch('matching.enrichment.confidence.confidence_scorer.ConfidenceScorer') as MockScorer, \
              patch('scripts.automated_enrichment_pipeline_safe.execute_batch') as mock_exec:
 
-            mock_conn = MagicMock()
-            mock_pg.connect.return_value = mock_conn
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.80
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Partner Report · Access</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #faf8f5;
+            --ink: #1a1a1a;
+            --forest: #1e3a2f;
+            --gold: #c9a962;
+            --gold-light: #e8d5a8;
+            --muted: #8b8680;
+            --blush: #f4e8e1;
+            --card: #ffffff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .container { max-width: 400px; width: 100%; }
+        h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--forest);
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            text-align: center;
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+        .access-card {
+            background: var(--card);
+            border-radius: 8px;
+            padding: 32px 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--forest);
+            margin-bottom: 8px;
+            letter-spacing: 0.02em;
+        }
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid var(--gold-light);
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            text-align: center;
+            color: var(--forest);
+            background: var(--cream);
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 169, 98, 0.15);
+        }
+        .form-input::placeholder {
+            color: var(--muted);
+            letter-spacing: 0.05em;
+            font-weight: 400;
+            font-size: 14px;
+            text-transform: none;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 16px;
+            background: var(--forest);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .submit-btn:hover { background: var(--gold); color: var(--ink); }
+        .error-msg {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            color: #991b1b;
+            font-size: 13px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Partner Report</h1>
+        <p class="subtitle">Enter your access code to view your monthly matches</p>
+        <div class="access-card">
+            <form method="post">
+                {% csrf_token %}
+                <label class="form-label" for="code">Access Code</label>
+                <input
+                    type="text"
+                    id="code"
+                    name="code"
+                    class="form-input"
+                    placeholder="Enter your code"
+                    maxlength="20"
+                    autocomplete="off"
+                    autofocus
+                    required
+                >
+                <button type="submit" class="submit-btn">View Report</button>
+            </form>
+            {% if messages %}
+            {% for message in messages %}
+            <div class="error-msg">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

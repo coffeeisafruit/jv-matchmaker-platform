@@ -752,6 +752,21 @@ class PartnershipAnalyzer:
         if scale_insight:
             insights.append(scale_insight)
 
+        # Dimension 5: Revenue Tier Compatibility
+        revenue_insight = self._build_revenue_tier_insight(partner)
+        if revenue_insight:
+            insights.append(revenue_insight)
+
+        # Dimension 6: JV History (experienced partner signal)
+        jv_insight = self._build_jv_history_insight(partner)
+        if jv_insight:
+            insights.append(jv_insight)
+
+        # Dimension 7: Content Platform Overlap
+        platform_insight = self._build_content_platform_insight(partner)
+        if platform_insight:
+            insights.append(platform_insight)
+
         # Determine tier
         tier = self._determine_tier(score, len(insights))
 
@@ -911,6 +926,181 @@ class PartnershipAnalyzer:
 
         return None
 
+    # Revenue tier ordering for compatibility comparison
+    REVENUE_TIER_ORDER = {
+        'micro': 0,
+        'emerging': 1,
+        'established': 2,
+        'premium': 3,
+        'enterprise': 4,
+    }
+
+    def _build_revenue_tier_insight(
+        self,
+        partner: SupabaseProfile
+    ) -> Optional[PartnershipInsight]:
+        """Build insight from revenue tier compatibility.
+
+        Same or adjacent tiers indicate audiences that spend similarly,
+        making cross-promotions more effective.
+        """
+        if not self.user_profile:
+            return None
+
+        user_tier = getattr(self.user_profile, 'revenue_tier', None)
+        partner_tier = getattr(partner, 'revenue_tier', None)
+
+        if not user_tier or not partner_tier:
+            return None
+
+        user_rank = self.REVENUE_TIER_ORDER.get(user_tier)
+        partner_rank = self.REVENUE_TIER_ORDER.get(partner_tier)
+
+        if user_rank is None or partner_rank is None:
+            return None
+
+        diff = abs(user_rank - partner_rank)
+
+        if diff == 0:
+            return PartnershipInsight(
+                type='revenue_alignment',
+                icon='dollar-sign',
+                headline='Revenue Tier Match',
+                detail=f"Both operate at the {partner_tier} tier — audiences spend similarly",
+                action='Propose a co-promotion to each other\'s buyers'
+            )
+        elif diff == 1:
+            return PartnershipInsight(
+                type='revenue_alignment',
+                icon='dollar-sign',
+                headline='Adjacent Revenue Tiers',
+                detail=f"Your {user_tier} tier pairs well with their {partner_tier} tier for upsell/downsell",
+                action='Explore a referral funnel between your offers'
+            )
+
+        # 2+ tiers apart — no insight (not necessarily bad, just not a signal)
+        return None
+
+    def _build_jv_history_insight(
+        self,
+        partner: SupabaseProfile
+    ) -> Optional[PartnershipInsight]:
+        """Build insight from partner's past JV experience.
+
+        Partners with JV history are lower-risk — they understand the format
+        and are more likely to follow through.
+        """
+        jv_history = getattr(partner, 'jv_history', None)
+
+        if not jv_history or not isinstance(jv_history, list):
+            return None
+
+        jv_count = len(jv_history)
+
+        if jv_count == 0:
+            return None
+
+        # Extract JV formats for detail
+        formats = set()
+        for jv in jv_history[:5]:
+            if isinstance(jv, dict) and jv.get('format'):
+                formats.add(jv['format'].replace('_', ' '))
+
+        format_str = ', '.join(sorted(formats)[:3]) if formats else 'partnerships'
+
+        if jv_count >= 3:
+            return PartnershipInsight(
+                type='jv_experience',
+                icon='award',
+                headline='Experienced JV Partner',
+                detail=f"{jv_count} past partnerships ({format_str}) — proven collaborator",
+                action='Reference their JV experience when reaching out'
+            )
+        else:
+            return PartnershipInsight(
+                type='jv_experience',
+                icon='handshake',
+                headline='Has JV Experience',
+                detail=f"{jv_count} past partnership(s) ({format_str})",
+                action='Ask about their partnership experience'
+            )
+
+    def _build_content_platform_insight(
+        self,
+        partner: SupabaseProfile
+    ) -> Optional[PartnershipInsight]:
+        """Build insight from content platform overlap.
+
+        Shared platforms mean easier cross-promotion (e.g., podcast guest
+        swaps, Instagram collaborations, YouTube features).
+        """
+        if not self.user_profile:
+            return None
+
+        user_platforms = getattr(self.user_profile, 'content_platforms', None)
+        partner_platforms = getattr(partner, 'content_platforms', None)
+
+        if not user_platforms or not isinstance(user_platforms, dict):
+            return None
+        if not partner_platforms or not isinstance(partner_platforms, dict):
+            return None
+
+        # Find platforms both have (non-empty values)
+        shared = []
+        platform_labels = {
+            'podcast_name': 'Podcast',
+            'youtube_channel': 'YouTube',
+            'instagram_handle': 'Instagram',
+            'facebook_group': 'Facebook Group',
+            'tiktok_handle': 'TikTok',
+            'newsletter_name': 'Newsletter',
+        }
+
+        for key, label in platform_labels.items():
+            user_val = user_platforms.get(key)
+            partner_val = partner_platforms.get(key)
+            if user_val and partner_val:
+                shared.append(label)
+
+        if not shared:
+            return None
+
+        if len(shared) >= 2:
+            platforms_str = ', '.join(shared[:3])
+            return PartnershipInsight(
+                type='platform_overlap',
+                icon='share-2',
+                headline='Multi-Platform Overlap',
+                detail=f"You're both active on {platforms_str} — multiple cross-promo channels",
+                action='Propose a multi-platform collaboration'
+            )
+        else:
+            platform = shared[0]
+            if platform == 'Podcast':
+                return PartnershipInsight(
+                    type='platform_overlap',
+                    icon='mic',
+                    headline='Podcast Swap Opportunity',
+                    detail="You both have podcasts — guest swap is a quick win",
+                    action='Propose a mutual podcast guest appearance'
+                )
+            elif platform == 'YouTube':
+                return PartnershipInsight(
+                    type='platform_overlap',
+                    icon='video',
+                    headline='YouTube Collaboration',
+                    detail="You're both on YouTube — feature or collab opportunity",
+                    action='Propose a joint video or feature'
+                )
+            else:
+                return PartnershipInsight(
+                    type='platform_overlap',
+                    icon='share-2',
+                    headline=f'{platform} Overlap',
+                    detail=f"You're both active on {platform}",
+                    action=f'Explore cross-promotion on {platform}'
+                )
+
     def _determine_tier(
         self,
         score: Optional[float],
@@ -1016,3 +1206,438 @@ class PartnershipAnalyzer:
         )
 
         return analyses
+
+
+# =============================================================================
+# SUPABASE MATCH SCORING SERVICE — ISMC for SupabaseProfile pairs
+# =============================================================================
+
+
+class SupabaseMatchScoringService:
+    """
+    Scores a pair of SupabaseProfiles using the ISMC framework.
+
+    Computes directional scores:
+    - score_ab: How valuable is B as a partner for A?
+    - score_ba: How valuable is A as a partner for B?
+    - harmonic_mean: Balanced pair score
+
+    ISMC weights:
+    - Intent (45%): Partnership readiness signals
+    - Synergy (25%): Business complementarity
+    - Momentum (20%): Activity and engagement
+    - Context (10%): Data quality and reliability
+    """
+
+    WEIGHTS = {
+        'intent': 0.45,
+        'synergy': 0.25,
+        'momentum': 0.20,
+        'context': 0.10,
+    }
+
+    REVENUE_TIER_ORDER = {
+        'micro': 0,
+        'emerging': 1,
+        'established': 2,
+        'premium': 3,
+        'enterprise': 4,
+    }
+
+    def score_pair(
+        self,
+        profile_a: SupabaseProfile,
+        profile_b: SupabaseProfile
+    ) -> dict:
+        """
+        Score a pair of profiles directionally.
+
+        Returns:
+            dict with score_ab, score_ba, harmonic_mean (all 0-100 scale),
+            plus component breakdowns for each direction.
+        """
+        score_ab, breakdown_ab = self._score_directional(profile_a, profile_b)
+        score_ba, breakdown_ba = self._score_directional(profile_b, profile_a)
+
+        # Harmonic mean of the two directional scores
+        epsilon = 1e-10
+        if score_ab > epsilon and score_ba > epsilon:
+            hm = 2 / (1 / max(score_ab, epsilon) + 1 / max(score_ba, epsilon))
+        else:
+            hm = 0.0
+
+        return {
+            'score_ab': round(score_ab, 2),
+            'score_ba': round(score_ba, 2),
+            'harmonic_mean': round(hm, 2),
+            'breakdown_ab': breakdown_ab,
+            'breakdown_ba': breakdown_ba,
+        }
+
+    def _score_directional(
+        self,
+        source: SupabaseProfile,
+        target: SupabaseProfile
+    ) -> tuple[float, dict]:
+        """
+        Score how valuable target is as a partner for source.
+
+        Returns (score_0_to_100, breakdown_dict).
+        """
+        intent = self._score_intent(target)
+        synergy = self._score_synergy(source, target)
+        momentum = self._score_momentum(target)
+        context = self._score_context(target)
+
+        # Weighted harmonic mean of components (0-10 scale)
+        components = [
+            (intent['score'], self.WEIGHTS['intent']),
+            (synergy['score'], self.WEIGHTS['synergy']),
+            (momentum['score'], self.WEIGHTS['momentum']),
+            (context['score'], self.WEIGHTS['context']),
+        ]
+        epsilon = 1e-10
+        total_weight = sum(w for _, w in components)
+        reciprocal_sum = sum(w / max(s, epsilon) for s, w in components)
+        final_0_10 = total_weight / reciprocal_sum if reciprocal_sum > 0 else 0.0
+
+        # Convert to 0-100 scale
+        final_score = final_0_10 * 10
+
+        breakdown = {
+            'intent': intent,
+            'synergy': synergy,
+            'momentum': momentum,
+            'context': context,
+            'final_0_10': round(final_0_10, 2),
+        }
+        return final_score, breakdown
+
+    # ----- Intent (45%) — Does this partner want to collaborate? -----
+
+    def _score_intent(self, target: SupabaseProfile) -> dict:
+        """Score partnership readiness signals for target profile."""
+        factors = []
+        total = 0.0
+        max_total = 0.0
+
+        # Factor 1: JV History (weight 3)
+        jv_list = target.jv_history if isinstance(target.jv_history, list) else []
+        jv_count = len(jv_list)
+        if jv_count >= 3:
+            jv_score = 10.0
+        elif jv_count >= 1:
+            jv_score = 7.0
+        else:
+            jv_score = 3.0  # Neutral, not punished
+        factors.append({'name': 'JV History', 'score': jv_score, 'weight': 3,
+                        'detail': f'{jv_count} past partnerships'})
+        total += jv_score * 3
+        max_total += 10 * 3
+
+        # Factor 2: Seeking populated (weight 2.5)
+        seeking_text = (target.seeking or '').strip()
+        seeking_score = 9.0 if len(seeking_text) > 10 else 3.0
+        factors.append({'name': 'Seeking Stated', 'score': seeking_score, 'weight': 2.5,
+                        'detail': 'Actively seeking partners' if seeking_score > 5 else 'No stated needs'})
+        total += seeking_score * 2.5
+        max_total += 10 * 2.5
+
+        # Factor 3: Booking link (weight 2)
+        has_booking = bool(target.booking_link and target.booking_link.strip())
+        booking_score = 8.0 if has_booking else 4.0
+        factors.append({'name': 'Booking Link', 'score': booking_score, 'weight': 2,
+                        'detail': 'Ready for meetings' if has_booking else 'No booking link'})
+        total += booking_score * 2
+        max_total += 10 * 2
+
+        # Factor 4: Subscription status (weight 2)
+        is_member = (target.status or '').lower() == 'member'
+        status_score = 8.0 if is_member else 5.0
+        factors.append({'name': 'Subscription', 'score': status_score, 'weight': 2,
+                        'detail': 'Active member' if is_member else target.status or 'Unknown'})
+        total += status_score * 2
+        max_total += 10 * 2
+
+        # Factor 5: Website presence (weight 1.5)
+        has_website = bool(target.website and target.website.strip())
+        website_score = 7.0 if has_website else 2.0
+        factors.append({'name': 'Website', 'score': website_score, 'weight': 1.5,
+                        'detail': 'Website available' if has_website else 'No website'})
+        total += website_score * 1.5
+        max_total += 10 * 1.5
+
+        score = (total / max_total) * 10 if max_total > 0 else 0
+        return {'score': round(score, 2), 'factors': factors}
+
+    # ----- Synergy (25%) — How well do their businesses complement? -----
+
+    def _score_synergy(
+        self, source: SupabaseProfile, target: SupabaseProfile
+    ) -> dict:
+        """Score business complementarity between source and target."""
+        factors = []
+        total = 0.0
+        max_total = 0.0
+
+        # Factor 1: Offering-to-seeking alignment (weight 3)
+        alignment_score = self._text_overlap_score(
+            source.seeking or '', target.offering or target.what_you_do or ''
+        )
+        factors.append({'name': 'Offering↔Seeking', 'score': alignment_score, 'weight': 3,
+                        'detail': f'Alignment score: {alignment_score:.1f}/10'})
+        total += alignment_score * 3
+        max_total += 10 * 3
+
+        # Factor 2: Revenue tier compatibility (weight 2.5)
+        rev_score = self._revenue_tier_compat(
+            source.revenue_tier, target.revenue_tier
+        )
+        factors.append({'name': 'Revenue Tier', 'score': rev_score, 'weight': 2.5,
+                        'detail': f'{source.revenue_tier or "?"} ↔ {target.revenue_tier or "?"}'})
+        total += rev_score * 2.5
+        max_total += 10 * 2.5
+
+        # Factor 3: Content platform overlap (weight 2)
+        platform_score, shared = self._platform_overlap(source, target)
+        detail = f'Shared: {", ".join(shared)}' if shared else 'No platform overlap'
+        factors.append({'name': 'Platform Overlap', 'score': platform_score, 'weight': 2,
+                        'detail': detail})
+        total += platform_score * 2
+        max_total += 10 * 2
+
+        # Factor 4: Audience alignment (weight 2.5)
+        audience_score = self._text_overlap_score(
+            source.who_you_serve or '', target.who_you_serve or ''
+        )
+        factors.append({'name': 'Audience Alignment', 'score': audience_score, 'weight': 2.5,
+                        'detail': f'Audience similarity: {audience_score:.1f}/10'})
+        total += audience_score * 2.5
+        max_total += 10 * 2.5
+
+        score = (total / max_total) * 10 if max_total > 0 else 0
+        return {'score': round(score, 2), 'factors': factors}
+
+    def _text_overlap_score(self, text_a: str, text_b: str) -> float:
+        """Score keyword overlap between two text fields (0-10)."""
+        if not text_a.strip() or not text_b.strip():
+            return 3.0  # Neutral when data is missing
+
+        words_a = set(re.findall(r'\b\w{4,}\b', text_a.lower()))
+        words_b = set(re.findall(r'\b\w{4,}\b', text_b.lower()))
+
+        # Remove common stop words
+        stop = {'that', 'this', 'with', 'from', 'they', 'them', 'their',
+                'have', 'been', 'were', 'will', 'would', 'could', 'should',
+                'about', 'more', 'also', 'just', 'some', 'like', 'into',
+                'other', 'what', 'your', 'help'}
+        words_a -= stop
+        words_b -= stop
+
+        if not words_a or not words_b:
+            return 3.0
+
+        overlap = words_a & words_b
+        # Jaccard-ish: overlap relative to smaller set
+        smaller = min(len(words_a), len(words_b))
+        ratio = len(overlap) / smaller if smaller > 0 else 0
+
+        if ratio >= 0.4:
+            return 10.0
+        elif ratio >= 0.25:
+            return 8.0
+        elif ratio >= 0.15:
+            return 6.0
+        elif ratio >= 0.05:
+            return 4.5
+        else:
+            return 3.0
+
+    def _revenue_tier_compat(
+        self, tier_a: Optional[str], tier_b: Optional[str]
+    ) -> float:
+        """Score revenue tier compatibility (0-10)."""
+        if not tier_a or not tier_b:
+            return 5.0  # Neutral when data missing
+        if tier_a == 'unknown' or tier_b == 'unknown':
+            return 5.0
+
+        rank_a = self.REVENUE_TIER_ORDER.get(tier_a)
+        rank_b = self.REVENUE_TIER_ORDER.get(tier_b)
+        if rank_a is None or rank_b is None:
+            return 5.0
+
+        diff = abs(rank_a - rank_b)
+        if diff == 0:
+            return 9.0
+        elif diff == 1:
+            return 7.0
+        elif diff == 2:
+            return 5.0
+        else:
+            return 2.0
+
+    def _platform_overlap(
+        self, source: SupabaseProfile, target: SupabaseProfile
+    ) -> tuple[float, list[str]]:
+        """Score content platform overlap (0-10) and return shared platforms."""
+        src_platforms = source.content_platforms if isinstance(source.content_platforms, dict) else {}
+        tgt_platforms = target.content_platforms if isinstance(target.content_platforms, dict) else {}
+
+        if not src_platforms or not tgt_platforms:
+            return 3.0, []
+
+        platform_labels = {
+            'podcast_name': 'Podcast',
+            'youtube_channel': 'YouTube',
+            'instagram_handle': 'Instagram',
+            'facebook_group': 'Facebook',
+            'tiktok_handle': 'TikTok',
+            'newsletter_name': 'Newsletter',
+        }
+
+        shared = []
+        for key, label in platform_labels.items():
+            if src_platforms.get(key) and tgt_platforms.get(key):
+                shared.append(label)
+
+        count = len(shared)
+        if count >= 3:
+            return 10.0, shared
+        elif count == 2:
+            return 8.0, shared
+        elif count == 1:
+            return 6.0, shared
+        else:
+            return 3.0, shared
+
+    # ----- Momentum (20%) — How active/engaged is this partner? -----
+
+    def _score_momentum(self, target: SupabaseProfile) -> dict:
+        """Score activity and engagement signals."""
+        factors = []
+        total = 0.0
+        max_total = 0.0
+
+        # Factor 1: Audience engagement score (weight 3)
+        engagement = target.audience_engagement_score
+        if engagement is not None:
+            eng_score = min(10.0, engagement * 10)
+        else:
+            eng_score = 4.0  # Neutral when missing
+        factors.append({'name': 'Audience Engagement', 'score': round(eng_score, 1), 'weight': 3,
+                        'detail': f'Engagement: {engagement:.2f}' if engagement else 'Unknown'})
+        total += eng_score * 3
+        max_total += 10 * 3
+
+        # Factor 2: Social reach (weight 2)
+        reach = target.social_reach or 0
+        if reach >= 100000:
+            reach_score = 10.0
+        elif reach >= 50000:
+            reach_score = 8.0
+        elif reach >= 10000:
+            reach_score = 6.5
+        elif reach >= 1000:
+            reach_score = 5.0
+        elif reach > 0:
+            reach_score = 4.0
+        else:
+            reach_score = 3.0
+        factors.append({'name': 'Social Reach', 'score': reach_score, 'weight': 2,
+                        'detail': f'{reach:,} followers' if reach > 0 else 'Unknown'})
+        total += reach_score * 2
+        max_total += 10 * 2
+
+        # Factor 3: Current projects (weight 2.5)
+        has_projects = bool(target.current_projects and len(target.current_projects.strip()) > 10)
+        proj_score = 8.0 if has_projects else 4.0
+        factors.append({'name': 'Active Projects', 'score': proj_score, 'weight': 2.5,
+                        'detail': 'Active projects noted' if has_projects else 'No current projects'})
+        total += proj_score * 2.5
+        max_total += 10 * 2.5
+
+        # Factor 4: List size as growth indicator (weight 2.5)
+        list_size = target.list_size or 0
+        if list_size >= 100000:
+            list_score = 9.0
+        elif list_size >= 50000:
+            list_score = 8.0
+        elif list_size >= 10000:
+            list_score = 7.0
+        elif list_size >= 1000:
+            list_score = 5.5
+        elif list_size > 0:
+            list_score = 4.0
+        else:
+            list_score = 3.0
+        factors.append({'name': 'List Size', 'score': list_score, 'weight': 2.5,
+                        'detail': f'{list_size:,}' if list_size > 0 else 'Unknown'})
+        total += list_score * 2.5
+        max_total += 10 * 2.5
+
+        score = (total / max_total) * 10 if max_total > 0 else 0
+        return {'score': round(score, 2), 'factors': factors}
+
+    # ----- Context (10%) — Data quality and reliability -----
+
+    def _score_context(self, target: SupabaseProfile) -> dict:
+        """Score data quality and profile completeness."""
+        factors = []
+        total = 0.0
+        max_total = 0.0
+
+        # Factor 1: Profile completeness (weight 3)
+        completeness_fields = [
+            target.name, target.email, target.company, target.website,
+            target.linkedin, target.niche, target.what_you_do,
+            target.who_you_serve, target.seeking, target.offering,
+            target.booking_link, target.revenue_tier,
+        ]
+        filled = sum(1 for f in completeness_fields if f and str(f).strip())
+        completeness_score = (filled / len(completeness_fields)) * 10
+        factors.append({'name': 'Profile Completeness', 'score': round(completeness_score, 1), 'weight': 3,
+                        'detail': f'{filled}/{len(completeness_fields)} key fields'})
+        total += completeness_score * 3
+        max_total += 10 * 3
+
+        # Factor 2: Revenue tier known (weight 2)
+        has_rev = bool(target.revenue_tier and target.revenue_tier != 'unknown')
+        rev_score = 8.0 if has_rev else 3.0
+        factors.append({'name': 'Revenue Known', 'score': rev_score, 'weight': 2,
+                        'detail': target.revenue_tier or 'Unknown'})
+        total += rev_score * 2
+        max_total += 10 * 2
+
+        # Factor 3: Enrichment quality (weight 2.5)
+        enrichment_fields = [
+            target.what_you_do, target.who_you_serve, target.niche,
+            target.offering, target.seeking, target.signature_programs,
+            target.revenue_tier, target.content_platforms,
+        ]
+        enriched = sum(1 for f in enrichment_fields if f)
+        enrich_score = min(10.0, (enriched / len(enrichment_fields)) * 10)
+        factors.append({'name': 'Enrichment Quality', 'score': round(enrich_score, 1), 'weight': 2.5,
+                        'detail': f'{enriched}/{len(enrichment_fields)} enrichment fields'})
+        total += enrich_score * 2.5
+        max_total += 10 * 2.5
+
+        # Factor 4: Contact availability (weight 2.5)
+        has_email = bool(target.email and target.email.strip())
+        has_phone = bool(target.phone and target.phone.strip())
+        has_linkedin = bool(target.linkedin and target.linkedin.strip())
+        if has_email:
+            contact_score = 9.0
+        elif has_linkedin:
+            contact_score = 7.0
+        elif has_phone:
+            contact_score = 6.0
+        else:
+            contact_score = 2.0
+        factors.append({'name': 'Contact Available', 'score': contact_score, 'weight': 2.5,
+                        'detail': 'Email' if has_email else ('LinkedIn' if has_linkedin else 'Limited')})
+        total += contact_score * 2.5
+        max_total += 10 * 2.5
+
+        score = (total / max_total) * 10 if max_total > 0 else 0
+        return {'score': round(score, 2), 'factors': factors}

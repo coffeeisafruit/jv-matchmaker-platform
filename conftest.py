@@ -2,9 +2,8 @@
 Root conftest for JV Matchmaker Platform test suite.
 
 Handles:
-- Django settings configuration
-- Unmanaged model (SupabaseProfile, SupabaseMatch) table creation for SQLite
-- ArrayField → JSONField shim for SQLite compatibility
+- Django settings configuration (PostgreSQL via DATABASE_URL)
+- Unmanaged model (SupabaseProfile, SupabaseMatch) table creation via pre_migrate signal
 - Shared fixtures for sample data and mocked services
 """
 
@@ -13,92 +12,89 @@ import json
 import pytest
 from unittest.mock import MagicMock, patch
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.test_settings')
 
 
 # ---------------------------------------------------------------------------
-# Unmanaged model handling: make SupabaseProfile / SupabaseMatch creatable
-# in the test database by temporarily setting managed = True
+# Hooks: create unmanaged model tables before migrations need them
+# ---------------------------------------------------------------------------
+
+_signal_connected = False
+
+
+def pytest_configure(config):
+    """Connect pre_migrate signal to create unmanaged model tables.
+
+    The unmanaged models (SupabaseProfile, SupabaseMatch) have managed=False,
+    so Django migrations skip CREATE TABLE for them. But managed models like
+    SavedCandidate have FK constraints pointing to 'profiles', which fails
+    if the table doesn't exist during migration.
+
+    Solution: use Django's pre_migrate signal to create the tables (with the
+    full current model schema) right before the matching app's migrations run.
+    """
+    global _signal_connected
+    if _signal_connected:
+        return
+
+    from django.apps import apps
+    from django.db.models.signals import pre_migrate
+
+    def create_unmanaged_tables(sender, **kwargs):
+        """Create tables for unmanaged models before matching migrations run."""
+        if sender.label != 'matching':
+            return
+
+        from django.db import connection
+
+        for model_name in ('SupabaseProfile', 'SupabaseMatch'):
+            try:
+                model = apps.get_model('matching', model_name)
+                old_managed = model._meta.managed
+                model._meta.managed = True
+                try:
+                    with connection.schema_editor() as editor:
+                        editor.create_model(model)
+                except Exception:
+                    pass  # Table may already exist (keepdb mode)
+                finally:
+                    model._meta.managed = old_managed
+            except LookupError:
+                pass
+
+    pre_migrate.connect(create_unmanaged_tables)
+    _signal_connected = True
+
+
+# ---------------------------------------------------------------------------
+# Database setup
 # ---------------------------------------------------------------------------
 
 @pytest.fixture(scope='session')
-def django_db_modify_db_settings():
-    """Ensure tests use SQLite (no DATABASE_URL)."""
-    os.environ.pop('DATABASE_URL', None)
+def django_db_setup(django_test_environment, django_db_blocker):
+    """Create (or reuse) test DB and run migrations.
 
+    Uses keepdb=True so a stale test database from a previous run is
+    reused rather than dropped and recreated. This avoids PostgreSQL's
+    "database is being accessed by other users" errors entirely.
 
-def _patch_unmanaged_models():
-    """Set managed=True on unmanaged models so Django creates their tables."""
-    from django.apps import apps
-    unmanaged = [
-        ('matching', 'SupabaseProfile'),
-        ('matching', 'SupabaseMatch'),
-    ]
-    originals = {}
-    for app_label, model_name in unmanaged:
-        try:
-            model = apps.get_model(app_label, model_name)
-            originals[(app_label, model_name)] = model._meta.managed
-            model._meta.managed = True
-        except LookupError:
-            pass
-    return originals
-
-
-def _restore_unmanaged_models(originals):
-    """Restore original managed state."""
-    from django.apps import apps
-    for (app_label, model_name), managed in originals.items():
-        try:
-            model = apps.get_model(app_label, model_name)
-            model._meta.managed = managed
-        except LookupError:
-            pass
-
-
-@pytest.fixture(scope='session')
-def django_db_setup(django_test_environment, django_db_modify_db_settings):
-    """Create all tables including unmanaged models."""
+    The pre_migrate signal handler (above) ensures unmanaged model tables
+    exist before any migration tries to create FK constraints to them.
+    """
     from django.test.utils import setup_databases, teardown_databases
-    from django.conf import settings
 
-    # Patch ArrayField for SQLite: replace with JSONField
-    _patch_arrayfield_for_sqlite()
-
-    originals = _patch_unmanaged_models()
-
-    db_cfg = setup_databases(
-        verbosity=0,
-        interactive=False,
-        aliases=['default'],
-    )
+    with django_db_blocker.unblock():
+        db_cfg = setup_databases(
+            verbosity=0,
+            interactive=False,
+            keepdb=True,
+            aliases=['default'],
+        )
 
     yield
 
-    _restore_unmanaged_models(originals)
-    teardown_databases(db_cfg, verbosity=0)
-
-
-def _patch_arrayfield_for_sqlite():
-    """Replace ArrayField with JSONField for SQLite compatibility."""
-    from django.conf import settings
-    db_engine = settings.DATABASES.get('default', {}).get('ENGINE', '')
-    if 'sqlite' in db_engine:
-        from django.db import models as django_models
-        from django.contrib.postgres import fields as pg_fields
-
-        class FakeArrayField(django_models.JSONField):
-            """Drop-in replacement for ArrayField on SQLite."""
-            def __init__(self, base_field=None, size=None, **kwargs):
-                kwargs.pop('base_field', None)
-                kwargs.pop('size', None)
-                super().__init__(**kwargs)
-
-            def deconstruct(self):
-                name, path, args, kwargs = super().deconstruct()
-                return name, path, args, kwargs
-
-        pg_fields.ArrayField = FakeArrayField
+    # Don't tear down — keepdb mode reuses the database across runs.
+    # This is safe because migrations are idempotent.
 
 
 # ---------------------------------------------------------------------------
