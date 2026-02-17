@@ -1,0 +1,24 @@
+{
+  "name": "Token CEO Podcast",
+  "company": "Token CEO Podcast",
+  "website": "https://www.barstoolsports.com/podcasts",
+  "list_size": 0,
+  "what_you_do": "Token CEO Podcast discusses business, entrepreneurship, and leadership topics, featuring insights from various industry leaders and entrepreneurs.",
+  "who_you_serve": "The podcast targets entrepreneurs, business professionals, and individuals interested in leadership and business growth.",
+  "niche": "business podcast",
+  "tags": [
+    "business",
+    "entrepreneurship",
+    "leadership",
+    "podcast",
+    "barstool sports"
+  ],
+  "business_focus": "Token CEO Podcast discusses business, entrepreneurship, and leadership topics, featuring insights from various industry leaders and entrepreneurs. (business podcast)",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "spotify_podcast": "https://open.spotify.com/show/6oEiUvynU4BH3tyHFjHrWK",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/what-the-barstool-idol-winners-are-doing-next/id1503065691?i=1000568244398",
+    "youtube": "https://www.youtube.com/watch?v=SUNv8zgHttw"
+  },
+  "audience_engagement_score": 0.55
+}

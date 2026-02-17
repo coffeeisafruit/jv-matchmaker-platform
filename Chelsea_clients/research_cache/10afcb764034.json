@@ -1,0 +1,36 @@
+{
+  "name": "The Wolf's Den Podcast",
+  "company": "The Wolf's Den",
+  "website": "https://jordanbelfort.com/blogs/podcast",
+  "list_size": 0,
+  "what_you_do": "The Wolf's Den Podcast, hosted by Jordan Belfort, features discussions with various guests on topics related to business, media, and personal development, aiming to provide insights and strategies for success.",
+  "who_you_serve": "The podcast serves entrepreneurs, business professionals, and individuals interested in personal growth and media insights.",
+  "niche": "podcast",
+  "service_provided": "podcast",
+  "business_size": "small_team",
+  "tags": [
+    "podcast",
+    "business",
+    "media",
+    "entrepreneurship",
+    "personal development",
+    "insights"
+  ],
+  "business_focus": "The Wolf's Den Podcast, hosted by Jordan Belfort, features discussions with various guests on topics related to business, media, and personal development, aiming to provide insights and strategies for success.",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "facebook": "https://www.facebook.com/p/The-Wolf-Den-61571566362508/",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-wolfs-den/id1464461126",
+    "youtube": "https://www.youtube.com/channel/UCPxrxAymCHn2rlT164GEAKg",
+    "spotify_podcast": "https://open.spotify.com/episode/7F8rh6gR9KI8zxXFPsxebW"
+  },
+  "jv_history": [
+    {
+      "partner_name": "The Wolf Den - Apple Podcasts",
+      "format": "endorsement",
+      "source_quote": "Den focuses on starting and growing a new business and interviews others who are influencing the business of ... The Wolf Den focuses on starting and growing a new business and interviews others who a",
+      "source_url": "https://podcasts.apple.com/us/podcast/the-wolf-den/id413948820"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001
+}

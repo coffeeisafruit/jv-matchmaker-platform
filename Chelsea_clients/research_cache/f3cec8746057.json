@@ -1,0 +1,39 @@
+{
+  "name": "The Home Service Expert Podcast",
+  "website": "https://homeserviceexpert.com/podcast",
+  "list_size": 0,
+  "what_you_do": "The Home Service Expert Podcast, hosted by Tommy Mello, features interviews with industry experts discussing various aspects of the home services sector, including marketing, sales, and leadership.",
+  "who_you_serve": "The podcast serves entrepreneurs and professionals in the home services industry, providing insights and strategies to enhance their business practices.",
+  "niche": "home services",
+  "company": "The Home Service Expert",
+  "service_provided": "podcast",
+  "business_size": "small_team",
+  "tags": [
+    "podcast",
+    "home services",
+    "marketing",
+    "sales",
+    "leadership",
+    "entrepreneurship"
+  ],
+  "business_focus": "The Home Service Expert Podcast, hosted by Tommy Mello, features interviews with industry experts discussing various aspects of the home services sector, including marketing, sales, and leadership.",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "facebook": "https://www.facebook.com/groups/2732901080161138/",
+    "twitter": "https://twitter.com/realtommymello",
+    "linkedin": "https://www.linkedin.com/posts/tommymello_the-home-service-expert-podcast-is-no-1-activity-7201968103377821699-bfS6",
+    "youtube": "https://www.youtube.com/@homeserviceexpert7029",
+    "instagram": "https://instagram.com/officialtommymello",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-home-service-expert-podcast/id1341478446",
+    "spotify_podcast": "https://open.spotify.com/episode/4zlWbsPDcq8hEsV4xampJO"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Home Services Growth Summit Show",
+      "format": "podcast_guest",
+      "source_quote": "Home Services Growth Summit Show is the podcast and show for Home Services Businesses with a Growth Mindset. ... The Home Services Growth Summit Show is the podcast and",
+      "source_url": "https://podcasts.apple.com/us/podcast/home-services-growth-summit-show/id1722109484"
+    }
+  ],
+  "audience_engagement_score": 0.65
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Rev.com Transcription Services",
+  "company": "Transcription Services",
+  "list_size": 28000,
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/products/rev-com-rev/",
+    "youtube": "https://www.youtube.com/playlist?list=PLjVfK1-aLReIiWxYdaOv_nEOtuOnwFqVo"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Rev for News Organizations | LinkedIn",
+      "format": "summit_speaker",
+      "source_quote": "helps reporters identify contradictions, uncover connections, and fact-check claims across interviews, public ... Rev\u2019s ASR beats out competitors in accuracy across challenging environments and in sce",
+      "source_url": "https://www.linkedin.com/products/rev-com-automated-audio-video-transcription/"
+    },
+    {
+      "partner_name": "Rev for Video Distribution and Accessibility | LinkedIn",
+      "format": "endorsement",
+      "source_quote": "your content distribution with guaranteed accessibility, platform compliance, and savings. Maximize ... Say farewell to searching tediously through footage.\n-Instantly transcribe and share meetings an",
+      "source_url": "https://www.linkedin.com/products/rev-com-video-production-distribution/"
+    },
+    {
+      "partner_name": "Need your interviews transcribed? | Rev",
+      "format": "endorsement",
+      "source_quote": "cription - $1/min, 24hr turnaround, 99% accuracy. ... Need your interviews transcribed? $1/min. 99% accuracy.",
+      "source_url": "https://www.linkedin.com/posts/rev-com_audio-transcription-1min-24hr-turnaround-activity-6456577157719298048-TUbV"
+    }
+  ],
+  "audience_engagement_score": 0.55,
+  "website": "https://www.rev.com/"
+}

@@ -1,0 +1,39 @@
+{
+  "name": "Something You Should Know Podcast",
+  "company": "OmniCast Media",
+  "website": "https://www.somethingyoushouldknow.net",
+  "list_size": 4200,
+  "who_you_serve": "General audience seeking practical wisdom and life advice",
+  "what_you_do": "Podcast featuring interviews with top experts to bring wisdom and advice for life Offers: Something You Should Know Podcast, SYSK TRENDING (archive conversations on trending topics)",
+  "offering": "Something You Should Know Podcast, SYSK TRENDING (archive conversations on trending topics)",
+  "niche": "podcast",
+  "service_provided": "podcast",
+  "business_size": "small_team",
+  "tags": [
+    "podcast",
+    "wisdom",
+    "advice",
+    "personal development",
+    "knowledge"
+  ],
+  "business_focus": "Podcast featuring interviews with top experts to bring wisdom and advice for life Offers: Something You Should Know Podcast, SYSK TRENDING (archive conversations on trending topics)",
+  "audience_type": "General audience seeking practical wisdom and life advice",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/ie/podcast/something-you-should-know/id1150124880",
+    "spotify_podcast": "https://open.spotify.com/show/0v9reyR22LeAMLQFvPpk6c"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Something You Should Know - Apple Podcasts",
+      "format": "podcast_guest",
+      "source_quote": "\"Something You Should Know.\" In each episode, host Mike Carruthers interviews",
+      "source_url": "https://podcasts.apple.com/ie/podcast/something-you-should-know/id1150124880"
+    },
+    {
+      "partner_name": "Something You Should Know",
+      "format": "podcast_guest",
+      "source_quote": "of \"Something You Should Know.\" In each episode, host Mike Carruthers interviews top experts in their field to bring you fascinating",
+      "source_url": "https://podcasts.apple.com/us/podcast/something-you-should-know/id1150124880"
+    }
+  ]
+}

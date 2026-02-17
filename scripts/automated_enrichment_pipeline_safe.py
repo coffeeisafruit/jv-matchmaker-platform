@@ -775,7 +775,7 @@ class SafeEnrichmentPipeline:
         self,
         profiles: List[Dict]
     ) -> List[Tuple[Dict, Optional[str], Optional[str]]]:
-        """Use Apollo bulk API (VERIFIED by Apollo)"""
+        """Use Apollo bulk API (VERIFIED by Apollo) — email extraction for legacy flow."""
         if self.dry_run or not profiles:
             return [(p, None, None) for p in profiles]
 
@@ -838,6 +838,168 @@ class SafeEnrichmentPipeline:
             logger.warning(f"Apollo bulk match API failed: {e}")
 
         return [(p, None, None) for p in batch]
+
+    # --- CASCADE ENRICHMENT (Exa → Apollo → OWL) ---
+
+    TIER1_FIELDS = ['email', 'website', 'linkedin', 'what_you_do', 'who_you_serve',
+                    'niche', 'offering']
+
+    def _has_tier1_gaps(self, result: Dict) -> bool:
+        """Check if a profile result still has Tier 1 field gaps."""
+        for field in self.TIER1_FIELDS:
+            value = result.get(field)
+            if not value or (isinstance(value, str) and not value.strip()):
+                return True
+        return False
+
+    def _has_contact_gaps(self, result: Dict) -> bool:
+        """Check if a profile result is missing contact info Apollo can fill."""
+        return (
+            not result.get('email')
+            or not result.get('phone')
+            or not result.get('linkedin')
+        )
+
+    def _run_cascade_apollo(self, results: List[Dict]) -> List[Dict]:
+        """
+        Cascade Step 2: Run full Apollo enrichment on profiles with gaps.
+
+        Uses ApolloEnrichmentService to capture ALL Apollo data (not just email).
+        Only runs for profiles that still have Tier 1-2 gaps after Exa.
+        """
+        from matching.enrichment.apollo_enrichment import ApolloEnrichmentService
+
+        api_key = os.environ.get('APOLLO_API_KEY', '')
+        if not api_key:
+            logger.warning("CASCADE: APOLLO_API_KEY not set, skipping Apollo step")
+            return results
+
+        service = ApolloEnrichmentService(api_key=api_key)
+
+        # Find profiles that need Apollo enrichment
+        needs_apollo = []
+        result_map = {}  # profile_id -> result index
+        for idx, result in enumerate(results):
+            if self._has_contact_gaps(result):
+                needs_apollo.append(result)
+                result_map[result['profile_id']] = idx
+
+        if not needs_apollo:
+            print("  CASCADE: All profiles have contact info, skipping Apollo")
+            return results
+
+        remaining_credits = self.max_apollo_credits - self.apollo_credits_used
+        if remaining_credits <= 0:
+            print(f"  CASCADE: Apollo credit limit reached ({self.apollo_credits_used})")
+            return results
+
+        # Limit to remaining credits
+        needs_apollo = needs_apollo[:remaining_credits]
+        print(f"  CASCADE: Running Apollo on {len(needs_apollo)} profiles with contact gaps...")
+
+        # Process in batches of 10
+        for batch_start in range(0, len(needs_apollo), 10):
+            batch = needs_apollo[batch_start:batch_start + 10]
+
+            # Convert results to profile-like dicts for Apollo
+            profile_dicts = []
+            for r in batch:
+                profile_dicts.append({
+                    'id': r['profile_id'],
+                    'name': r.get('name', ''),
+                    'company': r.get('company', ''),
+                    'website': r.get('website', r.get('discovered_website', '')),
+                    'linkedin': r.get('linkedin', r.get('discovered_linkedin', '')),
+                    'email': r.get('email', ''),
+                })
+
+            apollo_results = service.enrich_batch(profile_dicts)
+
+            for apollo_result, original_result in zip(apollo_results, batch):
+                if apollo_result.get('error'):
+                    continue
+
+                idx = result_map.get(original_result['profile_id'])
+                if idx is None:
+                    continue
+
+                # Merge Apollo fields into existing result
+                for field in ('email', 'linkedin', 'website', 'phone', 'company',
+                              'business_size', 'revenue_tier', 'service_provided',
+                              'niche', 'avatar_url'):
+                    if apollo_result.get(field) and not results[idx].get(field):
+                        results[idx][field] = apollo_result[field]
+
+                # Store apollo_data in result for consolidation
+                results[idx]['_apollo_data'] = apollo_result.get('_apollo_data', {})
+
+                self.apollo_credits_used += 1
+                self.stats['apollo_api'] += 1
+
+            time.sleep(1)  # Rate limit between batches
+
+        print(f"  CASCADE: Apollo enriched {self.stats['apollo_api']} profiles")
+        return results
+
+    def _run_cascade_owl(self, results: List[Dict]) -> List[Dict]:
+        """
+        Cascade Step 3: Run OWL Deep Research on profiles still missing Tier 1 fields.
+
+        Uses ProfileEnrichmentAgent (Claude SDK + DDG + Tavily) — essentially
+        free on Claude Max plan.
+        """
+        # Find profiles still with Tier 1 gaps after Exa + Apollo
+        needs_owl = []
+        result_map = {}
+        for idx, result in enumerate(results):
+            if self._has_tier1_gaps(result):
+                needs_owl.append(result)
+                result_map[result['profile_id']] = idx
+
+        if not needs_owl:
+            print("  CASCADE: All Tier 1 fields filled, skipping OWL")
+            return results
+
+        print(f"  CASCADE: Running OWL Deep Research on {len(needs_owl)} profiles with Tier 1 gaps...")
+
+        try:
+            from matching.enrichment.owl_research.agents.enrichment_agent import ProfileEnrichmentAgent
+            agent = ProfileEnrichmentAgent()
+        except ImportError:
+            logger.warning("CASCADE: OWL enrichment agent not available, skipping")
+            return results
+
+        owl_count = 0
+        for result in needs_owl:
+            try:
+                enriched = agent.enrich_profile(
+                    name=result.get('name', ''),
+                    website=result.get('website', result.get('discovered_website', '')),
+                    company=result.get('company', ''),
+                    linkedin=result.get('linkedin', result.get('discovered_linkedin', '')),
+                )
+
+                if not enriched:
+                    continue
+
+                idx = result_map.get(result['profile_id'])
+                if idx is None:
+                    continue
+
+                # Merge OWL fields (only fill gaps, don't overwrite Exa/Apollo data)
+                for field in ('what_you_do', 'who_you_serve', 'seeking', 'offering',
+                              'bio', 'niche'):
+                    if enriched.get(field) and not results[idx].get(field):
+                        results[idx][field] = enriched[field]
+
+                owl_count += 1
+
+            except Exception as e:
+                logger.warning(f"OWL research failed for {result.get('name', '')}: {e}")
+                continue
+
+        print(f"  CASCADE: OWL enriched {owl_count} profiles")
+        return results
 
     def _run_ai_research(self, profile: Dict) -> Optional[Dict]:
         """
@@ -947,7 +1109,8 @@ class SafeEnrichmentPipeline:
 
     async def run(self, limit=20, priority='high-value', auto_consolidate=False,
                   concurrency=5, tier_filter=None, phase_number=None,
-                  skip_social_reach=False, exa_only=False, cache_only=False):
+                  skip_social_reach=False, exa_only=False, cache_only=False,
+                  cascade=False, owl_fallback=False):
         """Run safe enrichment pipeline with concurrent processing.
 
         Args:
@@ -958,11 +1121,15 @@ class SafeEnrichmentPipeline:
             tier_filter: Set of tier numbers to include (None = all tiers)
             phase_number: Phase number for reporting (1-4, or None)
             cache_only: If True, only use cached results (no API calls)
+            cascade: Enable cascade enrichment (Exa → Apollo full → OWL)
+            owl_fallback: Enable OWL deep research as final fallback
         """
         start_time = time.time()
         self.skip_social_reach = skip_social_reach
         self.exa_only = exa_only
         self.cache_only = cache_only
+        self.cascade = cascade
+        self.owl_fallback = owl_fallback
 
         print("=" * 70)
         print("SAFE AUTOMATED ENRICHMENT PIPELINE (NO GUESSING)")
@@ -970,6 +1137,8 @@ class SafeEnrichmentPipeline:
         print(f"Mode: {'DRY RUN' if self.dry_run else 'LIVE ENRICHMENT'}")
         if self.refresh_mode:
             print(f"REFRESH MODE: Re-enriching profiles stale > {self.stale_days} days")
+        if cascade:
+            print(f"CASCADE MODE: Exa → Apollo (full) → {'OWL' if owl_fallback else 'done'}")
         print(f"Priority: {priority}")
         print(f"Limit: {limit}")
         print(f"Concurrency: {concurrency}")
@@ -1051,7 +1220,8 @@ class SafeEnrichmentPipeline:
                         needs_apollo.append(profile)
 
                 # Step 2: Apollo fallback for profiles without emails
-                if needs_apollo and self.apollo_credits_used < self.max_apollo_credits:
+                # In cascade mode, skip this — full Apollo runs after Exa research
+                if needs_apollo and self.apollo_credits_used < self.max_apollo_credits and not self.cascade:
                     remaining = self.max_apollo_credits - self.apollo_credits_used
                     apollo_batch = needs_apollo[:min(len(needs_apollo), remaining)]
 
@@ -1235,6 +1405,21 @@ class SafeEnrichmentPipeline:
                     )
 
         # Save results (only those with emails for the CSV)
+        # --- CASCADE STEPS (after Exa, before consolidation) ---
+        if self.cascade and results and not self.dry_run:
+            print(f"\n{'='*60}")
+            print("CASCADE ENRICHMENT")
+            print(f"{'='*60}")
+
+            # Cascade Step 2: Full Apollo enrichment on profiles with contact gaps
+            results = self._run_cascade_apollo(results)
+
+            # Cascade Step 3: OWL Deep Research on remaining Tier 1 gaps
+            if self.owl_fallback:
+                results = self._run_cascade_owl(results)
+
+            print(f"{'='*60}\n")
+
         email_results = [r for r in results if r.get('email')]
         if email_results and not self.dry_run:
             output_file = f"enriched_safe_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
@@ -1635,12 +1820,41 @@ class SafeEnrichmentPipeline:
                         'pipeline_version': PIPELINE_VERSION,
                     }
 
+                # avatar_url: from Apollo cascade (fill-only)
+                avatar_url = result.get('avatar_url', '').strip()
+                if avatar_url and self._should_write_field('avatar_url', avatar_url, existing_meta, 'apollo'):
+                    set_parts.append(sql.SQL(
+                        "{col} = CASE WHEN COALESCE(profiles.{col}, '') = '' "
+                        "THEN %s ELSE profiles.{col} END"
+                    ).format(col=sql.Identifier('avatar_url')))
+                    params.append(avatar_url)
+                    fields_written.append('avatar_url')
+
                 meta_payload = {
                     'last_enrichment': 'exa_pipeline',
                     'enriched_at': enriched_at.isoformat(),
                     'tier': result.get('_tier', 0),
                     'field_meta': field_meta_update,
                 }
+
+                # Include apollo_data from cascade enrichment
+                apollo_data = result.get('_apollo_data')
+                if apollo_data:
+                    meta_payload['apollo_data'] = apollo_data
+                    meta_payload['last_apollo_enrichment'] = datetime.now().isoformat()
+                    # Track Apollo-sourced fields in field_meta
+                    for f in fields_written:
+                        if f in ('email', 'phone', 'linkedin', 'website', 'company',
+                                 'business_size', 'revenue_tier', 'service_provided',
+                                 'niche', 'avatar_url'):
+                            # Check if this field came from Apollo (not Exa)
+                            if result.get('_apollo_data') and not result.get('_extraction_metadata'):
+                                field_meta_update[f] = {
+                                    'source': 'apollo',
+                                    'updated_at': now_iso,
+                                    'pipeline_version': PIPELINE_VERSION,
+                                }
+
                 set_parts.append(sql.SQL(
                     "enrichment_metadata = COALESCE(enrichment_metadata, '{{}}'::jsonb) || %s::jsonb"
                 ))
@@ -1755,6 +1969,11 @@ def main():
                         help='Re-enrich stale profiles (uses source priority to protect client data)')
     parser.add_argument('--stale-days', type=int, default=30,
                         help='In refresh mode, re-enrich profiles older than N days (default 30)')
+    # Cascade enrichment: Exa → Apollo (full) → OWL
+    parser.add_argument('--cascade', action='store_true', default=False,
+                        help='Enable cascade: Exa first, then full Apollo on gaps, then OWL')
+    parser.add_argument('--owl-fallback', action='store_true', default=False,
+                        help='Enable OWL deep research as final cascade fallback')
 
     args = parser.parse_args()
 
@@ -1787,6 +2006,8 @@ def main():
             skip_social_reach=args.skip_social_reach,
             exa_only=args.exa_only,
             cache_only=args.cache_only,
+            cascade=args.cascade,
+            owl_fallback=args.owl_fallback,
         ))
     finally:
         pipeline.cleanup()

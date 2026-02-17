@@ -1,0 +1,29 @@
+{
+  "name": "Advertising, On",
+  "company": "More Info",
+  "list_size": 10000000,
+  "who_you_serve": "The podcast targets women entrepreneurs and aspiring business owners, providing inspiration and insights from successful female founders.",
+  "what_you_do": "Startups in Stilettos is a podcast that shares stories of women entrepreneurs and their journeys in building successful startups.",
+  "business_focus": "Startups in Stilettos is a podcast that shares stories of women entrepreneurs and their journeys in building successful startups.",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/in/lepsver",
+    "facebook": "https://www.facebook.com/business/news/introducing-a-new-info-and-ads-section-on-pages"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Grok 10-second Video Generation Raises Safety Concerns | Michael Loiacono posted on the topic | Link",
+      "format": "endorsement",
+      "source_quote": "helps TV advertisers creatively strategize new TV ad creatives and better market their brands. Each shot is collaboratively ideated, ... #ETBrandEquity [#Advertising]<",
+      "source_url": "https://www.linkedin.com/posts/loiacono-michael_xai-releases-updated-video-generation-process-activity-7425153726853832704-gwK6"
+    },
+    {
+      "partner_name": "LinkedIn Ads Guide | Advertise on LinkedIn",
+      "format": "endorsement",
+      "source_quote": "### Advertising Advertising ### How to get started\n Create a LinkedIn Page ... Talent Blog \n###### Advertise\n Sponsored Content \n[Message",
+      "source_url": "https://business.linkedin.com/marketing-solutions/success/ads-guide"
+    }
+  ],
+  "audience_engagement_score": 0.4,
+  "website": "https://www.fastcompany.com/91416785/bozoma-saint-john-on-advertisings-reality-tv-moment"
+}

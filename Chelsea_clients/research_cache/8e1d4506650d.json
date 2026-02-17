@@ -1,0 +1,27 @@
+{
+  "name": "Tony Guarnaccia",
+  "company": "Guesitfy AI",
+  "website": "https://www.linkedin.com/in/tonyguarnaccia",
+  "list_size": 10000,
+  "content_platforms": {
+    "facebook": "https://www.facebook.com/guarnaccia/posts/great-start-to-the-newsletter-marketing-summit-learning-from-some-of-the-best-mi/10165076729597907/",
+    "linkedin": "https://www.linkedin.com/pulse/recap-martech-west-conference-darren-guarnaccia",
+    "youtube": "https://www.youtube.com/watch?v=dKbtgHP1kXs"
+  },
+  "jv_history": [
+    {
+      "partner_name": "",
+      "format": "summit_speaker",
+      "source_quote": "to the Newsletter Marketing Summit learning from some of the best minds in content creation,",
+      "source_url": "https://www.facebook.com/guarnaccia/posts/great-start-to-the-newsletter-marketing-summit-learning-from-some-of-the-best-mi/10165076729597907/"
+    },
+    {
+      "partner_name": "Building Generative AI Products Case Study: Uizard",
+      "format": "endorsement",
+      "source_quote": "Tony Beltramelli , the co-founder of [Uizard by Miro Labs]<",
+      "source_url": "https://www.linkedin.com/pulse/building-generative-ai-products-case-study-uizard-shyvee-shi-bwn4c"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001,
+  "linkedin": "https://www.linkedin.com/in/tonyguarnaccia"
+}

@@ -1,0 +1,42 @@
+{
+  "name": "NAMIC Insurance Uncovered",
+  "company": "NAMIC",
+  "website": "https://www.namic.org/podcast/insuranceuncovered",
+  "list_size": 0,
+  "what_you_do": "Insurance Uncovered is an award-winning podcast that shares the latest insurance-related news and perspectives from industry thought leaders and subject matter experts.",
+  "who_you_serve": "The podcast serves insurance professionals, industry stakeholders, and anyone interested in insurance-related topics.",
+  "niche": "insurance podcast",
+  "service_provided": "podcast",
+  "tags": [
+    "insurance",
+    "podcast",
+    "industry news",
+    "thought leadership",
+    "expert insights"
+  ],
+  "bio": "Award-winning podcast",
+  "business_focus": "Insurance Uncovered is an award-winning podcast that shares the latest insurance-related news and perspectives from industry thought leaders and subject matter experts. (insurance podcast)",
+  "audience_type": "The podcast serves insurance professionals, industry stakeholders, and anyone interested in insuranc",
+  "content_platforms": {
+    "facebook": "https://www.facebook.com/NAMICorg",
+    "twitter": "https://twitter.com/namic",
+    "linkedin": "https://www.linkedin.com/company/namicorg",
+    "youtube": "https://www.youtube.com/watch?v=5jjUHg4f5K4",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/insurance-uncovered-holborns-beat-the-clock/id1363387457?i=1000679235707"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Insurance Uncovered: Holborn's \"Beat the Clock\"",
+      "format": "endorsement",
+      "source_quote": "- NAMIC's Insurance Uncovered sponsor - is also sponsoring a new book called \"Beat the Clock - How the Property ... On today\u2019s Unscripted, Neil Alldredge, president and CEO of NAM",
+      "source_url": "https://podcasts.apple.com/us/podcast/insurance-uncovered-holborns-beat-the-clock/id1363387457?i=1000679235707"
+    },
+    {
+      "partner_name": "California FAIR Plan Assessment & Hawaii Subrogation Decision",
+      "format": "podcast_guest",
+      "source_quote": "803: Today we\u2019re uncovering subrogation. We'll sit down with Steve Badger, attorney at Zelle, to discuss why ... This week\u2019s episode is sponsored by Holborn.\n\n- Show\n\n[NAMIC's Insurance Un",
+      "source_url": "https://podcasts.apple.com/us/podcast/california-fair-plan-assessment-hawaii-subrogation/id1363387457?i=1000692235278"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001
+}

@@ -1,0 +1,37 @@
+{
+  "name": "Between Now and Success Podcast",
+  "website": "https://stevesanduski.com",
+  "list_size": 0,
+  "what_you_do": "Between Now and Success is a podcast where Steve Sanduski interviews top achievers and visionary voices at the intersection of business and life.",
+  "who_you_serve": "The podcast serves entrepreneurs, business leaders, and individuals interested in personal and professional growth.",
+  "niche": "podcast",
+  "service_provided": "podcast",
+  "business_size": "solo",
+  "tags": [
+    "podcast",
+    "business",
+    "personal growth",
+    "leadership",
+    "entrepreneurship"
+  ],
+  "business_focus": "Between Now and Success is a podcast where Steve Sanduski interviews top achievers and visionary voices at the intersection of business and life.",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/between-now-and-success/id955311743",
+    "spotify_podcast": "https://open.spotify.com/show/2oUgEeL7nPZz66eWZ6ipG0"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Between Now and Success - Apple Podcasts",
+      "format": "podcast_guest",
+      "source_quote": "Between Now and Success is where it\u2019s at! Every episode is packed with genuinely excellent takeaways from remarkable leaders. So grateful for what ... Host Steve Sanduski, CFP\u00ae is the founder of two f",
+      "source_url": "https://podcasts.apple.com/us/podcast/between-now-and-success/id955311743"
+    },
+    {
+      "partner_name": "Between Now and Success",
+      "format": "podcast_guest",
+      "source_quote": "Between Now and Success\n23/08/2019\nBostonteaparty1773 If you\u2019re involved in financial planning, as a sole trader or business owner, these podcasts are invaluable in helping ... podcast host, executive",
+      "source_url": "https://podcasts.apple.com/gb/podcast/between-now-and-success/id955311743"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "Kristen Kramer",
+  "company": "Bold Moves Boss",
+  "website": "https://www.linkedin.com/in/kristenkramer",
+  "list_size": 0,
+  "offering": "Business Coachi",
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/in/kristenkramer",
+    "facebook": "https://www.facebook.com/kykramer/",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/bold-moves-how-did-you-know/id1676160141",
+    "youtube": "https://www.youtube.com/playlist?list=PLwkaE7Oq9JnI2jfYj7GqMmDUYp78-ElU6"
+  },
+  "jv_history": [
+    {
+      "partner_name": "The Kristen Boss Podcast",
+      "format": "podcast_guest",
+      "source_quote": "Kristen Boss Podcast is for entrepreneurs, leaders, and anyone navigating major life transitions who want to build something that truly sustains them. Host Kristen Boss, co-founder of Sondera",
+      "source_url": "https://podcasts.apple.com/us/podcast/the-kristen-boss-podcast/id1517235074"
+    },
+    {
+      "partner_name": "The Consulting Leadership Mom\u2018s Table: candid talks with women leaders on career and family - Podcas",
+      "format": "podcast_guest",
+      "source_quote": "Be Bold About What You Need: Lessons from 2 Moms Leading in Consulting [10/04/2025 In this episode of The Consulting Moms Table, host Karin Mayer sits down with Paula Walworth and Sunita ... a family.",
+      "source_url": "https://podcasts.apple.com/us/podcast/the-consulting-leadership-mom-s-table-candid-talks/id1831496686"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001,
+  "linkedin": "https://www.linkedin.com/in/kristenkramer"
+}

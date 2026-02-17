@@ -1,0 +1,44 @@
+{
+  "name": "The Flower Podcast",
+  "company": "The Flower Podcast",
+  "website": "https://www.theflowerpodcast.com",
+  "list_size": 0,
+  "what_you_do": "The Flower Podcast is a platform that shares stories and insights from florists, flower farmers, educators, and business owners in the floral industry, focusing on floral design, growing advice, and business tips.",
+  "who_you_serve": "The podcast serves flower enthusiasts, florists, and anyone interested in the floral industry, including both B2C and B2B audiences.",
+  "niche": "floral industry",
+  "service_provided": "podcast",
+  "phone": "404-751-8473",
+  "business_size": "small_team",
+  "tags": [
+    "flowers",
+    "floral design",
+    "podcast",
+    "business advice",
+    "flower farming",
+    "education"
+  ],
+  "business_focus": "The Flower Podcast is a platform that shares stories and insights from florists, flower farmers, educators, and business owners in the floral industry, focusing on floral design, growing advice, and business tips.",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "youtube": "https://www.youtube.com/watch?v=A3IYf60PIIM",
+    "instagram": "https://www.instagram.com/p/DTlSQxhkiXL/",
+    "facebook": "https://www.facebook.com/theflowerpodcast/",
+    "spotify_podcast": "https://open.spotify.com/episode/3WZ6MZg3z9B3Qze1wfaCn3",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-flower-podcast/id1403616027"
+  },
+  "jv_history": [
+    {
+      "partner_name": "- YouTube",
+      "format": "podcast_guest",
+      "source_quote": "amazing line-up of past guests? Visit TheFlowerPodcast.com and",
+      "source_url": "https://www.youtube.com/watch?v=A3IYf60PIIM"
+    },
+    {
+      "partner_name": "",
+      "format": "podcast_guest",
+      "source_quote": "Floret Flower's, Erin Benzakein is our guest this week on The Flower Podcast. Erin and her team have influenced both ... Go to The Flower Podcast.com to learn about all of our past guests and listen t",
+      "source_url": "https://podcasts.apple.com/mn/podcast/a-year-in-flowers-with-erin-benzakein-of-floret-2020/id1403616027?i=1000465095421"
+    }
+  ],
+  "audience_engagement_score": 0.65
+}

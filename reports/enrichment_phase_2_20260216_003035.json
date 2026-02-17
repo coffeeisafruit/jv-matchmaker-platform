@@ -1,0 +1,201 @@
+{
+  "phase": 2,
+  "tiers": [
+    1,
+    2,
+    3
+  ],
+  "timestamp": "2026-02-16T00:30:35.912951",
+  "runtime_seconds": 1192.4,
+  "profiles_processed": 35,
+  "profiles_enriched": 30,
+  "profiles_failed": 5,
+  "cost_dollars": 0.6,
+  "field_fill_rates": {
+    "what_you_do": {
+      "before": {
+        "count": 459,
+        "pct": 12.8
+      },
+      "after": {
+        "count": 484,
+        "pct": 13.5
+      },
+      "delta_count": 25,
+      "delta_pct": 0.7
+    },
+    "who_you_serve": {
+      "before": {
+        "count": 453,
+        "pct": 12.7
+      },
+      "after": {
+        "count": 478,
+        "pct": 13.4
+      },
+      "delta_count": 25,
+      "delta_pct": 0.7
+    },
+    "seeking": {
+      "before": {
+        "count": 49,
+        "pct": 1.4
+      },
+      "after": {
+        "count": 49,
+        "pct": 1.4
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "offering": {
+      "before": {
+        "count": 1123,
+        "pct": 31.4
+      },
+      "after": {
+        "count": 1123,
+        "pct": 31.4
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "revenue_tier": {
+      "before": {
+        "count": 201,
+        "pct": 5.6
+      },
+      "after": {
+        "count": 210,
+        "pct": 5.9
+      },
+      "delta_count": 9,
+      "delta_pct": 0.3
+    },
+    "content_platforms": {
+      "before": {
+        "count": 1148,
+        "pct": 32.1
+      },
+      "after": {
+        "count": 1178,
+        "pct": 32.9
+      },
+      "delta_count": 30,
+      "delta_pct": 0.8
+    },
+    "jv_history": {
+      "before": {
+        "count": 521,
+        "pct": 14.6
+      },
+      "after": {
+        "count": 541,
+        "pct": 15.1
+      },
+      "delta_count": 20,
+      "delta_pct": 0.5
+    },
+    "website": {
+      "before": {
+        "count": 612,
+        "pct": 17.1
+      },
+      "after": {
+        "count": 612,
+        "pct": 17.1
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "niche": {
+      "before": {
+        "count": 1707,
+        "pct": 47.7
+      },
+      "after": {
+        "count": 1731,
+        "pct": 48.4
+      },
+      "delta_count": 24,
+      "delta_pct": 0.7
+    },
+    "booking_link": {
+      "before": {
+        "count": 8,
+        "pct": 0.2
+      },
+      "after": {
+        "count": 9,
+        "pct": 0.3
+      },
+      "delta_count": 1,
+      "delta_pct": 0.1
+    },
+    "signature_programs": {
+      "before": {
+        "count": 240,
+        "pct": 6.7
+      },
+      "after": {
+        "count": 252,
+        "pct": 7.0
+      },
+      "delta_count": 12,
+      "delta_pct": 0.3
+    },
+    "tags": {
+      "before": {
+        "count": 384,
+        "pct": 10.7
+      },
+      "after": {
+        "count": 411,
+        "pct": 11.5
+      },
+      "delta_count": 27,
+      "delta_pct": 0.8
+    }
+  },
+  "exa_stats": {
+    "research_attempted": 596,
+    "research_success": 30,
+    "deep_research_attempted": 0,
+    "deep_research_success": 0,
+    "retry_count": 0,
+    "permanent_failures": 0
+  },
+  "verification_gate": {
+    "verified": 5,
+    "unverified": 0,
+    "quarantined": 0
+  },
+  "extended_signals_found": 30,
+  "sample_profiles": [
+    {
+      "name": "Richard Kaye",
+      "fields_filled": 0,
+      "revenue_tier": ""
+    },
+    {
+      "name": "Facebook Ads, F",
+      "fields_filled": 7,
+      "revenue_tier": "micro"
+    },
+    {
+      "name": "Between Now and Success Podcast",
+      "fields_filled": 6,
+      "revenue_tier": ""
+    },
+    {
+      "name": "Lilia Ackerman",
+      "fields_filled": 8,
+      "revenue_tier": "established"
+    },
+    {
+      "name": "The Home Service Expert Podcast",
+      "fields_filled": 6,
+      "revenue_tier": ""
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "name": "Project Management Podcast",
+  "company": "Project Management Podcast",
+  "website": "https://pmforthemasses.com",
+  "list_size": 0,
+  "who_you_serve": "Project managers and those interested in project management, leadership, and organizational change",
+  "what_you_do": "Project management podcast Offers: Podcast, Book",
+  "offering": "Podcast, Book",
+  "niche": "project management",
+  "service_provided": "podcast",
+  "tags": [
+    "project management",
+    "okrs",
+    "entrepreneurship",
+    "emotional intelligence",
+    "self-promotion",
+    "coaching",
+    "leadership"
+  ],
+  "business_focus": "Project management podcast Offers: Podcast, Book",
+  "audience_type": "Project managers and those interested in project management, leadership, and organizational change",
+  "content_platforms": {
+    "twitter": "https://twitter.com/cesarabeid",
+    "spotify_podcast": "https://open.spotify.com/show/1ZRho5GoJlhi98TuIIvbct",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-project-management-podcast/id79900698"
+  },
+  "jv_history": [
+    {
+      "partner_name": "People and Projects Podcast: Project Management Podcast",
+      "format": "podcast_guest",
+      "source_quote": "Projects Podcast: Project Management Podcast\n\nAndy Kaufman, PMP, PMI-ACP ... Welcome to the People and Projects Podcast, where we provide interviews and insights to help",
+      "source_url": "https://podcasts.apple.com/us/podcast/people-and-projects-podcast-project-management-podcast/id302364123"
+    },
+    {
+      "partner_name": "People and Projects Podcast: Project Management Podcast",
+      "format": "podcast_guest",
+      "source_quote": "to the People and Projects Podcast, where we provide interviews and insights to help you",
+      "source_url": "https://podcasts.apple.com/ca/podcast/people-and-projects-podcast-project-management-podcast/id302364123"
+    }
+  ]
+}

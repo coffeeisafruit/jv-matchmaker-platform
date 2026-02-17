@@ -1,0 +1,36 @@
+{
+  "name": "Business Of Biotech Podcast",
+  "company": "Business Of Biotech Podcast",
+  "website": "https://www.bioprocessonline.com/solution/the-business-of-biotech-podcast",
+  "list_size": 0,
+  "what_you_do": "The Business of Biotech Podcast provides insights into the biopharmaceutical industry, focusing on organizational, funding, HR, regulatory, production, and CMC considerations through discussions with leaders of new and emerging biopharma firms.",
+  "who_you_serve": "The podcast is aimed at leaders of new and emerging biopharma firms, providing them with valuable insights and experiences from peer founders.",
+  "niche": "biopharmaceutical podcast",
+  "service_provided": "podcast",
+  "tags": [
+    "biotech",
+    "biopharma",
+    "podcast",
+    "leadership",
+    "funding",
+    "regulatory",
+    "production"
+  ],
+  "bio": "Hosted by Ben Comer, chief editor of Life Science Leader magazine, with 15 years of experience in the biopharmaceutical, medtech, and medical device industries.",
+  "business_focus": "The Business of Biotech Podcast provides insights into the biopharmaceutical industry, focusing on organizational, funding, HR, regulatory, production, and CMC considerations through discussions with leaders of new and emerging biopharma firms. (biopharmaceutical podcast)",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/business-of-biotech/id1508008606",
+    "spotify_podcast": "https://open.spotify.com/show/5NhjpDeHzVlXPVqT9ezKwA",
+    "youtube": "https://www.youtube.com/watch?v=WXp_-apSc1A"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Business Of Biotech - Apple Podcasts",
+      "format": "endorsement",
+      "source_quote": "is the pod dedicated to leaders of emerging biopharma firms. SUBSCRIBE to our new newsletter at www.bioprocessonline.com/bob. We bring you insight into organizational, finance and funding, HR, clinica",
+      "source_url": "https://podcasts.apple.com/fr/podcast/business-of-biotech/id1508008606?l=en-GB"
+    }
+  ],
+  "audience_engagement_score": 0.55
+}

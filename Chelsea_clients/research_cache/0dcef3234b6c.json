@@ -1,0 +1,35 @@
+{
+  "name": "Lab Out Loud Podcast",
+  "company": "Lab Out Loud Podacst",
+  "website": "https://laboutloud.com",
+  "list_size": 0,
+  "what_you_do": "Lab Out Loud is a podcast that shares insights and discussions related to science education and teaching practices.",
+  "who_you_serve": "The podcast serves educators, science enthusiasts, and anyone interested in science education, primarily targeting B2C audiences.",
+  "niche": "podcast",
+  "service_provided": "podcast",
+  "business_size": "small_team",
+  "tags": [
+    "podcast",
+    "science education",
+    "education",
+    "teaching",
+    "learning"
+  ],
+  "business_focus": "Lab Out Loud is a podcast that shares insights and discussions related to science education and teaching practices.",
+  "audience_type": "B2C",
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/company/lab-out-loud/posts/",
+    "facebook": "https://www.facebook.com/LabOutLoud",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/lab-out-loud/id266164282",
+    "twitter": "https://podcasts.apple.com/us/podcast/without-twitter-where-will-scientists-find-community/id266164282?i=1000631922184"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Brain Balls",
+      "format": "podcast_guest",
+      "source_quote": "scientist Madeline Lancaster was a brand new postdoc, she accidentally used an expired protein gel in a lab ... Episode Webpage \n\n## Hosts & Guests\n\n## Information\n\nShow\n\n Radiolab \n\nChannel Radiolab ",
+      "source_url": "https://podcasts.apple.com/au/podcast/brain-balls/id152249110?i=1000744452884"
+    }
+  ],
+  "audience_engagement_score": 0.4
+}

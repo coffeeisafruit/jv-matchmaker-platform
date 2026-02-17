@@ -1,0 +1,38 @@
+{
+  "name": "Truck N' Hustle Podcast",
+  "company": "Truck N' Hustle Podcast",
+  "website": "https://trucknhustle.com",
+  "list_size": 0,
+  "seeking": "Industry partnerships (e.g., Manifest conference)",
+  "who_you_serve": "Truckers, small fleet owners, freight brokers, aspiring business owners, and transportation & logistics founders",
+  "what_you_do": "Leading podcast and platform for transportation, logistics, and supply chain professionals featuring interviews with entrepreneurs, trucking experts, and industry leaders Offers: Podcast interviews with industry leaders, Free weekly newsletter",
+  "offering": "Podcast interviews with industry leaders, Free weekly newsletter",
+  "niche": "trucking",
+  "tags": [
+    "podcast",
+    "trucking",
+    "entrepreneurship",
+    "logistics",
+    "transportation"
+  ],
+  "business_focus": "Leading podcast and platform for transportation, logistics, and supply chain professionals featuring interviews with entrepreneurs, trucking experts, and industry leaders Offers: Podcast interviews with industry leaders, Free weekly newsletter",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "spotify_podcast": "https://open.spotify.com/show/55GP6pfA0RlmtEgNH70d5K",
+    "youtube": "https://www.youtube.com/@trucknhustle",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/truck-n-hustle/id1473130627",
+    "instagram": "https://www.instagram.com/trucknhustle/",
+    "twitter": "https://twitter.com/trucknhustlepod",
+    "tiktok": "https://www.tiktok.com/@trucknhustle",
+    "linkedin": "https://www.linkedin.com/company/tnhmedia/?viewAsMember=true"
+  },
+  "jv_history": [
+    {
+      "partner_name": "\u200eTruck N' Hustle - #1 Trucking Podcast: 29 Year Old Ex-Med Student\u2019s Multi-Million Dollar Local Truc",
+      "format": "podcast_guest",
+      "source_quote": "The Year brought to you by Truck N\u2019 Hustle November 4th-6th ... https://linktr.ee/trucknhustlepodcast\n\nSpecial thanks to our guest Andrew https://instagram.com/alexentrucking?igshid=YmMyMTA2M2Y= Andre",
+      "source_url": "https://podcasts.apple.com/us/podcast/29-year-old-ex-med-students-multi-million-dollar-local/id1473130627?i=1000561743291"
+    }
+  ],
+  "audience_engagement_score": 0.65
+}

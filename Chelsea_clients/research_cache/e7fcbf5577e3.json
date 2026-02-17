@@ -1,0 +1,36 @@
+{
+  "name": "Marketing Trends Podcast",
+  "company": "Marketing Trends Podcast",
+  "website": "https://marketingtrends.com",
+  "list_size": 0,
+  "who_you_serve": "B2B marketers and marketing professionals",
+  "what_you_do": "Marketing podcast featuring interviews with CMOs, CEOs, and industry leaders sharing marketing strategies Offers: Weekly podcast interviews with marketing leaders",
+  "offering": "Podcast episodes featuring marketing leaders",
+  "niche": "marketing podcast",
+  "service_provided": "podcast",
+  "business_size": "small_team",
+  "tags": [
+    "marketing",
+    "podcast",
+    "interviews",
+    "business",
+    "strategy"
+  ],
+  "business_focus": "Marketing podcast featuring interviews with CMOs, CEOs, and industry leaders sharing marketing strategies Offers: Weekly podcast interviews with marketing leaders",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/marketing-trends/id1442461152",
+    "spotify_podcast": "https://open.spotify.com/show/3YT1fpUCUIyI2hv61LSHkn",
+    "youtube": "https://www.youtube.com/channel/UC2yaptGz7f5VbG4kl7br0QQ",
+    "linkedin": "https://www.linkedin.com/showcase/marketing-trends-podcast/"
+  },
+  "jv_history": [
+    {
+      "partner_name": "The Marketing Companion",
+      "format": "podcast_guest",
+      "source_quote": "'s most entertaining marketing podcast! Mark Schaefer and a rotation of brilliant guest hosts provide new marketing insights and timely advice that help you navigate the future of digital business, Th",
+      "source_url": "https://podcasts.apple.com/us/podcast/the-marketing-companion/id663933566"
+    }
+  ],
+  "audience_engagement_score": 0.55
+}

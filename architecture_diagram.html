@@ -765,6 +765,232 @@
     font-size: 12px;
   }
 
+  /* ===== DATA HEALTH DASHBOARD ===== */
+  .dh-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  .dh-hero {
+    text-align: center;
+    padding: 32px 0 24px;
+  }
+  .dh-hero h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .dh-hero p {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .dh-stat-row {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .dh-stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 20px;
+    text-align: center;
+    min-width: 140px;
+  }
+  .dh-stat-val {
+    font-size: 22px;
+    font-weight: 800;
+    display: block;
+  }
+  .dh-stat-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 2px;
+  }
+  .dh-group {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-top: 16px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .dh-group.open .dh-group-body { display: block; }
+  .dh-group.open .dh-chevron { transform: rotate(90deg); }
+  .dh-group-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px;
+  }
+  .dh-group-header h4 {
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dh-group-count {
+    font-weight: 400;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+  .dh-chevron {
+    font-size: 10px;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+  }
+  .dh-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dh-group-body {
+    display: none;
+    padding: 0 20px 16px;
+  }
+  .dh-bar-row {
+    display: grid;
+    grid-template-columns: 160px 1fr 52px 70px;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    border-top: 1px solid var(--border);
+  }
+  .dh-bar-row:first-child { border-top: none; }
+  .dh-field-name {
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'SF Mono', 'Menlo', monospace;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dh-bar-track {
+    height: 18px;
+    background: var(--surface2);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+  }
+  .dh-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: width 0.6s ease;
+  }
+  .dh-bar-baseline {
+    height: 100%;
+    border-radius: 4px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0.2;
+  }
+  .dh-bar-pct {
+    font-size: 13px;
+    font-weight: 700;
+    text-align: right;
+  }
+  .dh-bar-delta {
+    font-size: 10px;
+    font-weight: 600;
+    text-align: right;
+    padding: 2px 6px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+  .dh-delta-up { color: var(--accent-green); background: rgba(78,203,141,0.1); }
+  .dh-delta-zero { color: var(--text-dim); background: var(--surface2); }
+  .dh-delta-na { color: var(--text-dim); background: var(--surface2); font-style: italic; }
+  .dh-fill-green { background: var(--accent-green); }
+  .dh-fill-orange { background: var(--accent-orange); }
+  .dh-fill-red { background: var(--accent-red); }
+  .dh-fill-dim { background: var(--text-dim); opacity: 0.3; }
+  .dh-baseline-green { background: var(--accent-green); }
+  .dh-baseline-orange { background: var(--accent-orange); }
+  .dh-baseline-red { background: var(--accent-red); }
+
+  /* Phase table */
+  .dh-phase-section {
+    margin-top: 24px;
+  }
+  .dh-phase-section h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .dh-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .dh-table th {
+    text-align: left;
+    padding: 10px 14px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+    background: var(--surface2);
+    font-weight: 600;
+  }
+  .dh-table td {
+    padding: 10px 14px;
+    border-top: 1px solid var(--border);
+  }
+  .dh-table tr:hover td { background: rgba(91,138,245,0.04); }
+  .dh-success { color: var(--accent-green); font-weight: 600; }
+  .dh-partial { color: var(--accent-orange); font-weight: 600; }
+  .dh-cost { color: var(--accent-purple); font-weight: 600; }
+
+  /* Insights */
+  .dh-insights {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .dh-insight {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .dh-insight-icon {
+    font-size: 20px;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .dh-insight h4 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .dh-insight p {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+  .dh-insight .dh-big-num {
+    font-size: 28px;
+    font-weight: 800;
+    display: block;
+    margin: 4px 0;
+  }
+
   /* ===== COMMUNITY GRAPH ===== */
   .community-header {
     display: flex;
@@ -1277,7 +1503,8 @@
   <div class="stats">
     <div><strong>5</strong> Django Apps</div>
     <div><strong>3,143+</strong> Profiles</div>
-    <div><strong>6</strong> API Integrations</div>
+    <div><strong>7</strong> API Integrations</div>
+    <div><strong>613+</strong> Tests</div>
     <div><strong>54</strong> Launch Plays</div>
   </div>
 </div>
@@ -1291,6 +1518,7 @@
   <button class="tab" onclick="switchTab('database')">Database</button>
   <button class="tab" onclick="switchTab('integrations')">Integrations</button>
   <button class="tab" onclick="switchTab('community')">Community</button>
+  <button class="tab" onclick="switchTab('datahealth')">Data Health</button>
 </div>
 
 <div class="content">
@@ -1363,6 +1591,22 @@
           </div>
         </div>
       </div>
+
+      <div class="how-arrow">&#8595;</div>
+
+      <div class="how-step" style="border-color:rgba(78,203,141,0.2)">
+        <div class="how-number" style="background:rgba(78,203,141,0.12);color:var(--accent-green)">5</div>
+        <div class="how-step-content">
+          <h3 style="color:var(--accent-green)">Member Reports — Your Personal JV Dashboard</h3>
+          <p>Each member gets a code-gated report with their top partner matches, personalized outreach templates, and a live profile they can edit. Edits are protected by a <strong>provenance system</strong> — once you confirm your data, AI can never overwrite it.</p>
+          <div class="how-detail-chips">
+            <span class="how-chip" style="background:rgba(78,203,141,0.1);color:var(--accent-green)">Code-gated access</span>
+            <span class="how-chip" style="background:rgba(78,203,141,0.1);color:var(--accent-green)">Live profile editing</span>
+            <span class="how-chip" style="background:rgba(78,203,141,0.1);color:var(--accent-green)">Data provenance</span>
+            <span class="how-chip" style="background:rgba(78,203,141,0.1);color:var(--accent-green)">Partner outreach</span>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="how-result">
@@ -1374,11 +1618,15 @@
           <span class="label">Partners in database</span>
         </div>
         <div class="result-stat">
+          <span class="num" style="color:var(--accent-green)">533+</span>
+          <span class="label">Automated tests</span>
+        </div>
+        <div class="result-stat">
           <span class="num" style="color:var(--accent-purple)">4</span>
           <span class="label">Scoring dimensions</span>
         </div>
         <div class="result-stat">
-          <span class="num" style="color:var(--accent-green)">5</span>
+          <span class="num" style="color:var(--accent-cyan)">6</span>
           <span class="label">Research sources</span>
         </div>
         <div class="result-stat">
@@ -1402,7 +1650,7 @@
     <div class="legend-item"><div class="legend-swatch" style="background:#555"></div> External Service</div>
   </div>
 
-  <svg class="arch-svg" viewBox="0 0 1100 820" xmlns="http://www.w3.org/2000/svg">
+  <svg class="arch-svg" viewBox="0 0 1100 870" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
         <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1a1d27" stroke-width="0.5"/>
@@ -1423,8 +1671,8 @@
         <path d="M0,0 L8,3 L0,6" fill="#f0a04b" />
       </marker>
     </defs>
-    <rect width="1100" height="820" fill="var(--bg)"/>
-    <rect width="1100" height="820" fill="url(#grid)"/>
+    <rect width="1100" height="870" fill="var(--bg)"/>
+    <rect width="1100" height="870" fill="url(#grid)"/>
 
     <!-- ===== USER LAYER ===== -->
     <text x="550" y="28" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">USER LAYER</text>
@@ -1458,7 +1706,7 @@
     <text x="550" y="270" text-anchor="middle" fill="#8b90a8" font-size="10">ISMC Scoring: Intent 45% | Synergy 25%</text>
     <text x="550" y="286" text-anchor="middle" fill="#8b90a8" font-size="10">Momentum 20% | Context 10%</text>
     <text x="550" y="306" text-anchor="middle" fill="#8b90a8" font-size="10">3,143+ Profiles  |  Weighted Harmonic Mean</text>
-    <text x="550" y="322" text-anchor="middle" fill="#8b90a8" font-size="10">PDF Reports & Match Analysis</text>
+    <text x="550" y="322" text-anchor="middle" fill="#8b90a8" font-size="10">Member Reports & Access-Code Delivery</text>
 
     <!-- ===== OUTREACH APP ===== -->
     <rect x="760" y="220" width="260" height="90" rx="10" fill="rgba(240,160,75,0.06)" stroke="#f0a04b" stroke-width="1.2"/>
@@ -1484,106 +1732,119 @@
     <!-- Outreach feeds playbook -->
     <line x1="915" y1="310" x2="915" y2="340" stroke="#f0a04b" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arrow-orange)"/>
 
+    <!-- ===== MEMBER REPORTS ===== -->
+    <rect x="80" y="345" width="230" height="50" rx="10" fill="rgba(78,203,141,0.06)" stroke="#4ecb8d" stroke-width="1.2"/>
+    <text x="195" y="367" text-anchor="middle" fill="#4ecb8d" font-size="13" font-weight="700">Member Reports</text>
+    <text x="195" y="383" text-anchor="middle" fill="#8b90a8" font-size="9">Code-gated | Live Profile Edit | Provenance</text>
+
+    <!-- Matching feeds reports -->
+    <line x1="450" y1="330" x2="310" y2="355" stroke="#4ecb8d" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arrow-green)"/>
+    <text x="370" y="338" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="500">reports</text>
+
+    <!-- Arrow from enrichment up to matching (right side, clean path) -->
+    <path d="M 770 430 L 770 280 L 700 280" fill="none" stroke="#4ec8cb" stroke-width="1.5" marker-end="url(#arrow-cyan)" stroke-dasharray="5,3"/>
+    <rect x="720" y="370" width="106" height="18" rx="4" fill="var(--bg)"/>
+    <text x="773" y="383" text-anchor="middle" fill="#4ec8cb" font-size="9" font-weight="500">enriched profiles</text>
+
+    <!-- CSV Import (input to pipeline, left side) -->
+    <rect x="80" y="410" width="110" height="40" rx="6" fill="#1a1d27" stroke="#555" stroke-width="1"/>
+    <text x="135" y="426" text-anchor="middle" fill="#8b90a8" font-size="10" font-weight="500">CSV Import</text>
+    <text x="135" y="440" text-anchor="middle" fill="#555" font-size="8">or Supabase pull</text>
+    <line x1="190" y1="430" x2="220" y2="460" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+
     <!-- ===== ENRICHMENT PIPELINE section label ===== -->
-    <text x="430" y="380" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">ENRICHMENT PIPELINE</text>
+    <text x="530" y="420" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">ENRICHMENT PIPELINE</text>
 
     <!-- Pipeline box -->
-    <rect x="80" y="395" width="680" height="200" rx="12" fill="rgba(78,200,203,0.03)" stroke="#4ec8cb" stroke-width="1.2" stroke-dasharray="6,4"/>
+    <rect x="210" y="430" width="570" height="200" rx="12" fill="rgba(78,200,203,0.03)" stroke="#4ec8cb" stroke-width="1.2" stroke-dasharray="6,4"/>
 
     <!-- Free steps row -->
-    <rect x="105" y="415" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
-    <text x="180" y="436" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">1. Website Scrape</text>
-    <text x="180" y="452" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
+    <rect x="230" y="450" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="305" y="471" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">1. Website Scrape</text>
+    <text x="305" y="487" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
 
-    <rect x="275" y="415" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
-    <text x="350" y="436" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">2. LinkedIn</text>
-    <text x="350" y="452" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
+    <rect x="400" y="450" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="475" y="471" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">2. LinkedIn</text>
+    <text x="475" y="487" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
 
-    <rect x="445" y="415" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
-    <text x="520" y="436" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">3. Email Domain</text>
-    <text x="520" y="452" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
+    <rect x="570" y="450" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="645" y="471" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">3. Email Domain</text>
+    <text x="645" y="487" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
 
     <!-- Arrows between free steps -->
-    <line x1="255" y1="439" x2="275" y2="439" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
-    <line x1="425" y1="439" x2="445" y2="439" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <line x1="380" y1="474" x2="400" y2="474" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <line x1="550" y1="474" x2="570" y2="474" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
 
     <!-- "if gaps remain" label -->
-    <text x="350" y="482" text-anchor="middle" fill="#4ec8cb" font-size="9" font-style="italic">if gaps remain, escalate to paid sources</text>
+    <text x="475" y="517" text-anchor="middle" fill="#4ec8cb" font-size="9" font-style="italic">if gaps remain, escalate to paid sources</text>
 
     <!-- Paid steps row -->
-    <rect x="160" y="494" width="170" height="48" rx="6" fill="rgba(240,160,75,0.1)" stroke="#f0a04b" stroke-width="0.8"/>
-    <text x="245" y="515" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="600">4. Apollo.io API</text>
-    <text x="245" y="531" text-anchor="middle" fill="#8b90a8" font-size="9">PAID  ~$0.002/search</text>
+    <rect x="240" y="529" width="155" height="48" rx="6" fill="rgba(240,160,75,0.1)" stroke="#f0a04b" stroke-width="0.8"/>
+    <text x="318" y="550" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="600">4. Apollo.io API</text>
+    <text x="318" y="566" text-anchor="middle" fill="#8b90a8" font-size="9">PAID  ~$0.002/search</text>
 
-    <rect x="360" y="494" width="200" height="48" rx="6" fill="rgba(240,107,107,0.1)" stroke="#f06b6b" stroke-width="0.8"/>
-    <text x="460" y="515" text-anchor="middle" fill="#f06b6b" font-size="11" font-weight="600">5. OWL Deep Research</text>
-    <text x="460" y="531" text-anchor="middle" fill="#8b90a8" font-size="9">HIGH-PRIORITY ONLY</text>
+    <rect x="415" y="529" width="175" height="48" rx="6" fill="rgba(240,107,107,0.1)" stroke="#f06b6b" stroke-width="0.8"/>
+    <text x="503" y="550" text-anchor="middle" fill="#f06b6b" font-size="11" font-weight="600">5. OWL Deep Research</text>
+    <text x="503" y="566" text-anchor="middle" fill="#8b90a8" font-size="9">HIGH-PRIORITY ONLY</text>
+
+    <rect x="610" y="529" width="150" height="48" rx="6" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
+    <text x="685" y="550" text-anchor="middle" fill="#a87bf5" font-size="11" font-weight="600">Exa.ai Research</text>
+    <text x="685" y="566" text-anchor="middle" fill="#8b90a8" font-size="9">Neural Search · Priority 50</text>
 
     <!-- Down arrows from free to paid -->
-    <path d="M 245 463 L 245 494" fill="none" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
-    <path d="M 460 463 L 460 494" fill="none" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <path d="M 318 498 L 318 529" fill="none" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <path d="M 503 498 L 503 529" fill="none" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
 
     <!-- Verification row -->
-    <rect x="105" y="558" width="210" height="28" rx="5" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
-    <text x="210" y="577" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Confidence Scorer</text>
+    <rect x="240" y="593" width="180" height="28" rx="5" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
+    <text x="330" y="612" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Confidence Scorer + Provenance</text>
 
-    <rect x="335" y="558" width="210" height="28" rx="5" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
-    <text x="440" y="577" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Verification Agents (5)</text>
+    <rect x="440" y="593" width="180" height="28" rx="5" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
+    <text x="530" y="612" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Verification Gate (5 agents)</text>
 
     <!-- Arrows from paid to verification -->
-    <line x1="245" y1="542" x2="210" y2="558" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
-    <line x1="460" y1="542" x2="440" y2="558" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
-
-    <!-- Arrow from enrichment up to matching -->
-    <path d="M 420 395 L 420 355 L 550 355 L 550 330" fill="none" stroke="#4ec8cb" stroke-width="1.5" marker-end="url(#arrow-cyan)" stroke-dasharray="5,3"/>
-    <rect x="440" y="345" width="106" height="18" rx="4" fill="var(--bg)"/>
-    <text x="493" y="358" text-anchor="middle" fill="#4ec8cb" font-size="9" font-weight="500">enriched profiles</text>
-
-    <!-- CSV Import -->
-    <rect x="80" y="340" width="110" height="40" rx="6" fill="#1a1d27" stroke="#555" stroke-width="1"/>
-    <text x="135" y="356" text-anchor="middle" fill="#8b90a8" font-size="10" font-weight="500">CSV Import</text>
-    <text x="135" y="370" text-anchor="middle" fill="#555" font-size="8">or Supabase pull</text>
-    <line x1="135" y1="380" x2="135" y2="395" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <line x1="318" y1="577" x2="330" y2="593" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <line x1="503" y1="577" x2="530" y2="593" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
 
     <!-- ===== DATA LAYER ===== -->
-    <text x="550" y="635" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">DATA & EXTERNAL SERVICES</text>
+    <text x="550" y="670" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">DATA & EXTERNAL SERVICES</text>
 
     <!-- Supabase -->
-    <rect x="60" y="652" width="180" height="54" rx="8" fill="#1a1d27" stroke="#4ecb8d" stroke-width="1"/>
-    <text x="150" y="676" text-anchor="middle" fill="#4ecb8d" font-size="12" font-weight="600">Supabase PostgreSQL</text>
-    <text x="150" y="694" text-anchor="middle" fill="#8b90a8" font-size="9">3,143+ profiles, matches</text>
+    <rect x="60" y="690" width="180" height="54" rx="8" fill="#1a1d27" stroke="#4ecb8d" stroke-width="1"/>
+    <text x="150" y="714" text-anchor="middle" fill="#4ecb8d" font-size="12" font-weight="600">Supabase PostgreSQL</text>
+    <text x="150" y="732" text-anchor="middle" fill="#8b90a8" font-size="9">3,143+ profiles, matches</text>
 
     <!-- Claude/OpenRouter -->
-    <rect x="270" y="652" width="180" height="54" rx="8" fill="#1a1d27" stroke="#a87bf5" stroke-width="1"/>
-    <text x="360" y="676" text-anchor="middle" fill="#a87bf5" font-size="12" font-weight="600">Claude Sonnet</text>
-    <text x="360" y="694" text-anchor="middle" fill="#8b90a8" font-size="9">via OpenRouter / Anthropic</text>
+    <rect x="270" y="690" width="180" height="54" rx="8" fill="#1a1d27" stroke="#a87bf5" stroke-width="1"/>
+    <text x="360" y="714" text-anchor="middle" fill="#a87bf5" font-size="12" font-weight="600">Claude Sonnet</text>
+    <text x="360" y="732" text-anchor="middle" fill="#8b90a8" font-size="9">via OpenRouter / Anthropic</text>
 
     <!-- Apollo -->
-    <rect x="480" y="652" width="140" height="54" rx="8" fill="#1a1d27" stroke="#f0a04b" stroke-width="1"/>
-    <text x="550" y="676" text-anchor="middle" fill="#f0a04b" font-size="12" font-weight="600">Apollo.io</text>
-    <text x="550" y="694" text-anchor="middle" fill="#8b90a8" font-size="9">Email enrichment</text>
+    <rect x="480" y="690" width="140" height="54" rx="8" fill="#1a1d27" stroke="#f0a04b" stroke-width="1"/>
+    <text x="550" y="714" text-anchor="middle" fill="#f0a04b" font-size="12" font-weight="600">Apollo.io</text>
+    <text x="550" y="732" text-anchor="middle" fill="#8b90a8" font-size="9">Email enrichment</text>
 
     <!-- Tavily + DDG -->
-    <rect x="650" y="652" width="140" height="54" rx="8" fill="#1a1d27" stroke="#4ec8cb" stroke-width="1"/>
-    <text x="720" y="676" text-anchor="middle" fill="#4ec8cb" font-size="12" font-weight="600">Tavily + DDG</text>
-    <text x="720" y="694" text-anchor="middle" fill="#8b90a8" font-size="9">Web search</text>
+    <rect x="650" y="690" width="140" height="54" rx="8" fill="#1a1d27" stroke="#4ec8cb" stroke-width="1"/>
+    <text x="720" y="714" text-anchor="middle" fill="#4ec8cb" font-size="12" font-weight="600">Tavily + DDG</text>
+    <text x="720" y="732" text-anchor="middle" fill="#8b90a8" font-size="9">Web search</text>
 
     <!-- Gmail/Outlook -->
-    <rect x="820" y="652" width="160" height="54" rx="8" fill="#1a1d27" stroke="#f0a04b" stroke-width="1"/>
-    <text x="900" y="676" text-anchor="middle" fill="#f0a04b" font-size="12" font-weight="600">Gmail / Outlook</text>
-    <text x="900" y="694" text-anchor="middle" fill="#8b90a8" font-size="9">OAuth email sending</text>
+    <rect x="820" y="690" width="160" height="54" rx="8" fill="#1a1d27" stroke="#f0a04b" stroke-width="1"/>
+    <text x="900" y="714" text-anchor="middle" fill="#f0a04b" font-size="12" font-weight="600">Gmail / Outlook</text>
+    <text x="900" y="732" text-anchor="middle" fill="#8b90a8" font-size="9">OAuth email sending</text>
 
     <!-- Connection lines from services up (subtle) -->
-    <line x1="150" y1="652" x2="350" y2="590" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <line x1="360" y1="652" x2="380" y2="590" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <line x1="550" y1="652" x2="280" y2="542" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <line x1="720" y1="652" x2="500" y2="542" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <line x1="900" y1="652" x2="890" y2="310" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <line x1="150" y1="690" x2="330" y2="621" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <line x1="360" y1="690" x2="400" y2="621" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <line x1="550" y1="690" x2="318" y2="577" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <line x1="720" y1="690" x2="530" y2="621" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <line x1="900" y1="690" x2="890" y2="310" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
 
     <!-- Scale callout -->
-    <rect x="700" y="750" width="300" height="50" rx="10" fill="rgba(240,160,75,0.06)" stroke="#f0a04b" stroke-width="0.8" stroke-dasharray="4,3"/>
-    <text x="850" y="772" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="500">Scale trigger: >500 profiles/month</text>
-    <text x="850" y="790" text-anchor="middle" fill="#8b90a8" font-size="9">Vast.ai GPU rental — $0.75/hr — 90% cost reduction</text>
+    <rect x="700" y="790" width="300" height="50" rx="10" fill="rgba(240,160,75,0.06)" stroke="#f0a04b" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <text x="850" y="812" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="500">Scale trigger: >500 profiles/month</text>
+    <text x="850" y="830" text-anchor="middle" fill="#8b90a8" font-size="9">Vast.ai GPU rental — $0.75/hr — 90% cost reduction</text>
   </svg>
 </div>
 
@@ -1604,10 +1865,12 @@
     <div class="app-card matching" onclick="toggleDetail('matching-detail')">
       <div class="app-icon">M</div>
       <h3>Matching Engine</h3>
-      <p>ISMC scoring algorithm with weighted harmonic mean. Manages 3,143+ Supabase profiles, custom profiles, and PDF report generation.</p>
+      <p>ISMC scoring algorithm with weighted harmonic mean. Manages 3,143+ Supabase profiles, code-gated member reports with client profile editing and provenance-stamped data protection.</p>
       <div class="models-list">
         <span class="model-tag">SupabaseProfile</span>
         <span class="model-tag">SupabaseMatch</span>
+        <span class="model-tag">MemberReport</span>
+        <span class="model-tag">ReportPartner</span>
         <span class="model-tag">Profile</span>
         <span class="model-tag">Match</span>
         <span class="model-tag">MatchFeedback</span>
@@ -1653,12 +1916,13 @@
     <div class="app-card enrichment" onclick="toggleDetail('enrichment-detail')">
       <div class="app-icon">E</div>
       <h3>Enrichment Pipeline</h3>
-      <p>Progressive enrichment: free methods first (website, LinkedIn, email domain), then paid APIs (Apollo, OWL). 5-agent verification system.</p>
+      <p>Hardened progressive enrichment with source-priority provenance. Free methods first, then Exa/Apollo/OWL. Field-level data protection prevents AI from overwriting client-confirmed data.</p>
       <div class="models-list">
         <span class="model-tag">ProfileResearchService</span>
         <span class="model-tag">SmartEnrichmentService</span>
+        <span class="model-tag">ExaResearchService</span>
         <span class="model-tag">ConfidenceScorer</span>
-        <span class="model-tag">OWL Agent</span>
+        <span class="model-tag">SourcePriority</span>
       </div>
     </div>
   </div>
@@ -1701,8 +1965,10 @@
     <div class="detail-section">
       <h4>Models</h4>
       <table class="detail-table">
-        <tr><td>SupabaseProfile</td><td>Unmanaged, read-only from Supabase. 3,143+ JV partner profiles with niche, offerings, seeking, social metrics</td></tr>
+        <tr><td>SupabaseProfile</td><td>Unmanaged model mapped to Supabase. 3,143+ JV partner profiles with enrichment_metadata JSONB for field-level provenance tracking</td></tr>
         <tr><td>SupabaseMatch</td><td>Pre-computed matches with bi-directional scoring (score_ab, score_ba), trust levels (platinum/gold/bronze)</td></tr>
+        <tr><td>MemberReport</td><td>Code-gated report with access_code, company branding, linked SupabaseProfile, client_profile JSON snapshot, partner list</td></tr>
+        <tr><td>ReportPartner</td><td>Ranked partner in a report with match score (0-100), outreach template, display order</td></tr>
         <tr><td>Profile</td><td>User's custom enrichment profiles with JSON enrichment data, collaboration history</td></tr>
         <tr><td>Match</td><td>ISMC-scored matches: Intent (45%), Synergy (25%), Momentum (20%), Context (10%)</td></tr>
         <tr><td>MatchFeedback</td><td>User ratings (1-5) and outcome tracking</td></tr>
@@ -1711,12 +1977,33 @@
     <div class="detail-section">
       <h4>Services</h4>
       <table class="detail-table">
-        <tr><td>MatchScoringService</td><td>ISMC scoring with weighted harmonic mean — penalizes unbalanced profiles</td></tr>
+        <tr><td>SupabaseMatchScoringService</td><td>ISMC scoring with weighted harmonic mean — directional 0-100 scores with rich ISMC breakdowns</td></tr>
+        <tr><td>generate_member_report</td><td>Management command: scores all partners via ISMC, assigns sections/badges, generates access-code-gated report</td></tr>
         <tr><td>PartnershipAnalyzer</td><td>Analyzes partnerships using Supabase matches, ICP, and Transformation data</td></tr>
+        <tr><td>ReportAccessMixin</td><td>Session-based access control for code-gated reports (no Django login required)</td></tr>
       </table>
     </div>
     <div class="detail-section">
-      <h4>Key URLs</h4>
+      <h4>Celery Tasks</h4>
+      <table class="detail-table">
+        <tr><td>regenerate_member_report</td><td>Re-scores and rebuilds ReportPartner records for a single report</td></tr>
+        <tr><td>regenerate_all_monthly_reports</td><td>Batch regeneration for all active members in a given month</td></tr>
+        <tr><td>refresh_reports_for_profile</td><td>Incremental update when a member's profile changes</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Report System (Code-Gated)</h4>
+      <table class="detail-table">
+        <tr><td>/matching/report/</td><td>Access gate — enter 6-char code to unlock your report</td></tr>
+        <tr><td>/matching/report/&lt;id&gt;/</td><td>Report hub — partner matches with scores and outreach links</td></tr>
+        <tr><td>/matching/report/&lt;id&gt;/outreach/</td><td>Outreach templates — personalized PVPs for each partner</td></tr>
+        <tr><td>/matching/report/&lt;id&gt;/profile/</td><td>Live profile view — reads directly from SupabaseProfile (not frozen JSON)</td></tr>
+        <tr><td>/matching/report/&lt;id&gt;/profile/edit/</td><td>Client profile edit — stamps fields as client_ingest (priority 90)</td></tr>
+        <tr><td>/matching/report/&lt;id&gt;/profile/confirm/</td><td>Confirm edits — upgrades to client_confirmed (priority 100, AI-proof)</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Other URLs</h4>
       <table class="detail-table">
         <tr><td>/matching/partners/</td><td>Browse 3,143+ partner profiles with search and filters</td></tr>
         <tr><td>/matching/matches/</td><td>View scored matches</td></tr>
@@ -1802,10 +2089,34 @@
       <h4>Key Services</h4>
       <table class="detail-table">
         <tr><td>ProfileResearchService</td><td>Website fetching + Claude extraction for who_you_serve, what_you_do, seeking, offering</td></tr>
-        <tr><td>SmartEnrichmentService</td><td>Progressive strategy: website > LinkedIn > email domain > Apollo > OWL. 4x fewer API calls</td></tr>
+        <tr><td>SmartEnrichmentService</td><td>Progressive strategy: website > LinkedIn > email domain > Exa > Apollo > OWL</td></tr>
+        <tr><td>ExaResearchService</td><td>Exa.ai neural search for structured profile data with citation URLs. Source priority 50</td></tr>
         <tr><td>ConfidenceScorer</td><td>Source-based scoring with exponential age decay. Cross-validation boost (+0.20 if sources agree)</td></tr>
-        <tr><td>ProfileMerger</td><td>Merges data from multiple sources with conflict resolution</td></tr>
+        <tr><td>ProfileMerger</td><td>Merges data from multiple sources with conflict resolution and smart array/JSONB merge</td></tr>
         <tr><td>ClaudeVerificationService</td><td>5 specialized verification agents: encoding, formatting, content, capitalization, truncation</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Source Priority Hierarchy</h4>
+      <table class="detail-table">
+        <tr><td>client_confirmed</td><td>Priority 100 — Client confirmed their data. AI can <strong>never</strong> overwrite</td></tr>
+        <tr><td>client_ingest</td><td>Priority 90 — Client edited but not yet confirmed</td></tr>
+        <tr><td>manual_edit</td><td>Priority 80 — Admin manual edits</td></tr>
+        <tr><td>exa_research</td><td>Priority 50 — Exa.ai neural search with source citations</td></tr>
+        <tr><td>ai_research</td><td>Priority 40 — Claude extraction from website/LinkedIn</td></tr>
+        <tr><td>apollo</td><td>Priority 30 — Apollo.io API enrichment</td></tr>
+        <tr><td>unknown</td><td>Priority 0 — No provenance tracked</td></tr>
+      </table>
+    </div>
+    <div class="detail-section">
+      <h4>Pipeline Hardening (H1-H7, M1-M5, P1-P6)</h4>
+      <table class="detail-table">
+        <tr><td>Connection Pooling</td><td>Thread-safe database connections with configurable pool size and overflow</td></tr>
+        <tr><td>Thread-Safe Stats</td><td>Atomic counters for pipeline progress tracking across worker threads</td></tr>
+        <tr><td>SAVEPOINT Safety</td><td>Nested transaction handling that prevents partial writes on failure</td></tr>
+        <tr><td>Rate-Limit Backoff</td><td>Exponential backoff with jitter for API rate limits (Exa, Apollo, OpenRouter)</td></tr>
+        <tr><td>SQL Parameterization</td><td>psycopg2.sql module for safe dynamic query construction</td></tr>
+        <tr><td>Re-enrichment</td><td>--refresh mode with --stale-days threshold. Only re-enriches stale fields respecting source priority</td></tr>
       </table>
     </div>
     <div class="detail-section">
@@ -1870,12 +2181,23 @@
 
     <div class="pipeline-step">
       <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-cyan)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>Step 4: Exa Research <span class="cost-badge cost-paid">PAID — neural search</span></h4>
+        <p><strong>ExaResearchService</strong> — Exa.ai neural search returns structured profile data with citation URLs. Source priority 50. Rate-limit backoff with exponential jitter. Results stamped in enrichment_metadata.</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
         <div class="pipeline-dot" style="background:var(--accent-orange)"></div>
         <div class="pipeline-connector"></div>
       </div>
       <div class="pipeline-card">
-        <h4>Step 4: Apollo.io API <span class="cost-badge cost-paid">PAID — $0.002/search</span></h4>
-        <p><strong>Only triggered if free methods leave gaps.</strong> Email verification (most reliable), contact enrichment. Used selectively to minimize cost.</p>
+        <h4>Step 5: Apollo.io API <span class="cost-badge cost-paid">PAID — $0.002/search</span></h4>
+        <p><strong>Only triggered if free methods + Exa leave gaps.</strong> Email verification (most reliable), contact enrichment. Used selectively to minimize cost.</p>
       </div>
     </div>
 
@@ -1885,7 +2207,7 @@
         <div class="pipeline-connector"></div>
       </div>
       <div class="pipeline-card">
-        <h4>Step 5: OWL Deep Research <span class="cost-badge cost-expensive">HIGH-PRIORITY ONLY</span></h4>
+        <h4>Step 6: OWL Deep Research <span class="cost-badge cost-expensive">HIGH-PRIORITY ONLY</span></h4>
         <p><strong>ProfileEnrichmentAgent</strong> — Multi-source research with DuckDuckGo (free) + Tavily verification ($0.004/search). Mandatory source citations for all extracted fields. Only for high-value profiles.</p>
       </div>
     </div>
@@ -1896,9 +2218,20 @@
         <div class="pipeline-connector"></div>
       </div>
       <div class="pipeline-card">
-        <h4>Verification & Confidence Scoring</h4>
-        <p><strong>5 Verification Agents</strong>: Encoding, Formatting, Content, Capitalization, Truncation.<br/>
+        <h4>Verification Gate & Confidence Scoring</h4>
+        <p><strong>Verification Gate</strong>: Blocks low-quality data from entering the database. <strong>5 Verification Agents</strong>: Encoding, Formatting, Content, Capitalization, Truncation.<br/>
         <strong>ConfidenceScorer</strong>: Source-based base score (manual: 1.0, apollo_verified: 0.95, website: 0.70) with exponential age decay and cross-validation boost (+0.20).</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-green)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>Provenance Stamping <span class="cost-badge cost-free">METADATA</span></h4>
+        <p><strong>enrichment_metadata.field_meta</strong> — Every field written by the pipeline is stamped with source and timestamp. <code>_should_write_field()</code> checks priority before any overwrite. Client-confirmed data (priority 100) can never be overwritten by AI.</p>
       </div>
     </div>
 
@@ -1909,12 +2242,12 @@
       </div>
       <div class="pipeline-card">
         <h4>Output <span class="cost-badge cost-free">COMPLETE</span></h4>
-        <p>Enriched profile stored in Supabase / Django DB. Exported as CSV. Fed into ISMC Matching Engine for scoring.</p>
+        <p>Enriched profile stored in Supabase with full provenance. Fed into ISMC Matching Engine and Member Reports. Re-enrichment via <code>--refresh --stale-days N</code> respects source priority hierarchy.</p>
       </div>
     </div>
   </div>
 
-  <div class="pipeline-fan" style="max-width:800px;margin:24px auto 0;">
+  <div class="pipeline-fan" style="max-width:900px;margin:24px auto 0;">
     <div class="fan-card">
       <h4 style="color:var(--accent-purple)">Matching</h4>
       <p>ISMC scoring against user's ICP</p>
@@ -1924,8 +2257,12 @@
       <p>Personalized outreach content</p>
     </div>
     <div class="fan-card">
-      <h4 style="color:var(--accent-pink)">PDF Reports</h4>
-      <p>Partner analysis documents</p>
+      <h4 style="color:var(--accent-green)">Member Reports</h4>
+      <p>Code-gated partner reports with live profiles</p>
+    </div>
+    <div class="fan-card">
+      <h4 style="color:var(--accent-pink)">Re-enrichment</h4>
+      <p>--refresh mode for stale field updates</p>
     </div>
   </div>
 </div>
@@ -2029,6 +2366,13 @@
       <div class="api-type">Data Enrichment API</div>
       <div class="purpose">Email verification and contact enrichment. Used as paid fallback when free scraping methods leave data gaps. ~$0.002 per search.</div>
       <div class="env-var">APOLLO_API_KEY</div>
+    </div>
+
+    <div class="integration-card" style="border-left:3px solid var(--accent-purple)">
+      <h4>Exa.ai</h4>
+      <div class="api-type">Neural Search API</div>
+      <div class="purpose">AI-powered neural search for structured profile data extraction with citation URLs. Source priority 50. Rate-limit backoff with exponential jitter.</div>
+      <div class="env-var">EXA_API_KEY</div>
     </div>
 
     <div class="integration-card" style="border-left:3px solid var(--accent-cyan)">
@@ -2178,7 +2522,7 @@
 
     <div class="db-section" onclick="this.classList.toggle('open')">
       <div class="db-section-header">
-        <h4><div class="db-dot" style="background:var(--accent-orange)"></div> Status & Metadata <span class="db-field-count">— 5 fields</span></h4>
+        <h4><div class="db-dot" style="background:var(--accent-orange)"></div> Status & Metadata <span class="db-field-count">— 7 fields</span></h4>
         <span class="db-chevron">&#9654;</span>
       </div>
       <div class="db-section-body">
@@ -2187,6 +2531,8 @@
         <div class="db-row"><span class="db-row-name">tags</span><span class="db-row-desc">Categorization labels (array)</span></div>
         <div class="db-row"><span class="db-row-name">bio</span><span class="db-row-desc">Free-text biography</span></div>
         <div class="db-row"><span class="db-row-name">notes</span><span class="db-row-desc">Internal notes about this person</span></div>
+        <div class="db-row"><span class="db-row-name">enrichment_metadata</span><span class="db-row-desc">JSONB — field_meta tracks per-field source + timestamp for provenance</span></div>
+        <div class="db-row"><span class="db-row-name">niche_category</span><span class="db-row-desc">Standardized niche classification for matching</span></div>
       </div>
     </div>
 
@@ -2229,6 +2575,451 @@
         <span class="db-rel-arrow">&#8594;</span>
         <span class="db-rel-table" style="color:var(--accent-orange)">MatchFeedback</span>
         <span class="db-rel-desc">User ratings (1-5) and outcome tracking (successful/unsuccessful/pending)</span>
+      </div>
+      <div class="db-rel-row">
+        <span class="db-rel-table" style="color:var(--accent-purple)">MemberReport</span>
+        <span class="db-rel-arrow">&#8594;</span>
+        <span class="db-rel-table" style="color:var(--accent-purple)">ReportPartner</span>
+        <span class="db-rel-desc">ISMC-scored partners (0-100) with sections, badges, and outreach templates. Access-code gated, 30-day staleness</span>
+      </div>
+      <div class="db-rel-row">
+        <span class="db-rel-table" style="color:var(--accent-green)">SupabaseProfile</span>
+        <span class="db-rel-arrow">&#8594;</span>
+        <span class="db-rel-table" style="color:var(--accent-purple)">MemberReport</span>
+        <span class="db-rel-desc">One report per member per month, linked to their Supabase profile</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== DATA HEALTH DASHBOARD ===== -->
+<div id="view-datahealth" class="view">
+  <div class="dh-container">
+
+    <!-- Hero -->
+    <div class="dh-hero">
+      <h2>Database Enrichment Health</h2>
+      <p>Live fill rates from Supabase &mdash; 3,578 profiles queried across all fields</p>
+      <div class="dh-stat-row">
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-blue)">3,578</span><span class="dh-stat-label">Total Profiles</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-green)">$84</span><span class="dh-stat-label">Enrichment Spend</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-purple)">1,807</span><span class="dh-stat-label">Enriched (50.5%)</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-orange)">6</span><span class="dh-stat-label">Pipeline Runs</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-cyan)">38</span><span class="dh-stat-label">Total Fields</span></div>
+      </div>
+    </div>
+
+    <!-- ========== GROUP 1: Business Profile ========== -->
+    <div class="dh-group open" onclick="this.classList.toggle('open')">
+      <div class="dh-group-header">
+        <h4><div class="dh-dot" style="background:var(--accent-purple)"></div> Business Profile <span class="dh-group-count">&mdash; the matching core &bull; 10 fields</span></h4>
+        <span class="dh-chevron">&#9654;</span>
+      </div>
+      <div class="dh-group-body">
+        <div class="dh-bar-row">
+          <span class="dh-field-name">business_focus</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:74.6%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">74.6%</span>
+          <span class="dh-bar-delta dh-delta-zero">2,668</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">niche</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:49.0%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">49.0%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,754</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">service_provided</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:35.8%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">35.8%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,280</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">offering</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:32.9%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">32.9%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,177</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">what_you_do</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-orange" style="width:19.2%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-orange)">19.2%</span>
+          <span class="dh-bar-delta dh-delta-zero">687</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">who_you_serve</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-orange" style="width:18.6%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-orange)">18.6%</span>
+          <span class="dh-bar-delta dh-delta-zero">666</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">bio</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-orange" style="width:13.8%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-orange)">13.8%</span>
+          <span class="dh-bar-delta dh-delta-zero">492</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">signature_programs</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:8.6%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">8.6%</span>
+          <span class="dh-bar-delta dh-delta-zero">306</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">current_projects</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:7.1%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">7.1%</span>
+          <span class="dh-bar-delta dh-delta-zero">255</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">seeking</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:1.9%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">1.9%</span>
+          <span class="dh-bar-delta dh-delta-zero">67</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== GROUP 2: Identity & Contact ========== -->
+    <div class="dh-group" onclick="this.classList.toggle('open')">
+      <div class="dh-group-header">
+        <h4><div class="dh-dot" style="background:var(--accent-blue)"></div> Identity &amp; Contact <span class="dh-group-count">&mdash; 9 fields</span></h4>
+        <span class="dh-chevron">&#9654;</span>
+      </div>
+      <div class="dh-group-body">
+        <div class="dh-bar-row">
+          <span class="dh-field-name">name</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:100%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">100%</span>
+          <span class="dh-bar-delta dh-delta-zero">3,578</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">company</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:66.1%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">66.1%</span>
+          <span class="dh-bar-delta dh-delta-zero">2,365</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">website</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:49.6%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">49.6%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,774</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">linkedin</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-orange" style="width:16.6%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-orange)">16.6%</span>
+          <span class="dh-bar-delta dh-delta-zero">594</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">phone</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:2.8%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">2.8%</span>
+          <span class="dh-bar-delta dh-delta-zero">99</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">email</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:2.7%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">2.7%</span>
+          <span class="dh-bar-delta dh-delta-zero">96</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">booking_link</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:0.3%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">0.3%</span>
+          <span class="dh-bar-delta dh-delta-zero">9</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">secondary_emails</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:0.5%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">0.0%</span>
+          <span class="dh-bar-delta dh-delta-zero">0</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">avatar_url</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:0.5%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">0.0%</span>
+          <span class="dh-bar-delta dh-delta-zero">0</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== GROUP 3: Extended Signals ========== -->
+    <div class="dh-group" onclick="this.classList.toggle('open')">
+      <div class="dh-group-header">
+        <h4><div class="dh-dot" style="background:var(--accent-green)"></div> Extended Signals <span class="dh-group-count">&mdash; enrichment-discovered &bull; 5 fields</span></h4>
+        <span class="dh-chevron">&#9654;</span>
+      </div>
+      <div class="dh-group-body">
+        <div class="dh-bar-row">
+          <span class="dh-field-name">content_platforms</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:44.0%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">44.0%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,574</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">audience_engagement</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:39.3%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">39.3%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,406</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">jv_history</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-orange" style="width:19.5%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-orange)">19.5%</span>
+          <span class="dh-bar-delta dh-delta-zero">699</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">tags</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-orange" style="width:14.3%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-orange)">14.3%</span>
+          <span class="dh-bar-delta dh-delta-zero">513</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">revenue_tier</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:7.2%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">7.2%</span>
+          <span class="dh-bar-delta dh-delta-zero">259</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== GROUP 4: Audience & Reach ========== -->
+    <div class="dh-group" onclick="this.classList.toggle('open')">
+      <div class="dh-group-header">
+        <h4><div class="dh-dot" style="background:var(--accent-cyan)"></div> Audience &amp; Reach <span class="dh-group-count">&mdash; 4 fields</span></h4>
+        <span class="dh-chevron">&#9654;</span>
+      </div>
+      <div class="dh-group-body">
+        <div class="dh-bar-row">
+          <span class="dh-field-name">business_size</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:51.6%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">51.6%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,845</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">list_size</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:35.7%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">35.7%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,278</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">social_reach</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-orange" style="width:26.4%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-orange)">26.4%</span>
+          <span class="dh-bar-delta dh-delta-zero">945</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">audience_type</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-orange" style="width:15.5%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-orange)">15.5%</span>
+          <span class="dh-bar-delta dh-delta-zero">554</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== GROUP 5: Enrichment Metadata ========== -->
+    <div class="dh-group" onclick="this.classList.toggle('open')">
+      <div class="dh-group-header">
+        <h4><div class="dh-dot" style="background:var(--accent-orange)"></div> Enrichment Metadata <span class="dh-group-count">&mdash; 3 fields</span></h4>
+        <span class="dh-chevron">&#9654;</span>
+      </div>
+      <div class="dh-group-body">
+        <div class="dh-bar-row">
+          <span class="dh-field-name">profile_confidence</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:100%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">100%</span>
+          <span class="dh-bar-delta dh-delta-zero">3,578</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">last_enriched_at</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:50.5%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">50.5%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,807</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">enrichment_metadata</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:38.1%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">38.1%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,362</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== GROUP 6: Network Centrality ========== -->
+    <div class="dh-group" onclick="this.classList.toggle('open')">
+      <div class="dh-group-header">
+        <h4><div class="dh-dot" style="background:var(--accent-pink)"></div> Network Centrality <span class="dh-group-count">&mdash; 4 fields</span></h4>
+        <span class="dh-chevron">&#9654;</span>
+      </div>
+      <div class="dh-group-body">
+        <div class="dh-bar-row">
+          <span class="dh-field-name">pagerank_score</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:43.5%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">43.5%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,558</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">degree_centrality</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:43.5%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">43.5%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,558</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">betweenness_centrality</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:43.5%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">43.5%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,558</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">network_role</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-orange" style="width:16.4%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-orange)">16.4%</span>
+          <span class="dh-bar-delta dh-delta-zero">588</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== GROUP 7: System Fields ========== -->
+    <div class="dh-group" onclick="this.classList.toggle('open')">
+      <div class="dh-group-header">
+        <h4><div class="dh-dot" style="background:var(--text-dim)"></div> System Fields <span class="dh-group-count">&mdash; 3 fields</span></h4>
+        <span class="dh-chevron">&#9654;</span>
+      </div>
+      <div class="dh-group-body">
+        <div class="dh-bar-row">
+          <span class="dh-field-name">status</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:100%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">100%</span>
+          <span class="dh-bar-delta dh-delta-zero">3,578</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">role</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:100%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">100%</span>
+          <span class="dh-bar-delta dh-delta-zero">3,578</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">notes</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-green" style="width:48.4%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-green)">48.4%</span>
+          <span class="dh-bar-delta dh-delta-zero">1,732</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== PHASE TIMELINE ========== -->
+    <div class="dh-phase-section">
+      <h3>Enrichment Phase Timeline</h3>
+      <table class="dh-table">
+        <thead>
+          <tr>
+            <th>Phase</th>
+            <th>Tiers</th>
+            <th>Processed</th>
+            <th>Enriched</th>
+            <th>Failed</th>
+            <th>Cost</th>
+            <th>Runtime</th>
+            <th>Success</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1.1</td>
+            <td>0</td>
+            <td>2</td>
+            <td>2</td>
+            <td>0</td>
+            <td class="dh-cost">$0.04</td>
+            <td>2m</td>
+            <td class="dh-success">100%</td>
+          </tr>
+          <tr>
+            <td>1.2</td>
+            <td>0</td>
+            <td>1,134</td>
+            <td>1,130</td>
+            <td>4</td>
+            <td class="dh-cost">$26.46</td>
+            <td>89m</td>
+            <td class="dh-success">99.6%</td>
+          </tr>
+          <tr>
+            <td>1.3</td>
+            <td>0</td>
+            <td>1,360</td>
+            <td>390</td>
+            <td>970</td>
+            <td class="dh-cost">$31.07</td>
+            <td>4m</td>
+            <td class="dh-partial">28.7%</td>
+          </tr>
+          <tr>
+            <td>2.1</td>
+            <td>1&ndash;3</td>
+            <td>596</td>
+            <td>207</td>
+            <td>389</td>
+            <td class="dh-cost">$11.92</td>
+            <td>3m</td>
+            <td class="dh-partial">34.7%</td>
+          </tr>
+          <tr>
+            <td>2.2</td>
+            <td>1&ndash;3</td>
+            <td>35</td>
+            <td>30</td>
+            <td>5</td>
+            <td class="dh-cost">$0.60</td>
+            <td>20m</td>
+            <td class="dh-success">85.7%</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>4&ndash;5</td>
+            <td>574</td>
+            <td>574</td>
+            <td>0</td>
+            <td class="dh-cost">$14.35</td>
+            <td>80m</td>
+            <td class="dh-success">100%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ========== INSIGHTS ========== -->
+    <div class="dh-insights">
+      <div class="dh-insight" style="border-left: 3px solid var(--accent-green)">
+        <span class="dh-insight-icon">&#9650;</span>
+        <h4>Strongest Fields</h4>
+        <span class="dh-big-num" style="color:var(--accent-green)">74.6%</span>
+        <p><strong>business_focus</strong> leads at 74.6%, followed by <strong>company</strong> (66.1%), <strong>business_size</strong> (51.6%), and <strong>last_enriched_at</strong> (50.5% enriched).</p>
+      </div>
+      <div class="dh-insight" style="border-left: 3px solid var(--accent-orange)">
+        <span class="dh-insight-icon">&#128269;</span>
+        <h4>Enrichment Coverage</h4>
+        <span class="dh-big-num" style="color:var(--accent-orange)">50.5%</span>
+        <p><strong>1,807</strong> of 3,578 profiles have been enriched. Network centrality computed for <strong>1,558</strong> (43.5%). Confidence scores on <strong>100%</strong> of profiles.</p>
+      </div>
+      <div class="dh-insight" style="border-left: 3px solid var(--accent-red)">
+        <span class="dh-insight-icon">&#9888;</span>
+        <h4>Critical Gaps</h4>
+        <span class="dh-big-num" style="color:var(--accent-red)">5</span>
+        <p>Fields under 3%: <strong>email</strong> (2.7%), <strong>phone</strong> (2.8%), <strong>seeking</strong> (1.9%), <strong>booking_link</strong> (0.3%), <strong>avatar_url</strong> (0.0%).</p>
+      </div>
+    </div>
+
+    <!-- ========== EXA PERFORMANCE ========== -->
+    <div class="dh-phase-section" style="margin-bottom: 40px">
+      <h3>Exa Research Performance</h3>
+      <div class="dh-stat-row" style="justify-content: flex-start">
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-green)">82%</span><span class="dh-stat-label">Standard Hit Rate</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-orange)">5.9%</span><span class="dh-stat-label">Deep Research Hit Rate</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-blue)">~3,542</span><span class="dh-stat-label">Successful Lookups</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-purple)">150</span><span class="dh-stat-label">Deep Research Wins</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-red)">0</span><span class="dh-stat-label">Permanent Failures</span></div>
       </div>
     </div>
 

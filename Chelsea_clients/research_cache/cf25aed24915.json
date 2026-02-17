@@ -1,0 +1,42 @@
+{
+  "name": "Team Never Quit Podcast",
+  "company": "Team Never Quit Podcast",
+  "website": "https://teamneverquit.com/podcast",
+  "list_size": 0,
+  "what_you_do": "The Team Never Quit Podcast features real-life stories of individuals who have faced significant challenges and transformed their lives, aiming to inspire others to do the same.",
+  "who_you_serve": "The podcast serves a broad audience interested in personal development, resilience, and motivational stories, appealing to both individuals and groups seeking inspiration.",
+  "niche": "podcast",
+  "service_provided": "podcast",
+  "business_size": "small_team",
+  "tags": [
+    "podcast",
+    "motivation",
+    "resilience",
+    "inspiration",
+    "personal development"
+  ],
+  "bio": "Top 50 show in Education and awarded Best of iTunes Podcast in 2016.",
+  "business_focus": "The Team Never Quit Podcast features real-life stories of individuals who have faced significant challenges and transformed their lives, aiming to inspire others to do the same.",
+  "audience_type": "B2C",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/team-never-quit/id1119435387",
+    "spotify_podcast": "https://open.spotify.com/show/4iXxgRXO4Rho1PAf3xqKyh",
+    "facebook": "https://www.facebook.com/teamneverquit/",
+    "youtube": "https://www.youtube.com/watch?v=m1OkpReq_ZY"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Team Never Quit Podcast: Looking Back & Charging Forward",
+      "format": "endorsement",
+      "source_quote": "Socials: - IG: team_neverquit, marcusluttrell, melanieluttrell, huntero13 \n- https://www.patreon.com/teamneverquit Sponsors:",
+      "source_url": "https://podcasts.apple.com/ca/podcast/team-never-quit-podcast-looking-back-charging-forward/id1119435387?i=1000686684359&l=fr-CA"
+    },
+    {
+      "partner_name": "TNQPodcast 100th Show -  Rob O'Neill SEAL Team Six - Man who shot Osama Bin Laden",
+      "format": "podcast_guest",
+      "source_quote": "The TNQ Podcast once again delivers an outstanding guest and show dedicated to helping you, our listeners, to discover your never quit mindset.\\n\\n",
+      "source_url": "https://www.youtube.com/watch?v=m1OkpReq_ZY"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001
+}

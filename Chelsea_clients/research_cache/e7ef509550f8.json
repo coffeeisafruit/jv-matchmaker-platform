@@ -1,0 +1,29 @@
+{
+  "name": "My First Million Podcast",
+  "company": "My First Million Podcast",
+  "website": "https://thehustle.co/my-first-million-podcast",
+  "list_size": 0,
+  "what_you_do": "A podcast where Shaan Puri and Sam Parr brainstorm business ideas every week.",
+  "who_you_serve": "Entrepreneurs and business enthusiasts looking for innovative business ideas and insights.",
+  "niche": "podcast",
+  "service_provided": "podcast",
+  "business_size": "small_team",
+  "tags": [
+    "podcast",
+    "business ideas",
+    "entrepreneurship",
+    "innovation"
+  ],
+  "business_focus": "A podcast where Shaan Puri and Sam Parr brainstorm business ideas every week.",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "youtube": "https://www.youtube.com/@MyFirstMillionPod",
+    "tiktok": "https://www.tiktok.com/@myfirstmilpod",
+    "instagram": "https://www.instagram.com/myfirstmilpod/",
+    "twitter": "https://twitter.com/myfirstmilpod",
+    "facebook": "https://www.facebook.com/groups/ourfirstmillion",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/my-mother-in-laws-side-hustle-made-%241m-selling-pillows/id1469759170?i=1000749275629",
+    "spotify_podcast": "https://open.spotify.com/show/3mliji9352UAk3XnWElnDV"
+  },
+  "audience_engagement_score": 0.7000000000000001
+}

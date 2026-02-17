@@ -1,0 +1,27 @@
+{
+  "name": "Driven To Succeed Consulting",
+  "company": "LLC",
+  "list_size": 0,
+  "offering": "Book Writing Coach, Copywriting, Ghost Writers, Mastermind Groups, Public Speaking",
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/company/driven-to-succeed-llc",
+    "facebook": "https://www.facebook.com/DriventoSucceedLLC/",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/legacy-builders-unleashed-podcast/id1792659482"
+  },
+  "jv_history": [
+    {
+      "partner_name": "How to Succeed Podcast",
+      "format": "podcast_guest",
+      "source_quote": "Podcast teaches the success principles and interpersonal communication skills needed to get to the top and stay there. We are dedicated to empowering life-long learners and ambitious entrepreneurs wit",
+      "source_url": "https://podcasts.apple.com/nz/podcast/how-to-succeed-podcast/id1097591566"
+    },
+    {
+      "partner_name": "Achieving sustainable business success",
+      "format": "endorsement",
+      "source_quote": "ason is the Chief Administrative Officer and Consulting Practice Lead at DGCpartners LLC",
+      "source_url": "https://www.linkedin.com/pulse/achieving-sustainable-business-success-don-gleason"
+    }
+  ],
+  "audience_engagement_score": 0.4,
+  "website": "https://www.driventosucceed.net/"
+}

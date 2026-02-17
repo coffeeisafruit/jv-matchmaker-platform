@@ -1,0 +1,28 @@
+{
+  "name": "The Sevan Podcast",
+  "company": "The Sevan Podcast",
+  "website": "https://www.youtube.com/channel/UC59b5GwfJN9HY7uhhCW-ACw/featured",
+  "list_size": 0,
+  "what_you_do": "The Sevan Podcast features unedited interviews and conversations with a variety of interesting people, including authors and UFC fighters.",
+  "who_you_serve": "The podcast serves a broad audience interested in diverse conversations, particularly fans of CrossFit and fitness enthusiasts.",
+  "niche": "podcast",
+  "service_provided": "podcast",
+  "current_projects": "New episodes are released daily.",
+  "business_size": "small_team",
+  "tags": [
+    "podcast",
+    "interviews",
+    "fitness",
+    "crossfit",
+    "ufc",
+    "conversations"
+  ],
+  "bio": "Sevan Matossian is a former head of media for CrossFit Inc. and host of the official CrossFit Podcast.",
+  "business_focus": "The Sevan Podcast features unedited interviews and conversations with a variety of interesting people, including authors and UFC fighters.",
+  "audience_type": "The podcast serves a broad audience interested in diverse conversations, particularly fans of CrossF",
+  "content_platforms": {
+    "youtube": "https://www.youtube.com/c/thesevanpodcast",
+    "apple_podcast": "https://podcasts.apple.com/ca/podcast/the-sevan-podcast/id1507430571"
+  },
+  "audience_engagement_score": 0.55
+}

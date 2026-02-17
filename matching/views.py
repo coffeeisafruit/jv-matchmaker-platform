@@ -1128,3 +1128,113 @@ def _format_list_size(size):
     if size >= 1_000:
         return f'{size / 1_000:.0f}K'
     return str(size)
+
+
+# =============================================================================
+# APOLLO WEBHOOK (Receives async phone/email data from Apollo.io)
+# =============================================================================
+
+class ApolloWebhookView(View):
+    """
+    Receives async phone/waterfall enrichment data from Apollo.io.
+
+    Apollo sends phone numbers and waterfall-enriched emails asynchronously
+    via webhook after the initial API response. This view processes that
+    payload and writes the data to the matching Supabase profile.
+    """
+
+    def post(self, request, *args, **kwargs):
+        import json
+        import logging
+        from datetime import datetime
+
+        logger = logging.getLogger(__name__)
+
+        try:
+            payload = json.loads(request.body)
+        except (json.JSONDecodeError, ValueError):
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        # Apollo webhook payload structure varies — extract what we can
+        matches = payload.get('matches', [payload]) if not isinstance(payload, list) else payload
+
+        updated = 0
+        for match in matches:
+            person = match.get('person', match)
+            apollo_id = person.get('id')
+
+            if not apollo_id:
+                continue
+
+            # Find profile by apollo_id stored in enrichment_metadata
+            from matching.models import SupabaseProfile
+            import psycopg2
+            from psycopg2 import sql as psql
+            import os
+
+            try:
+                conn = psycopg2.connect(os.environ['DATABASE_URL'])
+                cur = conn.cursor()
+
+                # Find profile with this apollo_id
+                cur.execute(
+                    "SELECT id, phone, email, enrichment_metadata FROM profiles "
+                    "WHERE enrichment_metadata->'apollo_data'->>'apollo_id' = %s",
+                    (apollo_id,)
+                )
+                row = cur.fetchone()
+
+                if not row:
+                    logger.info("Apollo webhook: no profile for apollo_id %s", apollo_id)
+                    continue
+
+                profile_id, existing_phone, existing_email, existing_meta = row
+
+                set_parts = []
+                params = []
+
+                # Write phone if we don't have one
+                phone_numbers = person.get('phone_numbers') or []
+                if phone_numbers and not existing_phone:
+                    raw_phone = phone_numbers[0].get('raw_number', '')
+                    if raw_phone and len(raw_phone) >= 7:
+                        set_parts.append(psql.SQL("phone = %s"))
+                        params.append(raw_phone.strip())
+
+                # Write waterfall email if we don't have one
+                waterfall_email = person.get('email')
+                if waterfall_email and not existing_email:
+                    set_parts.append(psql.SQL("email = %s"))
+                    params.append(waterfall_email.strip())
+
+                if set_parts:
+                    # Update enrichment_metadata too
+                    meta = existing_meta or {}
+                    if isinstance(meta, str):
+                        meta = json.loads(meta)
+                    apollo_data = meta.get('apollo_data', {})
+                    apollo_data['webhook_received_at'] = datetime.now().isoformat()
+                    apollo_data['phone_numbers'] = phone_numbers
+                    meta['apollo_data'] = apollo_data
+
+                    set_parts.append(psql.SQL("enrichment_metadata = %s::jsonb"))
+                    params.append(json.dumps(meta))
+                    set_parts.append(psql.SQL("updated_at = %s"))
+                    params.append(datetime.now())
+
+                    update_q = psql.SQL("UPDATE profiles SET {} WHERE id = %s").format(
+                        psql.SQL(", ").join(set_parts)
+                    )
+                    params.append(profile_id)
+                    cur.execute(update_q, params)
+                    conn.commit()
+                    updated += 1
+
+                cur.close()
+                conn.close()
+
+            except Exception as e:
+                logger.error("Apollo webhook error: %s", e)
+                continue
+
+        return JsonResponse({'status': 'ok', 'updated': updated})

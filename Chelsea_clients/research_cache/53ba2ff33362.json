@@ -1,0 +1,41 @@
+{
+  "name": "The Business and Leadership Podcast",
+  "company": "More Info",
+  "website": "https://thebusinessleadership.com",
+  "list_size": 0,
+  "what_you_do": "The Business Leadership Podcast provides insights and interviews with business leaders to help listeners enhance their leadership skills and business acumen.",
+  "who_you_serve": "The podcast targets business leaders, entrepreneurs, and professionals seeking to improve their leadership capabilities and learn from industry experts.",
+  "niche": "business leadership",
+  "service_provided": "podcast",
+  "business_size": "small_team",
+  "tags": [
+    "business",
+    "leadership",
+    "podcast",
+    "entrepreneurship",
+    "interviews"
+  ],
+  "bio": "Award-winning podcast with featured episodes from notable leaders in various industries.",
+  "business_focus": "The Business Leadership Podcast provides insights and interviews with business leaders to help listeners enhance their leadership skills and business acumen.",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "spotify_podcast": "https://open.spotify.com/show/7qDm7PgsLDizGugdmaNkqi",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-business-leadership-podcast/id1214490014",
+    "facebook": "https://www.facebook.com/tblcast/"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Business Leadership Series - Podcast",
+      "format": "podcast_guest",
+      "source_quote": "interview pro athletes, rock and roll hall ... - Derek Champagne does an amazing job and gives so much value with this podcast! Our audience is comprised of business owners, leaders, and entrepreneurs",
+      "source_url": "https://podcasts.apple.com/us/podcast/business-leadership-series/id1081579104"
+    },
+    {
+      "partner_name": "The Life Of A Business Leader",
+      "format": "endorsement",
+      "source_quote": "Welcome to 'The Life Of A Business Leader', hosted by Royston Guest, CEO/Founder of the Business Growth Pathway, Author, ... deep into the psyche, motivations, challenges and opportunities faced by to",
+      "source_url": "https://podcasts.apple.com/gb/podcast/the-life-of-a-business-leader/id1549230960"
+    }
+  ],
+  "audience_engagement_score": 0.4
+}

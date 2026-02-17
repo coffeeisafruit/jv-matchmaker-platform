@@ -1,0 +1,199 @@
+{
+  "phase": 1,
+  "tiers": [
+    0
+  ],
+  "timestamp": "2026-02-15T22:09:32.336861",
+  "runtime_seconds": 5336.9,
+  "profiles_processed": 1134,
+  "profiles_enriched": 1130,
+  "profiles_failed": 4,
+  "cost_dollars": 26.46,
+  "field_fill_rates": {
+    "what_you_do": {
+      "before": {
+        "count": 122,
+        "pct": 3.4
+      },
+      "after": {
+        "count": 122,
+        "pct": 3.4
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "who_you_serve": {
+      "before": {
+        "count": 114,
+        "pct": 3.2
+      },
+      "after": {
+        "count": 114,
+        "pct": 3.2
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "seeking": {
+      "before": {
+        "count": 43,
+        "pct": 1.2
+      },
+      "after": {
+        "count": 43,
+        "pct": 1.2
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "offering": {
+      "before": {
+        "count": 1118,
+        "pct": 31.2
+      },
+      "after": {
+        "count": 1118,
+        "pct": 31.2
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "revenue_tier": {
+      "before": {
+        "count": 5,
+        "pct": 0.1
+      },
+      "after": {
+        "count": 5,
+        "pct": 0.1
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "content_platforms": {
+      "before": {
+        "count": 11,
+        "pct": 0.3
+      },
+      "after": {
+        "count": 11,
+        "pct": 0.3
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "jv_history": {
+      "before": {
+        "count": 8,
+        "pct": 0.2
+      },
+      "after": {
+        "count": 8,
+        "pct": 0.2
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "website": {
+      "before": {
+        "count": 612,
+        "pct": 17.1
+      },
+      "after": {
+        "count": 612,
+        "pct": 17.1
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "niche": {
+      "before": {
+        "count": 1558,
+        "pct": 43.5
+      },
+      "after": {
+        "count": 1558,
+        "pct": 43.5
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "booking_link": {
+      "before": {
+        "count": 8,
+        "pct": 0.2
+      },
+      "after": {
+        "count": 8,
+        "pct": 0.2
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "signature_programs": {
+      "before": {
+        "count": 39,
+        "pct": 1.1
+      },
+      "after": {
+        "count": 39,
+        "pct": 1.1
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "tags": {
+      "before": {
+        "count": 6,
+        "pct": 0.2
+      },
+      "after": {
+        "count": 6,
+        "pct": 0.2
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    }
+  },
+  "exa_stats": {
+    "research_attempted": 1360,
+    "research_success": 1130,
+    "deep_research_attempted": 0,
+    "deep_research_success": 0,
+    "retry_count": 0,
+    "permanent_failures": 0
+  },
+  "verification_gate": {
+    "verified": 4,
+    "unverified": 1,
+    "quarantined": 0
+  },
+  "extended_signals_found": 1130,
+  "sample_profiles": [
+    {
+      "name": "Advertising, On",
+      "fields_filled": 4,
+      "revenue_tier": ""
+    },
+    {
+      "name": "Michelle Tennant",
+      "fields_filled": 7,
+      "revenue_tier": ""
+    },
+    {
+      "name": "Ray Hill (Blair Gorman)",
+      "fields_filled": 2,
+      "revenue_tier": ""
+    },
+    {
+      "name": "Ben Harris",
+      "fields_filled": 1,
+      "revenue_tier": ""
+    },
+    {
+      "name": "John Assaraf",
+      "fields_filled": 5,
+      "revenue_tier": ""
+    }
+  ]
+}

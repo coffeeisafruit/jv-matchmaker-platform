@@ -1,0 +1,63 @@
+{
+  "name": "The Leadership Podcast",
+  "company": "The Leadership Podcast",
+  "website": "https://theleadershippodcast.com",
+  "list_size": 0,
+  "what_you_do": "The Leadership Podcast focuses on sharing insights and strategies related to leadership and career growth through interviews with various experts and leaders.",
+  "who_you_serve": "The podcast serves business leaders, entrepreneurs, and individuals interested in personal and professional development.",
+  "niche": "leadership",
+  "service_provided": "podcast",
+  "business_size": "small_team",
+  "tags": [
+    "leadership",
+    "career growth",
+    "podcast",
+    "professional development",
+    "business",
+    "insights",
+    "strategies"
+  ],
+  "business_focus": "The Leadership Podcast focuses on sharing insights and strategies related to leadership and career growth through interviews with various experts and leaders.",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/company/the-leadership-podcast",
+    "twitter": "https://twitter.com/westudyleaders",
+    "facebook": "https://www.facebook.com/westudyleaders/",
+    "instagram": "https://www.instagram.com/westudyleaders",
+    "apple_podcast": "https://podcasts.apple.com/tt/podcast/the-leadership-podcast/id1124942958",
+    "spotify_podcast": "https://open.spotify.com/show/6OWNnsVUOHxJG15oIwbV5g"
+  },
+  "jv_history": [
+    {
+      "partner_name": "The Leadership Podcast",
+      "format": "podcast_guest",
+      "source_quote": "Podcast - Apple Podcasts\n\n# The Leadership Podcast ... We interview great leaders, review the books they read, and speak with highly influential authors who study them. ... Resources Mentioned The Lea",
+      "source_url": "https://podcasts.apple.com/tt/podcast/the-leadership-podcast/id1124942958"
+    },
+    {
+      "partner_name": "The Leadership Podcast",
+      "format": "podcast_guest",
+      "source_quote": "We interview great leaders, review the books they read, and speak with highly influential authors who study them. ... you uniquely human in an AI-driven world. Find episode 497 on The Leadership Podca",
+      "source_url": "https://podcasts.apple.com/ca/podcast/the-leadership-podcast/id1124942958"
+    },
+    {
+      "partner_name": "The Leadership Podcast",
+      "format": "podcast_guest",
+      "source_quote": "- Podcast - Apple Podcasts\n \n# The Leadership Podcast ... * We interview great leaders, review the books they read, and speak with highly influential authors who study them. ... These are the books me",
+      "source_url": "https://podcasts.apple.com/no/podcast/the-leadership-podcast/id1124942958"
+    },
+    {
+      "partner_name": "The Leadership Podcast",
+      "format": "podcast_guest",
+      "source_quote": "# The Leadership Podcast\n\nJan Rutherford and Jim Vaselopulos, experts on leadership development ... We interview great leaders, review the books they read, and speak with highly influential authors wh",
+      "source_url": "https://podcasts.apple.com/my/podcast/the-leadership-podcast/id1124942958"
+    },
+    {
+      "partner_name": "The Leadership Podcast",
+      "format": "podcast_guest",
+      "source_quote": "The Leadership Podcast | theleadershippodcast.com Sponsored by | www.darley.com Rafti Advisors. LLC | ... are the books mentioned in this episode Resources Mentioned The Leadership Podcast | theleader",
+      "source_url": "https://podcasts.apple.com/us/podcast/the-leadership-podcast/id1124942958?l=fr-FR"
+    }
+  ],
+  "audience_engagement_score": 0.45
+}

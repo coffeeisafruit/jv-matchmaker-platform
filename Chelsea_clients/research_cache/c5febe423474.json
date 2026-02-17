@@ -1,0 +1,17 @@
+{
+  "name": "Business Growing Pain Podcast",
+  "list_size": 1000,
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/fm/podcast/growing-pains-why-business-growth-feels-uncomfortable/id1750583856?i=1000700578812",
+    "youtube": "https://www.youtube.com/watch?v=C65Nupmj6lU"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Grow A Small Business Podcast",
+      "format": "podcast_guest",
+      "source_quote": "this episode of Grow a Small Business, host Troy Trewin interviews J",
+      "source_url": "https://podcasts.apple.com/ca/podcast/grow-a-small-business-podcast/id1493225367"
+    }
+  ],
+  "audience_engagement_score": 0.55
+}

@@ -1,0 +1,48 @@
+{
+  "name": "The Amplify Show Podcast",
+  "company": "The Amplify Show Podcast",
+  "website": "https://www.emilyrichett.com",
+  "list_size": 0,
+  "what_you_do": "Emily Richett is a publicity and business coach who helps individuals redefine success and grow businesses rooted in their values through mentorship and media exposure.",
+  "who_you_serve": "Emily serves millennial moms and entrepreneurs looking to start or grow a business while navigating motherhood and personal values.",
+  "niche": "publicity coaching",
+  "signature_programs": "Mama Bear Survival (book), Faith-Filled Business Mentorship",
+  "revenue_tier": "emerging",
+  "service_provided": "1:1 coaching, group programs, courses, speaking, consulting",
+  "current_projects": "Upcoming book 'Mama Bear Survival', Faith-Filled Business Mentorship program",
+  "business_size": "small_team",
+  "tags": [
+    "publicity",
+    "business coaching",
+    "entrepreneurship",
+    "media",
+    "mentorship",
+    "moms"
+  ],
+  "bio": "Click Funnels' 2-Comma Club Award for earning over $1 million in a single sales funnel, featured in INC, Entrepreneur, Forbes, and various TV news stations.",
+  "business_focus": "Emily Richett is a publicity and business coach who helps individuals redefine success and grow businesses rooted in their values through mentorship and media exposure. (publicity coaching)",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "facebook": "https://www.facebook.com/mamabearsurvival",
+    "instagram": "https://www.instagram.com/reel/DL8BrGNOYKk/",
+    "apple_podcast": "https://podcasts.apple.com/ca/podcast/39-how-to-leverage-pr-for-your-personal-brand/id1702445059?i=1000656902127&l=fr-CA",
+    "youtube": "https://www.youtube.com/watch?v=-rhl1oAlEcE",
+    "linkedin": "https://www.linkedin.com/posts/amplifyam_new-account-management-secrets-podcast-authentic-activity-7268288854510456832-hu_s",
+    "spotify_podcast": "https://open.spotify.com/episode/5H2r5Dlwbj7yRmI76brAqi"
+  },
+  "jv_history": [
+    {
+      "partner_name": "\u201cNo BS PR\u201d: Redefining PR with Authenticity with Gigi Peterkin of Amplify PR | Digital Hospitality",
+      "format": "podcast_guest",
+      "source_quote": ": \\nDigital Hospitality is an interview-based video podcast hosted by business owner Shawn",
+      "source_url": "https://www.youtube.com/watch?v=-rhl1oAlEcE"
+    },
+    {
+      "partner_name": "39. How to leverage PR for your personal brand",
+      "format": "podcast_guest",
+      "source_quote": "this episode, I\u2019m interviewing Amy Bartko, founder of Chatterbox PR and Marketing, and it was FIRE! She shares",
+      "source_url": "https://podcasts.apple.com/ca/podcast/39-how-to-leverage-pr-for-your-personal-brand/id1702445059?i=1000656902127&l=fr-CA"
+    }
+  ],
+  "audience_engagement_score": 0.65
+}

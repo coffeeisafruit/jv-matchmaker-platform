@@ -1,0 +1,201 @@
+{
+  "phase": 2,
+  "tiers": [
+    1,
+    2,
+    3
+  ],
+  "timestamp": "2026-02-15T23:06:16.944993",
+  "runtime_seconds": 160.5,
+  "profiles_processed": 596,
+  "profiles_enriched": 207,
+  "profiles_failed": 389,
+  "cost_dollars": 11.92,
+  "field_fill_rates": {
+    "what_you_do": {
+      "before": {
+        "count": 418,
+        "pct": 11.7
+      },
+      "after": {
+        "count": 459,
+        "pct": 12.8
+      },
+      "delta_count": 41,
+      "delta_pct": 1.1
+    },
+    "who_you_serve": {
+      "before": {
+        "count": 412,
+        "pct": 11.5
+      },
+      "after": {
+        "count": 453,
+        "pct": 12.7
+      },
+      "delta_count": 41,
+      "delta_pct": 1.2
+    },
+    "seeking": {
+      "before": {
+        "count": 49,
+        "pct": 1.4
+      },
+      "after": {
+        "count": 49,
+        "pct": 1.4
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "offering": {
+      "before": {
+        "count": 1123,
+        "pct": 31.4
+      },
+      "after": {
+        "count": 1123,
+        "pct": 31.4
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "revenue_tier": {
+      "before": {
+        "count": 176,
+        "pct": 4.9
+      },
+      "after": {
+        "count": 201,
+        "pct": 5.6
+      },
+      "delta_count": 25,
+      "delta_pct": 0.7
+    },
+    "content_platforms": {
+      "before": {
+        "count": 1137,
+        "pct": 31.8
+      },
+      "after": {
+        "count": 1148,
+        "pct": 32.1
+      },
+      "delta_count": 11,
+      "delta_pct": 0.3
+    },
+    "jv_history": {
+      "before": {
+        "count": 493,
+        "pct": 13.8
+      },
+      "after": {
+        "count": 521,
+        "pct": 14.6
+      },
+      "delta_count": 28,
+      "delta_pct": 0.8
+    },
+    "website": {
+      "before": {
+        "count": 612,
+        "pct": 17.1
+      },
+      "after": {
+        "count": 612,
+        "pct": 17.1
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "niche": {
+      "before": {
+        "count": 1687,
+        "pct": 47.1
+      },
+      "after": {
+        "count": 1707,
+        "pct": 47.7
+      },
+      "delta_count": 20,
+      "delta_pct": 0.6
+    },
+    "booking_link": {
+      "before": {
+        "count": 8,
+        "pct": 0.2
+      },
+      "after": {
+        "count": 8,
+        "pct": 0.2
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "signature_programs": {
+      "before": {
+        "count": 219,
+        "pct": 6.1
+      },
+      "after": {
+        "count": 240,
+        "pct": 6.7
+      },
+      "delta_count": 21,
+      "delta_pct": 0.6
+    },
+    "tags": {
+      "before": {
+        "count": 340,
+        "pct": 9.5
+      },
+      "after": {
+        "count": 384,
+        "pct": 10.7
+      },
+      "delta_count": 44,
+      "delta_pct": 1.2
+    }
+  },
+  "exa_stats": {
+    "research_attempted": 596,
+    "research_success": 596,
+    "deep_research_attempted": 0,
+    "deep_research_success": 0,
+    "retry_count": 0,
+    "permanent_failures": 0
+  },
+  "verification_gate": {
+    "verified": 0,
+    "unverified": 0,
+    "quarantined": 0
+  },
+  "extended_signals_found": 360,
+  "sample_profiles": [
+    {
+      "name": "Nidhu B Kapoor",
+      "fields_filled": 5,
+      "revenue_tier": ""
+    },
+    {
+      "name": "Mad Money w/ Jim Cramer Podcast",
+      "fields_filled": 7,
+      "revenue_tier": "enterprise"
+    },
+    {
+      "name": "Lumosity Brain Training",
+      "fields_filled": 9,
+      "revenue_tier": "emerging"
+    },
+    {
+      "name": "Business Skills, Fitness, Life",
+      "fields_filled": 6,
+      "revenue_tier": "premium"
+    },
+    {
+      "name": "The BossBabe Podcast",
+      "fields_filled": 7,
+      "revenue_tier": "emerging"
+    }
+  ]
+}

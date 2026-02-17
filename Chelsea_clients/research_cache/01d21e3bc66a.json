@@ -1,0 +1,45 @@
+{
+  "name": "Thriving Stylist Podcast",
+  "company": "Thriving Stylist Podcast",
+  "website": "http://www.thethrivingstylist.com/podcast",
+  "list_size": 2100,
+  "who_you_serve": "The podcast serves beauty professionals, including hair stylists, salon owners, and independent educators, focusing on their business growth and marketing strategies.",
+  "what_you_do": "The Thriving Stylist Podcast provides simplified business-building techniques and actionable marketing education for stylists.",
+  "niche": "beauty marketing",
+  "signature_programs": "Wealthiest Year Yet Planner, 2026 Trend Report, Thriving Leadership Method, Grow My Clientele Calculator",
+  "service_provided": "coaching, courses, speaking",
+  "current_projects": "Latest episode focuses on end-of-year retail strategy for salons.",
+  "business_size": "small_team",
+  "tags": [
+    "beauty",
+    "marketing",
+    "podcast",
+    "coaching",
+    "business",
+    "strategies",
+    "salon"
+  ],
+  "bio": "4.9 rating from 2.1K reviews on Apple Podcasts",
+  "business_focus": "The Thriving Stylist Podcast provides simplified business-building techniques and actionable marketing education for stylists. (beauty marketing)",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/thriving-stylist-podcast/id1335846794",
+    "spotify_podcast": "https://open.spotify.com/show/02ZFn6CEPLpp5PU12B3u9h",
+    "youtube": "https://www.youtube.com/@BrittSeva/podcasts"
+  },
+  "jv_history": [
+    {
+      "partner_name": "The Client Poaching Trend......",
+      "format": "podcast_guest",
+      "source_quote": "Stylist Podcast] \nPlay ... If you're not already following us, @thethrivingstylist, what are you waiting for? This is where I share pro tips every ... Learn more at: https://thrivingstylist.com/podcas",
+      "source_url": "https://podcasts.apple.com/us/podcast/the-client-poaching-trend/id1335846794?i=1000704280541"
+    },
+    {
+      "partner_name": "Best Of: #339 - How to attract more clients FAST in today's economy",
+      "format": "podcast_guest",
+      "source_quote": "more clients FAST in today's economy Thriving Stylist Podcast \nPlay As we are right in the midst of the busy holiday season, the Thrivers team and I are releasing the second of two \"Best ... If you're",
+      "source_url": "https://podcasts.apple.com/au/podcast/best-of-339-how-to-attract-more-clients-fast-in/id1335846794?i=1000682114822"
+    }
+  ],
+  "audience_engagement_score": 0.55
+}

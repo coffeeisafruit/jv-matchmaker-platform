@@ -1,17 +1,21 @@
 {
   "name": "Suzanne Evans",
-  "email": "cathi@driveninc.com",
   "company": "Driven Inc.",
-  "website": "",
-  "linkedin": "",
-  "niche": "Book Launches,Business Coaching, Business Consulting, Sales Training, Speaker Training, Webinar Training",
   "list_size": 91100,
-  "social_reach": 105000,
-  "who_you_serve": "business owners",
-  "what_you_do": "Driven INC provides world class training on speaking, selling, and events.",
-  "seeking": "",
-  "offering": "High Ticket Sales Training, Speaker Training, Elite Business Scaling Mentorship, Industry Leading Events",
-  "business_focus": "Book Launches,Business Coaching, Business Consulting, Sales Training, Speaker Training, Webinar Training",
-  "bio": "NY Times best selling author, only female business coach to make the INC 500/5000 for five consecutive years in a row, made over $75 million dollars in sales since 2008, guided students to earn over $700 million from their own stages",
-  "notes": "Best contact: PR Team: Cathi Harley 919-726-4236 or cathi@driveninc.com\nJV Directory: https://jvdirectory.com/member-more-info?Member_ID=FTUSPDRQ"
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/in/suzanne-evans-driven",
+    "facebook": "https://www.facebook.com/TheDrivenInc/photos/weve-changed-our-name-suzanne-evans-coaching-is-now-driven-inc-different-name-sa/10156662754118847/",
+    "youtube": "https://www.youtube.com/watch?v=e3vlIgvvntE"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Driven Inc.",
+      "format": "endorsement",
+      "source_quote": "that Driven Inc. fills \u2026 that actual \u201cimplement the right solution and partner with you over time\u201d gap. If you\u2019re looking to skyrocket your reach and revenue, Driven Inc. can provide you with a plan. ",
+      "source_url": "https://www.linkedin.com/company/thedriveninc"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001,
+  "website": "https://driveninc.com/",
+  "linkedin": "https://www.linkedin.com/in/suzanne-evans-driven"
 }

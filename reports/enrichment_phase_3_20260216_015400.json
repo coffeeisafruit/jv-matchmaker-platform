@@ -1,0 +1,200 @@
+{
+  "phase": 3,
+  "tiers": [
+    4,
+    5
+  ],
+  "timestamp": "2026-02-16T01:54:00.818299",
+  "runtime_seconds": 4776.0,
+  "profiles_processed": 574,
+  "profiles_enriched": 574,
+  "profiles_failed": 0,
+  "cost_dollars": 14.35,
+  "field_fill_rates": {
+    "what_you_do": {
+      "before": {
+        "count": 484,
+        "pct": 13.5
+      },
+      "after": {
+        "count": 683,
+        "pct": 19.1
+      },
+      "delta_count": 199,
+      "delta_pct": 5.6
+    },
+    "who_you_serve": {
+      "before": {
+        "count": 478,
+        "pct": 13.4
+      },
+      "after": {
+        "count": 662,
+        "pct": 18.5
+      },
+      "delta_count": 184,
+      "delta_pct": 5.1
+    },
+    "seeking": {
+      "before": {
+        "count": 49,
+        "pct": 1.4
+      },
+      "after": {
+        "count": 66,
+        "pct": 1.8
+      },
+      "delta_count": 17,
+      "delta_pct": 0.4
+    },
+    "offering": {
+      "before": {
+        "count": 1123,
+        "pct": 31.4
+      },
+      "after": {
+        "count": 1177,
+        "pct": 32.9
+      },
+      "delta_count": 54,
+      "delta_pct": 1.5
+    },
+    "revenue_tier": {
+      "before": {
+        "count": 210,
+        "pct": 5.9
+      },
+      "after": {
+        "count": 258,
+        "pct": 7.2
+      },
+      "delta_count": 48,
+      "delta_pct": 1.3
+    },
+    "content_platforms": {
+      "before": {
+        "count": 1178,
+        "pct": 32.9
+      },
+      "after": {
+        "count": 1572,
+        "pct": 43.9
+      },
+      "delta_count": 394,
+      "delta_pct": 11.0
+    },
+    "jv_history": {
+      "before": {
+        "count": 541,
+        "pct": 15.1
+      },
+      "after": {
+        "count": 698,
+        "pct": 19.5
+      },
+      "delta_count": 157,
+      "delta_pct": 4.4
+    },
+    "website": {
+      "before": {
+        "count": 612,
+        "pct": 17.1
+      },
+      "after": {
+        "count": 612,
+        "pct": 17.1
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "niche": {
+      "before": {
+        "count": 1731,
+        "pct": 48.4
+      },
+      "after": {
+        "count": 1751,
+        "pct": 48.9
+      },
+      "delta_count": 20,
+      "delta_pct": 0.5
+    },
+    "booking_link": {
+      "before": {
+        "count": 9,
+        "pct": 0.3
+      },
+      "after": {
+        "count": 9,
+        "pct": 0.3
+      },
+      "delta_count": 0,
+      "delta_pct": 0.0
+    },
+    "signature_programs": {
+      "before": {
+        "count": 252,
+        "pct": 7.0
+      },
+      "after": {
+        "count": 305,
+        "pct": 8.5
+      },
+      "delta_count": 53,
+      "delta_pct": 1.5
+    },
+    "tags": {
+      "before": {
+        "count": 411,
+        "pct": 11.5
+      },
+      "after": {
+        "count": 509,
+        "pct": 14.2
+      },
+      "delta_count": 98,
+      "delta_pct": 2.7
+    }
+  },
+  "exa_stats": {
+    "research_attempted": 2966,
+    "research_success": 424,
+    "deep_research_attempted": 2542,
+    "deep_research_success": 150,
+    "retry_count": 0,
+    "permanent_failures": 0
+  },
+  "verification_gate": {
+    "verified": 0,
+    "unverified": 0,
+    "quarantined": 0
+  },
+  "extended_signals_found": 394,
+  "sample_profiles": [
+    {
+      "name": "Tough Talk Radio Network",
+      "fields_filled": 4,
+      "revenue_tier": ""
+    },
+    {
+      "name": "Steve Maraboli",
+      "fields_filled": 4,
+      "revenue_tier": ""
+    },
+    {
+      "name": "Robin Robin",
+      "fields_filled": 5,
+      "revenue_tier": ""
+    },
+    {
+      "name": "Ramit Sethi",
+      "fields_filled": 3,
+      "revenue_tier": ""
+    },
+    {
+      "name": "Sonia Ricotti",
+      "fields_filled": 4,
+      "revenue_tier": ""
+    }
+  ]
+}

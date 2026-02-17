@@ -1,0 +1,28 @@
+{
+  "name": "Coach Promotion",
+  "company": "AMIE SPONZA",
+  "website": "https://www.linkedin.com/in/amiesponza,",
+  "list_size": 1522,
+  "offering": ", Group Coaching, Podcast Host, Public Speaking",
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/in/amiesponza",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-upleveled-strategies-podcast/id1769524608",
+    "youtube": "https://www.youtube.com/watch?v=tjWineKgACU",
+    "spotify_podcast": "https://open.spotify.com/episode/39iCRNSnya1rN8MPRrUmeQ"
+  },
+  "jv_history": [
+    {
+      "partner_name": "The Upleveled Strategies Podcast",
+      "format": "endorsement",
+      "source_quote": "s Guest Bio:\u00a0 As a Recovery Wellness Coach, I empower men and women on their journey to ... Links:Guest:Instagram:",
+      "source_url": "https://podcasts.apple.com/us/podcast/the-upleveled-strategies-podcast/id1769524608"
+    },
+    {
+      "partner_name": "Startup Europe \u2014 The Sifted Podcast - Podcast - Apple Podcasts",
+      "format": "podcast_guest",
+      "source_quote": "Sifted\u2019s weekly podcast, hosted by Amy Lewin. She interviews the founders, operators and investors building Europe\u2019s most exciting startups and, in conversation with ... Get to know the brightest and ",
+      "source_url": "https://podcasts.apple.com/si/podcast/startup-europe-%E2%80%94-the-sifted-podcast/id1592525862"
+    }
+  ],
+  "audience_engagement_score": 0.55
+}

@@ -1,0 +1,59 @@
+{
+  "name": "The Offbeat Life - become location",
+  "company": "More Info",
+  "website": "https://www.theoffbeatlife.com",
+  "list_size": 30000,
+  "what_you_do": "The Offbeat Life podcast focuses on creating partnerships with brands for sponsored content and offers programs to help individuals start and monetize their own podcasts.",
+  "who_you_serve": "The Offbeat Life serves brands looking for advertising opportunities and individuals interested in podcasting, including entrepreneurs and content creators.",
+  "offering": "Sponsored podcast episodes, social media promotion, blog posts, email marketing, and access to a large audience.",
+  "niche": "podcasting",
+  "signature_programs": "Profitable Podcast Program",
+  "revenue_tier": "emerging",
+  "service_provided": "Sponsored Podcast Episodes, Social Media, Blog post, Email Marketing, Speaking Engagements, Webinars",
+  "business_size": "small_team",
+  "enriched_list_size": 30000,
+  "tags": [
+    "podcasting",
+    "sponsorship",
+    "media",
+    "entrepreneurship",
+    "marketing",
+    "content creation"
+  ],
+  "email": "ads@theoffbeatlife.com",
+  "bio": "Over 200,000 downloads, audience in 65+ countries, featured in multiple media outlets including Refinery29 and Forbes.",
+  "business_focus": "The Offbeat Life podcast focuses on creating partnerships with brands for sponsored content and offers programs to help individuals start and monetize their own podcasts. (podcasting)",
+  "audience_type": "B2C",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-offbeat-life-become-location-independent/id1276906113",
+    "spotify_podcast": "https://open.spotify.com/show/30a99rdTO47PInn0zw6HMy",
+    "facebook": "https://www.facebook.com/OurOffbeatLife/"
+  },
+  "jv_history": [
+    {
+      "partner_name": "The Offbeat Life - become location independent - Apple Podcasts",
+      "format": "podcast_guest",
+      "source_quote": "The Offbeat Life Podcast interviews fearless individuals who ditched the norm in order to become Location Independent. ... > I\u2019ve learned so much from listening to the Offbeat",
+      "source_url": "https://podcasts.apple.com/us/podcast/the-offbeat-life-become-location-independent/id1276906113"
+    },
+    {
+      "partner_name": "Episode 002: Debbie Arcangeles - The OffBeat Life for Digital Nomads",
+      "format": "podcast_guest",
+      "source_quote": "host of The Offbeat Life, a podcast where she interviews individuals who are location independent and digital nomads. Debbie is a remote entrepreneur and host of The Offbeat",
+      "source_url": "https://podcasts.apple.com/us/podcast/episode-002-debbie-arcangeles-the-offbeat-life-for/id1506095030?i=1000470801333"
+    },
+    {
+      "partner_name": "The Offbeat Life - become location independent",
+      "format": "podcast_guest",
+      "source_quote": "Offbeat Life Podcast interviews fearless individuals who ditched the norm in order to become Location Independent. ... The Offbeat Life Podcast interviews fearless individuals who ditched the norm in ",
+      "source_url": "https://podcasts.apple.com/gb/podcast/the-offbeat-life-become-location-independent/id1276906113"
+    },
+    {
+      "partner_name": "The Offbeat Life - become location independent",
+      "format": "podcast_guest",
+      "source_quote": "Offbeat Life Podcast interviews fearless individuals who ditched the norm in order to become Location Independent. ... The Offbeat Life Podcast interviews fearless individuals who ditched the norm in ",
+      "source_url": "https://podcasts.apple.com/ca/podcast/the-offbeat-life-become-location-independent/id1276906113"
+    }
+  ],
+  "audience_engagement_score": 0.4
+}

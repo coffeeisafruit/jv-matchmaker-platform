@@ -1,0 +1,1186 @@
+[
+  {
+    "phase": 1,
+    "tiers": [
+      0
+    ],
+    "timestamp": "2026-02-15T20:10:02.819974",
+    "runtime_seconds": 115.3,
+    "profiles_processed": 2,
+    "profiles_enriched": 2,
+    "profiles_failed": 0,
+    "cost_dollars": 0.04,
+    "field_fill_rates": {
+      "what_you_do": {
+        "before": {
+          "count": 121,
+          "pct": 3.4
+        },
+        "after": {
+          "count": 122,
+          "pct": 3.4
+        },
+        "delta_count": 1,
+        "delta_pct": 0.0
+      },
+      "who_you_serve": {
+        "before": {
+          "count": 113,
+          "pct": 3.2
+        },
+        "after": {
+          "count": 114,
+          "pct": 3.2
+        },
+        "delta_count": 1,
+        "delta_pct": 0.0
+      },
+      "seeking": {
+        "before": {
+          "count": 43,
+          "pct": 1.2
+        },
+        "after": {
+          "count": 43,
+          "pct": 1.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "offering": {
+        "before": {
+          "count": 1118,
+          "pct": 31.2
+        },
+        "after": {
+          "count": 1118,
+          "pct": 31.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "revenue_tier": {
+        "before": {
+          "count": 5,
+          "pct": 0.1
+        },
+        "after": {
+          "count": 5,
+          "pct": 0.1
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "content_platforms": {
+        "before": {
+          "count": 10,
+          "pct": 0.3
+        },
+        "after": {
+          "count": 11,
+          "pct": 0.3
+        },
+        "delta_count": 1,
+        "delta_pct": 0.0
+      },
+      "jv_history": {
+        "before": {
+          "count": 6,
+          "pct": 0.2
+        },
+        "after": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "delta_count": 2,
+        "delta_pct": 0.0
+      },
+      "website": {
+        "before": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "after": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "niche": {
+        "before": {
+          "count": 1557,
+          "pct": 43.5
+        },
+        "after": {
+          "count": 1558,
+          "pct": 43.5
+        },
+        "delta_count": 1,
+        "delta_pct": 0.0
+      },
+      "booking_link": {
+        "before": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "after": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "signature_programs": {
+        "before": {
+          "count": 39,
+          "pct": 1.1
+        },
+        "after": {
+          "count": 39,
+          "pct": 1.1
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "tags": {
+        "before": {
+          "count": 5,
+          "pct": 0.1
+        },
+        "after": {
+          "count": 6,
+          "pct": 0.2
+        },
+        "delta_count": 1,
+        "delta_pct": 0.1
+      }
+    },
+    "exa_stats": {
+      "research_attempted": 2,
+      "research_success": 2,
+      "deep_research_attempted": 0,
+      "deep_research_success": 0,
+      "retry_count": 0,
+      "permanent_failures": 0
+    },
+    "verification_gate": {
+      "verified": 0,
+      "unverified": 0,
+      "quarantined": 0
+    },
+    "extended_signals_found": 2,
+    "sample_profiles": [
+      {
+        "name": "Lumosity Brain Training",
+        "fields_filled": 9,
+        "revenue_tier": "emerging"
+      },
+      {
+        "name": "Advertising, On",
+        "fields_filled": 6,
+        "revenue_tier": ""
+      }
+    ]
+  },
+  {
+    "phase": 1,
+    "tiers": [
+      0
+    ],
+    "timestamp": "2026-02-15T22:09:32.336861",
+    "runtime_seconds": 5336.9,
+    "profiles_processed": 1134,
+    "profiles_enriched": 1130,
+    "profiles_failed": 4,
+    "cost_dollars": 26.46,
+    "field_fill_rates": {
+      "what_you_do": {
+        "before": {
+          "count": 122,
+          "pct": 3.4
+        },
+        "after": {
+          "count": 122,
+          "pct": 3.4
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "who_you_serve": {
+        "before": {
+          "count": 114,
+          "pct": 3.2
+        },
+        "after": {
+          "count": 114,
+          "pct": 3.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "seeking": {
+        "before": {
+          "count": 43,
+          "pct": 1.2
+        },
+        "after": {
+          "count": 43,
+          "pct": 1.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "offering": {
+        "before": {
+          "count": 1118,
+          "pct": 31.2
+        },
+        "after": {
+          "count": 1118,
+          "pct": 31.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "revenue_tier": {
+        "before": {
+          "count": 5,
+          "pct": 0.1
+        },
+        "after": {
+          "count": 5,
+          "pct": 0.1
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "content_platforms": {
+        "before": {
+          "count": 11,
+          "pct": 0.3
+        },
+        "after": {
+          "count": 11,
+          "pct": 0.3
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "jv_history": {
+        "before": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "after": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "website": {
+        "before": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "after": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "niche": {
+        "before": {
+          "count": 1558,
+          "pct": 43.5
+        },
+        "after": {
+          "count": 1558,
+          "pct": 43.5
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "booking_link": {
+        "before": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "after": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "signature_programs": {
+        "before": {
+          "count": 39,
+          "pct": 1.1
+        },
+        "after": {
+          "count": 39,
+          "pct": 1.1
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "tags": {
+        "before": {
+          "count": 6,
+          "pct": 0.2
+        },
+        "after": {
+          "count": 6,
+          "pct": 0.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      }
+    },
+    "exa_stats": {
+      "research_attempted": 1360,
+      "research_success": 1130,
+      "deep_research_attempted": 0,
+      "deep_research_success": 0,
+      "retry_count": 0,
+      "permanent_failures": 0
+    },
+    "verification_gate": {
+      "verified": 4,
+      "unverified": 1,
+      "quarantined": 0
+    },
+    "extended_signals_found": 1130,
+    "sample_profiles": [
+      {
+        "name": "Advertising, On",
+        "fields_filled": 4,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Michelle Tennant",
+        "fields_filled": 7,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Ray Hill (Blair Gorman)",
+        "fields_filled": 2,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Ben Harris",
+        "fields_filled": 1,
+        "revenue_tier": ""
+      },
+      {
+        "name": "John Assaraf",
+        "fields_filled": 5,
+        "revenue_tier": ""
+      }
+    ]
+  },
+  {
+    "phase": 1,
+    "tiers": [
+      0
+    ],
+    "timestamp": "2026-02-15T22:33:02.487997",
+    "runtime_seconds": 245.0,
+    "profiles_processed": 1360,
+    "profiles_enriched": 390,
+    "profiles_failed": 970,
+    "cost_dollars": 31.07,
+    "field_fill_rates": {
+      "what_you_do": {
+        "before": {
+          "count": 122,
+          "pct": 3.4
+        },
+        "after": {
+          "count": 418,
+          "pct": 11.7
+        },
+        "delta_count": 296,
+        "delta_pct": 8.3
+      },
+      "who_you_serve": {
+        "before": {
+          "count": 114,
+          "pct": 3.2
+        },
+        "after": {
+          "count": 412,
+          "pct": 11.5
+        },
+        "delta_count": 298,
+        "delta_pct": 8.3
+      },
+      "seeking": {
+        "before": {
+          "count": 43,
+          "pct": 1.2
+        },
+        "after": {
+          "count": 49,
+          "pct": 1.4
+        },
+        "delta_count": 6,
+        "delta_pct": 0.2
+      },
+      "offering": {
+        "before": {
+          "count": 1118,
+          "pct": 31.2
+        },
+        "after": {
+          "count": 1123,
+          "pct": 31.4
+        },
+        "delta_count": 5,
+        "delta_pct": 0.2
+      },
+      "revenue_tier": {
+        "before": {
+          "count": 5,
+          "pct": 0.1
+        },
+        "after": {
+          "count": 176,
+          "pct": 4.9
+        },
+        "delta_count": 171,
+        "delta_pct": 4.8
+      },
+      "content_platforms": {
+        "before": {
+          "count": 11,
+          "pct": 0.3
+        },
+        "after": {
+          "count": 1137,
+          "pct": 31.8
+        },
+        "delta_count": 1126,
+        "delta_pct": 31.5
+      },
+      "jv_history": {
+        "before": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "after": {
+          "count": 493,
+          "pct": 13.8
+        },
+        "delta_count": 485,
+        "delta_pct": 13.6
+      },
+      "website": {
+        "before": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "after": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "niche": {
+        "before": {
+          "count": 1558,
+          "pct": 43.5
+        },
+        "after": {
+          "count": 1687,
+          "pct": 47.1
+        },
+        "delta_count": 129,
+        "delta_pct": 3.6
+      },
+      "booking_link": {
+        "before": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "after": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "signature_programs": {
+        "before": {
+          "count": 39,
+          "pct": 1.1
+        },
+        "after": {
+          "count": 219,
+          "pct": 6.1
+        },
+        "delta_count": 180,
+        "delta_pct": 5.0
+      },
+      "tags": {
+        "before": {
+          "count": 6,
+          "pct": 0.2
+        },
+        "after": {
+          "count": 340,
+          "pct": 9.5
+        },
+        "delta_count": 334,
+        "delta_pct": 9.3
+      }
+    },
+    "exa_stats": {
+      "research_attempted": 1360,
+      "research_success": 1360,
+      "deep_research_attempted": 0,
+      "deep_research_success": 0,
+      "retry_count": 0,
+      "permanent_failures": 0
+    },
+    "verification_gate": {
+      "verified": 0,
+      "unverified": 0,
+      "quarantined": 0
+    },
+    "extended_signals_found": 1134,
+    "sample_profiles": [
+      {
+        "name": "Advertising, On",
+        "fields_filled": 4,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Michelle Tennant",
+        "fields_filled": 7,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Ray Hill (Blair Gorman)",
+        "fields_filled": 2,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Ben Harris",
+        "fields_filled": 1,
+        "revenue_tier": ""
+      },
+      {
+        "name": "John Assaraf",
+        "fields_filled": 5,
+        "revenue_tier": ""
+      }
+    ]
+  },
+  {
+    "phase": 2,
+    "tiers": [
+      1,
+      2,
+      3
+    ],
+    "timestamp": "2026-02-15T23:06:16.944993",
+    "runtime_seconds": 160.5,
+    "profiles_processed": 596,
+    "profiles_enriched": 207,
+    "profiles_failed": 389,
+    "cost_dollars": 11.92,
+    "field_fill_rates": {
+      "what_you_do": {
+        "before": {
+          "count": 418,
+          "pct": 11.7
+        },
+        "after": {
+          "count": 459,
+          "pct": 12.8
+        },
+        "delta_count": 41,
+        "delta_pct": 1.1
+      },
+      "who_you_serve": {
+        "before": {
+          "count": 412,
+          "pct": 11.5
+        },
+        "after": {
+          "count": 453,
+          "pct": 12.7
+        },
+        "delta_count": 41,
+        "delta_pct": 1.2
+      },
+      "seeking": {
+        "before": {
+          "count": 49,
+          "pct": 1.4
+        },
+        "after": {
+          "count": 49,
+          "pct": 1.4
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "offering": {
+        "before": {
+          "count": 1123,
+          "pct": 31.4
+        },
+        "after": {
+          "count": 1123,
+          "pct": 31.4
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "revenue_tier": {
+        "before": {
+          "count": 176,
+          "pct": 4.9
+        },
+        "after": {
+          "count": 201,
+          "pct": 5.6
+        },
+        "delta_count": 25,
+        "delta_pct": 0.7
+      },
+      "content_platforms": {
+        "before": {
+          "count": 1137,
+          "pct": 31.8
+        },
+        "after": {
+          "count": 1148,
+          "pct": 32.1
+        },
+        "delta_count": 11,
+        "delta_pct": 0.3
+      },
+      "jv_history": {
+        "before": {
+          "count": 493,
+          "pct": 13.8
+        },
+        "after": {
+          "count": 521,
+          "pct": 14.6
+        },
+        "delta_count": 28,
+        "delta_pct": 0.8
+      },
+      "website": {
+        "before": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "after": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "niche": {
+        "before": {
+          "count": 1687,
+          "pct": 47.1
+        },
+        "after": {
+          "count": 1707,
+          "pct": 47.7
+        },
+        "delta_count": 20,
+        "delta_pct": 0.6
+      },
+      "booking_link": {
+        "before": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "after": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "signature_programs": {
+        "before": {
+          "count": 219,
+          "pct": 6.1
+        },
+        "after": {
+          "count": 240,
+          "pct": 6.7
+        },
+        "delta_count": 21,
+        "delta_pct": 0.6
+      },
+      "tags": {
+        "before": {
+          "count": 340,
+          "pct": 9.5
+        },
+        "after": {
+          "count": 384,
+          "pct": 10.7
+        },
+        "delta_count": 44,
+        "delta_pct": 1.2
+      }
+    },
+    "exa_stats": {
+      "research_attempted": 596,
+      "research_success": 596,
+      "deep_research_attempted": 0,
+      "deep_research_success": 0,
+      "retry_count": 0,
+      "permanent_failures": 0
+    },
+    "verification_gate": {
+      "verified": 0,
+      "unverified": 0,
+      "quarantined": 0
+    },
+    "extended_signals_found": 360,
+    "sample_profiles": [
+      {
+        "name": "Nidhu B Kapoor",
+        "fields_filled": 5,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Mad Money w/ Jim Cramer Podcast",
+        "fields_filled": 7,
+        "revenue_tier": "enterprise"
+      },
+      {
+        "name": "Lumosity Brain Training",
+        "fields_filled": 9,
+        "revenue_tier": "emerging"
+      },
+      {
+        "name": "Business Skills, Fitness, Life",
+        "fields_filled": 6,
+        "revenue_tier": "premium"
+      },
+      {
+        "name": "The BossBabe Podcast",
+        "fields_filled": 7,
+        "revenue_tier": "emerging"
+      }
+    ]
+  },
+  {
+    "phase": 2,
+    "tiers": [
+      1,
+      2,
+      3
+    ],
+    "timestamp": "2026-02-16T00:30:35.912951",
+    "runtime_seconds": 1192.4,
+    "profiles_processed": 35,
+    "profiles_enriched": 30,
+    "profiles_failed": 5,
+    "cost_dollars": 0.6,
+    "field_fill_rates": {
+      "what_you_do": {
+        "before": {
+          "count": 459,
+          "pct": 12.8
+        },
+        "after": {
+          "count": 484,
+          "pct": 13.5
+        },
+        "delta_count": 25,
+        "delta_pct": 0.7
+      },
+      "who_you_serve": {
+        "before": {
+          "count": 453,
+          "pct": 12.7
+        },
+        "after": {
+          "count": 478,
+          "pct": 13.4
+        },
+        "delta_count": 25,
+        "delta_pct": 0.7
+      },
+      "seeking": {
+        "before": {
+          "count": 49,
+          "pct": 1.4
+        },
+        "after": {
+          "count": 49,
+          "pct": 1.4
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "offering": {
+        "before": {
+          "count": 1123,
+          "pct": 31.4
+        },
+        "after": {
+          "count": 1123,
+          "pct": 31.4
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "revenue_tier": {
+        "before": {
+          "count": 201,
+          "pct": 5.6
+        },
+        "after": {
+          "count": 210,
+          "pct": 5.9
+        },
+        "delta_count": 9,
+        "delta_pct": 0.3
+      },
+      "content_platforms": {
+        "before": {
+          "count": 1148,
+          "pct": 32.1
+        },
+        "after": {
+          "count": 1178,
+          "pct": 32.9
+        },
+        "delta_count": 30,
+        "delta_pct": 0.8
+      },
+      "jv_history": {
+        "before": {
+          "count": 521,
+          "pct": 14.6
+        },
+        "after": {
+          "count": 541,
+          "pct": 15.1
+        },
+        "delta_count": 20,
+        "delta_pct": 0.5
+      },
+      "website": {
+        "before": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "after": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "niche": {
+        "before": {
+          "count": 1707,
+          "pct": 47.7
+        },
+        "after": {
+          "count": 1731,
+          "pct": 48.4
+        },
+        "delta_count": 24,
+        "delta_pct": 0.7
+      },
+      "booking_link": {
+        "before": {
+          "count": 8,
+          "pct": 0.2
+        },
+        "after": {
+          "count": 9,
+          "pct": 0.3
+        },
+        "delta_count": 1,
+        "delta_pct": 0.1
+      },
+      "signature_programs": {
+        "before": {
+          "count": 240,
+          "pct": 6.7
+        },
+        "after": {
+          "count": 252,
+          "pct": 7.0
+        },
+        "delta_count": 12,
+        "delta_pct": 0.3
+      },
+      "tags": {
+        "before": {
+          "count": 384,
+          "pct": 10.7
+        },
+        "after": {
+          "count": 411,
+          "pct": 11.5
+        },
+        "delta_count": 27,
+        "delta_pct": 0.8
+      }
+    },
+    "exa_stats": {
+      "research_attempted": 596,
+      "research_success": 30,
+      "deep_research_attempted": 0,
+      "deep_research_success": 0,
+      "retry_count": 0,
+      "permanent_failures": 0
+    },
+    "verification_gate": {
+      "verified": 5,
+      "unverified": 0,
+      "quarantined": 0
+    },
+    "extended_signals_found": 30,
+    "sample_profiles": [
+      {
+        "name": "Richard Kaye",
+        "fields_filled": 0,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Facebook Ads, F",
+        "fields_filled": 7,
+        "revenue_tier": "micro"
+      },
+      {
+        "name": "Between Now and Success Podcast",
+        "fields_filled": 6,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Lilia Ackerman",
+        "fields_filled": 8,
+        "revenue_tier": "established"
+      },
+      {
+        "name": "The Home Service Expert Podcast",
+        "fields_filled": 6,
+        "revenue_tier": ""
+      }
+    ]
+  },
+  {
+    "phase": 3,
+    "tiers": [
+      4,
+      5
+    ],
+    "timestamp": "2026-02-16T01:54:00.818299",
+    "runtime_seconds": 4776.0,
+    "profiles_processed": 574,
+    "profiles_enriched": 574,
+    "profiles_failed": 0,
+    "cost_dollars": 14.35,
+    "field_fill_rates": {
+      "what_you_do": {
+        "before": {
+          "count": 484,
+          "pct": 13.5
+        },
+        "after": {
+          "count": 683,
+          "pct": 19.1
+        },
+        "delta_count": 199,
+        "delta_pct": 5.6
+      },
+      "who_you_serve": {
+        "before": {
+          "count": 478,
+          "pct": 13.4
+        },
+        "after": {
+          "count": 662,
+          "pct": 18.5
+        },
+        "delta_count": 184,
+        "delta_pct": 5.1
+      },
+      "seeking": {
+        "before": {
+          "count": 49,
+          "pct": 1.4
+        },
+        "after": {
+          "count": 66,
+          "pct": 1.8
+        },
+        "delta_count": 17,
+        "delta_pct": 0.4
+      },
+      "offering": {
+        "before": {
+          "count": 1123,
+          "pct": 31.4
+        },
+        "after": {
+          "count": 1177,
+          "pct": 32.9
+        },
+        "delta_count": 54,
+        "delta_pct": 1.5
+      },
+      "revenue_tier": {
+        "before": {
+          "count": 210,
+          "pct": 5.9
+        },
+        "after": {
+          "count": 258,
+          "pct": 7.2
+        },
+        "delta_count": 48,
+        "delta_pct": 1.3
+      },
+      "content_platforms": {
+        "before": {
+          "count": 1178,
+          "pct": 32.9
+        },
+        "after": {
+          "count": 1572,
+          "pct": 43.9
+        },
+        "delta_count": 394,
+        "delta_pct": 11.0
+      },
+      "jv_history": {
+        "before": {
+          "count": 541,
+          "pct": 15.1
+        },
+        "after": {
+          "count": 698,
+          "pct": 19.5
+        },
+        "delta_count": 157,
+        "delta_pct": 4.4
+      },
+      "website": {
+        "before": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "after": {
+          "count": 612,
+          "pct": 17.1
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "niche": {
+        "before": {
+          "count": 1731,
+          "pct": 48.4
+        },
+        "after": {
+          "count": 1751,
+          "pct": 48.9
+        },
+        "delta_count": 20,
+        "delta_pct": 0.5
+      },
+      "booking_link": {
+        "before": {
+          "count": 9,
+          "pct": 0.3
+        },
+        "after": {
+          "count": 9,
+          "pct": 0.3
+        },
+        "delta_count": 0,
+        "delta_pct": 0.0
+      },
+      "signature_programs": {
+        "before": {
+          "count": 252,
+          "pct": 7.0
+        },
+        "after": {
+          "count": 305,
+          "pct": 8.5
+        },
+        "delta_count": 53,
+        "delta_pct": 1.5
+      },
+      "tags": {
+        "before": {
+          "count": 411,
+          "pct": 11.5
+        },
+        "after": {
+          "count": 509,
+          "pct": 14.2
+        },
+        "delta_count": 98,
+        "delta_pct": 2.7
+      }
+    },
+    "exa_stats": {
+      "research_attempted": 2966,
+      "research_success": 424,
+      "deep_research_attempted": 2542,
+      "deep_research_success": 150,
+      "retry_count": 0,
+      "permanent_failures": 0
+    },
+    "verification_gate": {
+      "verified": 0,
+      "unverified": 0,
+      "quarantined": 0
+    },
+    "extended_signals_found": 394,
+    "sample_profiles": [
+      {
+        "name": "Tough Talk Radio Network",
+        "fields_filled": 4,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Steve Maraboli",
+        "fields_filled": 4,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Robin Robin",
+        "fields_filled": 5,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Ramit Sethi",
+        "fields_filled": 3,
+        "revenue_tier": ""
+      },
+      {
+        "name": "Sonia Ricotti",
+        "fields_filled": 4,
+        "revenue_tier": ""
+      }
+    ]
+  }
+]

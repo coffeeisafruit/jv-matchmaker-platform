@@ -1,17 +1,28 @@
 {
   "name": "Rebecca Murtagh",
-  "email": "",
   "company": "Human AI Institute",
-  "website": "",
-  "linkedin": "",
-  "niche": "Business Skills, Self Improvement, Success",
   "list_size": 1027500,
-  "social_reach": 2800,
-  "who_you_serve": "Executives, Entrepreneurs Leaders, Teams & Groups",
-  "what_you_do": "Human AI Institute is on a mission to help you connect what you instinctively know with the latest science and proven methods to help you realize your full potential and achieve success, faster!",
-  "seeking": "",
   "offering": "Business Coaching, Business Consulting, Marketing Coach, Online Education for Business Owners, Podcast Host, Startup Coaches",
-  "business_focus": "Business Skills, Self Improvement, Success",
-  "bio": "2023 Inc. Magazine POWER PARTNER AWARD, AWARD-WINNING CEO, Bestseling Author",
-  "notes": "Best contact: Schedule a time to chat via calendar at:  SuccessWithRebecca.com\nJV Directory: https://jvdirectory.com/member-more-info?Member_ID=HSKHJXOD"
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/in/rebeccamurtagh",
+    "youtube": "https://www.youtube.com/watch?v=dHjZBAbXrVY",
+    "apple_podcast": "https://podcasts.apple.com/in/podcast/leverage-with-rebecca-zung/id1408141817",
+    "spotify_podcast": "https://open.spotify.com/episode/6vtkPNC69KNXwKxRPvfwU2"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Rebecca Human AI Trust Leader - LinkedIn",
+      "format": "endorsement",
+      "source_quote": "Human AI Institute Inc. Magazine Power Partner Award Winner at Human AI Institute \n\nUnited States (US) ... Human AI Institute is dedicated to helping humans adapt to today\u2019s changing landscape by turn",
+      "source_url": "https://www.linkedin.com/in/rebeccamurtagh"
+    },
+    {
+      "partner_name": "Humanities and AI Podcast",
+      "format": "podcast_guest",
+      "source_quote": "BYU - https://history.byu.edu/directory/joseph-r-stuart Emma Prendergast - Utah Tech - ... Humanities Perspectives on Artificial Intelligence Summer Institute The \"Humanities Perspectives on Artificia",
+      "source_url": "https://podcasts.apple.com/us/podcast/humanities-and-ai-podcast/id1837794782"
+    }
+  ],
+  "audience_engagement_score": 0.55,
+  "website": "https://tbcy.in/success-is-not-a-solo-journey-rebecca-murtagh-ceo-human-ai-institute-futurist-author-speaker/"
 }

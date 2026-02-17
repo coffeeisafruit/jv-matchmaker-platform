@@ -1,17 +1,12 @@
 {
   "name": "Andrew Mellen",
-  "email": "hello@andrewmellen.com",
   "company": "ANDREW MELLEN SPEAKING",
-  "website": "",
-  "linkedin": "",
-  "niche": "Business Coaching, Business Consulting, Communication Training, Sales Training, Speaker Training",
   "list_size": 157200,
-  "social_reach": 35000,
-  "who_you_serve": "",
-  "what_you_do": "I've been helping people solve clutter for decades\u2014not by chasing perfection, but by understanding why organizing breaks down in real life.",
-  "seeking": "",
-  "offering": "Speaking + Training, Coaching, Mellen Certified Organizer\u2122",
-  "business_focus": "Business Coaching, Business Consulting, Communication Training, Sales Training, Speaker Training",
-  "bio": "Best-selling author and TEDx speaker. This approach has helped over 500,000 people bring lasting order to their lives.",
-  "notes": "Best contact: hello@andrewmellen.com\n858-867-8833\nJV Directory: https://jvdirectory.com/member-more-info?Member_ID=YBCMTDWY"
+  "content_platforms": {
+    "youtube": "https://www.youtube.com/c/andrewmellen/playlists",
+    "instagram": "https://www.instagram.com/andrew_mellen/p/DFLVOwVtx6T/-dont-procrastinate-any-longerthose-piles-of-paper-arent-going-to-file-or-shred-/",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/75-unstuff-your-life-simplify-your-work-and-life/id1555257373?i=1000608948289"
+  },
+  "audience_engagement_score": 0.6000000000000001,
+  "website": "https://andrewmellenbooks.com/"
 }

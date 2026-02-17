@@ -1,0 +1,33 @@
+{
+  "name": "The RV Entrepreneur Podcast",
+  "company": "The RV Entrepreneur Podcast",
+  "website": "https://heathandalyssa.com",
+  "list_size": 0,
+  "what_you_do": "Hourly America is a documentary film that chronicles Heath and Alyssa Padgett's journey across the United States as they work 50 hourly jobs during their first year of marriage, exploring the meaning of work and the lives of hourly workers.",
+  "who_you_serve": "The documentary targets a broad audience interested in travel, work-life balance, and personal stories, appealing to both B2C viewers and those in the creative and documentary film space.",
+  "niche": "documentary film",
+  "business_size": "small_team",
+  "tags": [
+    "documentary",
+    "travel",
+    "work",
+    "hourly jobs",
+    "personal stories"
+  ],
+  "bio": "Featured in Business Insider, Fox & Friends Morning Show, and People Magazine.",
+  "business_focus": "Hourly America is a documentary film that chronicles Heath and Alyssa Padgett's journey across the United States as they work 50 hourly jobs during their first year of marriage, exploring the meaning of work and the lives of hourly workers.",
+  "audience_type": "B2C",
+  "content_platforms": {
+    "youtube": "https://www.youtube.com/@heathandalyssa",
+    "apple_podcast": "https://podcasts.apple.com/ca/podcast/the-rv-entrepreneur/id1085300491"
+  },
+  "jv_history": [
+    {
+      "partner_name": "RVE 205: How to Start a Campground (with Eric & Jay's RV Resort)",
+      "format": "podcast_guest",
+      "source_quote": "years ago, oil was booming in Texas. And with the boom came oil workers and their RVs. Sites in the area without ... In this episode, Heath interviews Eric from Eric & Jay's RV Resort on how they buil",
+      "source_url": "https://podcasts.apple.com/gb/podcast/rve-205-how-to-start-a-campground-with-eric-jays-rv-resort/id1085300491?i=1000500077033"
+    }
+  ],
+  "audience_engagement_score": 0.55
+}

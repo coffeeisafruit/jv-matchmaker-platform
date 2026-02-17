@@ -1,0 +1,22 @@
+{
+  "name": "Customer Service Revolution Podcast",
+  "list_size": 1000,
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/posts/dijulius_the-customer-service-revolution-podcast-activity-7220459856028205056-Dj-0",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/customer-service-revolution/id1508030596"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Customer Service Revolution - Podcast",
+      "format": "podcast_guest",
+      "source_quote": "Customer Service Authority and best-selling author, John DiJulius, as he interviews leaders who are revolutionizing their industries. ... episode of the Customer Service Revolution",
+      "source_url": "https://podcasts.apple.com/us/podcast/customer-service-revolution/id1508030596"
+    },
+    {
+      "partner_name": "ElevenLabs Powers Revolut Customer Support with 8x Faster Resolution",
+      "format": "endorsement",
+      "source_quote": "ut Partners With ElevenLabs To Bolster Customer Service - FinTech Magazine:",
+      "source_url": "https://www.linkedin.com/posts/matiii_elevenlabs-revolut-were-deploying-elevenlabs-activity-7422316764362936320-Coew"
+    }
+  ]
+}

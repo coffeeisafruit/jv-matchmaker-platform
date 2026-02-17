@@ -1,0 +1,10 @@
+{
+  "name": "The Compound Show with Do Podcast",
+  "list_size": 1000,
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-compound-show-with-downtown-josh-brown/id1456467014?i=1000532576233",
+    "youtube": "https://www.youtube.com/watch?v=UhpU91veGZg",
+    "spotify_podcast": "https://open.spotify.com/show/5VKsKPZUtwVylxslLie36k"
+  },
+  "audience_engagement_score": 0.55
+}

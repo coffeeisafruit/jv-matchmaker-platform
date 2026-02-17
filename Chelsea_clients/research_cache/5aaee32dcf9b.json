@@ -1,16 +1,32 @@
 {
   "name": "Bob Sparkins",
-  "email": "bob@bobtheteacher.com",
   "company": "LeadFunnelMagic.com",
-  "website": "leadfunnelmagic.com",
-  "linkedin": "linkedin.com/in/bobtheteacher/",
-  "niche": "Business Coaching, Lead Generation, Marketing Coach",
+  "website": "https://LinkedIn.com/in/bobtheteacher",
   "list_size": 163149,
-  "who_you_serve": "Business owners and entrepreneurs needing lead generation",
-  "what_you_do": "Lead Funnel Magic \u2013 AI-leveraged lead generation and marketing for businesses.",
-  "seeking": "Affiliates",
-  "offering": "Lead generation training, funnel strategies, large list (163,149), LinkedIn presence",
-  "business_focus": "Business Coaching, Lead Generation, Marketing Coach",
-  "bio": "Lead generation and marketing focus; active on LinkedIn and Facebook (leadpages).",
-  "notes": "Best contact: bob@bobtheteacher.com, https://LinkedIn.com/in/bobtheteacher, LeadFunnelMagic.com\nJV Directory: https://jvdirectory.com/member-more-info?Member_ID=XWURFISL"
+  "what_you_do": "AI-Leveraged Lead Generation for Experts and Service Providers",
+  "offering": "Book Marketing,Business Coaching, Coach Marketing Training, Funnel Creation Tools, Landing Page Tools, Lead Generation Specialists, Marketing Coach, Online Education for Business Owners, Opt-In Page Creation, Podcast Host, Website Hosting",
+  "business_focus": "AI-Leveraged Lead Generation for Experts and Service Providers",
+  "content_platforms": {
+    "facebook": "https://www.facebook.com/BobTheTeacher/",
+    "linkedin": "https://www.linkedin.com/posts/bobtheteacher_the-ultimate-guide-to-landing-pages-from-activity-7039013183721807872--B0z",
+    "youtube": "https://www.youtube.com/watch?v=tNxkCxNyEck",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/krs-785-connect-and-convert-with-bob-sparkins/id1052353755?i=1000552715244",
+    "spotify_podcast": "https://open.spotify.com/episode/6eVJnZ6ySc3QZgrltXUpbM"
+  },
+  "jv_history": [
+    {
+      "partner_name": "The Ultimate Guide To Landing Pages From Leadpages' Expert With Bob\u2026 | Bob Sparkins",
+      "format": "podcast_guest",
+      "source_quote": "TheTeacher \u2022 Consultant/Advisor \u2022 Marketing Teacher \u2022 Speaker \u2022 Author of Take Action, Revise Later \u2022 Podcast Guest ... Take a listen and let me know what other questions I can answer about [Leadpages",
+      "source_url": "https://www.linkedin.com/posts/bobtheteacher_the-ultimate-guide-to-landing-pages-from-activity-7039013183721807872--B0z"
+    },
+    {
+      "partner_name": "Leadpages Pricing: Monthly and Annual Subscription Plans | Bob Sparkins",
+      "format": "podcast_guest",
+      "source_quote": "TheTeacher \u2022 Consultant/Advisor \u2022 Marketing Teacher \u2022 Speaker \u2022 Author of Take Action, Revise Later \u2022 Podcast Guest ... Did we meet at MnSearch last week? I'd love to connect after such an amazing eve",
+      "source_url": "https://www.linkedin.com/posts/bobtheteacher_leadpages-pricing-monthly-and-annual-subscription-activity-7076993357197029376-cZt3"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001,
+  "linkedin": "https://www.linkedin.com/in/bobtheteacher/es"
 }

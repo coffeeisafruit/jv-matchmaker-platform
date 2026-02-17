@@ -1,0 +1,47 @@
+{
+  "name": "Lumosity Brain Training",
+  "company": "Lumos Labs, Inc.",
+  "website": "https://www.lumosity.com",
+  "list_size": 120000000,
+  "who_you_serve": "People of all ages and skill levels who want to exercise and improve their cognitive abilities.",
+  "what_you_do": "Lumosity provides brain-training games that exercise memory, attention, problem solving and other cognitive skills.",
+  "offering": "Lumosity Brain Training",
+  "bio": "120 million members, published research in peer-reviewed journal, 20 years in operation",
+  "signature_programs": "Lumosity Brain Training, Lumosity RX",
+  "niche": "brain training",
+  "business_size": "large",
+  "tags": [
+    "brain training",
+    "cognitive games",
+    "memory improvement",
+    "mental fitness",
+    "neuroscience",
+    "mobile apps"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Brain training games and cognitive exercises for improving mental performance.",
+  "service_provided": "brain training games, cognitive assessments, mobile apps, progress tracking",
+  "revenue_tier": "emerging",
+  "jv_history": [
+    {
+      "partner_name": "Nelson Dellis (5-time USA Memory Championship winner)",
+      "format": "endorsement",
+      "source_quote": "Meet Nelson Dellis He's a familiar face for most Lumosity Members by now. Nelson Dellis has won the USA Memory Championship 5 times and, more importantly for this context, he also holds the world record for memorizing the most names in 15 minutes: 235. So when he heard about our new game, What's my Name?, he was immediately keen to try memorizing all 100 faces."
+    },
+    {
+      "partner_name": "USA Memory Championship",
+      "format": "summit_speaker",
+      "source_quote": "Join Us For The 2023 USA Memory Championship Founded in 1997, the USA Memory Championship is a family-run e"
+    }
+  ],
+  "content_platforms": {
+    "podcast_name": "",
+    "youtube_channel": "",
+    "instagram_handle": "",
+    "facebook_group": "",
+    "tiktok_handle": "",
+    "newsletter_name": "",
+    "blog": "Lumosity Blog"
+  },
+  "audience_engagement_score": 0.0
+}

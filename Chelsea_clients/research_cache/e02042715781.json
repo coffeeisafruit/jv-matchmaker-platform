@@ -1,0 +1,40 @@
+{
+  "name": "Nancy Gordon",
+  "company": "Nancy Gordon Global",
+  "list_size": 7687,
+  "what_you_do": "The Dog Podcast Network (DPN) is a premiere source for unique content related to dogs, featuring various podcasts that cover topics about dog care, health, and stories.",
+  "who_you_serve": "Dog lovers and pet owners looking for informative and entertaining content about dogs, primarily through podcasts.",
+  "niche": "podcasting",
+  "service_provided": "podcasts",
+  "business_size": "small_team",
+  "tags": [
+    "dogs",
+    "podcasts",
+    "pet care",
+    "dog health",
+    "dog stories"
+  ],
+  "business_focus": "The Dog Podcast Network (DPN) is a premiere source for unique content related to dogs, featuring various podcasts that cover topics about dog care, health, and stories. (podcasting)",
+  "audience_type": "Dog lovers and pet owners looking for informative and entertaining content about dogs, primarily thr",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/ca/channel/dog-podcast-network/id6442523311",
+    "youtube": "https://www.youtube.com/watch?v=qCMuzI8aohA"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Anticipatory Grief with Nancy Gordon | The Long Leash #74 - YouTube",
+      "format": "podcast_guest",
+      "source_quote": "Our guest Nancy Gordon works to raise awareness about the different stages of pet grief, and how to ... Therapist\\n49:10 Outro\\n\\n--\\n\\nFollow DPN on Social Media:\\nTwitter - /\u00a0dogpodcastnet \\nInstagr",
+      "source_url": "https://www.youtube.com/watch?v=qCMuzI8aohA"
+    },
+    {
+      "partner_name": "Conversations on the Bible with Nancy Guthrie - Podcast - Apple Podcasts",
+      "format": "summit_speaker",
+      "source_quote": "23)] \n\n## Hosts & Guests\n\n## About Join bestselling author and speaker Nancy Guthrie as she talks with leading scholars and Bible teachers through ... ## Information\n\nChannel\n\n[Crossway]<",
+      "source_url": "https://podcasts.apple.com/lb/podcast/conversations-on-the-bible-with-nancy-guthrie/id1620029527"
+    }
+  ],
+  "audience_engagement_score": 0.55,
+  "website": "https://shows.dogpodcastnetwork.com/show/the-long-leash-with-james-jacobson/guests/nancy-gordon/",
+  "linkedin": "https://www.linkedin.com/in/nancygordon7stepsofhope"
+}

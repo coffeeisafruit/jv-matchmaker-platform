@@ -1,0 +1,11 @@
+{
+  "name": "Webinar Trainin",
+  "company": "More Info",
+  "list_size": 25000,
+  "content_platforms": {
+    "youtube": "https://www.youtube.com/watch?v=io5gO7bLR8k",
+    "linkedin": "https://business.linkedin.com/content/dam/me/business/en-us/marketing-solutions/resources/pdfs/LinkedIn_Webinar_Implementation_Guide.pdf"
+  },
+  "audience_engagement_score": 0.55,
+  "website": "https://tools.jongordon.com/webinar-access"
+}
