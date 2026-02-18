@@ -1618,7 +1618,7 @@
           <span class="label">Partners in database</span>
         </div>
         <div class="result-stat">
-          <span class="num" style="color:var(--accent-green)">533+</span>
+          <span class="num" style="color:var(--accent-green)">613+</span>
           <span class="label">Automated tests</span>
         </div>
         <div class="result-stat">
@@ -1703,7 +1703,7 @@
     <!-- ===== MATCHING APP ===== -->
     <rect x="400" y="220" width="300" height="110" rx="10" fill="rgba(168,123,245,0.06)" stroke="#a87bf5" stroke-width="1.2"/>
     <text x="550" y="248" text-anchor="middle" fill="#a87bf5" font-size="14" font-weight="700">Matching Engine</text>
-    <text x="550" y="270" text-anchor="middle" fill="#8b90a8" font-size="10">ISMC Scoring: Intent 45% | Synergy 25%</text>
+    <text x="550" y="270" text-anchor="middle" fill="#8b90a8" font-size="10">ISMC Scoring: Intent 45% | Synergy 25% (embedding-based)</text>
     <text x="550" y="286" text-anchor="middle" fill="#8b90a8" font-size="10">Momentum 20% | Context 10%</text>
     <text x="550" y="306" text-anchor="middle" fill="#8b90a8" font-size="10">3,577 Profiles  |  Weighted Harmonic Mean</text>
     <text x="550" y="322" text-anchor="middle" fill="#8b90a8" font-size="10">Member Reports & Access-Code Delivery</text>
@@ -1865,7 +1865,7 @@
     <div class="app-card matching" onclick="toggleDetail('matching-detail')">
       <div class="app-icon">M</div>
       <h3>Matching Engine</h3>
-      <p>ISMC scoring algorithm with weighted harmonic mean. Manages 3,577 Supabase profiles, code-gated member reports with client profile editing and provenance-stamped data protection.</p>
+      <p>ISMC scoring with weighted geometric mean + harmonic mean. Embedding-based synergy (bge-large-en-v1.5). Manages 3,577 Supabase profiles, code-gated member reports with provenance-stamped data protection.</p>
       <div class="models-list">
         <span class="model-tag">SupabaseProfile</span>
         <span class="model-tag">SupabaseMatch</span>
@@ -1874,6 +1874,9 @@
         <span class="model-tag">Profile</span>
         <span class="model-tag">Match</span>
         <span class="model-tag">MatchFeedback</span>
+        <span class="model-tag">SavedCandidate</span>
+        <span class="model-tag">PartnerRecommendation</span>
+        <span class="model-tag">MatchLearningSignal</span>
       </div>
     </div>
 
@@ -1922,6 +1925,7 @@
         <span class="model-tag">SmartEnrichmentService</span>
         <span class="model-tag">ExaResearchService</span>
         <span class="model-tag">ConfidenceScorer</span>
+        <span class="model-tag">ContactScraper</span>
         <span class="model-tag">SourcePriority</span>
       </div>
     </div>
@@ -1972,13 +1976,18 @@
         <tr><td>Profile</td><td>User's custom enrichment profiles with JSON enrichment data, collaboration history</td></tr>
         <tr><td>Match</td><td>ISMC-scored matches: Intent (45%), Synergy (25%), Momentum (20%), Context (10%)</td></tr>
         <tr><td>MatchFeedback</td><td>User ratings (1-5) and outcome tracking</td></tr>
+        <tr><td>SavedCandidate</td><td>User-saved candidates from guest matching flow, before directory addition</td></tr>
+        <tr><td>PartnerRecommendation</td><td>Behavioral tracking (B3/B4): view count, outreach used, time-to-first-action, Tier 2 prompted feedback (7-14 day follow-up)</td></tr>
+        <tr><td>MatchLearningSignal</td><td>B5 learning signals: feedback_tier2, contact_made, view_pattern, outreach_used. Designed for batch analysis at 200+ outcomes</td></tr>
       </table>
     </div>
     <div class="detail-section">
       <h4>Services</h4>
       <table class="detail-table">
-        <tr><td>SupabaseMatchScoringService</td><td>ISMC scoring with weighted harmonic mean — directional 0-100 scores with rich ISMC breakdowns</td></tr>
+        <tr><td>SupabaseMatchScoringService</td><td>ISMC scoring with weighted geometric mean (directional) + harmonic mean (pair). Embedding-based synergy via bge-large-en-v1.5 cosine similarity with calibrated thresholds</td></tr>
         <tr><td>generate_member_report</td><td>Management command: scores all partners via ISMC, assigns sections/badges, generates access-code-gated report</td></tr>
+        <tr><td>backfill_embeddings</td><td>Management command: generates bge-large-en-v1.5 (1024-dim) embeddings for seeking, offering, who_you_serve, what_you_do. Supports --batch-size, --dry-run, --force</td></tr>
+        <tr><td>rescore_matches</td><td>Management command: re-scores all SupabaseMatch records using ISMC engine with embeddings. Produces before/after production impact report. PgBouncer-safe</td></tr>
         <tr><td>PartnershipAnalyzer</td><td>Analyzes partnerships using Supabase matches, ICP, and Transformation data</td></tr>
         <tr><td>ReportAccessMixin</td><td>Session-based access control for code-gated reports (no Django login required)</td></tr>
       </table>
@@ -2088,8 +2097,9 @@
     <div class="detail-section">
       <h4>Key Services</h4>
       <table class="detail-table">
+        <tr><td>ContactScraper</td><td>Playwright-based (OWL venv) website scraper. Discovers contact/about pages, extracts emails, phones, booking links from JS-rendered pages. Smart email classification: domain match &rarr; name match &rarr; personal &rarr; secondary</td></tr>
         <tr><td>ProfileResearchService</td><td>Website fetching + Claude extraction for who_you_serve, what_you_do, seeking, offering</td></tr>
-        <tr><td>SmartEnrichmentService</td><td>Progressive strategy: website > LinkedIn > email domain > Exa > Apollo > OWL</td></tr>
+        <tr><td>SmartEnrichmentService</td><td>Progressive strategy: website scrape > LinkedIn > Apollo > Exa > OWL</td></tr>
         <tr><td>ExaResearchService</td><td>Exa.ai neural search for structured profile data with citation URLs. Source priority 50</td></tr>
         <tr><td>ConfidenceScorer</td><td>Source-based scoring with exponential age decay. Cross-validation boost (+0.20 if sources agree)</td></tr>
         <tr><td>ProfileMerger</td><td>Merges data from multiple sources with conflict resolution and smart array/JSONB merge</td></tr>
@@ -2153,7 +2163,7 @@
       </div>
       <div class="pipeline-card">
         <h4>Step 1: Website Scraping <span class="cost-badge cost-free">FREE</span></h4>
-        <p><strong>ProfileResearchService</strong> — Fetches website with BeautifulSoup, then uses Claude Sonnet to extract: what_you_do, who_you_serve, seeking, offering. Gets 60-75% data completeness. Results cached.</p>
+        <p><strong>ContactScraper</strong> (Playwright via OWL venv) — Discovers contact/about pages, extracts emails, phones, booking links from JS-rendered pages. <strong>ProfileResearchService</strong> — Claude Sonnet extraction: what_you_do, who_you_serve, seeking, offering. Gets 60-75% data completeness. Results cached.</p>
       </div>
     </div>
 
@@ -2174,8 +2184,8 @@
         <div class="pipeline-connector"></div>
       </div>
       <div class="pipeline-card">
-        <h4>Step 3: Email Domain Research <span class="cost-badge cost-free">FREE</span></h4>
-        <p>Extracts company from email domain, researches company background. Enriches company context for profiles where website was unavailable.</p>
+        <h4>Step 3: Apollo.io API <span class="cost-badge cost-paid">PAID &mdash; $0.002/search</span></h4>
+        <p><strong>Only triggered if free methods leave email gaps.</strong> Email verification (most reliable), contact enrichment. Source priority 30. Used selectively to minimize cost.</p>
       </div>
     </div>
 
@@ -2185,19 +2195,8 @@
         <div class="pipeline-connector"></div>
       </div>
       <div class="pipeline-card">
-        <h4>Step 4: Exa Research <span class="cost-badge cost-paid">PAID — neural search</span></h4>
-        <p><strong>ExaResearchService</strong> — Exa.ai neural search returns structured profile data with citation URLs. Source priority 50. Rate-limit backoff with exponential jitter. Results stamped in enrichment_metadata.</p>
-      </div>
-    </div>
-
-    <div class="pipeline-step">
-      <div class="pipeline-line">
-        <div class="pipeline-dot" style="background:var(--accent-orange)"></div>
-        <div class="pipeline-connector"></div>
-      </div>
-      <div class="pipeline-card">
-        <h4>Step 5: Apollo.io API <span class="cost-badge cost-paid">PAID — $0.002/search</span></h4>
-        <p><strong>Only triggered if free methods + Exa leave gaps.</strong> Email verification (most reliable), contact enrichment. Used selectively to minimize cost.</p>
+        <h4>Step 4: Exa Research <span class="cost-badge cost-paid">PAID &mdash; neural search</span></h4>
+        <p><strong>ExaResearchService</strong> — Exa.ai neural search returns structured profile data with citation URLs. Source priority 50 (can overwrite Apollo). Rate-limit backoff with exponential jitter. Results stamped in enrichment_metadata.</p>
       </div>
     </div>
 
@@ -2207,7 +2206,7 @@
         <div class="pipeline-connector"></div>
       </div>
       <div class="pipeline-card">
-        <h4>Step 6: OWL Deep Research <span class="cost-badge cost-expensive">HIGH-PRIORITY ONLY</span></h4>
+        <h4>Step 5: OWL Deep Research <span class="cost-badge cost-expensive">HIGH-PRIORITY ONLY</span></h4>
         <p><strong>ProfileEnrichmentAgent</strong> — Multi-source research with DuckDuckGo (free) + Tavily verification ($0.004/search). Mandatory source citations for all extracted fields. Only for high-value profiles.</p>
       </div>
     </div>
@@ -2278,10 +2277,10 @@
       <div class="score-bar"><div class="score-fill" style="width:45%;background:var(--accent-blue)"></div></div>
       <p style="font-size:12px;color:var(--text-dim)">Partnership willingness signals — the strongest predictor of successful JV partnerships</p>
       <div class="score-factors">
-        <div class="factor"><span class="factor-name">Collaboration history</span><span class="factor-weight">weight: 3.0</span></div>
-        <div class="factor"><span class="factor-name">LinkedIn presence</span><span class="factor-weight">weight: 2.5</span></div>
-        <div class="factor"><span class="factor-name">Website presence</span><span class="factor-weight">weight: 2.0</span></div>
-        <div class="factor"><span class="factor-name">Contact availability</span><span class="factor-weight">weight: 1.5</span></div>
+        <div class="factor"><span class="factor-name">JV History</span><span class="factor-weight">weight: 4.0</span></div>
+        <div class="factor"><span class="factor-name">Booking Link</span><span class="factor-weight">weight: 3.5</span></div>
+        <div class="factor"><span class="factor-name">Profile Investment (13 fields)</span><span class="factor-weight">weight: 3.0</span></div>
+        <div class="factor"><span class="factor-name">Website Presence</span><span class="factor-weight">weight: 2.5</span></div>
       </div>
     </div>
 
@@ -2291,12 +2290,12 @@
         <div class="score-weight" style="color:var(--accent-green)">25%</div>
       </div>
       <div class="score-bar"><div class="score-fill" style="width:25%;background:var(--accent-green)"></div></div>
-      <p style="font-size:12px;color:var(--text-dim)">Audience and content alignment — complementary audiences create win-win partnerships</p>
+      <p style="font-size:12px;color:var(--text-dim)">Business complementarity — embedding-based semantic alignment with calibrated thresholds</p>
       <div class="score-factors">
-        <div class="factor"><span class="factor-name">Audience size compatibility</span><span class="factor-weight">evaluated</span></div>
-        <div class="factor"><span class="factor-name">Industry alignment</span><span class="factor-weight">evaluated</span></div>
-        <div class="factor"><span class="factor-name">Content style match</span><span class="factor-weight">evaluated</span></div>
-        <div class="factor"><span class="factor-name">Services complementarity</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">Offering&#8596;Seeking alignment (bge-large-en-v1.5 embeddings)</span><span class="factor-weight">weight: 3.5</span></div>
+        <div class="factor"><span class="factor-name">Audience alignment (who_you_serve embeddings)</span><span class="factor-weight">weight: 3.0</span></div>
+        <div class="factor"><span class="factor-name">Role Compatibility (14 canonical roles, full compat matrix)</span><span class="factor-weight">weight: 2.5</span></div>
+        <div class="factor"><span class="factor-name">Revenue Tier compatibility (null-aware, excluded when missing)</span><span class="factor-weight">weight: 2.0</span></div>
       </div>
     </div>
 
@@ -2306,12 +2305,12 @@
         <div class="score-weight" style="color:var(--accent-orange)">20%</div>
       </div>
       <div class="score-bar"><div class="score-fill" style="width:20%;background:var(--accent-orange)"></div></div>
-      <p style="font-size:12px;color:var(--text-dim)">Recent activity and growth — active partners are more likely to engage</p>
+      <p style="font-size:12px;color:var(--text-dim)">Activity and engagement — null-aware, weight redistributes when all sub-factors lack data</p>
       <div class="score-factors">
-        <div class="factor"><span class="factor-name">Website updates</span><span class="factor-weight">evaluated</span></div>
-        <div class="factor"><span class="factor-name">LinkedIn activity</span><span class="factor-weight">evaluated</span></div>
-        <div class="factor"><span class="factor-name">Content publication frequency</span><span class="factor-weight">evaluated</span></div>
-        <div class="factor"><span class="factor-name">Business growth signals</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">Audience Engagement Score</span><span class="factor-weight">weight: 3.0</span></div>
+        <div class="factor"><span class="factor-name">Social Reach (tiered: 100K+/50K/10K/1K)</span><span class="factor-weight">weight: 2.0</span></div>
+        <div class="factor"><span class="factor-name">Active Projects</span><span class="factor-weight">weight: 2.5</span></div>
+        <div class="factor"><span class="factor-name">List Size as growth indicator</span><span class="factor-weight">weight: 2.5</span></div>
       </div>
     </div>
 
@@ -2321,22 +2320,50 @@
         <div class="score-weight" style="color:var(--accent-purple)">10%</div>
       </div>
       <div class="score-bar"><div class="score-fill" style="width:10%;background:var(--accent-purple)"></div></div>
-      <p style="font-size:12px;color:var(--text-dim)">Situational relevance — geographic, stage, and network factors</p>
+      <p style="font-size:12px;color:var(--text-dim)">Data quality and reliability — profile completeness and contact availability</p>
       <div class="score-factors">
-        <div class="factor"><span class="factor-name">Geographic match</span><span class="factor-weight">evaluated</span></div>
-        <div class="factor"><span class="factor-name">Business stage alignment</span><span class="factor-weight">evaluated</span></div>
-        <div class="factor"><span class="factor-name">Network overlap</span><span class="factor-weight">evaluated</span></div>
-        <div class="factor"><span class="factor-name">ICP fit</span><span class="factor-weight">evaluated</span></div>
+        <div class="factor"><span class="factor-name">Profile Completeness (12 key fields)</span><span class="factor-weight">weight: 3.0</span></div>
+        <div class="factor"><span class="factor-name">Revenue Tier Known</span><span class="factor-weight">weight: 2.0</span></div>
+        <div class="factor"><span class="factor-name">Enrichment Quality (8 enrichment fields)</span><span class="factor-weight">weight: 2.5</span></div>
+        <div class="factor"><span class="factor-name">Contact Availability (email &gt; LinkedIn &gt; phone)</span><span class="factor-weight">weight: 2.5</span></div>
       </div>
     </div>
 
     <div class="formula-box">
-      <h4>Final Score Formula</h4>
-      <div class="formula">H = &Sigma;w<sub>i</sub> / &Sigma;(w<sub>i</sub> / x<sub>i</sub>)</div>
+      <h4>Final Score Formula (Two-Level)</h4>
+      <div class="formula">Directional: S = exp(&Sigma;w<sub>i</sub>&middot;log(x<sub>i</sub>) / &Sigma;w<sub>i</sub>)</div>
+      <div class="formula" style="margin-top:6px;font-size:14px">Pair: H = 2 / (1/S<sub>ab</sub> + 1/S<sub>ba</sub>)</div>
       <div class="formula-note">
-        Weighted Harmonic Mean — penalizes low scores heavily.<br/>
-        A profile scoring 90/90/90/90 beats 100/100/100/20 because<br/>
-        the harmonic mean rewards <em>balanced</em> performance across all dimensions.
+        <strong>Level 1</strong>: Weighted geometric mean across ISMC dimensions per direction (0-100).<br/>
+        <strong>Level 2</strong>: Harmonic mean of directional scores for balanced pair scoring.<br/>
+        Calibrated for production: mean ~57.5, stdev ~5.7, range 25-78.
+      </div>
+    </div>
+
+    <div class="formula-box" style="margin-top:16px;border-left:3px solid var(--accent-green)">
+      <h4>Tier Thresholds (PartnershipAnalyzer)</h4>
+      <div class="formula-note">
+        <strong>Hand-Picked</strong>: &ge;67 (~top 5%, no weak dimensions)<br/>
+        <strong>Strong</strong>: &ge;55 (above mean, solid signal across most dimensions)<br/>
+        <strong>Wildcard</strong>: &lt;55 (below average, algorithm doesn't see strong fit)
+      </div>
+    </div>
+
+    <div class="formula-box" style="margin-top:16px;border-left:3px solid var(--accent-cyan)">
+      <h4>Embedding Calibration (bge-large-en-v1.5)</h4>
+      <div class="formula-note">
+        Cosine similarity &ge;0.75 &rarr; 10.0 (synonym-level match)<br/>
+        &ge;0.65 &rarr; 8.0 &nbsp;|&nbsp; &ge;0.60 &rarr; 6.0 &nbsp;|&nbsp; &ge;0.53 &rarr; 4.5 (noise floor)<br/>
+        &lt;0.53 &rarr; 3.0 (no signal). Falls back to Jaccard word overlap when embeddings are null.
+      </div>
+    </div>
+
+    <div class="formula-box" style="margin-top:16px;border-left:3px solid var(--accent-purple)">
+      <h4>Production Validation (Feb 2026)</h4>
+      <div class="formula-note">
+        <strong>29,863</strong> matches rescored. Mean: 27.2 &rarr; 57.5 (+30.3). Std dev: 16.1 &rarr; 5.7.<br/>
+        Upgraded: <strong>25,776 (86.3%)</strong> | Downgraded: 2,126 (7.1%) | Rescued: <strong>8,991</strong><br/>
+        Semantic (embedding): 58,796 evaluations | Word overlap fallback: 930
       </div>
     </div>
   </div>
@@ -2522,7 +2549,24 @@
 
     <div class="db-section" onclick="this.classList.toggle('open')">
       <div class="db-section-header">
-        <h4><div class="db-dot" style="background:var(--accent-orange)"></div> Status & Metadata <span class="db-field-count">— 7 fields</span></h4>
+        <h4><div class="db-dot" style="background:var(--accent-purple)"></div> Embedding Vectors <span class="db-field-count">— 6 fields + 2 indexes</span></h4>
+        <span class="db-chevron">&#9654;</span>
+      </div>
+      <div class="db-section-body">
+        <div class="db-row"><span class="db-row-name">embedding_seeking</span><span class="db-row-desc">vector(1024) — bge-large-en-v1.5 embedding of seeking field</span></div>
+        <div class="db-row"><span class="db-row-name">embedding_offering</span><span class="db-row-desc">vector(1024) — bge-large-en-v1.5 embedding of offering field</span></div>
+        <div class="db-row"><span class="db-row-name">embedding_who_you_serve</span><span class="db-row-desc">vector(1024) — bge-large-en-v1.5 embedding of who_you_serve field</span></div>
+        <div class="db-row"><span class="db-row-name">embedding_what_you_do</span><span class="db-row-desc">vector(1024) — bge-large-en-v1.5 embedding of what_you_do field</span></div>
+        <div class="db-row"><span class="db-row-name">embeddings_model</span><span class="db-row-desc">varchar(100) — model name (e.g., "bge-large-en-v1.5")</span></div>
+        <div class="db-row"><span class="db-row-name">embeddings_updated_at</span><span class="db-row-desc">timestamptz — when embeddings were last computed</span></div>
+        <div class="db-row" style="color:var(--text-dim);font-style:italic"><span class="db-row-name">idx_profiles_embedding_seeking</span><span class="db-row-desc">IVFFlat index (cosine ops, lists=50)</span></div>
+        <div class="db-row" style="color:var(--text-dim);font-style:italic"><span class="db-row-name">idx_profiles_embedding_offering</span><span class="db-row-desc">IVFFlat index (cosine ops, lists=50)</span></div>
+      </div>
+    </div>
+
+    <div class="db-section" onclick="this.classList.toggle('open')">
+      <div class="db-section-header">
+        <h4><div class="db-dot" style="background:var(--accent-orange)"></div> Status & Metadata <span class="db-field-count">— 9 fields</span></h4>
         <span class="db-chevron">&#9654;</span>
       </div>
       <div class="db-section-body">
@@ -2532,7 +2576,9 @@
         <div class="db-row"><span class="db-row-name">bio</span><span class="db-row-desc">Free-text biography</span></div>
         <div class="db-row"><span class="db-row-name">notes</span><span class="db-row-desc">Internal notes about this person</span></div>
         <div class="db-row"><span class="db-row-name">enrichment_metadata</span><span class="db-row-desc">JSONB — field_meta tracks per-field source + timestamp for provenance</span></div>
-        <div class="db-row"><span class="db-row-name">niche_category</span><span class="db-row-desc">Standardized niche classification for matching</span></div>
+        <div class="db-row"><span class="db-row-name">niche</span><span class="db-row-desc">Free-text niche description for matching</span></div>
+        <div class="db-row"><span class="db-row-name">recommendation_pressure_30d</span><span class="db-row-desc">How many times this profile was recommended in last 30 days</span></div>
+        <div class="db-row"><span class="db-row-name">pressure_updated_at</span><span class="db-row-desc">When recommendation pressure was last computed</span></div>
       </div>
     </div>
 
@@ -2587,6 +2633,18 @@
         <span class="db-rel-arrow">&#8594;</span>
         <span class="db-rel-table" style="color:var(--accent-purple)">MemberReport</span>
         <span class="db-rel-desc">One report per member per month, linked to their Supabase profile</span>
+      </div>
+      <div class="db-rel-row">
+        <span class="db-rel-table" style="color:var(--accent-blue)">User</span>
+        <span class="db-rel-arrow">&#8594;</span>
+        <span class="db-rel-table" style="color:var(--accent-orange)">PartnerRecommendation</span>
+        <span class="db-rel-desc">Behavioral tracking (B3/B4): views, outreach, time-to-action, Tier 2 follow-up feedback</span>
+      </div>
+      <div class="db-rel-row">
+        <span class="db-rel-table" style="color:var(--accent-orange)">PartnerRecommendation</span>
+        <span class="db-rel-arrow">&#8594;</span>
+        <span class="db-rel-table" style="color:var(--accent-cyan)">MatchLearningSignal</span>
+        <span class="db-rel-desc">B5 learning signals for batch analysis at 200+ outcomes</span>
       </div>
     </div>
 
@@ -2982,20 +3040,20 @@
       <div class="dh-insight" style="border-left: 3px solid var(--accent-green)">
         <span class="dh-insight-icon">&#9650;</span>
         <h4>Strongest Fields</h4>
-        <span class="dh-big-num" style="color:var(--accent-green)">74.6%</span>
-        <p><strong>business_focus</strong> leads at 74.6%, followed by <strong>company</strong> (66.1%), <strong>business_size</strong> (51.6%), and <strong>last_enriched_at</strong> (50.5% enriched).</p>
+        <span class="dh-big-num" style="color:var(--accent-green)">85.5%</span>
+        <p><strong>bio, niche, who_you_serve, seeking, offering</strong> all at 85.5%, followed by <strong>business_focus</strong> (85.0%), <strong>tags</strong> (85.2%), <strong>company</strong> (68.5%), <strong>website</strong> (66.5%).</p>
       </div>
       <div class="dh-insight" style="border-left: 3px solid var(--accent-orange)">
         <span class="dh-insight-icon">&#128269;</span>
         <h4>Enrichment Coverage</h4>
-        <span class="dh-big-num" style="color:var(--accent-orange)">50.5%</span>
-        <p><strong>3,577</strong> of 3,577 profiles have been enriched (100%). Network centrality computed for <strong>1,558</strong> (43.5%). Confidence scores on <strong>100%</strong> of profiles. <strong>1,220</strong> have verified email (34.1%), <strong>1,526</strong> have phone (42.7%).</p>
+        <span class="dh-big-num" style="color:var(--accent-green)">100%</span>
+        <p><strong>3,577</strong> of 3,577 profiles enriched (100%). Network centrality computed for <strong>1,558</strong> (43.5%). Confidence scores on <strong>100%</strong> of profiles. <strong>1,220</strong> have verified email (34.1%), <strong>1,526</strong> have phone (42.7%).</p>
       </div>
       <div class="dh-insight" style="border-left: 3px solid var(--accent-red)">
         <span class="dh-insight-icon">&#9888;</span>
         <h4>Critical Gaps</h4>
-        <span class="dh-big-num" style="color:var(--accent-red)">5</span>
-        <p>Fields under 3%: <strong>email</strong> (2.7%), <strong>phone</strong> (2.8%), <strong>seeking</strong> (1.9%), <strong>booking_link</strong> (0.3%), <strong>avatar_url</strong> (0.0%).</p>
+        <span class="dh-big-num" style="color:var(--accent-red)">2</span>
+        <p>Fields under 10%: <strong>booking_link</strong> (9.7%), <strong>avatar_url</strong> (&lt;0.1%). Email at 34.1%, phone at 42.7% — improved but still incomplete.</p>
       </div>
     </div>
 
