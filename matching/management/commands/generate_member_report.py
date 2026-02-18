@@ -397,7 +397,11 @@ class Command(BaseCommand):
             if partner_offers and client_seeks:
                 # Truncate to keep it readable
                 p_short = partner_offers[:120].rsplit(' ', 1)[0] if len(partner_offers) > 120 else partner_offers
-                parts.append(f'They offer {p_short.lower().rstrip(".")}.')
+                # Capitalize first letter after "They offer"
+                offer_text = p_short.rstrip(".").strip()
+                if offer_text and offer_text[0].islower():
+                    offer_text = offer_text[0].upper() + offer_text[1:]
+                parts.append(f'They offer: {offer_text}.')
 
         # Audience Alignment: explain shared audience
         aud = synergy_factors.get('Audience Alignment', {})
@@ -405,8 +409,12 @@ class Command(BaseCommand):
             partner_serves = (partner.who_you_serve or '').strip()
             client_serves = (client.who_you_serve or '').strip()
             if partner_serves and client_serves:
-                p_short = partner_serves[:100].rsplit(' ', 1)[0] if len(partner_serves) > 100 else partner_serves
-                parts.append(f'Their audience ({p_short.rstrip(".")}) overlaps with {client_first}\'s target market.')
+                # Truncate at sentence/clause boundary to avoid mid-word cuts
+                if len(partner_serves) > 100:
+                    p_short = partner_serves[:100].rsplit(',', 1)[0] or partner_serves[:100].rsplit(' ', 1)[0]
+                else:
+                    p_short = partner_serves
+                parts.append(f'Their audience ({p_short.rstrip("., ")}) overlaps with {client_first}\'s target market.')
             elif partner_serves:
                 parts.append(f'Serves: {partner_serves[:100]}.')
 
@@ -423,7 +431,10 @@ class Command(BaseCommand):
         }
         jv_hist = intent_factors.get('JV History', {})
         if jv_hist.get('score', 0) >= 7.0:
-            parts.append(f'Proven JV track record ({jv_hist["detail"]}).')
+            detail = jv_hist['detail']
+            # Fix grammar: "1 past partnerships" → "1 past partnership"
+            detail = detail.replace('1 past partnerships', '1 past partnership')
+            parts.append(f'Proven JV track record ({detail}).')
 
         # --- Momentum signals (reach & scale) ---
         momentum_factors = {
