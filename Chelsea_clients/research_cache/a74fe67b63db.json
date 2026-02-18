@@ -16,5 +16,25 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://mindcarecenter.net/"
+  "website": "https://mindcarecenter.net/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Anton Bluman offers neurofeedback (EEG biofeedback), biofeedback therapy, and counseling as drug-free alternatives using brainwave technology to relieve neurological and mental health conditions.",
+  "who_you_serve": "Individuals of all ages dealing with anxiety, depression, ADHD, and other neurological conditions.",
+  "social_proof": "MS, AIBT credentials; licensed counselor; certified in Neurofeedback, Reiki, and Reconnective Healing; 25 years of experience; 5/5 Yelp rating.",
+  "signature_programs": "LENS Neurofeedback Training, Biofeedback Therapy",
+  "niche": "neurofeedback therapy",
+  "tags": [
+    "neurofeedback",
+    "biofeedback",
+    "mental health",
+    "anxiety",
+    "ADHD",
+    "counseling",
+    "reiki"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing drug-free neurofeedback and biofeedback therapy to help individuals manage neurological and mental health conditions.",
+  "service_provided": "neurofeedback therapy, biofeedback therapy, counseling, Reiki, Reconnective Healing",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T04:11:03.860821"
 }

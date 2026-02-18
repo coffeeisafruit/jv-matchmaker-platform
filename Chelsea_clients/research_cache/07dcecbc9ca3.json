@@ -10,5 +10,21 @@
     "facebook": "https://www.facebook.com/permalink.php/?story_fbid=883419870443373&id=100063261036968"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://executiveauthors.com/about/meet-carol-abrahamson/"
+  "website": "https://executiveauthors.com/about/meet-carol-abrahamson/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Founded by executive author expert, strategist, mentor, coach and multi-award-winning author Carol Abrahamson, Executive Authors brings extensive knowledge about business and growth, a results-driven strategic approach and broad industry experience to making business-building books successful.",
+  "who_you_serve": "Executives seeking important business outcomes from their book.",
+  "social_proof": "Carol has written and self-published 25+ books that have promoted her expertise in three industries (some sold in five countries).",
+  "niche": "executive authors",
+  "tags": [
+    "executive author",
+    "business growth",
+    "book strategy",
+    "publishing expertise"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping executives create books that generate business results.",
+  "service_provided": "Consulting, coaching, publishing expertise",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:40:35.518435"
 }

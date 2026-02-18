@@ -17,5 +17,20 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://finchmodel.com/"
+  "website": "https://finchmodel.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Finch Model provides coaching services.",
+  "who_you_serve": "Finch Model serves entrepreneurs and small businesses.",
+  "social_proof": "Trained and qualified with Rich Litvin, founder of the '4 Percent Club'. Rich Litvin trains many world leaders.",
+  "niche": "coaching, entrepreneurship",
+  "tags": [
+    "coaching",
+    "entrepreneurship",
+    "small business"
+  ],
+  "audience_type": "B2B, entrepreneurs, small businesses",
+  "business_focus": "Finch Model provides coaching services to help entrepreneurs and small businesses.",
+  "service_provided": "Coaching, VIP Days, Books & Resources",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:12:52.570193"
 }

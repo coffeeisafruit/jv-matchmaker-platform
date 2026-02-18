@@ -10,5 +10,24 @@
   },
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://drkenmartz.com/",
-  "linkedin": "https://www.linkedin.com/in/dr-ken-martz"
+  "linkedin": "https://www.linkedin.com/in/dr-ken-martz",
+  "_cache_schema_version": 2,
+  "what_you_do": "Dr. Ken Martz is a psychologist who specializes in helping men conquer anxiety and achieve emotional freedom.",
+  "who_you_serve": "Men who are looking to overcome anxiety and improve their emotional well-being.",
+  "social_proof": "Dr. Ken Martz has over 30 years of experience and has been featured in various media outlets such as Business Insider and CBS.",
+  "signature_programs": "Unshakable Program, books, counseling services, and keynote presentations.",
+  "booking_link": "https://drkenmartz.com/schedule-services",
+  "niche": "men's mental health",
+  "tags": [
+    "emotional intelligence",
+    "anxiety",
+    "men's mental health",
+    "counseling",
+    "speaking"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping men discover emotional freedom through counseling, speaking, and educational resources.",
+  "service_provided": "Counseling, speaking/media, books",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:33:23.865868"
 }

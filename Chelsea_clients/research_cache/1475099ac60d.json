@@ -9,5 +9,23 @@
   },
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://joelsacks.com/",
-  "linkedin": "https://ca.linkedin.com/in/joelsacks"
+  "linkedin": "https://ca.linkedin.com/in/joelsacks",
+  "_cache_schema_version": 2,
+  "what_you_do": "Joel Sacks offers life coaching, team coaching, and hypnotherapy services to help individuals and teams unlock their true potential and transform their lives.",
+  "who_you_serve": "Individuals and teams seeking personal and professional development, as well as those dealing with various life challenges.",
+  "social_proof": "Certified Life Coach, Hypnotherapist, and Positive Intelligence (PQ) Coach",
+  "signature_programs": "High Achiever's Workshop, Manifestation Workshop, Regression Therapy",
+  "niche": "life coaching, hypnotherapy",
+  "company": "Joel Sacks Coaching & Hypnotherapy",
+  "tags": [
+    "life coaching",
+    "hypnotherapy",
+    "personal development",
+    "team coaching"
+  ],
+  "audience_type": "B2C, coaches",
+  "business_focus": "Empowering individuals and teams through expert life coaching and hypnotherapy.",
+  "service_provided": "life coaching, team coaching, hypnotherapy",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:14:00.970999"
 }

@@ -9,5 +9,24 @@
     "youtube": "https://www.youtube.com/watch?v=kwDmZFZ8R1k"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.howtolearn.com/"
+  "website": "https://www.howtolearn.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "HowtoLearn.com is a website that provides learning resources, assessments, courses, and articles related to various educational topics.",
+  "who_you_serve": "The website serves parents, teachers, and individuals interested in learning and improving their skills.",
+  "seeking": "The website is accepting applications for the Parent and Teacher Choice Awards year-round, with deadlines on the 15th of each month.",
+  "signature_programs": "The website offers a learning styles quiz, free learning resources coupon book, and online courses.",
+  "niche": "learning resources",
+  "tags": [
+    "learning",
+    "education",
+    "resources",
+    "assessments",
+    "courses",
+    "articles"
+  ],
+  "audience_type": "B2C, parents, teachers",
+  "business_focus": "Providing a wide range of learning resources and tools to help individuals improve their learning abilities.",
+  "service_provided": "Learning resources, assessments, courses, articles",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T03:12:02.085951"
 }

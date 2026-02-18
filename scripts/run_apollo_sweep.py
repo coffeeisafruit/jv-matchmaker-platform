@@ -51,26 +51,43 @@ if not DATABASE_URL:
     sys.exit(1)
 
 
-def get_profiles_with_gaps(limit: int = None) -> List[Dict]:
+def get_profiles_with_gaps(limit: int = None, bare_only: bool = False) -> List[Dict]:
     """Query profiles that have Tier 1-2 gaps Apollo can fill."""
     conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
     limit_clause = f"LIMIT {limit}" if limit else ""
 
-    cur.execute(f"""
-        SELECT id, name, email, phone, company, website, linkedin,
-               enrichment_metadata
-        FROM profiles
-        WHERE (email IS NULL OR email = ''
-               OR phone IS NULL OR phone = ''
-               OR linkedin IS NULL OR linkedin = '')
-        ORDER BY
-            CASE WHEN email IS NULL OR email = '' THEN 0 ELSE 1 END,
-            CASE WHEN linkedin IS NULL OR linkedin = '' THEN 0 ELSE 1 END,
-            name
-        {limit_clause}
-    """)
+    if bare_only:
+        # Target only profiles with zero key enrichment fields
+        cur.execute(f"""
+            SELECT id, name, email, phone, company, website, linkedin,
+                   enrichment_metadata
+            FROM profiles
+            WHERE (what_you_do IS NULL OR what_you_do = '')
+              AND (who_you_serve IS NULL OR who_you_serve = '')
+              AND (niche IS NULL OR niche = '')
+              AND (bio IS NULL OR bio = '')
+              AND (offering IS NULL OR offering = '')
+              AND (seeking IS NULL OR seeking = '')
+              AND name IS NOT NULL AND name != ''
+            ORDER BY name
+            {limit_clause}
+        """)
+    else:
+        cur.execute(f"""
+            SELECT id, name, email, phone, company, website, linkedin,
+                   enrichment_metadata
+            FROM profiles
+            WHERE (email IS NULL OR email = ''
+                   OR phone IS NULL OR phone = ''
+                   OR linkedin IS NULL OR linkedin = '')
+            ORDER BY
+                CASE WHEN email IS NULL OR email = '' THEN 0 ELSE 1 END,
+                CASE WHEN linkedin IS NULL OR linkedin = '' THEN 0 ELSE 1 END,
+                name
+            {limit_clause}
+        """)
 
     profiles = cur.fetchall()
     cur.close()
@@ -207,14 +224,15 @@ def run_sweep(
     dry_run: bool = False,
     batch_delay: float = 1.0,
     webhook_url: str = None,
+    bare_only: bool = False,
 ):
     """Run Apollo enrichment sweep."""
     print(f"\n{'='*60}")
-    print("APOLLO.IO API SWEEP")
+    print("APOLLO.IO API SWEEP" + (" (BARE PROFILES ONLY)" if bare_only else ""))
     print(f"{'='*60}\n")
 
     # Get profiles with gaps
-    profiles = get_profiles_with_gaps(limit)
+    profiles = get_profiles_with_gaps(limit, bare_only=bare_only)
     print(f"Profiles with contact gaps: {len(profiles)}")
     print(f"Max credits: {max_credits}")
     print(f"Batch delay: {batch_delay}s")
@@ -350,6 +368,8 @@ def main():
                         help='Delay between batches in seconds (default: 1.0)')
     parser.add_argument('--webhook-url', default=None,
                         help='Webhook URL for async phone/email delivery')
+    parser.add_argument('--bare-only', action='store_true',
+                        help='Only target bare profiles (0 key enrichment fields)')
 
     args = parser.parse_args()
 
@@ -359,6 +379,7 @@ def main():
         dry_run=args.dry_run,
         batch_delay=args.batch_delay,
         webhook_url=args.webhook_url,
+        bare_only=args.bare_only,
     )
 
 

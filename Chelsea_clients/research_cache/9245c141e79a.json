@@ -30,5 +30,21 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://dianamneedham.com/about-diana/"
+  "website": "https://dianamneedham.com/about-diana/",
+  "_cache_schema_version": 2,
+  "what_you_do": "My primary focus is to help first-time self-published authors become Amazon bestselling authorities in their field.",
+  "who_you_serve": "first-time self-published authors",
+  "social_proof": "self-published author of two bestsellers, business book mentor to hundreds of authors (nearly 120 of whom now are Amazon best-selling authors), creator of the Business Book Accelerator program, and professional speaker",
+  "signature_programs": "Business Book Accelerator program",
+  "niche": "self-publishing, book marketing",
+  "tags": [
+    "book marketing",
+    "self-publishing",
+    "business book mentor"
+  ],
+  "audience_type": "self-published authors",
+  "business_focus": "Helping first-time self-published authors become Amazon bestselling authorities in their field.",
+  "service_provided": "book marketing, publishing expertise, business mentoring",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:22:59.260216"
 }

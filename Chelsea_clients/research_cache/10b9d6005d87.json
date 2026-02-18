@@ -11,5 +11,21 @@
     "spotify_podcast": "https://open.spotify.com/track/0DoTeILPWteWqOPTL2Fcb4"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://www.theartoffreedom.com/"
+  "website": "https://www.theartoffreedom.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Founder of The Art of Freedom, a business coaching and consulting company.",
+  "who_you_serve": "Small business owners",
+  "signature_programs": "How to Thrive in Business by Breaking All the Rules, The Business Owner's Guide to Working Smarter",
+  "booking_link": "https://calendly.com/michaellevalley/connect-with-michael",
+  "niche": "business coaching",
+  "tags": [
+    "business coaching",
+    "entrepreneurship",
+    "freedom"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping small business owners create a business that aligns with their strengths and vision.",
+  "service_provided": "Business coaching, consulting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:57:19.662811"
 }

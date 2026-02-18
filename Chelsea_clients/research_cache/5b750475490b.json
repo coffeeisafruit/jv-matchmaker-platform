@@ -9,5 +9,19 @@
   },
   "audience_engagement_score": 0.55,
   "website": "https://jontmacdonald.com/about/",
-  "linkedin": "https://uk.linkedin.com/in/johnduncanmcdonald"
+  "linkedin": "https://uk.linkedin.com/in/johnduncanmcdonald",
+  "_cache_schema_version": 2,
+  "what_you_do": "I help courageous people realize their potential.",
+  "who_you_serve": "Courageous people who want to step back from narratives and craft their own stories and identity.",
+  "booking_link": "https://jontmacdonald.com/work-with-me/",
+  "niche": "personal development",
+  "tags": [
+    "personal development",
+    "self-improvement",
+    "mindset"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Empowering others to live successful, meaningful, and fulfilling lives of their own creation.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:45:14.837485"
 }

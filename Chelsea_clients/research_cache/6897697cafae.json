@@ -34,5 +34,22 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://stefanciancio.com/"
+  "website": "https://stefanciancio.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I'm cofounder of the software WebinarKit, and known as \"the webinar guy.\" I help people explode their business with webinars.",
+  "who_you_serve": "I help people explode their business with webinars.",
+  "offering": "WebinarKit Software - A powerful software I cofounded that helps business owners transform their business through the power of webinars and their various applications. White Label WebinarKit - Looking to build recurring revenue in your business with your very own software? Learn about white labeling WebinarKit to grow your recurring revenue today.",
+  "social_proof": "Best-Selling Author",
+  "signature_programs": "Best-Selling Book: Sell More with Webinars, WebinarKit Software, WebinarKit White Label",
+  "niche": "webinars",
+  "tags": [
+    "entrepreneur",
+    "founder",
+    "webinars"
+  ],
+  "audience_type": "coaches, course creators, agencies, SaaS",
+  "business_focus": "I help people explode their business with webinars.",
+  "service_provided": "webinar software, webinar consulting, white label webinar software",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:19:26.213902"
 }

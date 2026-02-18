@@ -10,5 +10,20 @@
   },
   "audience_engagement_score": 0.45,
   "website": "https://web.gnacc.org/Business-Coaching/Clear-Pathway,-LLC-6512",
-  "linkedin": "https://www.linkedin.com/in/lesleyingves"
+  "linkedin": "https://www.linkedin.com/in/lesleyingves",
+  "_cache_schema_version": 2,
+  "what_you_do": "Lesley Ingves, a Business Productivity and Management Strategist, specializes in helping time-starved business owners simplify running their business, rethinking productivity and reducing inefficiencies.",
+  "who_you_serve": "business owners",
+  "niche": "business productivity",
+  "phone": "(860) 235-2357",
+  "tags": [
+    "business coaching",
+    "productivity",
+    "operations"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping business owners simplify running their business, rethink productivity, and reduce inefficiencies.",
+  "service_provided": "business coaching, productivity consulting, operations optimization",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:57:19.508894"
 }

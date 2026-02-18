@@ -28,5 +28,6 @@
     "apple_podcast": "https://podcasts.apple.com/us/podcast/the-alli-worthington-show/id1375727741",
     "youtube": "https://www.youtube.com/watch?v=2BRui6Gj9vc"
   },
-  "audience_engagement_score": 0.55
+  "audience_engagement_score": 0.55,
+  "_cache_schema_version": 2
 }

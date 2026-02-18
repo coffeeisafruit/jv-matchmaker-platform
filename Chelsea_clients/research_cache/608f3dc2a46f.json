@@ -34,5 +34,21 @@
       "source_url": "https://open.spotify.com/show/7aAm20e3fGEywvHe83GT5c"
     }
   ],
-  "website": "https://www.thebash.com/corporate-speaker/prathermarketingllc"
+  "website": "https://www.thebash.com/corporate-speaker/prathermarketingllc",
+  "_cache_schema_version": 2,
+  "what_you_do": "I am a speaker, Author and Booking Agent for Les Brown and many more.",
+  "who_you_serve": "The speakers I represent come from backgrounds such as Safety, Diversity, Mental Health, Resilience, AI and Corporate Culture.",
+  "social_proof": "I am the author of 24 Ways To Get Paid To Speak.",
+  "booking_link": "https://calendly.com/prather1/30min",
+  "niche": "corporate speaking",
+  "tags": [
+    "speaker",
+    "author",
+    "booking agent"
+  ],
+  "audience_type": "corporate",
+  "business_focus": "I run a call center for professional speakers where we find and foster leads then do the program agreement and additional work to secure the speaking engagement.",
+  "service_provided": "public speaker, corporate speaker",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:32:11.209757"
 }

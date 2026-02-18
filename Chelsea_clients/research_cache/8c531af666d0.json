@@ -18,5 +18,22 @@
     }
   ],
   "audience_engagement_score": 0.65,
-  "website": "https://darrelstinson.com/"
+  "website": "https://darrelstinson.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Darrel Stinson offers coaching, consulting, and speaking services to help clients set goals, overcome self-limiting beliefs, and create the life they want.",
+  "who_you_serve": "Darrel Stinson serves individuals who want to transform their lives and achieve their goals.",
+  "social_proof": "Certified DISC Assessor, Life and Mindfulness Coach",
+  "niche": "life coaching, personal development",
+  "phone": "517-539-4493",
+  "tags": [
+    "life coach",
+    "mindfulness",
+    "personal development",
+    "goal setting"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping individuals assess, guide, and empower themselves to create the life they want.",
+  "service_provided": "Coaching, Consulting, Speaking",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:36:25.969058"
 }

@@ -10,5 +10,15 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://www.melissawillis.com/",
-  "linkedin": "https://www.linkedin.com/in/melissamwillis"
+  "linkedin": "https://www.linkedin.com/in/melissamwillis",
+  "_cache_schema_version": 2,
+  "what_you_do": "Senior Lead Designer with 11+ years of experience translating complex challenges into compelling, high-performing creative",
+  "niche": "design",
+  "tags": [
+    "visual storyteller",
+    "versatile collaborator",
+    "eternal optimist"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:35:28.536863"
 }

@@ -9,5 +9,20 @@
     "facebook": "https://www.facebook.com/IvankaTrump/posts/i-co-founded-planet-harvest-with-melissa-ackerman-to-maximize-the-amount-of-fres/1323283002490543/"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://esselstynfamilyfoundation.org/"
+  "website": "https://esselstynfamilyfoundation.org/",
+  "_cache_schema_version": 2,
+  "what_you_do": "We are a 501c3 public charity committed to healing the world through the promotion of whole food, plant-based nutrition.",
+  "who_you_serve": "We partner with existing non-profits and community-based organizations to spread our message far and wide.",
+  "seeking": "We are looking to collaborate by partnering with other nonprofits and community-based organizations across the United States to provide the best access and programs.",
+  "niche": "plant-based nutrition",
+  "tags": [
+    "plant-based",
+    "nutrition",
+    "nonprofit"
+  ],
+  "audience_type": "B2B, B2C",
+  "business_focus": "Healing the world through the promotion of whole food, plant-based nutrition.",
+  "service_provided": "Providing free programming to partner organizations, conducting action research, prototyping real-world solutions",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:49:53.670329"
 }

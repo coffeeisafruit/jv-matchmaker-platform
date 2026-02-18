@@ -23,5 +23,14 @@
   ],
   "audience_engagement_score": 0.4,
   "website": "https://theorg.com/org/west-shores-realty/org-chart/william-elkins-iv",
-  "linkedin": "https://www.linkedin.com/in/william-elkins-iv-broker"
+  "linkedin": "https://www.linkedin.com/in/william-elkins-iv-broker",
+  "_cache_schema_version": 2,
+  "what_you_do": "Life Transitions Real Estate Advisor",
+  "niche": "real estate",
+  "tags": [
+    "real estate",
+    "advisor"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:33:42.074804"
 }

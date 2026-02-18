@@ -9,5 +9,23 @@
   },
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://themaxinejones.com/",
-  "linkedin": "https://uk.linkedin.com/in/maxine-jones-a185b633"
+  "linkedin": "https://uk.linkedin.com/in/maxine-jones-a185b633",
+  "_cache_schema_version": 2,
+  "what_you_do": "Award-winning fitness coach helping busy women go from fed up to fit in three easy steps without setting foot in a gym.",
+  "who_you_serve": "Busy women.",
+  "social_proof": "As seen on TV. Award Winning Fitness Coach.",
+  "signature_programs": "Maxicise TV\u2122, From Fed Up To Fit\u2122, Maxicise\u2122",
+  "niche": "Women's fitness",
+  "tags": [
+    "fitness coaching",
+    "women's fitness",
+    "online workouts",
+    "weight loss",
+    "tv fitness"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping busy women achieve fitness through online workout programs and coaching without needing a gym.",
+  "service_provided": "Online fitness classes, Maxicise TV membership (weekly/monthly/annual), From Fed Up To Fit program, live classes",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:37:05.179408"
 }

@@ -23,5 +23,23 @@
   ],
   "audience_engagement_score": 0.55,
   "website": "https://thepreparedgroup.com/ken-cook/",
-  "linkedin": "https://www.linkedin.com/in/kencook1"
+  "linkedin": "https://www.linkedin.com/in/kencook1",
+  "_cache_schema_version": 2,
+  "what_you_do": "The Prepared Group is a revenue growth strategy consulting firm that helps small and mid-market businesses develop and implement a strategy-first approach across marketing, sales, and business operations.",
+  "who_you_serve": "Small and mid-market businesses",
+  "social_proof": "Ken Cook is Google and Keap (fka Infusionsoft) certified.",
+  "niche": "revenue growth strategy",
+  "phone": "503.939.4168",
+  "tags": [
+    "revenue growth",
+    "strategy consulting",
+    "marketing strategy",
+    "sales strategy",
+    "business operations"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "The Prepared Group helps small and mid-market businesses develop and implement a strategy-first approach across marketing, sales, and business operations to attract, convert, and retain the right customers.",
+  "service_provided": "Consulting, Technology Consulting, Video Production Services, Copywriting Services, Facilitation, Advisor Program",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:36:46.190231"
 }

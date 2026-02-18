@@ -32,5 +32,22 @@
   ],
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://app.eventraptor.com/speaker-profiles/sara-barthel",
-  "linkedin": "https://www.linkedin.com/in/sarabethbarthel"
+  "linkedin": "https://www.linkedin.com/in/sarabethbarthel",
+  "_cache_schema_version": 2,
+  "what_you_do": "Sara Barthel is a functional medicine nutritionist who specializes in helping professional women rebalance their digestion, hormones and weight naturally.",
+  "who_you_serve": "Professional women",
+  "social_proof": "MS, CNS, LDN",
+  "niche": "functional medicine, nutrition",
+  "tags": [
+    "functional medicine",
+    "nutrition",
+    "hormones",
+    "weight",
+    "digestion"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping professional women rebalance their digestion, hormones and weight naturally.",
+  "service_provided": "Functional medicine, nutrition, supplements, lifestyle interventions",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:20:52.630460"
 }

@@ -8,5 +8,23 @@
     "youtube": "https://www.youtube.com/watch?v=cxki3MlRBOI"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://speakerhub.com/speaker/andrew-sykes-0"
+  "website": "https://speakerhub.com/speaker/andrew-sykes-0",
+  "_cache_schema_version": 2,
+  "what_you_do": "Andrew Seeker provides bookkeeping, consulting, and commercial real estate/business loan origination services through Anchor Consulting & Capital.",
+  "who_you_serve": "Business owners seeking financial consulting, bookkeeping, and commercial lending solutions.",
+  "social_proof": "Has closed $4,290,000 in commercial real estate and business loans since 2012.",
+  "niche": "commercial lending consulting",
+  "company": "Anchor Consulting & Capital",
+  "tags": [
+    "bookkeeping",
+    "commercial real estate",
+    "business loans",
+    "consulting",
+    "entrepreneurship"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Providing bookkeeping, consulting, and commercial lending services to help business owners achieve their financial goals.",
+  "service_provided": "bookkeeping, business consulting, commercial real estate loans, business loans",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T04:10:08.336080"
 }

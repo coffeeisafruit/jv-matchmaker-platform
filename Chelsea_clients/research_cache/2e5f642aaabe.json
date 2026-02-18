@@ -10,5 +10,18 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://app.eventraptor.com/speaker-profiles/hollis-pirkey",
-  "linkedin": "https://www.linkedin.com/in/hollisjefpirkey"
+  "linkedin": "https://www.linkedin.com/in/hollisjefpirkey",
+  "_cache_schema_version": 2,
+  "what_you_do": "Hollis Pirkey is recognized as one of the world's leading authorities on anger and anger in the workplace. Through that expertise he became an expert on corporate culture transformation, helping countless executives turn toxic cultures into thriving ecosystems that drive unprecedented growth.",
+  "social_proof": "For three consecutive years, he wrote his book, \"I Love My Anger But It's Killing Me.\"",
+  "niche": "anger management, corporate culture transformation",
+  "tags": [
+    "anger management",
+    "corporate culture",
+    "transformation"
+  ],
+  "audience_type": "executives",
+  "business_focus": "Helping executives turn toxic cultures into thriving ecosystems that drive unprecedented growth.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:09:44.803116"
 }

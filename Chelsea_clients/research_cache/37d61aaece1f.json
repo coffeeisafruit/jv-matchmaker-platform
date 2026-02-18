@@ -24,5 +24,19 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.alignable.com/eden-prairie-mn/reclaim-your-life-llc"
+  "website": "https://www.alignable.com/eden-prairie-mn/reclaim-your-life-llc",
+  "_cache_schema_version": 2,
+  "what_you_do": "Reclaim Your Life, LLC, led by a dedicated professional, specializes in supporting women who've experienced betrayal trauma. With a focus on Neuro-Linguistic Programming, Forgiveness, Empowerment, and Breakthrough coaching, we provide personalized and group coaching sessions.",
+  "who_you_serve": "Women who've experienced betrayal trauma",
+  "niche": "betrayal trauma",
+  "tags": [
+    "coaching",
+    "mindset",
+    "essential oils"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Supporting women who've experienced betrayal trauma through coaching and essential oils",
+  "service_provided": "Coaching, Essential Oils",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:50:25.906485"
 }

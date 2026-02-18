@@ -15,5 +15,23 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://www.unitedstatesspeakerbureau.com/speaker-profile/jerry-fu"
+  "website": "https://www.unitedstatesspeakerbureau.com/speaker-profile/jerry-fu",
+  "_cache_schema_version": 2,
+  "what_you_do": "Jerry is a career and leadership coach who helps Asian-American leaders become more visible, vocal, and valuable.",
+  "who_you_serve": "Asian-American professionals",
+  "social_proof": "Jerry is an Associate Certified Coach through the International Coaching Federation and certified in Talent Optimization, EQi 2.0/EQi 360, and Designing Your Life. He co-authored Secrets of Next-Level Entrepreneurs, which premiered at #1 on Amazon's new releases on Business Entrepreneurship.",
+  "booking_link": "https://api.whatsapp.com/send?phone=+6593726990&text=Hello%20Team%20SpeakIn.%20Let's%20speak!",
+  "niche": "leadership coaching",
+  "phone": "+6593726990",
+  "tags": [
+    "leadership",
+    "coaching",
+    "design thinking",
+    "emotional intelligence"
+  ],
+  "audience_type": "Asian-American professionals",
+  "business_focus": "Jerry is a career and leadership coach who helps Asian-American leaders become more visible, vocal, and valuable.",
+  "service_provided": "individual coaching, group workshops, keynote presentations",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:16:08.489920"
 }

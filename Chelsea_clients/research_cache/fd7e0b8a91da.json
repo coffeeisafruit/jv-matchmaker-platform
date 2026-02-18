@@ -9,5 +9,23 @@
   },
   "audience_engagement_score": 0.45,
   "website": "https://teriselangwrites.com/",
-  "linkedin": "https://www.linkedin.com/in/teriselang"
+  "linkedin": "https://www.linkedin.com/in/teriselang",
+  "_cache_schema_version": 2,
+  "what_you_do": "Terise Lang provides wellness coaching, speaking, and writing services.",
+  "who_you_serve": "Professional women aged 40 and above.",
+  "social_proof": "Terise Lang has extensive public speaking and business writing/editing experience from her corporate and nonprofit work (15 years), including delivering a TEDx talk at AT&T.",
+  "signature_programs": "Phenomenal Femmes 5-Week Course, Ebony Jazzed 4-Week Course",
+  "niche": "holistic wellness",
+  "phone": "(678) 314-4782",
+  "tags": [
+    "wellness",
+    "coaching",
+    "writing",
+    "speaking"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Terise Lang provides holistic life, health, and wellness coaching and topics to empower and engage professional women 40 and above.",
+  "service_provided": "Wellness Coaching, Writing, Editing, Public Speaking",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:28:54.737993"
 }

@@ -10,5 +10,21 @@
     "apple_podcast": "https://podcasts.apple.com/us/podcast/its-time-for-breakthrough/id1724460323"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.breakthroughccm.com/about.html"
+  "website": "https://www.breakthroughccm.com/about.html",
+  "_cache_schema_version": 2,
+  "what_you_do": "To provide collaborative counseling or coaching with purpose, care and experience so each person feels respected, empowered and learns new skills to be used throughout life's challenges.",
+  "who_you_serve": "Individuals, families and couples with counseling and therapy needs.",
+  "social_proof": "Seminary trained, National Board of Certified Counselors (NBCC), American Association Marriage & Family Therapy (AAMFT)",
+  "booking_link": "https://www.breakthroughccm.com/contact.html",
+  "niche": "counseling, coaching",
+  "tags": [
+    "counseling",
+    "coaching",
+    "conflict management"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing counseling and coaching services to help individuals, families and couples make positive changes in their lives.",
+  "service_provided": "Counseling, Coaching, Conflict Management",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:03:56.552639"
 }

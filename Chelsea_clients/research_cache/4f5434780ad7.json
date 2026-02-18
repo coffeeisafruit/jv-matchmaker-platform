@@ -9,5 +9,22 @@
     "spotify_podcast": "https://open.spotify.com/episode/6JJq5kl5m67GeZUQU9ZGq1"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.saundragoldman.com/"
+  "website": "https://www.saundragoldman.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "We support mission-driven writers to fulfill their destiny, scale their influence, and build meaningful bodies of work.",
+  "who_you_serve": "Mission-driven creatives, leaders, and writers",
+  "social_proof": "Trusted by writers and thought leaders like Susan D. Anderson, Curator at California African Art Museum, Poet, and Author",
+  "signature_programs": "The Literary Edge, The Writing Accelerator, Spiritual Thought Leader",
+  "niche": "mission-driven writers",
+  "tags": [
+    "writing",
+    "impact",
+    "influence",
+    "thought leadership"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Supporting mission-driven writers to fulfill their destiny, scale their influence, and build meaningful bodies of work.",
+  "service_provided": "Membership, 1:1 coaching, mastermind",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:16:40.558405"
 }

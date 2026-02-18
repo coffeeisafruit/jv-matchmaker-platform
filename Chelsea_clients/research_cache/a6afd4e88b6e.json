@@ -10,5 +10,25 @@
   },
   "audience_engagement_score": 0.55,
   "website": "https://speakerhub.com/speaker/sam-liebowitz",
-  "linkedin": "https://www.linkedin.com/in/consciousconsultant"
+  "linkedin": "https://www.linkedin.com/in/consciousconsultant",
+  "_cache_schema_version": 2,
+  "what_you_do": "Sam Liebowitz is Director and Executive Producer of Talking Alternative Broadcasting, a broadcast-quality Internet Radio Station, and hosts The Conscious Consultant Hour, a weekly radio talk show focused on raising audience awareness in all aspects of life.",
+  "who_you_serve": "Entrepreneurs, professionals, and individuals seeking personal development, empowerment, and conscious living.",
+  "social_proof": "Bestselling author; featured speaker at TEDxUpperWestSide in 2016; Talking Alternative reaches people in over 110 countries; entrepreneur since 1993.",
+  "signature_programs": "The Conscious Consultant Hour (weekly radio show); book: Everyday Awakening",
+  "niche": "conscious entrepreneurship",
+  "tags": [
+    "conscious consulting",
+    "radio broadcasting",
+    "personal development",
+    "entrepreneurship",
+    "media",
+    "speaking",
+    "human potential"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Running an empowering internet radio station and consulting practice focused on personal growth and conscious leadership.",
+  "service_provided": "radio broadcasting, speaking, facilitation, mentoring, author",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:20:25.579293"
 }

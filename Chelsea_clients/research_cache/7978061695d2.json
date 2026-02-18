@@ -9,5 +9,22 @@
     "youtube": "https://www.youtube.com/watch?v=n_1-jB1jTeU"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://drjessicahiggins.com/podcasts/"
+  "website": "https://drjessicahiggins.com/podcasts/",
+  "_cache_schema_version": 2,
+  "what_you_do": "The website appears to be focused on a relationship advice podcast called the 'Empowered Relationship Podcast' that covers topics related to resolving conflict and hardships, as well as solutions and strategies for growing and deepening intimate connections.",
+  "who_you_serve": "The podcast appears to be targeted at individuals and couples looking for relationship advice and guidance.",
+  "signature_programs": "The website mentions the 'Empowered Relationship Podcast' as their primary program.",
+  "niche": "relationship advice",
+  "tags": [
+    "relationship",
+    "advice",
+    "podcast",
+    "intimacy",
+    "connection"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing relationship advice and guidance through a podcast.",
+  "service_provided": "Relationship advice podcast",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:44:35.141592"
 }

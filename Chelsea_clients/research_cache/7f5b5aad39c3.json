@@ -10,5 +10,19 @@
     "spotify_podcast": "https://open.spotify.com/episode/64h4oFSvCsdjdDh8lmcG6d"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://kathybales.com/"
+  "website": "https://kathybales.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Kathy Bales provides mindset coaching and resources to empower entrepreneurs on their journeys.",
+  "who_you_serve": "Kathy Bales serves entrepreneurs, particularly those over 50 looking to start an online business.",
+  "niche": "mindset, entrepreneurship, boomer business",
+  "tags": [
+    "mindset",
+    "entrepreneurship",
+    "boomer business"
+  ],
+  "audience_type": "B2C, coaches",
+  "business_focus": "Kathy Bales helps entrepreneurs, especially those over 50, develop the mindset and strategies to build successful online businesses.",
+  "service_provided": "mindset coaching, entrepreneurship resources",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:21:17.812034"
 }

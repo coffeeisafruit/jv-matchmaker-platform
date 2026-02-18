@@ -24,5 +24,20 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://ericarosscoach.com/1404/podcast-season-2-episode-174-how-mini-courses-create-quick-wins-with-guest-julie-hood-ceo-of-cchq/"
+  "website": "https://ericarosscoach.com/1404/podcast-season-2-episode-174-how-mini-courses-create-quick-wins-with-guest-julie-hood-ceo-of-cchq/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Julie Hood is the CEO of CourseCreatorsHQ, a company that helps entrepreneurs create successful online mini-courses.",
+  "who_you_serve": "Entrepreneurs looking to create and market online mini-courses.",
+  "signature_programs": "Mini-Course Magic",
+  "niche": "online courses",
+  "tags": [
+    "online courses",
+    "mini-courses",
+    "entrepreneurship"
+  ],
+  "audience_type": "entrepreneurs",
+  "business_focus": "Helping entrepreneurs create and market successful online mini-courses.",
+  "service_provided": "online course creation, marketing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:14:04.948055"
 }

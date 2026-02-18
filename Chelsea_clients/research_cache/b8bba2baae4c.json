@@ -1,0 +1,32 @@
+{
+  "name": "Sally",
+  "list_size": 0,
+  "content_platforms": {
+    "youtube": "https://www.youtube.com/sallybeauty",
+    "facebook": "https://www.facebook.com/sallybeauty/",
+    "linkedin": "https://www.linkedin.com/showcase/sally/"
+  },
+  "audience_engagement_score": 0.6000000000000001,
+  "website": "https://sallyzimney.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I help audiences move from self-doubt to self-trust so they can show up with confidence when it matters most.",
+  "who_you_serve": "Executives, entrepreneurs, and teams",
+  "social_proof": "Named as the top 3% of women in business speakers by espeakers.COM",
+  "signature_programs": "Speaking Story book, #ThisMovedMe show, 7-day #ShowUpAnyway Challenge",
+  "booking_link": "https://bemovedbysallyz.hbportal.co/public/6500bdc087578f00ad072361",
+  "niche": "keynote speaking, personal development",
+  "company": "Sandy & Ally Productions, LLC",
+  "tags": [
+    "keynote speaker",
+    "author",
+    "podcast host",
+    "leadership",
+    "courage",
+    "self-doubt"
+  ],
+  "audience_type": "B2B, B2C, coaches",
+  "business_focus": "Empowering individuals to break through self-doubt and take bold action.",
+  "service_provided": "Keynote speaking, coaching, resources",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T03:27:10.294365"
+}

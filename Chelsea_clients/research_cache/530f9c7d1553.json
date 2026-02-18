@@ -22,5 +22,23 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://justincunninghamonline.com/"
+  "website": "https://justincunninghamonline.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Helps businesses stand out with powerful messaging, compelling value, and automated tools.",
+  "who_you_serve": "Frustrated business owners and entrepreneurs.",
+  "social_proof": "Worked with SMEs and global giants in 5 countries, NLP trained instructor in effective communication.",
+  "signature_programs": "Stand Out System, Compelling Change Process, Elevated Expert Message, Content Conversion System, Task Automation Toolbox.",
+  "booking_link": "https://calendly.com/justincunningham/strategy-call",
+  "niche": "business growth",
+  "tags": [
+    "business growth",
+    "marketing",
+    "sales",
+    "automation"
+  ],
+  "audience_type": "B2B, entrepreneurs",
+  "business_focus": "Helping businesses stand out with powerful messaging, compelling value, and automated tools.",
+  "service_provided": "Messaging, value proposition, content marketing, marketing automation",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T03:11:10.722623"
 }

@@ -10,5 +10,22 @@
     "youtube": "https://www.youtube.com/@moderndaymysticandselfempo4920"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://www.thismodernmystic.com/solsantos"
+  "website": "https://www.thismodernmystic.com/solsantos",
+  "_cache_schema_version": 2,
+  "what_you_do": "Provides tarot readings and spiritual guidance.",
+  "who_you_serve": "Individuals seeking personal transformation and spiritual growth.",
+  "signature_programs": "SOLutions With Sol Podcast",
+  "booking_link": "https://www.thismodernmystic.com/booking-calendar/tarot-reading-w-sol",
+  "niche": "spirituality, personal growth",
+  "phone": "612-750-3948",
+  "tags": [
+    "tarot",
+    "spiritual guidance",
+    "personal transformation"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Offering tarot readings and spiritual guidance to help individuals on their personal growth journey.",
+  "service_provided": "Tarot reading",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:39:10.079542"
 }

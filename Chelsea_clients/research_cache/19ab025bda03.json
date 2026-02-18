@@ -24,5 +24,25 @@
   ],
   "audience_engagement_score": 0.55,
   "website": "https://www.lifelonghappiness.com/",
-  "linkedin": "https://www.linkedin.com/in/lifelonghappiness"
+  "linkedin": "https://www.linkedin.com/in/lifelonghappiness",
+  "_cache_schema_version": 2,
+  "what_you_do": "Life coaching and speaking focused on helping people achieve better health, meaningful prosperity, deeper joy, and sustainable inner peace.",
+  "who_you_serve": "People who feel burned out or unfulfilled despite outward success, seeking more clarity, meaning, and joy in life.",
+  "social_proof": "25 years working behind the scenes at NBC; known as 'The Happiness Architect'",
+  "signature_programs": "Miracle Mindset Makeover (M3 Call), Lifelong Happiness Journal (free weekly newsletter)",
+  "niche": "Happiness coaching",
+  "tags": [
+    "happiness",
+    "life coaching",
+    "plant-based health",
+    "resilience",
+    "personal development",
+    "speaking",
+    "inner peace"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Coaching and speaking to help individuals build lives with better health, prosperity, joy, and inner peace.",
+  "service_provided": "Life coaching, keynote speaking, corporate training, interactive workshops, free weekly newsletter",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:37:13.373949"
 }

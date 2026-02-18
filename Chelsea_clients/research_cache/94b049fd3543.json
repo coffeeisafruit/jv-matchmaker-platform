@@ -9,5 +9,16 @@
     "youtube": "https://www.youtube.com/watch?v=PH_lRuOF-FA"
   },
   "audience_engagement_score": 0.55,
-  "linkedin": "https://www.linkedin.com/in/dagmarfleming"
+  "linkedin": "https://www.linkedin.com/in/dagmarfleming",
+  "_cache_schema_version": 2,
+  "what_you_do": "Success Mentor and Mindset Expert",
+  "seeking": "Let's connect and see what synergies exist between us.",
+  "booking_link": "https://us02web.zoom.us/j/2148015041",
+  "niche": "success mentor, mindset expert",
+  "tags": [
+    "success mentor",
+    "mindset expert"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:05:55.199324"
 }

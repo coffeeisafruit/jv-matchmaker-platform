@@ -17,5 +17,24 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://intentionalvisibility.com/"
+  "website": "https://intentionalvisibility.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Intentional Visibility provides done-for-you branding, websites, books, and content services to help high-achieving entrepreneurs and purpose-driven leaders sharpen their message, amplify their presence, and turn expertise into visibility that converts.",
+  "who_you_serve": "High-achieving entrepreneurs and purpose-driven leaders",
+  "social_proof": "Trusted by visionary leaders, with testimonials from clients like Ronda Ren\u00e9e, Sue Donnellan, and Geoff Laughton",
+  "signature_programs": "The Visibility Formula book",
+  "booking_link": "https://intentionalvisibility.com/brand-elevation/",
+  "niche": "personal branding, visibility",
+  "tags": [
+    "branding",
+    "websites",
+    "books",
+    "lead generation",
+    "speaker assets"
+  ],
+  "audience_type": "B2B, coaches",
+  "business_focus": "Providing strategic visibility services to help high-achieving entrepreneurs and purpose-driven leaders build authority and convert leads.",
+  "service_provided": "Branding, websites, author services, lead generation, speaker assets",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T03:10:54.084428"
 }

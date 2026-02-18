@@ -7,5 +7,20 @@
     "spotify_podcast": "https://open.spotify.com/episode/0q5vh4Q6YdyspmgC7UqsFI"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://www.somegoodcleanfun.com/blog/lily-weis-coaching-with-lily"
+  "website": "https://www.somegoodcleanfun.com/blog/lily-weis-coaching-with-lily",
+  "_cache_schema_version": 2,
+  "what_you_do": "Lily Weis is a sobriety coach who helps people embrace an alcohol-free lifestyle.",
+  "who_you_serve": "People who are living sober or are sober curious.",
+  "niche": "sobriety coaching",
+  "company": "Coaching With Lily",
+  "tags": [
+    "sobriety",
+    "alcohol-free",
+    "lifestyle"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping people understand the science of alcohol addiction and embrace an alcohol-free lifestyle.",
+  "service_provided": "Sobriety coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:58:08.989077"
 }

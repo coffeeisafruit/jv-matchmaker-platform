@@ -1,5 +1,22 @@
 {
   "name": "People and Projects Podcast",
   "list_size": 1000,
-  "website": "https://peopleandprojectspodcast.com/"
+  "website": "https://peopleandprojectspodcast.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "The People and Projects Podcast is a podcast that discusses topics related to project management and leadership.",
+  "who_you_serve": "The podcast appears to serve project managers, leaders, and professionals interested in project management and leadership topics.",
+  "signature_programs": "The podcast offers resources such as how to report free PDUs, how to get a Project Management Professional (PMP) certification, and keynote presentations.",
+  "niche": "project management, leadership",
+  "company": "People and Projects Podcast",
+  "tags": [
+    "project management",
+    "leadership",
+    "pdus",
+    "pmp"
+  ],
+  "audience_type": "B2B, professionals",
+  "business_focus": "The People and Projects Podcast provides content and resources related to project management and leadership.",
+  "service_provided": "Podcast, resources, workshops",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:47:50.348101"
 }

@@ -7,5 +7,22 @@
     "linkedin": "https://www.linkedin.com/in/jbherrera"
   },
   "website": "https://insightdriven.business/",
-  "linkedin": "https://www.linkedin.com/in/jbherrera"
+  "linkedin": "https://www.linkedin.com/in/jbherrera",
+  "_cache_schema_version": 2,
+  "what_you_do": "Insight Driven Business provides AI-powered business consulting and applications to help small businesses break out of chaos and achieve sustainable success.",
+  "who_you_serve": "Small businesses",
+  "signature_programs": "Insight 360, AI Assistant Samples, AI-Business Workshop",
+  "booking_link": "https://insightdriven.business/contact-us/schedule-30/",
+  "niche": "ai business consulting",
+  "phone": "858-800-2304",
+  "tags": [
+    "ai",
+    "business consulting",
+    "small business"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping small businesses leverage AI to optimize their operations, drive growth, and achieve sustainable success.",
+  "service_provided": "AI consulting, AI products, AI automation, AI research and reporting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:39:50.795051"
 }

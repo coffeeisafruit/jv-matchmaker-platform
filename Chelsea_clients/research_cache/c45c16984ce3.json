@@ -17,5 +17,22 @@
   ],
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://www.ellenfinkelstein.com/",
-  "linkedin": "https://www.linkedin.com/in/ellenfinkelstein"
+  "linkedin": "https://www.linkedin.com/in/ellenfinkelstein",
+  "_cache_schema_version": 2,
+  "what_you_do": "Ellen Finkelstein is an expert in PowerPoint and presentation skills, providing training and consulting services.",
+  "who_you_serve": "Professionals who need to create effective PowerPoint presentations for work.",
+  "social_proof": "Ellen Finkelstein is a Microsoft Most Valuable Professional (MVP) and has been featured as an expert in various publications.",
+  "signature_programs": "PowerPoint training and consulting services.",
+  "niche": "PowerPoint, presentations",
+  "tags": [
+    "powerpoint",
+    "presentations",
+    "training",
+    "consulting"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping professionals create effective PowerPoint presentations for work.",
+  "service_provided": "PowerPoint training, PowerPoint consulting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:13:39.771228"
 }

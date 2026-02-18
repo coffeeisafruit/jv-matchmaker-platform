@@ -1,0 +1,23 @@
+{
+  "name": "Nathalie",
+  "list_size": 0,
+  "content_platforms": {
+    "youtube": "https://www.youtube.com/channel/UCgypPD0wwfXrN5m9V8zdcfA"
+  },
+  "audience_engagement_score": 0.55,
+  "website": "https://womensmediacenter.com/shesource/expert/nathalie-virem",
+  "_cache_schema_version": 2,
+  "company": "Women's Media Center",
+  "tags": [
+    "media",
+    "women",
+    "feminism",
+    "politics",
+    "social justice"
+  ],
+  "audience_type": "B2C, journalists",
+  "business_focus": "The Women's Media Center publishes original reporting and commentary on headline stories and underreported topics related to women and media.",
+  "service_provided": "research, reports, articles, podcast, expert database, media training",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T03:25:34.740298"
+}

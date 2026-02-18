@@ -6,5 +6,21 @@
     "spotify_podcast": "https://open.spotify.com/show/1ubGkwkEzxTWFzlGLglx2U",
     "apple_podcast": "https://podcasts.apple.com/us/podcast/trailblazers-with-walter-isaacson/id1212045046?i=1000385282609&mt=2"
   },
-  "website": "https://mn2s.com/booking-agency/talent-roster/walter-isaacson/"
+  "website": "https://mn2s.com/booking-agency/talent-roster/walter-isaacson/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Walter Isaacson is a distinguished American historian and journalist renowned for his insightful biographies of pivotal public figures.",
+  "who_you_serve": "General audience interested in history, journalism, and influential figures.",
+  "social_proof": "Bestselling author, recipient of the National Humanities Medal, holds numerous honorary degrees, serves on prestigious boards.",
+  "signature_programs": "Podcast 'Trailblazers', courses on digital revolution and U.S. history at Tulane University.",
+  "niche": "history, journalism, biography",
+  "tags": [
+    "author",
+    "historian",
+    "journalist"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Writing insightful biographies and hosting a podcast on the impact of technology.",
+  "service_provided": "Speaking engagements, media appearances, brand partnerships",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:47:10.650693"
 }

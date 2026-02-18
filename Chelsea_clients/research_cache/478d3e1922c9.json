@@ -9,5 +9,26 @@
     "youtube": "https://www.youtube.com/channel/UCBoNA4I1iPHmQ8Cu4HRO56w"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://petecanavan.com/"
+  "website": "https://petecanavan.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Cyber and physical security speaker and consultant who helps businesses develop plans to recover from cyberattacks and improve workplace safety.",
+  "who_you_serve": "CEOs, business owners, and entrepreneurs, as well as companies, organizations, associations, and schools.",
+  "social_proof": "Over 30 years of experience in Information Technology, in business since 1995, martial arts Master.",
+  "signature_programs": "Bulletproof Cybersecurity\u00ae, Armed With Awareness\u00ae",
+  "niche": "Cyber security",
+  "phone": "5702883536",
+  "tags": [
+    "cyber security",
+    "physical security",
+    "speaking",
+    "consulting",
+    "workplace safety",
+    "risk assessment",
+    "threat analysis"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping businesses stay safe and recover from cyberattacks through speaking, consulting, and custom security blueprints.",
+  "service_provided": "Cyber security consulting, physical security consulting, keynote speaking, risk assessment, threat analysis, ongoing training",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:28:05.777916"
 }

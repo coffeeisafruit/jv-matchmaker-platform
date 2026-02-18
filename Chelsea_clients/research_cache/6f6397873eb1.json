@@ -10,5 +10,19 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://lifecoachhub.com/coach/ginger-terrell/",
-  "linkedin": "https://www.linkedin.com/in/gingerterrell"
+  "linkedin": "https://www.linkedin.com/in/gingerterrell",
+  "_cache_schema_version": 2,
+  "what_you_do": "Ginger Terrell is a life coach who specializes in business coaching and career coaching.",
+  "who_you_serve": "Ginger Terrell serves individuals who are looking for guidance in their career or business.",
+  "social_proof": "Ginger Terrell has an MBA, M.A., and BBA.",
+  "niche": "business, career",
+  "tags": [
+    "business coach",
+    "career coach"
+  ],
+  "audience_type": "individuals",
+  "business_focus": "Ginger Terrell's primary focus is to connect people with resources and opportunities to help them achieve their goals.",
+  "service_provided": "business coaching, career coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:06:10.753099"
 }

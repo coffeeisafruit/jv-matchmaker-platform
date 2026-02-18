@@ -8,5 +8,22 @@
     "youtube": "https://www.youtube.com/c/JamesHicks"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.jimhickeyonline.com/"
+  "website": "https://www.jimhickeyonline.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Jim Hickey provides online coaching and membership programs to help riders overcome challenges and improve their mindset and confidence in the ring.",
+  "who_you_serve": "Riders of all levels, from beginners to Olympic-level competitors.",
+  "signature_programs": "The Jim Hickey Online Coaching Membership, which includes 12 coaching courses on topics like rebuilding confidence, overcoming panic and anxiety, and becoming fearless on show day.",
+  "niche": "equestrian coaching",
+  "company": "Jim Hickey",
+  "tags": [
+    "equestrian",
+    "coaching",
+    "mindset",
+    "confidence"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing online coaching and membership programs to help equestrian riders improve their mental game and performance in the ring.",
+  "service_provided": "Online coaching, membership programs",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:17:45.470543"
 }

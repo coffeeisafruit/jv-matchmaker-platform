@@ -24,5 +24,6 @@
   "Status": "",
   "Bio": "",
   "Match Source": "",
-  "Match Status": "Not Matched"
+  "Match Status": "Not Matched",
+  "_cache_schema_version": 2
 }

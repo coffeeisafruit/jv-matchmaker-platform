@@ -8,5 +8,8 @@
     "youtube": "https://www.youtube.com/watch?v=zfuT3MEDmio"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://newsletter.jamesbrauer.com/"
+  "website": "https://newsletter.jamesbrauer.com/",
+  "_cache_schema_version": 2,
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:12:37.298905"
 }

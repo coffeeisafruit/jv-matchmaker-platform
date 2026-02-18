@@ -28,5 +28,6 @@
     "apple_podcast": "https://podcasts.apple.com/us/podcast/7-good-minutes/id1346062517",
     "spotify_podcast": "https://open.spotify.com/show/13UddBWwAxzskUeKIDWuzj"
   },
-  "audience_engagement_score": 0.7000000000000001
+  "audience_engagement_score": 0.7000000000000001,
+  "_cache_schema_version": 2
 }

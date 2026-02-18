@@ -15,5 +15,25 @@
       "source_url": "https://www.youtube.com/watch?v=-_MGTEmWBx4"
     }
   ],
-  "audience_engagement_score": 0.55
+  "audience_engagement_score": 0.55,
+  "_cache_schema_version": 2,
+  "what_you_do": "ACX (Audiobook Creation Exchange) is an all-in-one marketplace owned by Amazon/Audible that connects authors with narrators and studios to create, publish, and distribute audiobooks to Audible, Amazon, and iTunes.",
+  "who_you_serve": "Independent authors, narrators, voice actors, studios, agents, and publishers looking to create and distribute audiobooks.",
+  "seeking": "Authors seeking narrators/producers; narrators and studios seeking audiobook projects; agents and publishers seeking distribution.",
+  "offering": "Marketplace platform connecting rights holders with producers, audiobook publishing and distribution to Audible/Amazon/iTunes, creator tools, royalty tracking dashboard, and marketing opportunities for indie creators.",
+  "social_proof": "339K+ titles published on ACX; 106B+ minutes of ACX content listened to in the last 5 years; operational since 2011.",
+  "niche": "audiobook marketplace",
+  "tags": [
+    "audiobook production",
+    "self-publishing",
+    "narrator marketplace",
+    "amazon audible",
+    "indie publishing",
+    "royalty distribution"
+  ],
+  "audience_type": "B2B and B2C (authors, narrators, studios, publishers)",
+  "business_focus": "Connecting audiobook rights holders with professional narrators and studios to produce and distribute audiobooks globally.",
+  "service_provided": "Audiobook marketplace, narrator/producer matching, audiobook publishing, distribution to Audible/Amazon/iTunes, royalty tracking, creator tools, marketing support",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T04:05:43.321734"
 }

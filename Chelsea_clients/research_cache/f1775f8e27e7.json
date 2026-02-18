@@ -28,5 +28,24 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://jonoadvertising.com/team"
+  "website": "https://jonoadvertising.com/team",
+  "_cache_schema_version": 2,
+  "what_you_do": "Advertising and marketing agency staffed by former executives from prominent brands, specializing in campaigns across fitness, wellness, ecommerce, fashion, entertainment, and cybersecurity.",
+  "who_you_serve": "Businesses seeking advertising and marketing services, particularly in fitness, wellness, ecommerce, fashion, entertainment, and cybersecurity.",
+  "social_proof": "Team composed of former executives from the world's most prominent brands.",
+  "niche": "Advertising & Marketing",
+  "tags": [
+    "advertising",
+    "media",
+    "marketing",
+    "creative strategy",
+    "monetization",
+    "ecommerce",
+    "fitness and wellness"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Full-service advertising agency leveraging executive-level brand experience across multiple verticals.",
+  "service_provided": "Media & Marketing, Monetization & Strategy, Creative Strategy & Copy, Insights & Research, Creative Strategy & Visuals",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:33:39.568855"
 }

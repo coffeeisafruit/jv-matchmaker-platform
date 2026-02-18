@@ -9,5 +9,21 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://divorcesimplystated.com/author/larrysarezky/",
-  "linkedin": "https://www.linkedin.com/in/larry-sarezky-b28a2911"
+  "linkedin": "https://www.linkedin.com/in/larry-sarezky-b28a2911",
+  "_cache_schema_version": 2,
+  "what_you_do": "Larry Sarezky is an author, divorce attorney, and mediator.",
+  "who_you_serve": "Individuals going through divorce and separation.",
+  "social_proof": "Author of the award-winning book 'Divorce Simply Stated'.",
+  "signature_programs": "Book: 'Divorce Simply Stated'",
+  "niche": "divorce, family law",
+  "tags": [
+    "divorce",
+    "family law",
+    "mediation"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing legal and mediation services to individuals going through divorce and separation.",
+  "service_provided": "Legal services, mediation",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:49:10.914136"
 }

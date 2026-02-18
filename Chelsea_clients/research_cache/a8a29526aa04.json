@@ -31,5 +31,6 @@
     "apple_podcast": "https://podcasts.apple.com/us/podcast/consulting-success-podcast/id600106614",
     "spotify_podcast": "https://open.spotify.com/show/72B2rN1QWIKw2Q4kz2X26V"
   },
-  "audience_engagement_score": 0.65
+  "audience_engagement_score": 0.65,
+  "_cache_schema_version": 2
 }

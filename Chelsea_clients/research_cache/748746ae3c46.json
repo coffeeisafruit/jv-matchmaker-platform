@@ -8,5 +8,22 @@
   },
   "audience_engagement_score": 0.45,
   "website": "https://physiomedvancouver.ca/our-team/dr-suhill-samji/",
-  "linkedin": "https://ca.linkedin.com/in/dr-suhill-samji-8035a52a"
+  "linkedin": "https://ca.linkedin.com/in/dr-suhill-samji-8035a52a",
+  "_cache_schema_version": 2,
+  "what_you_do": "Physiotherapy and chiropractic services",
+  "who_you_serve": "Patients seeking pain relief and rehabilitation",
+  "booking_link": "https://physiomed.janeapp.com/",
+  "niche": "physiotherapy, chiropractic",
+  "phone": "(778) 761-1993",
+  "tags": [
+    "physiotherapy",
+    "chiropractic",
+    "pain relief",
+    "rehabilitation"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing physiotherapy and chiropractic services to help patients with various musculoskeletal conditions and injuries.",
+  "service_provided": "Physiotherapy, Intramuscular Stimulation (IMS), Chiropractic, Y-Strap Adjustment, Knee Decompression, Shockwave Therapy, Massage Therapy, Laser Assisted Spinal Decompression, Pain Neutralization Technique, ArthroStim Instrument Adjusting, Core Stability Training, Custom Bracing, Custom Orthotics, Electrical Stimulation, Ergonomic Training, Kinesio Taping, Laser Therapy, Manual Therapy, Myofascial Release, Naturopathy, Therapeutic Exercise, Ultrasound, Vestibular Therapy, Acupuncture, Dry Needling, Red Light Therapy",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:26:33.972112"
 }

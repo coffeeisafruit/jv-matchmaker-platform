@@ -23,5 +23,24 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://www.driventosucceed.net/"
+  "website": "https://www.driventosucceed.net/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Career development and executive coaching services.",
+  "who_you_serve": "Job seekers and professionals looking to advance their careers.",
+  "social_proof": "Testimonials from clients indicating success in finding new jobs and advancing their careers.",
+  "signature_programs": "\"Ask Angela: A Job Seeker's Guide To Finding The Perfect Job\", online mastermind program \"Five Weeks to Freedom\".",
+  "niche": "career coaching",
+  "tags": [
+    "career development",
+    "executive coaching",
+    "job search",
+    "resume writing",
+    "interview preparation",
+    "copywriting"
+  ],
+  "audience_type": "B2C, professionals",
+  "business_focus": "Providing career development and executive coaching services to help clients find and succeed in their dream jobs.",
+  "service_provided": "Executive consulting, retained consulting, coaching by the hour, resume review, resume re-vamp, innovative interview preparation, speaking, copywriting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:47:21.674143"
 }

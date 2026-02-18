@@ -17,5 +17,25 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://moviola.com/presenter/jeffrey-stansfield/"
+  "website": "https://moviola.com/presenter/jeffrey-stansfield/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Leading technology provider to the broadcast, motion picture, television and motion graphics industries, encompassing workflow consultation, design, installation and integration.",
+  "who_you_serve": "Broadcast, motion picture, television and motion graphics businesses including production and post-production facilities, special effects businesses.",
+  "social_proof": "General board member, treasurer and secretary of SMPTE (Society of Motion Picture and Television Engineers). Certified editor in Final Cut, Avid and Adobe Premiere. Beta tester for Adobe After Effects and Premiere. Holds certifications in cabling systems including fiber. More than 25 years of experience.",
+  "niche": "Broadcast technology",
+  "phone": "(323) 467-1116",
+  "company": "Advantage Video Systems",
+  "tags": [
+    "broadcast technology",
+    "workflow consultation",
+    "post-production",
+    "video editing",
+    "system integration",
+    "motion graphics"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Technology solutions provider for broadcast, motion picture, television and motion graphics industries offering workflow consultation, design, installation and integration.",
+  "service_provided": "Workflow consultation, design, installation, integration, technology solutions, broadcast facility construction, cameras, lighting, shared storage, asset management solutions",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:40:35.899835"
 }

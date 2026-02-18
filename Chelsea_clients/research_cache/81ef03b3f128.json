@@ -19,5 +19,21 @@
   ],
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://summit.softwareoasis.com/speakers/james-hipkin/",
-  "linkedin": "https://www.linkedin.com/in/jameshipkin"
+  "linkedin": "https://www.linkedin.com/in/jameshipkin",
+  "_cache_schema_version": 2,
+  "what_you_do": "James Hipkin is CEO of Red8 Interactive, helping B2B brands modernize their marketing funnels for today's digital buyers.",
+  "who_you_serve": "B2B brands",
+  "niche": "digital marketing, conversion optimization",
+  "tags": [
+    "customization & development",
+    "data migration",
+    "digital media marketing",
+    "operations management",
+    "software selection & recommendation"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping B2B brands modernize their marketing funnels for today's digital buyers.",
+  "service_provided": "digital strategy, conversion optimization",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:32:53.433497"
 }

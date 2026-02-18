@@ -17,5 +17,15 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://medium.com/authority-magazine/sara-phillips-how-to-be-great-at-sales-without-seeming-salesy-2e1819d83e1f"
+  "website": "https://medium.com/authority-magazine/sara-phillips-how-to-be-great-at-sales-without-seeming-salesy-2e1819d83e1f",
+  "_cache_schema_version": 2,
+  "what_you_do": "Sara Phillips is the Master Sales Coach at Superior Performance Coaching, who started her own sales business at nine years old.",
+  "niche": "sales coaching",
+  "tags": [
+    "sales",
+    "coaching"
+  ],
+  "business_focus": "Sara has spent a lifetime helping people get what they want.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:34:47.221250"
 }

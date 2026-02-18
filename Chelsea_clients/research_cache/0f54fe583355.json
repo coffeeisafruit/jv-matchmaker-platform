@@ -26,5 +26,6 @@
     "youtube": "https://www.youtube.com/watch?v=041a1Sk0Wys",
     "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Fabundancebookkeeper%2F"
   },
-  "audience_engagement_score": 0.6000000000000001
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2
 }

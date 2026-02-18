@@ -10,5 +10,21 @@
   },
   "audience_engagement_score": 0.45,
   "website": "https://be-joy.com/",
-  "linkedin": "https://www.linkedin.com/in/francesca-medical-iintuitive-medium"
+  "linkedin": "https://www.linkedin.com/in/francesca-medical-iintuitive-medium",
+  "_cache_schema_version": 2,
+  "what_you_do": "Francesca Fleming is a medical intuitive medium and energy practitioner who blends her natural psychic gifts with a grounded practice. Her work brings together insights from the body and soul with practical steps clients can follow at home.",
+  "who_you_serve": "Clients describe the sessions as accurate, clarifying, and kind.",
+  "booking_link": "https://be-joy.com/book-appointment/",
+  "niche": "medical intuition, energy healing, spiritual growth",
+  "phone": "503-805-7403",
+  "tags": [
+    "medical intuitive",
+    "energy healing",
+    "spiritual guidance"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing medical intuitive readings, energy healing, and guidance for body, mind, and spirit.",
+  "service_provided": "medical intuitive readings, energy healing, chakra and aura clearing, nutrition and herb suggestions, homeopathy suggestions, visualization practices",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:28:33.167765"
 }

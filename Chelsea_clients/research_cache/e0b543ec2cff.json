@@ -24,5 +24,24 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://redcircle.com/shows/soft-as-steel"
+  "website": "https://redcircle.com/shows/soft-as-steel",
+  "_cache_schema_version": 2,
+  "what_you_do": "Maurice Thibodeau is the founder of Illumination Experiences, offering personal development coaching, transformational retreats, and the Life Inventory Assessment tool to help people live with purpose.",
+  "who_you_serve": "Coaches and individuals seeking personal transformation and purposeful living.",
+  "social_proof": "ICF-accredited certification program (28 credits); featured on Welcome To The Winners Circle podcast (episode 40); spoke at leadership summits, universities, corporations, and festivals.",
+  "signature_programs": "Life Inventory Assessment (LIA), LIA Coach Certification, Ignite Retreats, I Am Festival (co-founder)",
+  "niche": "personal development coaching",
+  "tags": [
+    "personal development",
+    "life coaching",
+    "transformational retreats",
+    "coach certification",
+    "living on purpose",
+    "entrepreneurial therapist"
+  ],
+  "audience_type": "B2C, coaches",
+  "business_focus": "Helping individuals and coaches achieve personal transformation and live purposefully through assessments, retreats, and certifications.",
+  "service_provided": "life coaching, transformational retreats, Life Inventory Assessment, ICF-accredited coach certification, workshops, speaking",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:16:24.861920"
 }

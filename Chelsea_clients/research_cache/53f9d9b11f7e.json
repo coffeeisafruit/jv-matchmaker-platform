@@ -8,5 +8,18 @@
     "youtube": "https://www.youtube.com/watch?v=7UMzei40gzg"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.amit-malhotra.com/about"
+  "website": "https://www.amit-malhotra.com/about",
+  "_cache_schema_version": 2,
+  "what_you_do": "Amit is a self-taught book designer.",
+  "seeking": "He's available for select freelance design projects, teaching assignments, and other creative collaborations.",
+  "niche": "book design",
+  "tags": [
+    "book design",
+    "freelance",
+    "teaching"
+  ],
+  "business_focus": "Amit is a self-taught book designer who enjoys long walks and dancing.",
+  "service_provided": "book design, freelance design projects, teaching assignments, creative collaborations",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:40:03.999192"
 }

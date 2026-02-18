@@ -7,5 +7,25 @@
     "apple_podcast": "https://podcasts.apple.com/ng/podcast/the-other-80/id1670734016"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.uschamber.com/co/good-company/the-leap/noom-cofounder-interview"
+  "website": "https://www.uschamber.com/co/good-company/the-leap/noom-cofounder-interview",
+  "_cache_schema_version": 2,
+  "what_you_do": "Digital health platform that uses AI, human coaches, and behavioral science-based content developed by psychologists to help users change eating habits and lose weight long-term.",
+  "who_you_serve": "Consumers seeking weight loss and healthy habit formation, including those burned by failed diets.",
+  "social_proof": "$3.7 billion valuation, disrupted the $450 billion U.S. wellness market, book published by Simon & Schuster",
+  "signature_programs": "Noom Weight Loss App, Noom Mood (stress and anxiety management app), The Noom Mindset: Learn the Science, Lose the Weight (book)",
+  "niche": "Digital health",
+  "company": "Noom",
+  "tags": [
+    "weight loss",
+    "behavioral science",
+    "digital health",
+    "wellness",
+    "ai coaching",
+    "habit change"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Leveraging AI, certified coaches, and psychology-based content to deliver a scalable behavioral change platform focused on weight management and overall wellness.",
+  "service_provided": "AI-powered weight loss app, certified health coaching, behavioral science-based content delivery, stress and anxiety management app",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:20:48.101604"
 }

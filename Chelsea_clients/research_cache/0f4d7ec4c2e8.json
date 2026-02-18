@@ -9,5 +9,9 @@
     "apple_podcast": "https://podcasts.apple.com/us/podcast/preparedness-works/id1647597863"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.hci.org/speaker/jeffrey-weiss"
+  "website": "https://www.hci.org/speaker/jeffrey-weiss",
+  "_cache_schema_version": 2,
+  "what_you_do": "Jeffrey Weiss is a speaker for the Human Capital Institute.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:05:39.290013"
 }

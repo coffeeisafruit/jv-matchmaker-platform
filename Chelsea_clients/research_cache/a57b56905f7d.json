@@ -10,5 +10,20 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://www.sophiazoe.com/",
-  "linkedin": "https://ca.linkedin.com/in/sophiazoe"
+  "linkedin": "https://ca.linkedin.com/in/sophiazoe",
+  "_cache_schema_version": 2,
+  "what_you_do": "Sophia Zoe provides energy healing, holistic healing, and energy work services.",
+  "who_you_serve": "People who are ready to feel better, including those seeking to improve physical health, get over trauma, stop self-sabotage and negativity, clarify relationship issues, identify a life path, or feel like a mature, healthy, fearless, whole adult.",
+  "social_proof": "Sophia Zoe has been helping clients since 1994 and has studied a variety of energy healing techniques.",
+  "niche": "energy healing",
+  "tags": [
+    "energy healing",
+    "holistic healing",
+    "trauma clearing"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing energy healing and holistic healing services to help clients improve their physical, emotional, and mental well-being.",
+  "service_provided": "energy healing, holistic healing, trauma clearing, energy work",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:15:54.492806"
 }

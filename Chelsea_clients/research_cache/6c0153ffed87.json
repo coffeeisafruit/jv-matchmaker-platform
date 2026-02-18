@@ -22,5 +22,25 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://www.evyrgreen.com/"
+  "website": "https://www.evyrgreen.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "LinkedIn training and AI training company that teaches professionals how to leverage LinkedIn to generate leads, referrals, and meaningful conversations with ideal clients.",
+  "who_you_serve": "Consultants, coaches, and sales professionals.",
+  "social_proof": "Over 600 program participants, featured in Forbes, Inc, Fox Business, Business Insider, Mashable, and The Wall Street Journal.",
+  "signature_programs": "Evyrgreen Networking System, Sales Navigator Bootcamp, LinkedIn Accelerator Training, Evyrgreen Prospecting, LinkedIn Training for Teams, AI Masterclass, AI Business Development Circle, 1000 ChatGPT Prompts, Goal Setting Masterclass, evyAI",
+  "niche": "LinkedIn training",
+  "tags": [
+    "linkedin training",
+    "lead generation",
+    "sales training",
+    "ai training",
+    "networking",
+    "business development",
+    "goal setting"
+  ],
+  "audience_type": "B2B, coaches, consultants, sales professionals",
+  "business_focus": "Teaching professionals how to leverage LinkedIn and AI for lead generation, networking, and business development.",
+  "service_provided": "LinkedIn training courses, Sales Navigator bootcamp, LinkedIn accelerator training, corporate team training, AI training, goal setting masterclass, coaching programs",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:35:46.764892"
 }

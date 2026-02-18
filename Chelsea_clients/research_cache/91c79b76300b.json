@@ -9,5 +9,21 @@
     "spotify_podcast": "https://open.spotify.com/show/0Q3uIdk3uu2Tz4ghVUOBCp"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.blueridgeastrology.com/"
+  "website": "https://www.blueridgeastrology.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Provides astrology services focused on timing, cycles, and activation.",
+  "who_you_serve": "People looking for clarity around timing, cycles, and decision-making.",
+  "booking_link": "https://www.blueridgeastrology.com/vibrational-astrology-private-consultation/",
+  "niche": "astrology",
+  "tags": [
+    "astrology",
+    "timing",
+    "cycles",
+    "decision-making"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Provides astrology services focused on timing, cycles, and activation.",
+  "service_provided": "Astrology consultations, astrology reports",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:07:51.467225"
 }

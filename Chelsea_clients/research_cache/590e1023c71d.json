@@ -8,5 +8,24 @@
     "youtube": "https://www.youtube.com/watch?v=UhLV0zO5-Dc"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.antion.com/communications/speechcoaching.htm"
+  "website": "https://www.antion.com/communications/speechcoaching.htm",
+  "_cache_schema_version": 2,
+  "what_you_do": "Executive speech coaching and individual presentation skills training, including video feedback and confidential speech critiques.",
+  "who_you_serve": "CEOs, vice presidents, and top executives who need to elevate their presentation skills.",
+  "social_proof": "Delivered over 2000 presentations; authored a book on presenting; coached executives from organizations including National Center for Nonprofit Boards and Greater Las Vegas Chamber of Commerce.",
+  "signature_programs": "Freeze-Frame Video Feedback training",
+  "niche": "Executive speech coaching",
+  "tags": [
+    "executive coaching",
+    "speech coaching",
+    "presentation skills",
+    "public speaking",
+    "video feedback",
+    "keynote coaching"
+  ],
+  "audience_type": "B2B, executives",
+  "business_focus": "Helping top executives and business leaders improve their presentation and public speaking skills through individualized coaching.",
+  "service_provided": "Individual presentation skills coaching, Freeze-Frame Video Feedback training, post-training support via phone/fax/email, confidential presentation critiques, custom written speech critiques",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:30:01.624158"
 }

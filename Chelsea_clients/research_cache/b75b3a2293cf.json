@@ -10,5 +10,19 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://www.austinbusinesswoman.com/donna-fore",
-  "linkedin": "https://www.linkedin.com/in/donna-fore-3a607b6"
+  "linkedin": "https://www.linkedin.com/in/donna-fore-3a607b6",
+  "_cache_schema_version": 2,
+  "what_you_do": "Donna Fore is currently a business owner and Advisor with Mutual of Omaha in Central Texas.",
+  "social_proof": "Retired military officer having served her country for over 30 years in the United States Air Force. She served at The Pentagon and is a survivor of the terrorist attacks conducted on September 11th, 2001.",
+  "niche": "insurance services",
+  "phone": "4346651434",
+  "tags": [
+    "insurance",
+    "military veteran",
+    "9-11 survivor"
+  ],
+  "business_focus": "Donna Fore is a retired military officer who now owns an insurance services business with Mutual of Omaha in Central Texas.",
+  "service_provided": "insurance services",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:00:46.928747"
 }

@@ -8,5 +8,21 @@
     "spotify_podcast": "https://open.spotify.com/track/3VGeIB9q7RdL0jZIUrSq7X"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.awaveoflight.com/about"
+  "website": "https://www.awaveoflight.com/about",
+  "_cache_schema_version": 2,
+  "what_you_do": "I have undertaken training in healing touch modalities, embodied and relational methods, western and folk herbalism, meditation and energetic medicine.",
+  "who_you_serve": "I center deeply rooted* people and highly sensitives in my work.",
+  "niche": "healing, embodied methods, herbalism, meditation, energetic medicine",
+  "tags": [
+    "healing",
+    "embodied methods",
+    "herbalism",
+    "meditation",
+    "energetic medicine"
+  ],
+  "audience_type": "deeply rooted people, highly sensitives",
+  "business_focus": "Providing healing services through various modalities.",
+  "service_provided": "healing touch modalities, embodied and relational methods, western and folk herbalism, meditation, energetic medicine",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:02:43.393505"
 }

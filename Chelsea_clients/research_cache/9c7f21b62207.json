@@ -11,5 +11,21 @@
     "youtube": "https://www.youtube.com/watch?v=epCjOTW4QPw"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://artichokepress.com/"
+  "website": "https://artichokepress.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Through Artichoke Press LLC., Judy Helm Wright \u2013 Author/Historian/IntuitiveWiseWoman has created and curated hundreds of resources for people all of ages: books, online courses, audio recordings, publishing resources, coaching, and access to Judy for speaking and workshops.",
+  "who_you_serve": "people all of ages",
+  "social_proof": "As seen in various publications and media outlets",
+  "niche": "publishing, coaching, speaking",
+  "tags": [
+    "author",
+    "historian",
+    "intuitive",
+    "wise woman"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Teaching responsibility, respect, and resiliency through various resources and services",
+  "service_provided": "books, online courses, audio recordings, publishing resources, coaching, speaking",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:37:26.788804"
 }

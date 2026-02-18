@@ -9,5 +9,23 @@
     "tiktok": "https://www.tiktok.com/@bbc/video/7582980042725149974"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://claudiavolkman.com/about/"
+  "website": "https://claudiavolkman.com/about/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I created my company, Creative Editorial Solutions, to support coaches, speakers, and entrepreneurs to help them amplify their voices and elevate their message.",
+  "who_you_serve": "coaches, speakers, and entrepreneurs",
+  "offering": "I can assist you at any stage, too. If you have just a nugget of a book concept or a finished manuscript, I'm proficient in executing all aspects of the publishing process. I'm highly skilled in developmental editing, copyediting, proofreading, copywriting, ghostwriting, layout and design/ typesetting and contract negotiations.",
+  "social_proof": "I've helped publish hundreds of titles in the U.S. and abroad, including being part of a team that produced _Inside the Passion: An Insider's Look at The Passion of The Christ_ by John Bartunek, LC, with a Foreword by Mel Gibson, and _Superman Returns_ , an oversized illustrated custom coffee table book.",
+  "booking_link": "https://tidycal.com/cvolkman/15-minute-meeting",
+  "niche": "book publishing",
+  "tags": [
+    "book publishing",
+    "editing",
+    "ghostwriting",
+    "copywriting"
+  ],
+  "audience_type": "coaches, speakers, entrepreneurs",
+  "business_focus": "To help coaches, speakers, and entrepreneurs amplify their voices and elevate their message through book publishing.",
+  "service_provided": "developmental editing, copyediting, proofreading, copywriting, ghostwriting, layout and design, typesetting, contract negotiations",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:14:41.009701"
 }

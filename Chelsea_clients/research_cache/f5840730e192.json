@@ -10,5 +10,21 @@
   },
   "audience_engagement_score": 0.65,
   "website": "https://gregyuenmd.com/",
-  "linkedin": "https://www.linkedin.com/in/greg-yuen-29423120"
+  "linkedin": "https://www.linkedin.com/in/greg-yuen-29423120",
+  "_cache_schema_version": 2,
+  "what_you_do": "Dr. Greg Yuen provides psychiatry services and teaches Taichi.",
+  "who_you_serve": "Patients interested in a Buddhist or alternative medical approach.",
+  "signature_programs": "Taichi, Do-in: Mindful Self-Massage",
+  "niche": "psychiatry, taichi",
+  "phone": "(808)2847955",
+  "tags": [
+    "psychiatry",
+    "taichi",
+    "alternative medicine"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing psychiatric services and teaching Taichi.",
+  "service_provided": "Psychiatry, Taichi classes",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:59:58.666082"
 }

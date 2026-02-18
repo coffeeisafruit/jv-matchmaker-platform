@@ -17,5 +17,21 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://answeryes.com.au/about-our-team/"
+  "website": "https://answeryes.com.au/about-our-team/",
+  "_cache_schema_version": 2,
+  "what_you_do": "The Answer Is Yes Pty Ltd provides corporate training solutions to help businesses adapt and succeed in the fast-paced digital age.",
+  "who_you_serve": "Businesses of all sizes",
+  "social_proof": "Some trainers are #1 Best Sellers and others on the global gurus list.",
+  "niche": "corporate training",
+  "phone": "07 3180 4422",
+  "tags": [
+    "business training",
+    "corporate learning",
+    "workforce development"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Revolutionizing corporate training to be more agile, bespoke, and value-driven.",
+  "service_provided": "corporate training, leadership development, people and culture capability, organizational capability, cyber capability",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:09:08.872821"
 }

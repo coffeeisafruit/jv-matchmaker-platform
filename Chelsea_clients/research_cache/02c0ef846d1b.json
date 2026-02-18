@@ -15,5 +15,21 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://diversitymortgage.ca/pages/about"
+  "website": "https://diversitymortgage.ca/pages/about",
+  "_cache_schema_version": 2,
+  "what_you_do": "Diversity Mortgage & Financial Corporation conducts business in the following areas: pre-approvals, mortgages, refinances, reverse mortgages for residential & commercial properties in Calgary, around Alberta and across Canada.",
+  "who_you_serve": "Women of diverse backgrounds, who participate more actively in their financial wellbeing and asset development.",
+  "offering": "Diversity Mortgage & Financial Corporation supports Mortgage Associates/Mortgage Brokers in determining their life-work balance through part-time or full-time mortgage business and life-long learning through professional development.",
+  "niche": "mortgage, financial services",
+  "phone": "403-536-4085",
+  "tags": [
+    "mortgage",
+    "financial services",
+    "diversity"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Diversity Mortgage & Financial Corporation is a company that recognizes the financial landscape is changing and is committed to service excellence to support women both as Mortgage Associates and as Customers to build their financial futures.",
+  "service_provided": "pre-approvals, mortgages, refinances, reverse mortgages",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:35:24.946980"
 }

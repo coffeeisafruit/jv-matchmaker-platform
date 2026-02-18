@@ -6,5 +6,16 @@
   "what_you_do": "World's largest mental health and behavioral science destination online Offers: Therapist directory, Coaching therapist directory, Mental health content/articles",
   "offering": "Therapist directory, Coaching therapist directory, Mental health content/articles",
   "business_focus": "World's largest mental health and behavioral science destination online Offers: Therapist directory, Coaching therapist directory, Mental health content/articles",
-  "audience_type": "General public seeking mental health information and therapy connections"
+  "audience_type": "General public seeking mental health information and therapy connections",
+  "_cache_schema_version": 2,
+  "niche": "mental health, psychology, personal growth",
+  "tags": [
+    "mental health",
+    "psychology",
+    "personal growth"
+  ],
+  "service_provided": "Information, resources, self-assessments, articles",
+  "website": "http://www.psychologytoday.com",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:18:18.972201"
 }

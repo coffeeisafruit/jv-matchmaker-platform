@@ -17,5 +17,16 @@
     }
   ],
   "audience_engagement_score": 0.65,
-  "website": "https://lemonadelegend.com/author/captainmichelle/"
+  "website": "https://lemonadelegend.com/author/captainmichelle/",
+  "_cache_schema_version": 2,
+  "social_proof": "bestselling author",
+  "signature_programs": "\"Hope Follows\", a book that explores the transformative power of hope in the wake of",
+  "niche": "hope, inspiration",
+  "tags": [
+    "author",
+    "podcast",
+    "publishing"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:40:33.740784"
 }

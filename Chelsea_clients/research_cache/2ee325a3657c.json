@@ -3,5 +3,22 @@
   "company": "Joyful Healing Center",
   "list_size": 967,
   "offering": "Business Coachi",
-  "website": "https://www.joyfulhealingcenter.com/"
+  "website": "https://www.joyfulhealingcenter.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Joy Caffrey provides transformational leadership coaching to empower growth-focused CEOs to break free from the past, gain clarity, and achieve excellence in both personal and professional life.",
+  "who_you_serve": "Growth-focused CEOs",
+  "signature_programs": "Transformational Leadership Coaching",
+  "booking_link": "https://calendly.com/myjoymatters/coaching",
+  "niche": "leadership coaching",
+  "tags": [
+    "leadership",
+    "coaching",
+    "personal development",
+    "professional development"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Transformational leadership coaching for growth-focused CEOs",
+  "service_provided": "Leadership coaching, energy assessment and coaching, workshops",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:48:31.228765"
 }

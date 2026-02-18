@@ -22,5 +22,21 @@
   ],
   "audience_engagement_score": 0.55,
   "website": "https://mycatapult.com.au/",
-  "linkedin": "https://au.linkedin.com/in/leadership-training-sydney"
+  "linkedin": "https://au.linkedin.com/in/leadership-training-sydney",
+  "_cache_schema_version": 2,
+  "what_you_do": "Catapult empowers businesses to grow and flourish.",
+  "who_you_serve": "Businesses at various stages of growth.",
+  "seeking": "Catapult partners with industry leaders to build strong relationships with businesses in their program.",
+  "offering": "Catapult provides world-class support to help businesses grow and succeed.",
+  "niche": "business growth",
+  "tags": [
+    "business growth",
+    "funding",
+    "partnerships"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Catapult helps businesses grow and develop to their fullest potential.",
+  "service_provided": "Business growth, funding, partnerships",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:04:04.577147"
 }

@@ -11,5 +11,14 @@
   },
   "audience_engagement_score": 0.65,
   "website": "https://medium.com/@shannaqviwork/about",
-  "linkedin": "https://pk.linkedin.com/in/shan-naqvi"
+  "linkedin": "https://pk.linkedin.com/in/shan-naqvi",
+  "_cache_schema_version": 2,
+  "what_you_do": "Shan Naqvi is an entrepreneur who has studied English, computer science, and online business marketing since middle school.",
+  "tags": [
+    "entrepreneur",
+    "computer science",
+    "online business marketing"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:04:36.774624"
 }

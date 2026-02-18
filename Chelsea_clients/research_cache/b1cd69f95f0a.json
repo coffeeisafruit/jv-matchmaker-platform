@@ -17,5 +17,21 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://howardwhiteson.com/home"
+  "website": "https://howardwhiteson.com/home",
+  "_cache_schema_version": 2,
+  "what_you_do": "I work at the intersection of expression and commercial clarity.",
+  "who_you_serve": "For experienced professionals whose work is strong, but whose business is quietly stalling.",
+  "signature_programs": "The 7-Day Clarity Sequence",
+  "niche": "business clarity",
+  "tags": [
+    "business clarity",
+    "commercial clarity",
+    "expression",
+    "momentum",
+    "decision making"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping experienced professionals whose work is strong but whose business is stalling to gain clarity and translate their expertise into commercial success.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:23:46.431402"
 }

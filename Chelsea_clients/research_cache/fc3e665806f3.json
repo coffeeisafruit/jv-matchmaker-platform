@@ -17,5 +17,19 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://bio.site/maginelgalt"
+  "website": "https://bio.site/maginelgalt",
+  "_cache_schema_version": 2,
+  "what_you_do": "I am a soul coach and spiritual midwife for divorced women 45+ post divorce ready to move from self-doubt to self-confidence",
+  "who_you_serve": "divorced women 45+ post divorce ready to move from self-doubt to self-confidence",
+  "niche": "divorced women, spiritual coaching",
+  "tags": [
+    "soul coach",
+    "spiritual midwife",
+    "divorced women"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing spiritual coaching and support for divorced women 45+ to move from self-doubt to self-confidence",
+  "service_provided": "spiritual coaching, soul coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:04:35.307688"
 }

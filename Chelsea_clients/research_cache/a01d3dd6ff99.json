@@ -22,5 +22,18 @@
     }
   ],
   "website": "https://finance.yahoo.com/news/transcendent-wealth-architects-unveils-personalized-210400739.html",
-  "linkedin": "https://www.linkedin.com/in/caseywealtharchitect"
+  "linkedin": "https://www.linkedin.com/in/caseywealtharchitect",
+  "_cache_schema_version": 2,
+  "what_you_do": "Transcendent Wealth Architects is a financial planning and wealth management firm that provides personalized financial solutions.",
+  "who_you_serve": "Transcendent Wealth Architects serves individuals and families seeking comprehensive financial planning and wealth management services.",
+  "niche": "financial planning, wealth management",
+  "tags": [
+    "financial planning",
+    "wealth management"
+  ],
+  "audience_type": "individuals, families",
+  "business_focus": "Transcendent Wealth Architects provides personalized financial solutions to help clients achieve their financial goals.",
+  "service_provided": "financial planning, wealth management",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:06:36.193808"
 }

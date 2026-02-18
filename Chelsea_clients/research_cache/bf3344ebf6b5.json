@@ -10,5 +10,23 @@
     "youtube": "https://www.youtube.com/watch?v=GWA_AU-BHVU"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.simplehealingarts.com/pages/about-us"
+  "website": "https://www.simplehealingarts.com/pages/about-us",
+  "_cache_schema_version": 2,
+  "what_you_do": "Lorraine Scott is a professional Reflexologist, Reiki Master Teacher and owner of Loflex Holistic Services.",
+  "who_you_serve": "Lorraine specializes in providing healing for healers and advocating for busy women to take their own self-healing seriously.",
+  "social_proof": "Lorraine is a member the Reflexology Association of British Columbia and acted as Secretary of the Board for 4 years. As a Reiki Teacher, she is accredited by the Canadian Reiki Association and upholds their high standards of teaching and ethics.",
+  "niche": "holistic healing",
+  "tags": [
+    "reflexology",
+    "reiki",
+    "emotional freedom technique",
+    "crystal healing",
+    "meditation",
+    "sound healing"
+  ],
+  "audience_type": "B2C, healers, busy women",
+  "business_focus": "Lorraine provides holistic healing services and teaches workshops and online courses.",
+  "service_provided": "Reflexology, Reiki, Emotional Freedom Technique, Crystal Healing, Meditation, Sound Healing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:22:28.090966"
 }

@@ -16,5 +16,19 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://www.yo-coach.com/online-health-wellness-platform-nexia-wellness-case-study.html"
+  "website": "https://www.yo-coach.com/online-health-wellness-platform-nexia-wellness-case-study.html",
+  "_cache_schema_version": 2,
+  "what_you_do": "Nexia Wellness is an online health and wellness platform that connects experts with clients.",
+  "who_you_serve": "Nexia Wellness serves clients seeking health and wellness consultations.",
+  "niche": "wellness consultation",
+  "tags": [
+    "health",
+    "wellness",
+    "consultation"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Nexia Wellness is an online platform that provides health and wellness consultations.",
+  "service_provided": "health and wellness consultations",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:36:22.158112"
 }

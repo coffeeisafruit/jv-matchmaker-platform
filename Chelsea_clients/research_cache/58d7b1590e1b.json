@@ -9,5 +9,21 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://tgraycompany.com/",
-  "linkedin": "https://www.linkedin.com/in/tammy-gray-1b83072a"
+  "linkedin": "https://www.linkedin.com/in/tammy-gray-1b83072a",
+  "_cache_schema_version": 2,
+  "what_you_do": "We specialize in transforming business challenges into opportunities for growth and success through tailored solutions.",
+  "who_you_serve": "Business clients",
+  "booking_link": "https://tgraycompany.com/contact/",
+  "niche": "business consulting",
+  "phone": "(907)982-8744",
+  "tags": [
+    "business consulting",
+    "financial analysis",
+    "risk management"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Providing tailored solutions to help clients navigate unique challenges and achieve their business goals.",
+  "service_provided": "Business Consulting, Financial Analysis, Risk Management",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:49:47.649839"
 }

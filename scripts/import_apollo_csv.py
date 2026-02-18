@@ -60,12 +60,19 @@ APOLLO_CSV_MAP = {
     'Website': 'website',
     'Company Website': 'website',
     'website': 'website',
-    # Tier 2 fields
+    # Tier 2 fields — phone (multiple Apollo export formats)
     'Phone': 'phone',
     'Mobile Phone': 'phone',
     'phone': 'phone',
+    'Enriched Mobile Phone': '_phone_mobile',
+    'Enriched Work Direct Phone': '_phone_work',
+    'Enriched Home Phone': '_phone_home',
+    'Enriched Other Phone': '_phone_other',
+    'Enriched Corporate Phone': '_phone_corporate',
+    'Company Phone': '_phone_company',
     'Company': 'company',
     'Organization Name': 'company',
+    'Company Name': 'company',
     'company': 'company',
     'Title': 'service_provided',
     'title': 'service_provided',
@@ -109,6 +116,13 @@ APOLLO_CSV_MAP = {
     'Company Facebook Url': '_org_facebook_url',
     'Founded Year': '_founded_year',
     'founded_year': '_founded_year',
+    'Company Founded Year': '_founded_year',
+    'Company Street': '_company_street',
+    'Company City': '_company_city',
+    'Company Postal Code': '_company_postal_code',
+    'Company State': '_company_state',
+    'Company Country': '_company_country',
+    'Result': '_match_result',
     'Company Short Description': '_org_short_description',
     'Keywords': '_org_keywords',
     'Total Funding': '_total_funding',
@@ -116,7 +130,8 @@ APOLLO_CSV_MAP = {
 }
 
 # Our reference fields (not from Apollo)
-REFERENCE_FIELDS = {'profile_id', 'first_name', 'last_name', 'First Name', 'Last Name'}
+REFERENCE_FIELDS = {'profile_id', 'first_name', 'last_name', 'First Name', 'Last Name',
+                     'has_email', 'has_phone', 'has_linkedin', 'domain'}
 
 
 def parse_apollo_row(row: Dict, column_map: Dict) -> Dict:
@@ -128,6 +143,25 @@ def parse_apollo_row(row: Dict, column_map: Dict) -> Dict:
         value = row.get(csv_col, '').strip()
         if value:
             result[our_field] = value
+
+    # Post-processing: resolve best phone from multiple Apollo phone columns
+    # Priority: mobile > work direct > home > other > corporate > company
+    phone_priority = ['_phone_mobile', '_phone_work', '_phone_home',
+                      '_phone_other', '_phone_corporate', '_phone_company']
+    all_phones = {}
+    for pf in phone_priority:
+        val = result.pop(pf, None)
+        if val:
+            all_phones[pf] = val
+    if not result.get('phone') and all_phones:
+        # Pick first available by priority
+        for pf in phone_priority:
+            if pf in all_phones:
+                result['phone'] = all_phones[pf]
+                break
+    # Store all phones in apollo_data for reference
+    if all_phones:
+        result.setdefault('_all_phones', all_phones)
 
     # Post-processing: employee count → business_size
     emp_count = result.pop('_employee_count', None)

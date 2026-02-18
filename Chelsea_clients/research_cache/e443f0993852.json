@@ -18,5 +18,13 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://iwantabuzz.com/jamarr-john-johnson-from-upmind-media/"
+  "website": "https://iwantabuzz.com/jamarr-john-johnson-from-upmind-media/",
+  "_cache_schema_version": 2,
+  "what_you_do": "UpMind Media is a media company.",
+  "niche": "media",
+  "tags": [
+    "media"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:05:23.078838"
 }

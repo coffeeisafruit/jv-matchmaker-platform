@@ -10,5 +10,16 @@
   },
   "audience_engagement_score": 0.55,
   "website": "https://trinitydigest.tumblr.com/post/732617096269332481/dave-ivery-rising-star-in-the-financial-industry",
-  "linkedin": "https://www.linkedin.com/in/dave-ivery"
+  "linkedin": "https://www.linkedin.com/in/dave-ivery",
+  "_cache_schema_version": 2,
+  "what_you_do": "Dave Ivery is a rising star in the financial industry as an author, speaker, and coach.",
+  "social_proof": "1.5M ratings, 277k ratings",
+  "niche": "financial industry",
+  "tags": [
+    "author",
+    "speaker",
+    "coach"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:09:02.576635"
 }

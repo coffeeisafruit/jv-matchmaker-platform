@@ -7,5 +7,22 @@
     "youtube": "https://www.youtube.com/channel/UCk6fhRZtawaHbfZEZwskv2g"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://mariabelanic.com/"
+  "website": "https://mariabelanic.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Maria Belanic is a certified grief educator, grief coach, and a bereaved mother whose son died. She offers one-on-one grief coaching.",
+  "who_you_serve": "Parents who have lost a child.",
+  "social_proof": "Certified grief educator, grief coach",
+  "booking_link": "https://tidycal.com/mpbelanic/heart2heart",
+  "niche": "child loss, grief coaching",
+  "company": "Maria Belanic",
+  "tags": [
+    "grief",
+    "child loss",
+    "coaching"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing grief support and coaching for parents who have lost a child.",
+  "service_provided": "One-on-one grief coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:28:50.532243"
 }

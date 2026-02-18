@@ -5,5 +5,22 @@
   "content_platforms": {
     "linkedin": "https://www.linkedin.com/posts/evert-c-terweij_ofi-maintenance-oilsandfats-activity-6976479414784028673-g9Lj"
   },
-  "website": "https://linqur.com/en/profile/joris-even"
+  "website": "https://linqur.com/en/profile/joris-even",
+  "_cache_schema_version": 2,
+  "what_you_do": "Linqur provides plug and play LTI solutions to integrate e-learning content into any Learning Management System (LMS).",
+  "who_you_serve": "Linqur serves corporate clients, training companies, and LMS providers.",
+  "booking_link": "https://linqur.com/en/plan-a-demo",
+  "niche": "e-learning integration",
+  "phone": "+31 851308108",
+  "tags": [
+    "lti",
+    "scorm",
+    "lms integration",
+    "e-learning"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Linqur provides plug and play LTI solutions to integrate e-learning content into any Learning Management System (LMS).",
+  "service_provided": "LTI Provider Service, SCORM Proxy, LTI Converter, Magic Link Login, Linqur API",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:06:32.233791"
 }

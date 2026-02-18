@@ -17,5 +17,9 @@
     "arts"
   ],
   "business_focus": "Ayn Rand Institute Live features a wide range of topics recorded at live events, focusing on Ayn Rand's philosophy, Objectivism, and providing insights into complex issues such as freedom of speech and cultural topics.",
-  "audience_type": "B2C"
+  "audience_type": "B2C",
+  "_cache_schema_version": 2,
+  "signature_programs": "The podcast features presentations by Ayn Rand Institute scholars and experts on topics related to Objectivism.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:11:14.405063"
 }

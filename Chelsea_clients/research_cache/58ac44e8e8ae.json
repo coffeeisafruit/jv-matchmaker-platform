@@ -8,5 +8,21 @@
     "youtube": "https://www.youtube.com/watch?v=eR3ARVWlxv4"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://chalifourconsulting.com/united-states-top-business-coaches/"
+  "website": "https://chalifourconsulting.com/united-states-top-business-coaches/",
+  "_cache_schema_version": 2,
+  "what_you_do": "The Chalifour Consulting Group focuses on strategic implementation and growth, working alongside clients to put changes into action across finance, operations, people, and marketing.",
+  "social_proof": "The Chalifour Consulting Group has helped over 100 companies achieve more than $7 billion in sales each year, making them one of the most influential business coaches in the world.",
+  "niche": "business coaching",
+  "tags": [
+    "business consulting",
+    "strategic implementation",
+    "growth",
+    "finance",
+    "operations",
+    "marketing"
+  ],
+  "business_focus": "The Chalifour Consulting Group is a hands-on business coaching firm that bridges the gap between advice and action.",
+  "service_provided": "business consulting, strategic implementation, growth, finance, operations, marketing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:31:15.427866"
 }

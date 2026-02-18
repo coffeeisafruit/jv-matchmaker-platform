@@ -7,5 +7,23 @@
     "spotify_podcast": "https://open.spotify.com/episode/4S5PCWhEcbzl1cNb2HWdq8"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://growyourownvegetables.org/author/denise-beinsgmail-com/"
+  "website": "https://growyourownvegetables.org/author/denise-beinsgmail-com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Provides gardening education through online courses, blog content, and a membership community to help people grow their own vegetables.",
+  "who_you_serve": "Home gardeners looking to grow their own vegetables, from beginners to experienced growers.",
+  "signature_programs": "Harvest Club (online garden membership program), Container Growing Medium eGuide",
+  "niche": "Vegetable gardening education",
+  "tags": [
+    "vegetable gardening",
+    "container gardening",
+    "cover crops",
+    "garden journaling",
+    "online courses",
+    "gardening education"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Online gardening education platform offering courses, membership community, and free resources to help people grow their own vegetables.",
+  "service_provided": "Online gardening courses, Harvest Club membership program, blog content, eGuides, virtual Garden Jam sessions, personal garden email support",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:35:45.846130"
 }

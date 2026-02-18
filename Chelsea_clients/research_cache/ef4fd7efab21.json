@@ -6,5 +6,9 @@
     "youtube": "https://www.youtube.com/watch?v=pbtvs50_tUg"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://maria-antonietta.com/"
+  "website": "https://maria-antonietta.com/",
+  "_cache_schema_version": 2,
+  "company": "MARIA-ANTONIETTA.COM",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:15:58.656265"
 }

@@ -16,5 +16,28 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://www.hillary.black/about"
+  "website": "https://www.hillary.black/about",
+  "_cache_schema_version": 2,
+  "what_you_do": "I started my first blog in 7th grade and never looked back. Since then, I've had a long career blogging for brands and various publications, and an even longer career in social media for brands like Vine and University of Michigan. When Vine shut down in 2016, I began my journey as an entrepreneur, turned conversation design expert, speaker, educator, community host, mentor, strategic advisor and content creator.",
+  "who_you_serve": "I'm currently based in Las Vegas.",
+  "social_proof": "I also started cultivating a community that has now grown to nearly 3000 members. It's called Conversation Designers Internet Club.",
+  "signature_programs": "In 2021 I launched a candidate-matching job board specifically for conversation designers, ConversationDesignerJobs.com, the first of its kind with the largest network of vetted conversation design talent in the world!",
+  "booking_link": "https://www.hillary.black/coaching",
+  "niche": "conversation design",
+  "tags": [
+    "blogging",
+    "social media",
+    "entrepreneur",
+    "conversation design",
+    "speaker",
+    "educator",
+    "community host",
+    "mentor",
+    "strategic advisor",
+    "content creator"
+  ],
+  "business_focus": "I started my first blog in 7th grade and never looked back. Since then, I've had a long career blogging for brands and various publications, and an even longer career in social media for brands like Vine and University of Michigan.",
+  "service_provided": "blogging, social media, conversation design, speaking, education, community hosting, mentoring, strategic advising, content creation",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:39:11.516232"
 }

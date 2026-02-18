@@ -18,5 +18,14 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://bookscouter.com/author/kopecko-ted"
+  "website": "https://bookscouter.com/author/kopecko-ted",
+  "_cache_schema_version": 2,
+  "signature_programs": "Finding JOY: The Journey of You: Finding Your Purpose, Value, & Freedom",
+  "niche": "books",
+  "tags": [
+    "books",
+    "publishing"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:10:32.211488"
 }

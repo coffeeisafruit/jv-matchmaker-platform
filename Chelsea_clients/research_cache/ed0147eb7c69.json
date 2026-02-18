@@ -16,5 +16,19 @@
       "source_url": "https://www.youtube.com/watch?v=fiS0Q7f5SEM"
     }
   ],
-  "audience_engagement_score": 0.6000000000000001
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2,
+  "what_you_do": "ACE Podcast Nation is a media network, this channel features originally created shows, content, and footage of live events and other projects they are involved in.",
+  "who_you_serve": "The channel serves a general audience interested in the content and projects of ACE Podcast Nation.",
+  "social_proof": "6.32K subscribers, 1K videos",
+  "niche": "media, podcasts",
+  "tags": [
+    "media",
+    "podcasts"
+  ],
+  "audience_type": "general",
+  "business_focus": "Media network producing original shows, content, and footage.",
+  "service_provided": "media production, podcasting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T03:13:12.701133"
 }

@@ -10,5 +10,22 @@
   },
   "audience_engagement_score": 0.55,
   "website": "https://www.donesmith.com/",
-  "linkedin": "https://www.linkedin.com/in/donesmith"
+  "linkedin": "https://www.linkedin.com/in/donesmith",
+  "_cache_schema_version": 2,
+  "what_you_do": "Don E. Smith is a communication expert who helps leaders, experts, and change-makers strengthen their communication skills and impact.",
+  "who_you_serve": "Leaders, experts, and change-makers",
+  "signature_programs": "Communecology\u2122, Speaking with Intention Framework",
+  "booking_link": "https://calendly.com/thespeechtamer_coaching/strategize",
+  "niche": "communication, leadership, public speaking",
+  "phone": "2032327668",
+  "tags": [
+    "communication",
+    "leadership",
+    "public speaking"
+  ],
+  "audience_type": "B2B, coaches",
+  "business_focus": "Helping leaders, experts, and change-makers improve their communication skills and impact.",
+  "service_provided": "Communication coaching, training, speaking, licensing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:32:48.742317"
 }

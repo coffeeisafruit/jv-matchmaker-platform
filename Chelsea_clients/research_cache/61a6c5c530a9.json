@@ -16,5 +16,23 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://about.me/joycewhitenelson"
+  "website": "https://about.me/joycewhitenelson",
+  "_cache_schema_version": 2,
+  "what_you_do": "I help leaders and organizations build stronger professional relationships that drive trust, clarity, and sustainable growth.",
+  "who_you_serve": "Leaders and organizations",
+  "seeking": "Connections with leaders, collaborators, and curious thinkers who care about people-first growth.",
+  "offering": "My expertise spans educational leadership and I welcome connections to start a conversation.",
+  "signature_programs": "JoyceVentures \u2014 Purpose-Driven Leadership, iQuoteHero \u2014 Ethical, Human-Centered AI",
+  "booking_link": "http://www.calendly.com/joyceventures",
+  "niche": "business innovation, leadership",
+  "tags": [
+    "business innovation",
+    "leadership",
+    "consulting"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping leaders and organizations build stronger professional relationships that drive trust, clarity, and sustainable growth.",
+  "service_provided": "Business innovation strategy, leadership consulting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:25:44.799107"
 }

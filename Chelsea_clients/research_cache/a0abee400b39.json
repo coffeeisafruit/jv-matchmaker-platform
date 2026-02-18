@@ -6,5 +6,17 @@
     "facebook": "https://www.facebook.com/MessageJanetSmith/"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "http://www.google.com/url?esrc=s&q=&rct=j&sa=U&url=http%3A%2F%2Fgraciousleadershipbook.com%2Fabout-janet%2F&usg=AOvVaw3mlZiFrN6psB8wcxkoe6y_&ved=2ahUKEwjOvtHKuNySAxXBKVkFHZlFDxEQFnoECAwQAg"
+  "website": "http://www.google.com/url?esrc=s&q=&rct=j&sa=U&url=http%3A%2F%2Fgraciousleadershipbook.com%2Fabout-janet%2F&usg=AOvVaw3mlZiFrN6psB8wcxkoe6y_&ved=2ahUKEwjOvtHKuNySAxXBKVkFHZlFDxEQFnoECAwQAg",
+  "_cache_schema_version": 2,
+  "what_you_do": "Janet Smith is the author of the book 'Gracious Leadership'.",
+  "signature_programs": "Gracious Leadership book",
+  "niche": "leadership",
+  "tags": [
+    "leadership",
+    "author",
+    "book"
+  ],
+  "business_focus": "Janet Smith's primary business focus is writing and publishing the book 'Gracious Leadership'.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:58:46.536708"
 }

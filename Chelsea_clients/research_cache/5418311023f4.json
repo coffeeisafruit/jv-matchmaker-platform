@@ -7,5 +7,21 @@
     "linkedin": "https://www.linkedin.com/posts/tania-gomez-5441bb80_i-paid-18k-paid-to-an-consultant-and-receieved-activity-7271832102180929536-q8u0"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://not-the-norm.com/pages/our-story"
+  "website": "https://not-the-norm.com/pages/our-story",
+  "_cache_schema_version": 2,
+  "what_you_do": "Not the Norm Natural Alternatives is a company that offers a range of natural health and wellness products, including supplements, skincare, and pet products.",
+  "who_you_serve": "The company serves customers interested in natural and alternative health solutions.",
+  "social_proof": "The company has been in business for over 25 years and has a track record of providing effective natural products.",
+  "niche": "natural health",
+  "tags": [
+    "natural health",
+    "supplements",
+    "skincare",
+    "pet products"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing natural health and wellness products to customers.",
+  "service_provided": "Supplements, skincare, pet products",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:17:17.863913"
 }

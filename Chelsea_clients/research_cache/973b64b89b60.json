@@ -28,5 +28,21 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://paradigm360consulting.com/"
+  "website": "https://paradigm360consulting.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Paradigm 360\u00b0 provides leadership development, strategic visioning and facilitation, organizational development, and change management services.",
+  "who_you_serve": "Paradigm 360\u00b0 serves businesses, organizations, and teams.",
+  "signature_programs": "LPI Self Empowered, The Leadership Challenge, Everything DiSC, The Five Behaviors, 6 Team Conditions, Strategic Visioning, Team Performance Model",
+  "niche": "leadership development, strategic visioning, organizational development",
+  "tags": [
+    "leadership development",
+    "strategic visioning",
+    "organizational development",
+    "change management"
+  ],
+  "audience_type": "businesses, organizations, teams",
+  "business_focus": "Paradigm 360\u00b0 provides consulting and training services to help organizations and teams develop world-class relationships, teams, and leaders.",
+  "service_provided": "leadership development, strategic visioning and facilitation, organizational development, change management",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:23:19.758201"
 }

@@ -9,5 +9,18 @@
   },
   "audience_engagement_score": 0.45,
   "website": "https://xperience.consulting/?p=3890",
-  "linkedin": "https://ca.linkedin.com/in/nickkellet"
+  "linkedin": "https://ca.linkedin.com/in/nickkellet",
+  "_cache_schema_version": 2,
+  "what_you_do": "Xperience Consulting is a high-end consulting service offering an array of Marketing Strategy and Product Management Consulting Services.",
+  "niche": "marketing strategy, product management",
+  "tags": [
+    "marketing strategy",
+    "product management",
+    "consulting"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Xperience Consulting is a high-end consulting service offering an array of Marketing Strategy and Product Management Consulting Services.",
+  "service_provided": "marketing strategy, product management consulting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:38:25.127861"
 }

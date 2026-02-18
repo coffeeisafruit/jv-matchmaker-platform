@@ -9,5 +9,19 @@
     "apple_podcast": "https://podcasts.apple.com/sa/podcast/the-expert-authority-coach-podcast/id1073309606?l=ar"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://christinerothdeutsch.com/blog"
+  "website": "https://christinerothdeutsch.com/blog",
+  "_cache_schema_version": 2,
+  "what_you_do": "Christine Rothdeutsch is a business productivity and profitability expert who helps entrepreneurs streamline their operations and boost their bottom line.",
+  "who_you_serve": "Entrepreneurs and small business owners",
+  "niche": "business productivity, profitability",
+  "tags": [
+    "business productivity",
+    "profitability",
+    "entrepreneurship"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping entrepreneurs streamline their operations and increase profitability.",
+  "service_provided": "Business coaching, productivity consulting, operational efficiency",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:30:47.576530"
 }

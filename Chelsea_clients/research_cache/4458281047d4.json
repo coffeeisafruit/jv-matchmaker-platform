@@ -30,5 +30,27 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.janelanderson.com/training"
+  "website": "https://www.janelanderson.com/training",
+  "_cache_schema_version": 2,
+  "what_you_do": "Dr. Janel Anderson creates fun, dynamic training sessions in communication, leadership, and collaboration for adult audiences, both online and in person.",
+  "who_you_serve": "Organizations and teams seeking training in communication, leadership, team building, and virtual/hybrid work skills.",
+  "social_proof": "Ph.D. (referred to as Dr. Anderson), over a dozen years developing training courses.",
+  "signature_programs": "Mastering Difficult Conversations, Effective Workplace Communication, Communicating Strategically, Active Listening: Hear What You've Been Missing, Communicating with Difficult People, Better Communication Better Teams, Leading Thriving Virtual and Hybrid Teams, Leadership Communication Skills, Coaching Skills for Managers, Growing Your Power and Influence, Key Skills for Emerging Leaders, Leadership for Board Members, Growth Mindset: Maximize Your Potential, Navigating Change in a Whole New Way, The Art and Science of Self Coaching, Leading Effective Virtual and Hybrid Meetings, Team Building for Virtual and Hybrid Teams, Maximizing Performance while Leading Remotely, Thriving as a Hybrid or Virtual Team Member, Fewer Meetings Faster Momentum",
+  "booking_link": "https://www.janelanderson.com/contact",
+  "niche": "Leadership communication training",
+  "phone": "612-327-8026",
+  "tags": [
+    "communication",
+    "leadership",
+    "team building",
+    "virtual teams",
+    "hybrid work",
+    "difficult conversations",
+    "coaching"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Providing dynamic training programs in communication, leadership, and collaboration for organizations and teams.",
+  "service_provided": "Communication training, leadership training, team building training, virtual and hybrid meeting training, custom training program development, consulting, speaking",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:31:44.280086"
 }

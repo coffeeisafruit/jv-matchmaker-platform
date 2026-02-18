@@ -10,5 +10,20 @@
     "spotify_podcast": "https://open.spotify.com/track/0nLR9kuLGXlpcPORyok2Hj"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://www.vernaruffin.com/"
+  "website": "https://www.vernaruffin.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Verna Ruffin provides education consulting and executive coaching services.",
+  "who_you_serve": "Educational and executive leaders.",
+  "social_proof": "Over four decades in education, successfully guided schools, districts, and entire systems through their most challenging situations.",
+  "niche": "education consulting, executive coaching",
+  "tags": [
+    "education",
+    "consulting",
+    "executive coaching"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping educational and executive leaders navigate rapid changes and balance conflicting goals.",
+  "service_provided": "Coaching, Advising, Small Workshops",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:55:51.281233"
 }

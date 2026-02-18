@@ -10,5 +10,19 @@
     "youtube": "https://www.youtube.com/watch?v=4gPsKJrBGFo"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://www.johannedodon.com/"
+  "website": "https://www.johannedodon.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Johanne is a natural-born healer with a passion for innovation and human transformation. She is on a mission to promote Life Force science in an effort to progress the potential of living organisms and non-living materials for the betterment of humanity.",
+  "niche": "life force science",
+  "phone": "+1 (613)-880-3120",
+  "company": "Johanne Dodon",
+  "tags": [
+    "natural-born healer",
+    "life force science",
+    "innovation",
+    "human transformation"
+  ],
+  "business_focus": "Promoting Life Force science to progress the potential of living organisms and non-living materials for the betterment of humanity.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:23:36.121087"
 }

@@ -10,5 +10,20 @@
     "spotify_podcast": "https://open.spotify.com/track/4zCLR5r3noDIhjHID9jVb0"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://merriborn.co.uk/the-merri-cast-karl-pontau-on-the-power-of-networks-human-connection-and-resilience/"
+  "website": "https://merriborn.co.uk/the-merri-cast-karl-pontau-on-the-power-of-networks-human-connection-and-resilience/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Karl Pontau's primary business is helping people communicate ideas through compelling visual stories.",
+  "who_you_serve": "Karl Pontau serves entrepreneurs and business professionals who want to improve their communication and storytelling skills.",
+  "signature_programs": "The Human Connection Podcast",
+  "niche": "visual storytelling, communication",
+  "tags": [
+    "visual storytelling",
+    "communication",
+    "human connection",
+    "podcasting"
+  ],
+  "audience_type": "entrepreneurs, business professionals",
+  "business_focus": "Helping people communicate ideas through compelling visual stories.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:17:17.477649"
 }

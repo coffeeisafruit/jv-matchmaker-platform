@@ -17,5 +17,8 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.kryspappius.com/"
+  "website": "https://www.kryspappius.com/",
+  "_cache_schema_version": 2,
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:54:06.676416"
 }

@@ -8,5 +8,20 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://experiorfinancial.com/trevor-baker-promoted-to-executive-director/",
-  "linkedin": "https://ca.linkedin.com/in/financemylife"
+  "linkedin": "https://ca.linkedin.com/in/financemylife",
+  "_cache_schema_version": 2,
+  "what_you_do": "Experior Financial Group Inc. is a financial services company that provides insurance and investment products.",
+  "who_you_serve": "Experior Financial Group serves individuals and families in Canada and the USA.",
+  "niche": "financial services",
+  "phone": "1-888-909-0696",
+  "tags": [
+    "insurance",
+    "investments",
+    "financial planning"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Experior Financial Group provides insurance and investment products to help individuals and families achieve their financial goals.",
+  "service_provided": "insurance, investments, retirement planning, life insurance, travel insurance, health insurance, funeral insurance",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:41:00.252642"
 }

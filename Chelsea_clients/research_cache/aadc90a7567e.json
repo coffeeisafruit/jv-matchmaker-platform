@@ -7,5 +7,22 @@
     "facebook": "https://creators.facebook.com/"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://gwentanner.com/"
+  "website": "https://gwentanner.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Helping experienced professionals create their own transformative programs and courses.",
+  "who_you_serve": "Professionals with knowledge to share.",
+  "offering": "One-on-one help for program creators, including a custom plan to help them move forward based on where they are on their program creation journey.",
+  "booking_link": "https://gwentanner.com/work-together/",
+  "niche": "course creation",
+  "tags": [
+    "course creation",
+    "program creation",
+    "online courses",
+    "digital products"
+  ],
+  "audience_type": "B2B, coaches",
+  "business_focus": "Helping experienced professionals create their own transformative programs and courses.",
+  "service_provided": "One-on-one coaching, program creation, course creation",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:06:31.668707"
 }

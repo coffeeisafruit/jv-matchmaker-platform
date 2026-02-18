@@ -10,5 +10,24 @@
   },
   "audience_engagement_score": 0.65,
   "website": "https://jamesclear.com/",
-  "linkedin": "https://www.linkedin.com/in/jamesclear"
+  "linkedin": "https://www.linkedin.com/in/jamesclear",
+  "_cache_schema_version": 2,
+  "what_you_do": "Author and speaker focused on habits, decision-making, and continuous improvement.",
+  "who_you_serve": "Individuals seeking to build good habits and break bad ones.",
+  "social_proof": "#1 New York Times bestselling author; Atomic Habits has sold more than 25 million copies worldwide; featured in Time magazine, the New York Times, the Wall Street Journal, and on CBS This Morning.",
+  "signature_programs": "Atomic Habits (book), Atoms (official Atomic Habits app), 30 Days to Better Habits (free email course), 3-2-1 Newsletter, MasterClass, Habit Journal",
+  "niche": "Habits & self-improvement",
+  "tags": [
+    "habits",
+    "self-improvement",
+    "behavior change",
+    "productivity",
+    "personal development",
+    "bestselling author"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Teaching individuals how to build good habits and achieve continuous improvement through books, courses, and speaking.",
+  "service_provided": "Books, mobile app, free email course, newsletter, speaking engagements, MasterClass, habit journal",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:23:42.953324"
 }

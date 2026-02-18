@@ -18,5 +18,19 @@
   ],
   "audience_engagement_score": 0.4,
   "website": "https://thewalkeradvisor.com/about-us/",
-  "linkedin": "https://www.linkedin.com/in/james-walker-5ba922153"
+  "linkedin": "https://www.linkedin.com/in/james-walker-5ba922153",
+  "_cache_schema_version": 2,
+  "what_you_do": "The Walker Advisor provides detailed, unbiased reviews and practical guidance to help seniors and their families make informed decisions about mobility aids.",
+  "who_you_serve": "Seniors and their families",
+  "niche": "mobility aids",
+  "tags": [
+    "walkers",
+    "rollators",
+    "mobility solutions"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Improving quality of life for seniors through reliable, practical mobility solutions.",
+  "service_provided": "product reviews, buying guides, mobility aid recommendations",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:57:15.672077"
 }

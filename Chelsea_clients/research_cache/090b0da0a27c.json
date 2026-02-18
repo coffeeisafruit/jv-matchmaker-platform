@@ -23,5 +23,16 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://ulrikeberzau.com/testimonials/"
+  "website": "https://ulrikeberzau.com/testimonials/",
+  "_cache_schema_version": 2,
+  "social_proof": "Bestselling Author & Speaker",
+  "signature_programs": "Mindset Secrets program",
+  "niche": "mindset, performance",
+  "tags": [
+    "mindset",
+    "performance",
+    "coaching"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:31:16.400280"
 }

@@ -27,5 +27,26 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://www.rev.com/"
+  "website": "https://www.rev.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Rev is a platform providing transcription, captions, subtitles, and AI-powered speech-to-text services with a focus on legal transcription accuracy and secure discovery review.",
+  "who_you_serve": "Attorneys, law enforcement, court reporters, investigators, as well as professionals in research, news, education, healthcare, and video distribution.",
+  "social_proof": "G2 Leader Winter 2026, #1 platform for legal transcription accuracy, Axon's exclusive speech-to-text partner for over five years, State Bar of Texas first-ever AI partner, HIPAA compliant",
+  "signature_programs": "SmartDepo, Multi-File Analysis, Rev Mobile App, Rev AI Notetaker",
+  "niche": "Legal transcription",
+  "phone": "1(888) 369-0701",
+  "tags": [
+    "transcription",
+    "legal tech",
+    "speech-to-text",
+    "captions",
+    "ai transcription",
+    "court reporting",
+    "discovery review"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Providing accurate transcription, captioning, and AI-powered speech-to-text services primarily for legal professionals and law enforcement.",
+  "service_provided": "Human transcription, AI transcription, human captions, AI captions, court reporting, global subtitles, AI notetaker, multi-file analysis, SmartDepo deposition summaries",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:38:31.749385"
 }

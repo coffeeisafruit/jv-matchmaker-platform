@@ -6,5 +6,21 @@
     "linkedin": "https://www.linkedin.com/pulse/uncover-top-deals-commercial-properties-south-africa-curriegroup-kdsmf"
   },
   "website": "https://www.grow.za.com/about-us/",
-  "linkedin": "https://za.linkedin.com/in/hamish-currie-8b821b3b0"
+  "linkedin": "https://za.linkedin.com/in/hamish-currie-8b821b3b0",
+  "_cache_schema_version": 2,
+  "what_you_do": "Grow helps businesses find clarity and the confidence to lead with it.",
+  "who_you_serve": "Businesses at the top who are looking for answers and a clear path forward.",
+  "offering": "Grow provides business coaching to help businesses define their strategy, craft a game plan, and align their team to deliver it.",
+  "niche": "business coaching",
+  "tags": [
+    "business coaching",
+    "strategy",
+    "growth",
+    "scaling"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Grow helps businesses find clarity and the confidence to lead with it.",
+  "service_provided": "Business coaching, strategy development, team alignment",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:58:09.721676"
 }

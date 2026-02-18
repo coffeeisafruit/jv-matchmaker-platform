@@ -11,5 +11,23 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://serenestrong.com/",
-  "linkedin": "https://www.linkedin.com/in/nikki-larsen-601244123"
+  "linkedin": "https://www.linkedin.com/in/nikki-larsen-601244123",
+  "_cache_schema_version": 2,
+  "what_you_do": "Nikki Larsen is a coach, speaker, and author operating under StrongandSerene.com, focused on helping people navigate challenges, loss, and suffering.",
+  "who_you_serve": "Women seeking emotional resilience and personal empowerment.",
+  "social_proof": "Speaker at Women Making History Summit; founder of Serene Woman Coaching.",
+  "niche": "women's wellness coaching",
+  "tags": [
+    "women's coaching",
+    "emotional wellness",
+    "stress anxiety",
+    "speaker",
+    "author",
+    "personal growth"
+  ],
+  "audience_type": "B2C, women",
+  "business_focus": "Coaching, speaking, and authoring focused on emotional strength and serenity for women.",
+  "service_provided": "coaching, speaking, authoring",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:17:33.614136"
 }

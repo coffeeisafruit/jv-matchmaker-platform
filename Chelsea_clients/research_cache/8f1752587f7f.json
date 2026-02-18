@@ -8,5 +8,22 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://cleanstart.org/blog/the-real-story-of-starting-and-ending-a-sustainable-business-william-mccarthys-journey/",
-  "linkedin": "https://www.linkedin.com/in/bill-mccarthy-802b33a"
+  "linkedin": "https://www.linkedin.com/in/bill-mccarthy-802b33a",
+  "_cache_schema_version": 2,
+  "what_you_do": "William McCarthy founded Dunville Sail Bags, turning used sailboat sails and marine textiles into rugged, stylish bags through upcycling. The company has since closed; he is now pursuing a mechanical engineering degree and focusing on large-scale climate solutions.",
+  "social_proof": "Recovered over 10,000 pounds of waste; gained traction with Red Bull as a customer; attended over 50 live sales events.",
+  "niche": "sustainable upcycling",
+  "tags": [
+    "sustainable products",
+    "upcycling",
+    "clean tech",
+    "marine textiles",
+    "entrepreneurship",
+    "circular economy"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Upcycling used sailboat sails and marine textiles into bags (company now closed; founder pivoting to large-scale climate solutions).",
+  "service_provided": "Upcycled bag manufacturing, in-person retail sales events",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:02:17.724335"
 }

@@ -9,5 +9,20 @@
     "youtube": "https://www.youtube.com/watch?v=0mfyXpRiwOg"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://johnnybeirne.com/"
+  "website": "https://johnnybeirne.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Helping experts set up their own quiz funnels to generate consistent, high-quality leads and grow with confidence.",
+  "who_you_serve": "Experts in 24 countries including business coaches, subject-matter experts, fitness & nutrition coaches, and non-fiction authors.",
+  "signature_programs": "Lots-of-Leads LIVE, Lead Gen Quiz, Free Live Masterclasses",
+  "niche": "lead generation, quiz marketing",
+  "tags": [
+    "lead generation",
+    "quiz marketing",
+    "online courses"
+  ],
+  "audience_type": "B2B, coaches, experts, authors",
+  "business_focus": "Helping experts generate consistent, high-quality leads through quiz funnels.",
+  "service_provided": "Online courses, lead generation, quiz marketing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:47:42.871304"
 }

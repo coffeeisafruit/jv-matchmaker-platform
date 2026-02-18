@@ -9,5 +9,21 @@
     "spotify_podcast": "https://open.spotify.com/episode/1hfH87qdsrVhKoGyT2nWYA"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://weeklydebtplan.com/"
+  "website": "https://weeklydebtplan.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Nancy Ward provides financial coaching services to help people take control of their money and create systems that fit their real life.",
+  "who_you_serve": "Individuals, including those with small businesses or side income, who need support managing their day-to-day finances, paying off debt, and reducing financial stress.",
+  "social_proof": "Over 30 years of entrepreneurial experience, client testimonials",
+  "booking_link": "https://www.calendly.com/weeklydebtplan",
+  "niche": "personal finance, debt management",
+  "tags": [
+    "financial coaching",
+    "debt management",
+    "personal finance"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing financial coaching and support to help individuals and small business owners improve their money management and achieve their financial goals.",
+  "service_provided": "Financial coaching, debt management, cash flow analysis",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:38:48.502762"
 }

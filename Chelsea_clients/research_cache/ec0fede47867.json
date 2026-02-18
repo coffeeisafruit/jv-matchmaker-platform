@@ -8,5 +8,22 @@
     "youtube": "https://www.youtube.com/watch?v=up9u_jD-itg"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://mamageniushub.com/"
+  "website": "https://mamageniushub.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Michelle DeKeyser is a loving Mama Empowerment Speaker, Author, and Coach",
+  "who_you_serve": "mothers",
+  "social_proof": "Michelle has been recognized for her insightful contributions to two significant compilation books. In \"Voices of Women 2023\" and \"The Parenting Owner's Manual,\" she shares her wisdom and experiences alongside her children, who are also esteemed authors.",
+  "niche": "motherhood, empowerment",
+  "tags": [
+    "mama",
+    "empowerment",
+    "speaker",
+    "author",
+    "coach"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Michelle's heartfelt mission is to create a world full of passionate, connected mamas who lovingly inspire those around them.",
+  "service_provided": "speaking, authoring, coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:03:21.102393"
 }

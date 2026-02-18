@@ -19,5 +19,23 @@
     }
   ],
   "audience_engagement_score": 0.65,
-  "website": "https://www.risewithmetarot.com/retreat"
+  "website": "https://www.risewithmetarot.com/retreat",
+  "_cache_schema_version": 2,
+  "what_you_do": "Rise With Me Tarot and Coaching offers intuitive tarot readings and empowering coaching services.",
+  "who_you_serve": "Women seeking self-discovery, empowerment, and personal growth.",
+  "social_proof": "Testimonial from Marian S. PA indicating a positive experience at the Empower and Elevate Retreat.",
+  "signature_programs": "Empower and Elevate: A Mindset Retreat for Women",
+  "booking_link": "https://forms.wix.com/f/7193405883051672341",
+  "niche": "women's empowerment, personal growth",
+  "tags": [
+    "tarot",
+    "coaching",
+    "personal growth",
+    "women's empowerment"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Offering intuitive tarot readings and empowering coaching services to help women discover their inner strength and create fulfilling lives.",
+  "service_provided": "Intuitive tarot readings, life coaching, workshops, retreats",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:56:18.113748"
 }

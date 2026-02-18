@@ -30,5 +30,21 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://kimberlyjurgen.com/"
+  "website": "https://kimberlyjurgen.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Kimberly J\u00fcrgen is a Radical Curiosity Coach who empowers professional women who feel stifled to emerge as confident leaders, ready to speak up and shine in any business setting.",
+  "who_you_serve": "Professional women who feel stifled and want to gain newfound confidence and thrive in all aspects of their life.",
+  "social_proof": "Kimberly J\u00fcrgen has been featured on IMDB.",
+  "booking_link": "https://app.paperbell.com/checkout/packages/72697",
+  "niche": "empowered introvert",
+  "tags": [
+    "radical curiosity",
+    "confidence coaching",
+    "professional women"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Empowering professional women to become confident leaders.",
+  "service_provided": "Coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:36:57.931150"
 }

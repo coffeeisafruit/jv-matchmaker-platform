@@ -16,5 +16,15 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://www.edmylett.com/about-ed"
+  "website": "https://www.edmylett.com/about-ed",
+  "_cache_schema_version": 2,
+  "social_proof": "Forbes, BuzzFeed, CNBC, Entrepreneur, Money",
+  "niche": "personal development",
+  "tags": [
+    "personal development",
+    "mindset",
+    "motivation"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:26:19.311648"
 }

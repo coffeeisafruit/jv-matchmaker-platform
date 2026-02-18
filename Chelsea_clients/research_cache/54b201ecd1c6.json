@@ -11,5 +11,21 @@
   },
   "audience_engagement_score": 0.45,
   "website": "https://www.lynnelee.com/",
-  "linkedin": "https://www.linkedin.com/in/lynnelenalee"
+  "linkedin": "https://www.linkedin.com/in/lynnelenalee",
+  "_cache_schema_version": 2,
+  "what_you_do": "Christian life coaching and coach training",
+  "who_you_serve": "People who want to transform their lives and live on purpose",
+  "social_proof": "Testimonials about Lynne's coaching expertise and impact",
+  "signature_programs": "Christian Life Coach Training, How to Hear God Coaching Guide",
+  "niche": "christian life coaching",
+  "tags": [
+    "christian",
+    "life coaching",
+    "coach training"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping people get unstuck, become who they are in Christ, and live life on purpose",
+  "service_provided": "Christian life coaching, coach training",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:31:33.852585"
 }

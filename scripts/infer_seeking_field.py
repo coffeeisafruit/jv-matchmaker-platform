@@ -108,12 +108,16 @@ def get_profiles_needing_seeking(limit: int = None) -> List[Dict]:
     return profiles
 
 
-def infer_seeking_claude_sdk(profile: Dict) -> Optional[str]:
+async def infer_seeking_claude_sdk(profile: Dict) -> Optional[str]:
     """Infer seeking using Claude Agent SDK (Claude Max plan, $0)."""
     try:
-        from claude_agent_sdk import query, ClaudeAgentOptions
+        from claude_agent_sdk import query, ClaudeAgentOptions, ResultMessage
     except ImportError:
-        return None
+        try:
+            from claude_agent_sdk import query, ClaudeAgentOptions
+            from claude_agent_sdk.types import ResultMessage
+        except ImportError:
+            return None
 
     prompt = SEEKING_INFERENCE_PROMPT.format(
         name=profile.get('name', ''),
@@ -126,17 +130,25 @@ def infer_seeking_claude_sdk(profile: Dict) -> Optional[str]:
         revenue_tier=profile.get('revenue_tier', 'Not specified'),
     )
 
+    # Strip ANTHROPIC_API_KEY so the SDK uses Max plan OAuth instead of API
+    clean_env = {k: v for k, v in os.environ.items() if k != 'ANTHROPIC_API_KEY'}
+
     try:
-        result = query(
+        result_text = None
+        async for message in query(
             prompt=prompt,
             options=ClaudeAgentOptions(
-                max_tokens=300,
+                max_turns=1,
+                env=clean_env,
             ),
-        )
-        seeking = result.strip()
-        # Basic quality check
-        if seeking and len(seeking) > 20 and len(seeking) < 1000:
-            return seeking
+        ):
+            if isinstance(message, ResultMessage) and message.result:
+                result_text = message.result
+
+        if result_text:
+            seeking = result_text.strip()
+            if len(seeking) > 20 and len(seeking) < 1000:
+                return seeking
         return None
     except Exception as e:
         print(f"    Claude SDK error: {e}")
@@ -190,22 +202,15 @@ def infer_seeking_anthropic(profile: Dict) -> Optional[str]:
     return None
 
 
-def infer_seeking(profile: Dict) -> Optional[str]:
-    """Infer seeking field — tries Claude SDK first, then Anthropic API."""
-    # Try Claude SDK (free on Max plan)
-    result = infer_seeking_claude_sdk(profile)
+async def infer_seeking(profile: Dict) -> Optional[str]:
+    """Infer seeking field — uses Claude SDK (free on Max plan)."""
+    result = await infer_seeking_claude_sdk(profile)
     if result:
         return result
-
-    # Fallback to Anthropic API
-    result = infer_seeking_anthropic(profile)
-    if result:
-        return result
-
     return None
 
 
-def run_inference(limit: int = None, dry_run: bool = False, batch_delay: float = 0.5):
+async def run_inference(limit: int = None, dry_run: bool = False, batch_delay: float = 0.5):
     """Run seeking inference on eligible profiles."""
     print(f"\n{'='*60}")
     print("SEEKING FIELD INFERENCE")
@@ -261,7 +266,7 @@ def run_inference(limit: int = None, dry_run: bool = False, batch_delay: float =
             stats['inferred'] += 1
             continue
 
-        seeking = infer_seeking(profile)
+        seeking = await infer_seeking(profile)
 
         if not seeking:
             print("failed (no inference)")
@@ -329,11 +334,12 @@ def main():
 
     args = parser.parse_args()
 
-    run_inference(
+    import asyncio
+    asyncio.run(run_inference(
         limit=args.limit,
         dry_run=args.dry_run,
         batch_delay=args.delay,
-    )
+    ))
 
 
 if __name__ == '__main__':

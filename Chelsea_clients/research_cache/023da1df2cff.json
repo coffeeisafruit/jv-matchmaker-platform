@@ -8,5 +8,21 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://www.donaldsoncfo.com/",
-  "linkedin": "https://www.linkedin.com/in/marcia-donaldson-08258b56"
+  "linkedin": "https://www.linkedin.com/in/marcia-donaldson-08258b56",
+  "_cache_schema_version": 2,
+  "what_you_do": "We provide outsourced CFO services to guide businesses towards being growing, more profitable and successful.",
+  "who_you_serve": "Businesses producing revenue between $500K and $10M per year.",
+  "social_proof": "We've helped generate millions in additional profit and cash flow for our clients.",
+  "booking_link": "https://calendly.com/marcia-dfs/right-fit-call",
+  "niche": "outsourced cfo",
+  "tags": [
+    "outsourced cfo",
+    "financial guidance",
+    "business success"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Providing outsourced CFO services to help businesses become more profitable and successful.",
+  "service_provided": "Outsourced CFO services, QuickBooks training, catch up and clean up bookkeeping, monthly bookkeeping",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:46:27.040000"
 }

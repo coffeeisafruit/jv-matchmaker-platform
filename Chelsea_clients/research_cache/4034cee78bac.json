@@ -10,5 +10,23 @@
     "apple_podcast": "https://podcasts.apple.com/nz/podcast/open-doors-canada-podcast/id1510017089"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://opendoorpublications.com/services/"
+  "website": "https://opendoorpublications.com/services/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Open Door Publications offers writing, editing, publishing, and marketing services to help authors write, publish, and sell their books.",
+  "who_you_serve": "Open Door Publications works with writers, coaches, consultants, entrepreneurs, and speakers who need help getting their book in front of the right readers.",
+  "social_proof": "Open Door Publications has over 15 years of experience working with a wide variety of authors, and has helped many of their clients who are coaches, consultants, entrepreneurs, and speakers.",
+  "signature_programs": "Open Door Publications offers coaching packages, virtual writer groups, and \u00e0 la carte publishing services.",
+  "niche": "book publishing",
+  "phone": "609-553-9800",
+  "tags": [
+    "writing",
+    "editing",
+    "publishing",
+    "marketing"
+  ],
+  "audience_type": "B2B, coaches, entrepreneurs, speakers",
+  "business_focus": "Open Door Publications helps authors write, publish, and sell their books through a range of services.",
+  "service_provided": "writing, coaching, virtual writer groups, editing, formatting, proofreading, cover design, publishing, marketing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:47:03.786834"
 }

@@ -24,5 +24,21 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://thefinanciallyon.com/"
+  "website": "https://thefinanciallyon.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Wendy Lyon is a financial advisor who helps clients achieve financial freedom and create wealth.",
+  "who_you_serve": "Wendy serves individuals, couples, and business owners.",
+  "social_proof": "Wendy has been featured in Formidable Women Magazine and has been a guest on Business Innovators Radio.",
+  "booking_link": "https://calendly.com/wendythelyon",
+  "niche": "financial planning",
+  "tags": [
+    "financial planning",
+    "wealth creation",
+    "retirement planning"
+  ],
+  "audience_type": "B2C, business owners",
+  "business_focus": "Wendy helps clients achieve financial freedom, eliminate debt, and create wealth.",
+  "service_provided": "financial planning, retirement planning, life insurance, business planning",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:57:37.873254"
 }

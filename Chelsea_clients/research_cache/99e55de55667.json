@@ -9,5 +9,21 @@
     "youtube": "https://www.youtube.com/watch?v=48TjsJtwG4k"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://beyondthedawnblog.com/"
+  "website": "https://beyondthedawnblog.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Beyond the Dawn Digital is a full service support and done-for-you agency for female business owners and entrepreneurs.",
+  "who_you_serve": "Passionate female entrepreneurs and business owners.",
+  "signature_programs": "Audience Attraction 2022 Training Suite, Audience Attraction CSMM Training Suite, Pretty Prepared Digital Asset Membership",
+  "booking_link": "https://beyondthedawnblog.com/book-sessions/",
+  "niche": "female entrepreneurs",
+  "tags": [
+    "female entrepreneurs",
+    "business support",
+    "digital agency"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing a safe, supportive space and resources for female business owners and entrepreneurs to grow their businesses.",
+  "service_provided": "Business coaching, digital marketing, branding, templates, training",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:03:22.175314"
 }

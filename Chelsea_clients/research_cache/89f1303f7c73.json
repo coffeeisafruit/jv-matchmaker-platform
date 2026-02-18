@@ -9,5 +9,24 @@
     "spotify_podcast": "https://open.spotify.com/episode/18UdnuQCVT8ZTwsotW5Xla"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.audible.com/author/Coach-Michael-Taylor/B00UH8YOXE"
+  "website": "https://www.audible.com/author/Coach-Michael-Taylor/B00UH8YOXE",
+  "_cache_schema_version": 2,
+  "what_you_do": "Entrepreneur, author, motivational speaker, and radio show host dedicated to empowering men and women to reach their full potential.",
+  "who_you_serve": "Men and women seeking personal transformation, happiness, and to live extraordinary lives.",
+  "social_proof": "Author of 9 books, 25 years of personal transformation experience, successful mid-level manager of a multi-million dollar building supply center by age 21.",
+  "signature_programs": "Black Men Rock!, What If Jesus Were a Coach, The Good News Is: The Future Is Brighter Than You Think",
+  "niche": "Personal development",
+  "tags": [
+    "motivational speaker",
+    "author",
+    "personal transformation",
+    "coaching",
+    "empowerment",
+    "radio host"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Coaching and inspiring others to overcome adversity and create fulfilling lives through books, lectures, and radio programming.",
+  "service_provided": "Motivational speaking, authoring books, radio show hosting, life coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:15:07.160342"
 }

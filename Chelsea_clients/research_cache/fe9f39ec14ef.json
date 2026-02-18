@@ -16,5 +16,17 @@
     }
   ],
   "audience_engagement_score": 0.45,
-  "website": "https://www.drtich.com/"
+  "website": "https://www.drtich.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Tich Darangwa is a marketing coach associated with mlmprosystem.",
+  "niche": "marketing coaching",
+  "tags": [
+    "marketing",
+    "mlm",
+    "coaching"
+  ],
+  "business_focus": "Marketing coaching through mlmprosystem.",
+  "service_provided": "marketing coaching",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:21:28.623592"
 }

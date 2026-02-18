@@ -17,5 +17,22 @@
   ],
   "audience_engagement_score": 0.55,
   "website": "https://balehman.com/",
-  "linkedin": "https://www.linkedin.com/in/barry-lehman-recovery"
+  "linkedin": "https://www.linkedin.com/in/barry-lehman-recovery",
+  "_cache_schema_version": 2,
+  "what_you_do": "Coaching, reflections, and practices for living the 12 Steps more deeply over time.",
+  "who_you_serve": "For those with long-term sobriety who feel ready for depth, meaning, and direction.",
+  "signature_programs": "Mastering Recovery, Books & Reflections",
+  "niche": "long-term recovery",
+  "tags": [
+    "coaching",
+    "recovery",
+    "12 steps",
+    "memoir",
+    "reflections"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing coaching, reflections, and resources for people in long-term recovery.",
+  "service_provided": "Coaching, reflections, writing, books",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:52:31.650420"
 }

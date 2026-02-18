@@ -15,5 +15,23 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://app.eventraptor.com/speaker-profiles/drocella-mugorewera"
+  "website": "https://app.eventraptor.com/speaker-profiles/drocella-mugorewera",
+  "_cache_schema_version": 2,
+  "what_you_do": "I help corporate decision makers eliminate employee turnover",
+  "social_proof": "Speaker, Coach, Trainer, DEIA Consultant, #1 bestselling author",
+  "niche": "diversity, equity, inclusion, accessibility",
+  "tags": [
+    "diversity",
+    "equity",
+    "inclusion",
+    "accessibility",
+    "resilience",
+    "refugee",
+    "immigrant"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Diversity Consultant and international speaker helping companies eliminate employee turnover and fuel productivity",
+  "service_provided": "Diversity, Equity, Inclusion, and Accessibility consulting, Resilience training, Refugee and Immigrant Integration",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:43:44.473422"
 }

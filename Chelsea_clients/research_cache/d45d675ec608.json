@@ -18,5 +18,22 @@
     }
   ],
   "audience_engagement_score": 0.65,
-  "website": "https://susangoldcoaching.com/media/"
+  "website": "https://susangoldcoaching.com/media/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Susan specializes in helping business owners be authentic and to leverage their \"WHY,\" while aligning with who they want to work with, what services they want to offer, and to enable them to get paid for their value.",
+  "who_you_serve": "small business owners and entrepreneurs",
+  "social_proof": "MBA graduate from Simmons College in Boston, one of four women in the top 200 executives at Liberty Mutual, a Fortune 100 company",
+  "niche": "marketing strategy",
+  "tags": [
+    "marketing",
+    "strategy",
+    "business development",
+    "sales",
+    "entrepreneurship"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Susan specializes in working with business owners to attract their ideal clients that are a good fit and are profitable.",
+  "service_provided": "Individual Coaching, Team Coaching, Consulting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:21:38.387911"
 }

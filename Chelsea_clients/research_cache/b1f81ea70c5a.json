@@ -9,5 +9,23 @@
   },
   "audience_engagement_score": 0.55,
   "website": "https://mindshiftingintl.com/",
-  "linkedin": "https://www.linkedin.com/in/ellen-suazo-13a0b4a"
+  "linkedin": "https://www.linkedin.com/in/ellen-suazo-13a0b4a",
+  "_cache_schema_version": 2,
+  "what_you_do": "MindShifting Intl is a leading creative agency that provides a range of digital marketing services to help holistic entrepreneurs establish and grow their online presence.",
+  "who_you_serve": "Holistic entrepreneurs, both those just starting out and seasoned entrepreneurs, who need support in creating an effective website, sales funnel, and other digital marketing assets.",
+  "booking_link": "https://calendly.com/consciouschoices/30min",
+  "niche": "holistic entrepreneurship",
+  "company": "MindShifting Intl",
+  "tags": [
+    "digital marketing",
+    "web design",
+    "e-commerce",
+    "online courses",
+    "affiliate marketing"
+  ],
+  "audience_type": "holistic entrepreneurs",
+  "business_focus": "Providing digital marketing services and support to help holistic entrepreneurs establish and grow their online presence.",
+  "service_provided": "branding and redesign, platform migrations, full funnel creation, e-commerce websites, e-courses and membership levels, affiliate programs, SEO guidance, accessible and responsive web design",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:45:12.761688"
 }

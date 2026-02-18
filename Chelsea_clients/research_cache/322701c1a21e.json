@@ -47,5 +47,24 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://fernandafirman.com/"
+  "website": "https://fernandafirman.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I am a Brazilian architect turned AI and Automations specialist, virtual events producer behind some of the most popular 6-figure launches and visibility-driven Summits online!",
+  "who_you_serve": "Coaches, authors, and course creators",
+  "seeking": "No information provided about partnerships or collaborations they are actively seeking.",
+  "social_proof": "Having been selected for the \"Global Women of Choice\" awards in 2022",
+  "signature_programs": "Summit 2 Scale\u2122 Method, Profit Architecture\u2122",
+  "booking_link": "https://bit.ly/FF_Call",
+  "niche": "virtual events, online business",
+  "tags": [
+    "virtual events",
+    "online business",
+    "ai",
+    "automation"
+  ],
+  "audience_type": "coaches, course creators",
+  "business_focus": "Helping creative entrepreneurs launch profitable and custom-tailored virtual events, summits, and launches.",
+  "service_provided": "Virtual event production, online business consulting, AI and automation services",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:41:19.085696"
 }

@@ -9,5 +9,18 @@
     "spotify_podcast": "https://open.spotify.com/track/4c9A2I6nM55yyojGaHaMtQ"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.buzzsprout.com/1524505/episodes/15268209-master-your-money-moves-use-psychology-to-achieve-financial-independence-with-cody-sizemore"
+  "website": "https://www.buzzsprout.com/1524505/episodes/15268209-master-your-money-moves-use-psychology-to-achieve-financial-independence-with-cody-sizemore",
+  "_cache_schema_version": 2,
+  "social_proof": "As the official Zig Ziglar Small Business Lawyer and a Ziglar Legacy Certified Trainer, it's no wonder that Scott Reib is known as \"America's Legal Coach.\"",
+  "niche": "business owners, entrepreneurs, coaches",
+  "company": "The Shatterproof Entrepreneur",
+  "tags": [
+    "financial coaching",
+    "money psychology",
+    "financial independence"
+  ],
+  "audience_type": "entrepreneurs, business owners",
+  "business_focus": "Helping business owners, entrepreneurs, and coaches \"shatterproof\" their businesses by implementing specific strategies for structure, growth, and protection.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:22:48.909941"
 }

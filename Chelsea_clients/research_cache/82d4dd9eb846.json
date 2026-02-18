@@ -25,5 +25,6 @@
     "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2FLibertyMovementTeam%2F"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "linkedin": "https://www.linkedin.com/in/libertyneverstartagain"
+  "linkedin": "https://www.linkedin.com/in/libertyneverstartagain",
+  "_cache_schema_version": 2
 }

@@ -8,5 +8,22 @@
     "youtube": "https://www.youtube.com/watch?v=Qjrn4ZLUlcQ"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://tryholisticbrainhealth.com/about-me/"
+  "website": "https://tryholisticbrainhealth.com/about-me/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Dr. Tina Huang is a holistic brain health practitioner who helps clients address root causes and find relief from symptoms.",
+  "who_you_serve": "Clients struggling with learning disabilities, severe stomach pains, depression, and anxiety.",
+  "signature_programs": "The Body Code Ph.D., The Emotion Code, Vibrational Medicine, Court of Atonement, Health Coaching, Powerful Products",
+  "niche": "holistic brain health",
+  "tags": [
+    "brain health",
+    "mental health",
+    "relationships",
+    "autoimmune",
+    "holistic"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping clients address root causes and find relief from symptoms through holistic brain health practices.",
+  "service_provided": "Holistic brain health coaching, The Body Code Ph.D., The Emotion Code, Vibrational Medicine, Court of Atonement, Health Coaching, Powerful Products",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:25:21.914973"
 }

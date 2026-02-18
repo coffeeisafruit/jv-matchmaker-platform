@@ -22,5 +22,20 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://www.philtheconnector.com/about"
+  "website": "https://www.philtheconnector.com/about",
+  "_cache_schema_version": 2,
+  "what_you_do": "I'm all about building relationships that turn into successful business opportunities. With 39 years of sales experience, I'm here to pass on that wisdom to you!",
+  "who_you_serve": "go-getters and passionate professionals",
+  "niche": "networking, sales",
+  "phone": "(208) 577-8091",
+  "tags": [
+    "networking",
+    "sales",
+    "relationships"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "To empower you to fill your calendar, connect with the right people, and turbocharge your sales.",
+  "service_provided": "networking coaching, sales strategies",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:09:44.517064"
 }

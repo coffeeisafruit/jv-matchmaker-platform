@@ -10,5 +10,19 @@
     "youtube": "https://www.youtube.com/watch?v=OSmIXTkI3Ko"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://karenjoyfritz.com/"
+  "website": "https://karenjoyfritz.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Karen Joy Fritz is an Evolutionary Coach, Speaker, and Author.",
+  "social_proof": "Karen has degrees in Neuropsychology and Computer Science from the University of Michigan and multiple coaching certifications including Integral Coaching and Enneagram. She has enjoyed successful 7-figure entrepreneurial ventures while being hired to teach on five continents.",
+  "signature_programs": "PATH: A Strategic Transformation Game, Purposetivity: The Feminine Face of Productivity, The Art of Adventure",
+  "niche": "coaching, productivity, transformation",
+  "tags": [
+    "evolutionary coach",
+    "speaker",
+    "author"
+  ],
+  "business_focus": "Karen takes a stand for transforming the fabric of society through conscious, awake people innovating sustainable solutions that bring more joy, passion, and aliveness to the world.",
+  "service_provided": "coaching, speaking, authoring",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:36:59.988737"
 }

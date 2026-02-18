@@ -8,5 +8,18 @@
     "facebook": "https://www.facebook.com/public/Mathis-Bernard/"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://www.mathisfinancialservices.com/about"
+  "website": "https://www.mathisfinancialservices.com/about",
+  "_cache_schema_version": 2,
+  "what_you_do": "Mathis Financial Services provides insurance and investment services.",
+  "social_proof": "In 2002, Mr. Mathis was recognized nationally as a Top Salesperson and received the Wilkerson Sword Award.",
+  "niche": "financial services",
+  "tags": [
+    "insurance",
+    "investments",
+    "financial services"
+  ],
+  "business_focus": "Mathis Financial Services provides insurance and investment services.",
+  "service_provided": "insurance, investments",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:29:24.128269"
 }

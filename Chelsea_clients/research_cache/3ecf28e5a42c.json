@@ -17,5 +17,22 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://masteritmedia.com/about-us"
+  "website": "https://masteritmedia.com/about-us",
+  "_cache_schema_version": 2,
+  "what_you_do": "Master It Media is a social media strategy and management agency.",
+  "who_you_serve": "Businesses looking to build an engaging social media presence and audience of raving fans.",
+  "social_proof": "Maggie Carey was awarded BroadwayWorld's Regional Performer of the Decade in 2020. Her work with the digital publication, HamletHub earned her the Lyn & Buzz Burr Excellence in Communication Award.",
+  "niche": "social media marketing",
+  "phone": "(845) 444-2752",
+  "tags": [
+    "social media",
+    "marketing",
+    "strategy",
+    "management"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Master It Media provides social media strategy and management services to help businesses build an engaging online presence and audience.",
+  "service_provided": "social media strategy, social media management",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:05:11.904809"
 }

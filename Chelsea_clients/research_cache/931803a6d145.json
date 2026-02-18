@@ -14,5 +14,20 @@
     }
   ],
   "website": "https://laurelandassociates.com/",
-  "linkedin": "https://www.linkedin.com/in/deborah-laurel-master-trainer"
+  "linkedin": "https://www.linkedin.com/in/deborah-laurel-master-trainer",
+  "_cache_schema_version": 2,
+  "what_you_do": "Laurel and Associates, Ltd. designs and delivers skill-building participatory classroom and virtual training on a national and international basis.",
+  "who_you_serve": "HR and L&D leaders in fast-moving SaaS and tech companies",
+  "booking_link": "https://calendly.com/peerlearninginstitute/laurelandassociatesmeeting?month=2023-10",
+  "niche": "business skills, self improvement",
+  "phone": "608-219-3594",
+  "tags": [
+    "business skills",
+    "self improvement"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Laurel and Associates, Ltd. partners with HR and L&D leaders to close the gap between 'we promoted them' and 'they actually know how to manage'.",
+  "service_provided": "custom training audits, curriculum design, customized training workshops",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:06:11.542041"
 }

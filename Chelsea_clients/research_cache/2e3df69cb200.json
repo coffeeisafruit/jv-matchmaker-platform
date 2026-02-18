@@ -22,5 +22,27 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://www.wholehealthacademy.ca/"
+  "website": "https://www.wholehealthacademy.ca/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Alexi Bracey runs Whole Health Academy and the Whole Health App, offering health coaching, consulting, and online education focused on holistic lifestyle modifications to help people thrive as they age.",
+  "who_you_serve": "Mature women and caregivers (ages 40, 50, 60+) who want to maintain mental clarity and cognitive function and are concerned about dementia.",
+  "offering": "Health coaching, consulting, online education, and a mobile app (The Whole Health App) covering emotional, mental, and physical wellness.",
+  "social_proof": "Two decades of experience in health and wellness; personal cancer survivor who overcame cancer without medical intervention; podcast guest appearances.",
+  "signature_programs": "Whole Health Academy, The Whole Health App, Discovery Coaching Session (60-minute telephone session)",
+  "booking_link": "https://www.wholehealthacademy.ca/",
+  "niche": "holistic women's health",
+  "tags": [
+    "holistic health",
+    "cognitive health",
+    "cancer survivor",
+    "women's wellness",
+    "dementia prevention",
+    "lifestyle coaching",
+    "plant-based"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Empowering mature women and caregivers to maintain cognitive health and thrive as they age through holistic lifestyle modifications.",
+  "service_provided": "health coaching, consulting, online education, mobile app, discovery coaching sessions",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T04:06:20.581634"
 }

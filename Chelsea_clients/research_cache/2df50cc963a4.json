@@ -8,5 +8,18 @@
     "apple_podcast": "https://podcasts.apple.com/us/podcast/what-are-you-willing-to-sacrifice-to-be-wealthy-with/id1725976637?i=1000660903176"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.podcastersdirectory.com/scottschwarz"
+  "website": "https://www.podcastersdirectory.com/scottschwarz",
+  "_cache_schema_version": 2,
+  "what_you_do": "Reverse engineer banks and the wealthy to help millenial entrepreneurs gain clarity on their way to wealth.",
+  "who_you_serve": "Millenial entrepreneurs",
+  "niche": "financial services",
+  "tags": [
+    "financial services",
+    "money",
+    "finance"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Help millenial entrepreneurs recycle their money to start or supercharge their investments with confidence.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:48:25.259008"
 }

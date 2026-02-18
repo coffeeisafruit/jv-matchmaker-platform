@@ -13,5 +13,6 @@
     "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Fanderson.boss.1%2F",
     "spotify_podcast": "https://open.spotify.com/album/34jqVL7r2nPT3uB5KcCezv"
   },
-  "audience_engagement_score": 0.4
+  "audience_engagement_score": 0.4,
+  "_cache_schema_version": 2
 }

@@ -18,5 +18,25 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://owwll.com/podcast/"
+  "website": "https://owwll.com/podcast/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Founder of the Owwll App, a social networking app designed to connect professionals and monetize expertise.",
+  "who_you_serve": "Professionals, CEOs, and entrepreneurs seeking to connect, learn, and grow their expertise.",
+  "social_proof": "Featured in Wall Street Journal, Forbes, VoyageMIA, and Investopedia. Bachelors Degree in Finance from the University of Delaware. Financial Services Specialist designation from the American College.",
+  "signature_programs": "The Owwll Podcast, Owwll App",
+  "niche": "Professional networking",
+  "tags": [
+    "professional networking",
+    "entrepreneurship",
+    "finance",
+    "technology",
+    "podcast",
+    "mentorship",
+    "expertise monetization"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Connecting professionals through a social networking app that enables users to monetize their expertise via 1-on-1 advice.",
+  "service_provided": "Professional networking app, 1-on-1 expert advice platform, podcast",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:35:45.566027"
 }

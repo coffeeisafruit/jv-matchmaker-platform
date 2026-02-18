@@ -23,5 +23,8 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://podcast.pampum.com/BFt8Qnj0/episode"
+  "website": "https://podcast.pampum.com/BFt8Qnj0/episode",
+  "_cache_schema_version": 2,
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:24:28.958402"
 }

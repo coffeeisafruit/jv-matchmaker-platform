@@ -10,5 +10,19 @@
     "youtube": "https://www.youtube.com/watch?v=iamF899wRek"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.anthonytomizza.com/"
+  "website": "https://www.anthonytomizza.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Anthony Tomizza Co. provides mindset coaching, image consulting, and personal styling services.",
+  "who_you_serve": "Anthony Tomizza Co. serves clients in Toronto, the GTA, and beyond.",
+  "niche": "mindset, image, styling",
+  "tags": [
+    "mindset coaching",
+    "image consulting",
+    "personal styling"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Anthony Tomizza Co. helps clients refine and cultivate their image and mindset to stand the test of time.",
+  "service_provided": "mindset coaching, image consulting, personal styling",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:31:30.670312"
 }

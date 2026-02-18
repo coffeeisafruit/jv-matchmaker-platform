@@ -23,5 +23,19 @@
   ],
   "audience_engagement_score": 0.4,
   "website": "https://greaterinsight.com/about/",
-  "linkedin": "https://www.linkedin.com/in/susancurtis"
+  "linkedin": "https://www.linkedin.com/in/susancurtis",
+  "_cache_schema_version": 2,
+  "what_you_do": "I guide business professionals and entrepreneurs to recognize their strengths, overcome setbacks, and take concrete steps forward in their career and life.",
+  "who_you_serve": "Business professionals and entrepreneurs",
+  "niche": "career coaching, empowerment coaching",
+  "tags": [
+    "career coaching",
+    "empowerment coaching",
+    "business professionals"
+  ],
+  "audience_type": "B2B, coaches",
+  "business_focus": "Providing career and empowerment coaching to business professionals and entrepreneurs.",
+  "service_provided": "career coaching, empowerment coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:12:51.836225"
 }

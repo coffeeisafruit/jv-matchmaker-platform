@@ -14,5 +14,20 @@
     }
   ],
   "website": "https://app.qwoted.com/sources/deedee-baze",
-  "linkedin": "https://www.linkedin.com/in/deedeebaze"
+  "linkedin": "https://www.linkedin.com/in/deedeebaze",
+  "_cache_schema_version": 2,
+  "what_you_do": "Providing expert guidance in retirement tax planning, wealth management, and financial strategies.",
+  "who_you_serve": "Individuals, particularly during the transition into retirement.",
+  "social_proof": "CERTIFIED FINANCIAL PLANNER\u2122 Professional and an Enrolled Agent (EA)",
+  "niche": "financial planning, retirement, tax planning",
+  "tags": [
+    "financial planner",
+    "enrolled agent",
+    "managing partner"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Empowering individuals to take control of their financial futures, particularly during the transition into retirement, by delivering personalized, expert advice to help them navigate their journey with clarity and confidence.",
+  "service_provided": "retirement tax planning, wealth management, financial strategies",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:44:36.764071"
 }

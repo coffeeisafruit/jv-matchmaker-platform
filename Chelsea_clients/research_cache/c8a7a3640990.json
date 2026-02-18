@@ -23,5 +23,22 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://kellyrudolph.com/about/"
+  "website": "https://kellyrudolph.com/about/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Provides practical, right-now solutions to help people feel more in charge of their life, success, and happiness.",
+  "who_you_serve": "You and your people (team members)",
+  "social_proof": "Certified Life Coach, Hypnotherapist, and NLP Practitioner with over 34 years of extensive training and powerful experience",
+  "signature_programs": "Positive Women Rock, SURVIVE! Self-Defense",
+  "booking_link": "https://kellyrudolph.com/contact/",
+  "niche": "stress reduction, work-life success",
+  "tags": [
+    "life coach",
+    "hypnotherapist",
+    "nlp practitioner"
+  ],
+  "audience_type": "B2B, B2C",
+  "business_focus": "Providing practical solutions to help people feel more in charge of their life, success, and happiness.",
+  "service_provided": "speaking, coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:51:10.196113"
 }

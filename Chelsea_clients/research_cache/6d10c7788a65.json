@@ -16,5 +16,21 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://prowin.com/Leadership"
+  "website": "https://prowin.com/Leadership",
+  "_cache_schema_version": 2,
+  "what_you_do": "Laura Doman is an actor, media communications coach, speaker, and author.",
+  "social_proof": "Laura is a frequent speaker at conferences and business meetings, most often on her signature topic, \"On Camera Confidence: Secrets from the Acting World.\" She also appears regularly on webinars and podcasts and is the co-author of \"The Most Amazing Marketing Book Ever\" with 35 other marketing specialists worldwide.",
+  "niche": "acting, media, communications",
+  "tags": [
+    "actor",
+    "media",
+    "communications",
+    "coach",
+    "speaker",
+    "author"
+  ],
+  "business_focus": "Laura bridges the worlds of business and entertainment, bringing the best of both to each other through years of experience as a screen and voice actor, improv performer, and former corporate IT sales exec.",
+  "service_provided": "acting, media coaching, speaking, authoring",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:23:37.236151"
 }

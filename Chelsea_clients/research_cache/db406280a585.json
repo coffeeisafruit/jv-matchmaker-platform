@@ -8,5 +8,26 @@
     "youtube": "https://www.youtube.com/watch?v=a9-p0hHD9TI"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://app.eventraptor.com/speaker-profiles/brandi-cox"
+  "website": "https://app.eventraptor.com/speaker-profiles/brandi-cox",
+  "_cache_schema_version": 2,
+  "what_you_do": "Tech Systems Strategist and Architect who helps overwhelmed entrepreneurs reclaim their time, energy, and income by building streamlined systems and support teams.",
+  "who_you_serve": "Overwhelmed entrepreneurs, particularly neurodivergent, introverted, or burnt-out professionals, coaches, program creators, and service pros.",
+  "seeking": "Virtual speaking opportunities as an industry expert, workshop facilitator, or panelist.",
+  "social_proof": "Disabled combat veteran, 35+ years of experience in tech systems and strategy.",
+  "signature_programs": "Clone Yourself framework",
+  "niche": "Tech systems strategy",
+  "tags": [
+    "tech systems",
+    "automation",
+    "delegation",
+    "business strategy",
+    "burnout prevention",
+    "client retention",
+    "scaling"
+  ],
+  "audience_type": "B2B, entrepreneurs, coaches, service professionals",
+  "business_focus": "Helping entrepreneurs scale their businesses through streamlined systems, automation, and strategic delegation.",
+  "service_provided": "Tech systems strategy, business automation, delegation frameworks, implementation support, speaking, workshops",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:25:44.030087"
 }

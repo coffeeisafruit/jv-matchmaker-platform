@@ -24,5 +24,21 @@
     }
   ],
   "audience_engagement_score": 0.5,
-  "website": "https://chrissybradysmith.com/wild-woman-entrepreneur/"
+  "website": "https://chrissybradysmith.com/wild-woman-entrepreneur/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Life coach for wild women leaders",
+  "who_you_serve": "Women entrepreneurs struggling with the emotional ups and downs of being a leader",
+  "signature_programs": "4 months of private coaching to remember who you are and what you came here to do",
+  "booking_link": "https://chrissybradysmith.com/apply-for-the-wildwoman-entrepreneur/",
+  "niche": "women entrepreneurs, life coaching",
+  "tags": [
+    "life coach",
+    "wild women",
+    "women entrepreneurs"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping women entrepreneurs master their emotions and access their full range of feminine leadership",
+  "service_provided": "Life coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:47:15.574211"
 }

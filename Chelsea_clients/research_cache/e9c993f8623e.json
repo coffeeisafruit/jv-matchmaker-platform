@@ -8,5 +8,21 @@
     "youtube": "https://www.youtube.com/watch?v=vJabNEwZIuc"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://financialfootwork.com/pages/about-us"
+  "website": "https://financialfootwork.com/pages/about-us",
+  "_cache_schema_version": 2,
+  "what_you_do": "Financial Footwork provides financial wellness solutions, including corporate financial wellness programs, personal finance workbooks and tools, and financial education resources.",
+  "who_you_serve": "Financial Footwork serves companies and employees, professional athletes, universities, and individuals.",
+  "social_proof": "Hillary Seiler, the founder and CEO, is a certified financial education coach, top 50 financial speaker, and author. Financial Footwork has worked with 12 NFL teams, the NBA, and the NCAA.",
+  "signature_programs": "MY MONEY PLAYBOOK: COLLEGE EDITION, MY MONEY PLAYBOOK: HOURLY & SALARY EDITION, VAULT 360 PROGRAM",
+  "niche": "financial wellness",
+  "tags": [
+    "financial wellness",
+    "personal finance",
+    "corporate wellness"
+  ],
+  "audience_type": "B2B, B2C",
+  "business_focus": "Financial Footwork provides financial education, coaching, and resources to help individuals and organizations improve their financial well-being.",
+  "service_provided": "financial wellness programs, personal finance workbooks and tools, financial education resources",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:09:55.483284"
 }

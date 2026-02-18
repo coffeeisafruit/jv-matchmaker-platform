@@ -1,0 +1,34 @@
+{
+  "name": "pantea kalhori-mehr",
+  "list_size": 0,
+  "what_you_do": "Podcast Republic is an open-source application designed for podcast enthusiasts to discover, manage, and listen to podcasts.",
+  "who_you_serve": "The application serves podcast listeners and creators, providing tools for both casual users and content producers.",
+  "niche": "podcasting",
+  "company": "Podcast Republic",
+  "business_size": "small_team",
+  "tags": [
+    "podcasting",
+    "open-source",
+    "mobile app",
+    "media",
+    "technology"
+  ],
+  "business_focus": "Podcast Republic is an open-source application designed for podcast enthusiasts to discover, manage, and listen to podcasts. (podcasting)",
+  "audience_type": "The application serves podcast listeners and creators, providing tools for both casual users and con",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/transition-by-pantea-kalhor/id1530109110",
+    "instagram": "https://www.instagram.com/diasporaforiran/p/CrZz_A6svfQ/",
+    "linkedin": "https://www.linkedin.com/posts/hedieh-mirahmadi_powerful-interview-with-hrh-reza-pahlavi-activity-7134279757717807104-6brc"
+  },
+  "jv_history": [
+    {
+      "partner_name": "",
+      "format": "podcast_guest",
+      "source_quote": "Unfortunately the US support for the \u201cgreen belt\u201d across the Middle East led ... HRH Reza Pahlavi On How President Jimmy Carter Destroyed Iran. ... On November 18, 2023, Patrick Bet-David host of PBD ",
+      "source_url": "https://www.linkedin.com/posts/hedieh-mirahmadi_powerful-interview-with-hrh-reza-pahlavi-activity-7134279757717807104-6brc"
+    }
+  ],
+  "audience_engagement_score": 0.4,
+  "website": "https://podcastrepublic.net/podcast/1530109110",
+  "_cache_schema_version": 2
+}

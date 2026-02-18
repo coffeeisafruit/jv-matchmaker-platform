@@ -7,5 +7,15 @@
     "youtube": "https://www.youtube.com/watch?v=BqNs_iRkxk0"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://ismeta.org/master-somatic-movement-educators-and-therapists%23!biz/id/5b66f587afd6913e717d539b"
+  "website": "https://ismeta.org/master-somatic-movement-educators-and-therapists%23!biz/id/5b66f587afd6913e717d539b",
+  "_cache_schema_version": 2,
+  "niche": "somatic movement education and therapy",
+  "company": "Lavinia Plonka",
+  "tags": [
+    "somatic movement",
+    "education",
+    "therapy"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:36:49.449392"
 }

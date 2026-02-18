@@ -22,5 +22,19 @@
       "source_url": "https://open.spotify.com/episode/5zifTdzXUcr87ekYOT2vMv"
     }
   ],
-  "website": "https://www.melissalanz.com/subscription-lab-live-2024-m"
+  "website": "https://www.melissalanz.com/subscription-lab-live-2024-m",
+  "_cache_schema_version": 2,
+  "what_you_do": "Melissa Lanz is the founder of The Fresh 20, where they believe in helping families create delicious & healthy meals with just 20 ingredients.",
+  "who_you_serve": "Families",
+  "niche": "meal planning",
+  "tags": [
+    "meal planning",
+    "healthy meals",
+    "family"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping families create delicious and healthy meals.",
+  "service_provided": "Meal planning",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:45:52.366103"
 }

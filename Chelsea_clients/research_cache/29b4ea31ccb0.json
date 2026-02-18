@@ -7,5 +7,21 @@
     "youtube": "https://www.youtube.com/watch?v=Ws3zagp6xpg",
     "facebook": "https://fr-fr.facebook.com/public/Fran%C3%A7oise-Lacroix/"
   },
-  "audience_engagement_score": 0.6000000000000001
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2,
+  "what_you_do": "We're a Software-as-a-Service technology company that has built and deployed a range of solutions for both private and public sector customers, specializing in innovative digital solutions for civic engagement and operational efficiency.",
+  "who_you_serve": "We serve municipalities, elected officials, and public sector agencies.",
+  "niche": "civic engagement, operational efficiency",
+  "tags": [
+    "civic engagement",
+    "operational efficiency",
+    "municipal operations",
+    "government technology"
+  ],
+  "audience_type": "B2G, B2B",
+  "business_focus": "Providing digital solutions to improve communication, streamline service delivery, and enhance the management of municipal operations and fleet activities.",
+  "service_provided": "Resident, Citycare, Snowman, Opera",
+  "website": "http://www.baseline.io",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:25:07.371245"
 }

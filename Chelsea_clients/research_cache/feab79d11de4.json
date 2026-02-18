@@ -7,5 +7,21 @@
     "youtube": "https://www.youtube.com/watch?v=KO2ETk3IKLw"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.brandoneley.com/"
+  "website": "https://www.brandoneley.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I'm the founder and President of 2BigFeet, where we make and sell large-size-shoes for guys with big feet. We started Michael Ellis Footwear and manufacture the biggest shoes available anywhere in the world. I'm also the founding partner of CORE Marketing Group, a marketing agency that helps businesses grow and scale.",
+  "who_you_serve": "Guys with big feet",
+  "social_proof": "Published author, professional speaker",
+  "niche": "large shoes, marketing",
+  "tags": [
+    "e-commerce",
+    "marketing",
+    "entrepreneurship",
+    "footwear"
+  ],
+  "audience_type": "B2B, B2C",
+  "business_focus": "Founder and president of companies that make and sell large shoes, and a marketing agency that helps businesses grow and scale.",
+  "service_provided": "Shoe manufacturing, marketing services",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:07:17.599442"
 }

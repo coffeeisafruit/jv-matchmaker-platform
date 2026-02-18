@@ -9,5 +9,26 @@
   },
   "audience_engagement_score": 0.55,
   "website": "https://dottyscott.com/",
-  "linkedin": "https://www.linkedin.com/in/dorothyscott"
+  "linkedin": "https://www.linkedin.com/in/dorothyscott",
+  "_cache_schema_version": 2,
+  "what_you_do": "Web designer, social media expert, speaker, best-selling author, and trainer with over 18 years of experience.",
+  "who_you_serve": "Small business owners who need websites, online marketing plans, and social media strategies.",
+  "social_proof": "Best-selling author, winning website design and business awards since 2014, featured on multiple podcasts.",
+  "signature_programs": "Your Amazing Itty Bitty Visibility Book, WPN Experts Compilation Book (contributing author - chapter on the perfect website), AskDotty membership",
+  "niche": "Digital marketing",
+  "phone": "360-607-4767",
+  "tags": [
+    "web design",
+    "social media",
+    "digital marketing",
+    "speaker",
+    "author",
+    "training",
+    "small business"
+  ],
+  "audience_type": "Small business owners, solopreneurs",
+  "business_focus": "Helping small business owners succeed online through web design, social media expertise, and marketing training.",
+  "service_provided": "Web design, social media training, speaking presentations, author/books, digital marketing training, AskDotty membership",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:40:09.390174"
 }

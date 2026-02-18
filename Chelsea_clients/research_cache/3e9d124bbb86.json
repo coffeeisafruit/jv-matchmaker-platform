@@ -10,5 +10,24 @@
   },
   "audience_engagement_score": 0.65,
   "website": "https://www.centerwithin.com/",
-  "linkedin": "https://www.linkedin.com/in/michelerae-spiritual-coach-centerwithin"
+  "linkedin": "https://www.linkedin.com/in/michelerae-spiritual-coach-centerwithin",
+  "_cache_schema_version": 2,
+  "what_you_do": "Michele Rae provides holistic coaching designed to accelerate and support personal, professional and organizational transformation.",
+  "who_you_serve": "Individuals, professionals, and organizations",
+  "social_proof": "Author, NBC-HWC certification",
+  "signature_programs": "Living From the Center Within: Co-Creating Who You Are Becoming (book), group coaching, live webinars, courses and trainings",
+  "booking_link": "https://centerwithin.com/consultation/",
+  "niche": "transformational coaching",
+  "phone": "612-465-9775",
+  "tags": [
+    "holistic coaching",
+    "personal transformation",
+    "professional development",
+    "organizational transformation"
+  ],
+  "audience_type": "B2B, B2C, coaches",
+  "business_focus": "Providing transformational coaching services to individuals, professionals, and organizations",
+  "service_provided": "Individual coaching, professional and organizational coaching, group coaching, live webinars, courses and trainings",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:25:25.372864"
 }

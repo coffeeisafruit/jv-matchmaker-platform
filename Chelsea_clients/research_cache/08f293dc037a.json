@@ -11,5 +11,23 @@
     "spotify_podcast": "https://open.spotify.com/episode/37YqG6xZFj2zcw5RKuMcYs"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://margotunlimited.com/speaker-page/"
+  "website": "https://margotunlimited.com/speaker-page/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I am an author, speaker, coach, clinical hypnotherapist and radio show host.",
+  "who_you_serve": "My clients are only interested in getting results, and achieving that is my fort\u00e9.",
+  "social_proof": "I have published books on life and relationships. My forthcoming book _You are the Genie_ will be a game-changer.",
+  "signature_programs": "My signature talk: Tell a different story - how our self-perception dictates our success, Perfect Health",
+  "niche": "motivational speaker",
+  "tags": [
+    "author",
+    "speaker",
+    "coach",
+    "clinical hypnotherapist",
+    "radio show host"
+  ],
+  "audience_type": "general audience",
+  "business_focus": "Marg\u00f4t de Cotesworth is a motivational speaker who shows people how to change their life from the inside out.",
+  "service_provided": "speaking, coaching, clinical hypnotherapy",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:02:00.131279"
 }

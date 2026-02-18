@@ -8,5 +8,24 @@
     "facebook": "https://www.facebook.com/TLTravisBooks/"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://traviscody.com/"
+  "website": "https://traviscody.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Travis Cody is an international bestselling author, Hollywood screenwriter, and film development executive.",
+  "who_you_serve": "Entrepreneurs who want to publish a book and become a bestselling author.",
+  "social_proof": "Travis Cody has appeared on the Ellen Show. He has a reputation for being one of the fastest screenwriters in the industry and has released three books in three years.",
+  "signature_programs": "Bestseller By Design, Goldmine In A Book, 30 Day Book Camp, Outline Your Book Workshop",
+  "niche": "book publishing, entrepreneurship",
+  "phone": "(424) 234 - 8225",
+  "tags": [
+    "bestselling author",
+    "screenwriter",
+    "film development",
+    "book publishing",
+    "entrepreneurship"
+  ],
+  "audience_type": "entrepreneurs",
+  "business_focus": "Helping entrepreneurs publish books and become bestselling authors.",
+  "service_provided": "book publishing, screenwriting, film development",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:03:45.192393"
 }

@@ -69,5 +69,19 @@
     }
   ],
   "website": "https://www.deezer.com/en/show/672382",
-  "linkedin": "https://www.linkedin.com/in/arline-warwick-34736b135"
+  "linkedin": "https://www.linkedin.com/in/arline-warwick-34736b135",
+  "_cache_schema_version": 2,
+  "what_you_do": "Arline Warwick is a podcast host who discusses how entrepreneurs can grow their businesses using corporate sponsorships.",
+  "who_you_serve": "Entrepreneurs",
+  "niche": "entrepreneurship, corporate sponsorships",
+  "tags": [
+    "entrepreneurship",
+    "corporate sponsorships",
+    "business growth"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping entrepreneurs grow their businesses using corporate sponsorships.",
+  "service_provided": "Podcast hosting, business advice",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:09:31.575801"
 }

@@ -17,5 +17,24 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://luvvie.org/"
+  "website": "https://luvvie.org/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Luvvie Ajayi Jones is a bestselling author, speaker, and book coach who helps people find their courage, speak their truth, and make positive change.",
+  "who_you_serve": "Aspiring authors, speakers, and professionals looking to make an impact through their work.",
+  "offering": "Luvvie provides guidance, strategies, and support to help her clients write books, deliver impactful speeches, and lead with courage.",
+  "social_proof": "Luvvie is a four-time New York Times bestselling author, and her TED talk has over 9 million views.",
+  "signature_programs": "Luvvie's books include \"Professional Troublemaker\", \"I'm Judging You\", \"Rising Troublemaker\", and \"Little Troublemaker\". She also founded The Book Academy to help aspiring authors write and publish their books.",
+  "niche": "Empowerment, personal growth, publishing",
+  "tags": [
+    "bestselling author",
+    "speaker",
+    "book coach",
+    "personal growth",
+    "empowerment"
+  ],
+  "audience_type": "B2C, coaches, aspiring authors",
+  "business_focus": "Helping people find their courage, speak their truth, and make positive change through writing, speaking, and personal development.",
+  "service_provided": "Bestselling books, speaking, book coaching, online courses",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:57:40.566794"
 }

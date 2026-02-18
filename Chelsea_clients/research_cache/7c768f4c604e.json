@@ -8,5 +8,21 @@
     "linkedin": "https://www.linkedin.com/showcase/cu-at/"
   },
   "audience_engagement_score": 0.45,
-  "website": "https://garychatham.net/"
+  "website": "https://garychatham.net/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Gary Chatham provides life coaching, anxiety relief, and Reiki services.",
+  "who_you_serve": "People seeking to transform their lives, find inner peace, and create the life they desire.",
+  "signature_programs": "Life Coaching, Anxiety Relief, Reiki Training",
+  "booking_link": "https://garychatham.net/schedule-an-appointment/",
+  "niche": "life coaching, anxiety, reiki",
+  "tags": [
+    "life coaching",
+    "anxiety",
+    "reiki"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping people find inner peace, heal emotional trauma, and create the life they desire.",
+  "service_provided": "Life Coaching, Anxiety Relief, Reiki",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:50:33.332093"
 }

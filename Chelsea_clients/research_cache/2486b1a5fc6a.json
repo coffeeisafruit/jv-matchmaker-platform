@@ -16,5 +16,17 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://www.abebooks.co.uk/9781546273684/Soaring-Seniors-Stories-Steps-Strategies-1546273689/plp"
+  "website": "https://www.abebooks.co.uk/9781546273684/Soaring-Seniors-Stories-Steps-Strategies-1546273689/plp",
+  "_cache_schema_version": 2,
+  "social_proof": "ScD, RN",
+  "signature_programs": "Soaring Seniors: Stories, Steps and Strategies for Living Full-Out After Fifty, Sixty, Seventy . . .",
+  "niche": "seniors",
+  "tags": [
+    "seniors",
+    "health",
+    "wellness"
+  ],
+  "audience_type": "B2C",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:37:22.519538"
 }

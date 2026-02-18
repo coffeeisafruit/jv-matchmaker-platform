@@ -8,5 +8,21 @@
     "spotify_podcast": "https://open.spotify.com/episode/3RIaKSqkK9nTH8JWScZk1H"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://drhelenebertrand.com/"
+  "website": "https://drhelenebertrand.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "H\u00e9l\u00e8ne Bertrand is a physician who has concentrated on treating painful conditions in the last 12 of her 55-year medical practice.",
+  "who_you_serve": "Patients with painful conditions",
+  "social_proof": "H\u00e9l\u00e8ne Bertrand received her MD from McGill University in 1965, at age 22. She has developed a mannitol containing cream able to calm the nerves that send pain and itch messages to the brain, and found new solutions to many painful conditions including low back pain.",
+  "signature_programs": "H\u00e9l\u00e8ne Bertrand's newest book addresses low back pain with a simple 2-minute exercise anyone can do to solve their low back pain without surgery or medication.",
+  "niche": "pain relief",
+  "tags": [
+    "pain relief",
+    "low back pain",
+    "regenerative medicine"
+  ],
+  "audience_type": "patients",
+  "business_focus": "Treating painful conditions and developing solutions, including a cream and a book on low back pain relief.",
+  "service_provided": "Pain relief solutions, low back pain relief",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:17:47.467511"
 }

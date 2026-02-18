@@ -10,5 +10,24 @@
   },
   "audience_engagement_score": 0.55,
   "website": "https://mindful.money/",
-  "linkedin": "https://www.linkedin.com/in/jonathandeyoe"
+  "linkedin": "https://www.linkedin.com/in/jonathandeyoe",
+  "_cache_schema_version": 2,
+  "what_you_do": "Mission-based financial education company providing coaching, courses, and membership programs to help individuals and families build personal finance acumen with a mindful, goal-focused approach.",
+  "who_you_serve": "Individuals and families without access to traditional financial advice who want a simple, low-maintenance approach to personal finance and investing.",
+  "social_proof": "Jonathan DeYoe is the bestselling author of two books: Mindful Money and Mindful Investing.",
+  "signature_programs": "Financial Education courses (18 modules), Values Purpose & Goals course (free), DIY Financial Plan, Financial Independence Bootcamp (3-day live workshop), Mindful Money Membership (group coaching program), Philanthropy Advisory, Mindful Money Weekly newsletter, Mindful Money Podcast",
+  "niche": "Mindful personal finance",
+  "tags": [
+    "personal finance",
+    "financial education",
+    "mindful investing",
+    "retirement planning",
+    "financial coaching",
+    "philanthropy"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Making transformational financial guidance honest, accessible, and affordable through education and group coaching rather than traditional fee-based advisory services.",
+  "service_provided": "Financial education courses, Financial Independence Bootcamp, Mindful Money Membership (group coaching), Philanthropy Advisory, podcast, newsletter, books",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:38:32.758128"
 }

@@ -1,0 +1,35 @@
+{
+  "name": "Smart Pizza Marketing Podcast",
+  "list_size": 1000,
+  "content_platforms": {
+    "youtube": "https://www.youtube.com/@smartpizzamarketing",
+    "apple_podcast": "https://podcasts.apple.com/ca/podcast/smart-pizza-marketing-podcast/id979705167"
+  },
+  "jv_history": [
+    {
+      "partner_name": "SPM #506: Building a Smart Pizza Shop Empire w/ Erica from Dough Boy Pizza",
+      "format": "podcast_guest",
+      "source_quote": "conversation, Erica Barrett, the chef and owner of Doughboy Pizza Co, shares her journey of creating a smart ... \ud83c\udf99 My podcast Smart Pizza Marketing where I interview entrepreneurs, creators and other ",
+      "source_url": "https://podcasts.apple.com/us/podcast/spm-506-building-a-smart-pizza-shop-empire-w-erica/id979705167?i=1000641291222"
+    }
+  ],
+  "audience_engagement_score": 0.55,
+  "social_reach": 25700,
+  "website": "https://smartpizzamarketing.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "The website appears to be a podcast and resource hub focused on marketing and business strategies for pizza shops and restaurants.",
+  "who_you_serve": "The target audience seems to be pizza shop owners and operators.",
+  "niche": "pizza marketing",
+  "company": "Smart Pizza Marketing Podcast",
+  "tags": [
+    "pizza",
+    "marketing",
+    "restaurant",
+    "business"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Providing marketing and business strategies for pizza shops and restaurants.",
+  "service_provided": "Podcast, resources, consulting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T03:14:18.649202"
+}

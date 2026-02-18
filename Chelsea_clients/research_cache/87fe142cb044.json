@@ -6,5 +6,25 @@
     "facebook": "https://en-gb.facebook.com/public/Pamela-Hamilton"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://hamiltontheexchange.com/coach-pam"
+  "website": "https://hamiltontheexchange.com/coach-pam",
+  "_cache_schema_version": 2,
+  "what_you_do": "Pamela is a life coach, facilitator, and author who focuses on topics like belonging, leadership, and emotional well-being.",
+  "who_you_serve": "Pamela works with leaders, teams, and individuals.",
+  "social_proof": "Pamela is a certified Mental Health First Aid Instructor, a Prepare/Enrich Facilitator, and a Certified Employee Assistance Professional (CEAP). She has delivered impactful trainings and presentations across numerous organizations.",
+  "signature_programs": "Pamela is the author of 'Second Hand Smoke', a reflective memoir on the effects of generational trauma.",
+  "niche": "life coaching, leadership development, emotional well-being",
+  "company": "The Hamilton Exchange",
+  "tags": [
+    "life coach",
+    "facilitator",
+    "author",
+    "belonging",
+    "leadership",
+    "emotional well-being"
+  ],
+  "audience_type": "leaders, teams, individuals",
+  "business_focus": "Pamela's work integrates trauma-informed practice, psychological safety principles, and human-centered leadership development.",
+  "service_provided": "life coaching, facilitation, training, presentations",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:38:23.811326"
 }

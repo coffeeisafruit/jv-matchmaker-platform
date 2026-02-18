@@ -18,5 +18,31 @@
   ],
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://milana.com/",
-  "linkedin": "https://www.linkedin.com/in/milana-leshinsky"
+  "linkedin": "https://www.linkedin.com/in/milana-leshinsky",
+  "_cache_schema_version": 2,
+  "what_you_do": "Milana Leshinsky helps passionate coaches turn their expertise into a beautifully simple, scalable business\u2014through group programs, signature offers, and aligned marketing.",
+  "who_you_serve": "Coaches",
+  "social_proof": "Milana is the author of two books, \"Coaching Millions\" and \"Simplicity Entrepreneurship\", and the creator of Coaching Genie, an online platform for designing and delivering coaching programs.",
+  "signature_programs": [
+    "Coaching Genie",
+    "Get Your Coaching Program Done",
+    "Summits Made Simple",
+    "Webinars That Sell",
+    "Licensing Revenue Secrets",
+    "Marketing Superskills Toolkit",
+    "Marketing Mojo Method",
+    "Healing Words for Heavy Hearts"
+  ],
+  "niche": "coaching, business strategy, marketing",
+  "company": "Milana Leshinsky",
+  "tags": [
+    "coaching",
+    "business strategy",
+    "marketing"
+  ],
+  "audience_type": "coaches",
+  "business_focus": "Helping coaches create easy-to-scale coaching programs and overcome fear of technology.",
+  "service_provided": "Coaching, business strategy, marketing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:07:08.418484"
 }

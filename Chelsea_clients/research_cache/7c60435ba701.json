@@ -7,5 +7,21 @@
     "linkedin": "https://www.linkedin.com/in/rdewangan"
   },
   "website": "https://quantumvisionconsulting.net/",
-  "linkedin": "https://www.linkedin.com/in/rdewangan"
+  "linkedin": "https://www.linkedin.com/in/rdewangan",
+  "_cache_schema_version": 2,
+  "what_you_do": "Quantum Vision Consulting provides cutting-edge CRM Platform and Services tailored to tech startups and professional services firms' unique needs.",
+  "who_you_serve": "Tech startups and professional services firms looking to scale their business.",
+  "booking_link": "https://callramesh.com",
+  "niche": "CRM, tech startups, professional services",
+  "tags": [
+    "crm",
+    "business growth",
+    "tech startups",
+    "professional services"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Empowering businesses through CRM solutions, automation, and technology.",
+  "service_provided": "CRM platform, business strategy, tech services",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:19:56.954322"
 }

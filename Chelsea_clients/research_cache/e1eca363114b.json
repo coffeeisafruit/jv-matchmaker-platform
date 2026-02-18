@@ -6,5 +6,17 @@
   "what_you_do": "Low-carb diet and nutrition company offering weight loss products and programs Offers: Protein bars & snacks, Shakes, Treats",
   "offering": "Protein bars & snacks, Shakes, Treats, Low-carb recipes, Weight loss plans",
   "business_focus": "Low-carb diet and nutrition company offering weight loss products and programs Offers: Protein bars & snacks, Shakes, Treats",
-  "audience_type": "People seeking weight loss and metabolic health support"
+  "audience_type": "People seeking weight loss and metabolic health support",
+  "_cache_schema_version": 2,
+  "social_proof": "award-winning",
+  "niche": "creative digital + branding studio",
+  "tags": [
+    "creative",
+    "digital",
+    "branding"
+  ],
+  "service_provided": "creative agency, branding",
+  "website": "http://www.radcat.design",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:00:49.546898"
 }

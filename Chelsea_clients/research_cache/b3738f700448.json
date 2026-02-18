@@ -9,5 +9,21 @@
     "apple_podcast": "https://podcasts.apple.com/gb/podcast/thrive-podcast/id1480400869"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://thriveflourishgrow.com/meet-beth-mcgill/"
+  "website": "https://thriveflourishgrow.com/meet-beth-mcgill/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Beth McGill is a financial advisor who helps people learn about saving, investing, and retirement planning.",
+  "who_you_serve": "Beth serves individuals, especially women, who want to learn more about personal finance and planning for the future.",
+  "booking_link": "https://calendly.com/thriveflourishgrow/initial-consultation",
+  "niche": "personal finance, financial education",
+  "phone": "(805)441-5983",
+  "tags": [
+    "financial advisor",
+    "personal finance",
+    "retirement planning"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Beth helps individuals, especially women, learn about personal finance and planning for the future.",
+  "service_provided": "financial advisory, financial education",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:16:12.988752"
 }

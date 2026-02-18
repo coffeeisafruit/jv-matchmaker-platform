@@ -23,5 +23,21 @@
   ],
   "audience_engagement_score": 0.55,
   "website": "https://www.leadershiftstrategies.com/",
-  "linkedin": "https://www.linkedin.com/in/timbojko"
+  "linkedin": "https://www.linkedin.com/in/timbojko",
+  "_cache_schema_version": 2,
+  "what_you_do": "We empower leaders to transform their influence into significance through faith-driven strategies and impactful guidance.",
+  "who_you_serve": "Leaders who are committed to making a difference in their organizations and beyond.",
+  "niche": "leadership development",
+  "tags": [
+    "leadership",
+    "executive coaching",
+    "strategic guidance",
+    "workshops",
+    "training"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Providing executive leadership coaching and speaking engagements to help leaders align their values with their vision, navigate challenges, and achieve their goals.",
+  "service_provided": "Personalized coaching, strategic guidance, workshops, training",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:31:57.074175"
 }

@@ -10,5 +10,24 @@
   },
   "audience_engagement_score": 0.55,
   "website": "https://www.lindashively.com/media/",
-  "linkedin": "https://www.linkedin.com/in/becky-lafave%25E2%25AD%2590%25EF%25B8%258F-24565863"
+  "linkedin": "https://www.linkedin.com/in/becky-lafave%25E2%25AD%2590%25EF%25B8%258F-24565863",
+  "_cache_schema_version": 2,
+  "what_you_do": "Linda Shively is a speaker, consultant, and author who helps people reclaim their joy and find purpose, especially after experiencing loss or adversity.",
+  "who_you_serve": "Linda serves entrepreneurs, business leaders, and individuals looking to transform their lives and businesses.",
+  "social_proof": "Linda has been featured in the Wall Street Journal and has a large following on her podcast and social media channels.",
+  "signature_programs": "Linda has authored the book 'Driven to Courage' and offers various programs and workshops on topics like finding joy, overcoming adversity, and mindset transformation.",
+  "niche": "joy, purpose, transformation",
+  "tags": [
+    "speaker",
+    "consultant",
+    "author",
+    "joy",
+    "purpose",
+    "transformation"
+  ],
+  "audience_type": "entrepreneurs, business leaders, individuals",
+  "business_focus": "Helping people reclaim their joy and find purpose, especially after experiencing loss or adversity.",
+  "service_provided": "speaking, consulting, workshops, coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:35:00.722218"
 }

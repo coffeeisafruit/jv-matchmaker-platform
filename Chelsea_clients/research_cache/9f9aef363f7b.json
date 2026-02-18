@@ -9,5 +9,21 @@
     "youtube": "https://www.youtube.com/watch?v=VyGS0eJ8geY"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://barbarachurchill.com/"
+  "website": "https://barbarachurchill.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Barbara Churchill Coaching & Consulting provides life and leadership coaching services.",
+  "who_you_serve": "Women leaders and professionals",
+  "social_proof": "Trusted by leaders at Microsoft, Minneapolis Area Association of Realtors, Minnesota Vikings, The Motley Fool, Toro, Wiley, Blue Water Financial Technologies, General Mills, J.B. Group, Keller Williams, Leprino Foods, and McGough",
+  "niche": "women leaders",
+  "tags": [
+    "life coaching",
+    "leadership coaching",
+    "mindset expert",
+    "confidence champion"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Inspiring and equipping women to overcome imposter syndrome by leading authentically and unapologetically.",
+  "service_provided": "Life & Leadership Coaching, Speaking",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:57:37.873084"
 }

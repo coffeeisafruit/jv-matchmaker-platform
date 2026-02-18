@@ -15,5 +15,20 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://agileentertainment.ca/our-senior-team/"
+  "website": "https://agileentertainment.ca/our-senior-team/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Agile Entertainment provides audio recording, translation, dubbing, and in-house casting services.",
+  "who_you_serve": "Agile Entertainment serves clients in the video games, animation, commercials, medical/scientific, corporate videos, and audiobooks industries.",
+  "niche": "audio production",
+  "tags": [
+    "audio recording",
+    "translation",
+    "dubbing",
+    "casting"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Agile Entertainment provides audio production services for various industries.",
+  "service_provided": "recording, translation, dubbing, in-house casting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:39:50.565084"
 }

@@ -9,5 +9,24 @@
   },
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://www.selfconfidencepro.com/about",
-  "linkedin": "https://www.linkedin.com/in/vivian-harte"
+  "linkedin": "https://www.linkedin.com/in/vivian-harte",
+  "_cache_schema_version": 2,
+  "what_you_do": "I help people become more confident within themselves to make that transformation. Through my online courses, live events, and coaching, I provide powerful strategies for people to foster positive changes within their lives.",
+  "who_you_serve": "I help people become more confident within themselves to make that transformation.",
+  "social_proof": "I am the co-author of _Self-Esteem for Dummies_ in the _Dummies_ series. And I have helped over 18,000 people learn and use confidence and assertiveness skills during the past 20 years.",
+  "signature_programs": [
+    "Online Courses",
+    "\"Self-Esteem for Dummies\" Book"
+  ],
+  "niche": "confidence, self-esteem",
+  "tags": [
+    "confidence",
+    "self-esteem",
+    "personal development"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping people become more confident within themselves to make positive changes in their lives.",
+  "service_provided": "Online courses, live events, coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:29:15.547156"
 }

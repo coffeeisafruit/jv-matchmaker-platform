@@ -7,5 +7,9 @@
     "youtube": "https://www.youtube.com/watch?v=xm99sU5ceeg"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://go.digitalmentors.io/diy-compass-complete"
+  "website": "https://go.digitalmentors.io/diy-compass-complete",
+  "_cache_schema_version": 2,
+  "booking_link": "https://go.digitalmentors.io/diy-compass-complete",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:47:53.243470"
 }

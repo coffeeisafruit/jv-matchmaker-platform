@@ -21,5 +21,22 @@
   ],
   "audience_engagement_score": 0.55,
   "website": "https://carolyncahn.com/",
-  "linkedin": "https://www.linkedin.com/in/carolyn-cahn-coach"
+  "linkedin": "https://www.linkedin.com/in/carolyn-cahn-coach",
+  "_cache_schema_version": 2,
+  "what_you_do": "Carolyn Cahn provides personal development coaching, hypnotherapy, and other services to help people transform and fulfill their potential.",
+  "who_you_serve": "Carolyn Cahn serves individuals who want to improve their quality of life and achieve their goals.",
+  "booking_link": "https://carolyncahn.com/book-a-consultation/",
+  "niche": "personal development",
+  "phone": "Mon - Thurs: 10:00 AM - 7:00 PM, Fri: 10:00 AM - 5:00 PM, Sat - Sun: Closed",
+  "company": "Carolyn Cahn",
+  "tags": [
+    "personal development",
+    "hypnotherapy",
+    "coaching"
+  ],
+  "audience_type": "individuals",
+  "business_focus": "Helping people transform and fulfill their potential through personal development coaching, hypnotherapy, and other services.",
+  "service_provided": "personal development coaching, hypnotherapy",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:36:39.476641"
 }

@@ -19,5 +19,20 @@
   ],
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://exceptionalaudiobooks.com/",
-  "linkedin": "https://www.linkedin.com/in/steve-owens-418957391"
+  "linkedin": "https://www.linkedin.com/in/steve-owens-418957391",
+  "_cache_schema_version": 2,
+  "what_you_do": "Exceptional Audiobooks provides audiobook production services.",
+  "who_you_serve": "Exceptional Audiobooks serves authors and individuals who want to create high-quality audiobooks.",
+  "niche": "audiobook production",
+  "phone": "(316) 210-2548",
+  "tags": [
+    "audiobook",
+    "narration",
+    "production"
+  ],
+  "audience_type": "authors, individuals",
+  "business_focus": "Exceptional Audiobooks provides audiobook production services to help authors and individuals create high-quality audiobooks.",
+  "service_provided": "audiobook production, narration, technical services",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:43:31.921028"
 }

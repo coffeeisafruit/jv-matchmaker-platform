@@ -16,5 +16,25 @@
     }
   ],
   "audience_engagement_score": 0.45,
-  "website": "https://marina.coach/"
+  "website": "https://marina.coach/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Marina Shakour Haber is a Life Coach specializing in clinical Hypnotherapy and Neuro-Somatic Dynamics\u2122, and is an NLP, Positive Psychology, and Time Line Therapy\u00ae Master Practitioner as well as an Author and Speaker.",
+  "who_you_serve": "High Achievers, Entrepreneurs, Dedicated Professionals",
+  "signature_programs": "Catalyst Course",
+  "booking_link": "https://marina.coach/apply",
+  "niche": "life coaching, hypnotherapy, neuro-somatic dynamics",
+  "company": "DreamWorks Coaching, Inc.",
+  "tags": [
+    "life coaching",
+    "hypnotherapy",
+    "neuro-somatic dynamics",
+    "nlp",
+    "positive psychology",
+    "time line therapy"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping high-achievers, entrepreneurs, and dedicated professionals stop spiraling and start soaring by reducing stress, anxiety, and overwhelm through life coaching, hypnotherapy, and related techniques.",
+  "service_provided": "Life Coaching, Hypnotherapy, NLP, Positive Psychology, Time Line Therapy, Empowerment & State Management Coaching, Private & Group Hypnobirthing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:30:08.457675"
 }

@@ -20,5 +20,17 @@
     }
   ],
   "website": "https://app.eventraptor.com/speaker-profiles/paula-allen",
-  "linkedin": "https://www.linkedin.com/in/paula-allen-services-for-you"
+  "linkedin": "https://www.linkedin.com/in/paula-allen-services-for-you",
+  "_cache_schema_version": 2,
+  "what_you_do": "Services For You is built on more than 20 years of entrepreneurial success and innovation. Paula Allen leverages her extensive background and passion for entrepreneurship to help businesses develop, grow, and succeed in a dynamic online world.",
+  "niche": "tech expert, online business manager, strategist, mentor",
+  "tags": [
+    "tech expert",
+    "online business manager",
+    "strategist",
+    "mentor"
+  ],
+  "business_focus": "Helping businesses develop, grow, and succeed in a dynamic online world.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:08:27.756793"
 }

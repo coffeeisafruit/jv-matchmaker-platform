@@ -8,5 +8,25 @@
     "youtube": "https://www.youtube.com/watch?v=GR_7X0exvh8"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.tonyrobbins.com/"
+  "website": "https://www.tonyrobbins.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Tony Robbins provides personal development and business coaching programs and events.",
+  "who_you_serve": "Tony Robbins serves individuals and businesses looking to improve their mindset, wealth, health, relationships, leadership, and happiness.",
+  "social_proof": "Featured in Forbes, Fortune, Inc., and Success. Over 100 million people have attended Tony Robbins' events.",
+  "signature_programs": "Unleash the Power Within, Business Mastery, Leadership Academy, Date with Destiny, Life Mastery, Wealth Mastery, Life & Wealth Mastery Fiji",
+  "niche": "personal development, business coaching",
+  "tags": [
+    "personal development",
+    "business coaching",
+    "mindset",
+    "wealth",
+    "health",
+    "relationships",
+    "leadership"
+  ],
+  "audience_type": "B2B, B2C",
+  "business_focus": "Providing personal development and business coaching programs and events to help people achieve an extraordinary life.",
+  "service_provided": "personal development programs, business coaching, events",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:02:41.850377"
 }

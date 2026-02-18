@@ -8,5 +8,21 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://daraleesimmons.com/",
-  "linkedin": "https://www.linkedin.com/in/daraleesimmons"
+  "linkedin": "https://www.linkedin.com/in/daraleesimmons",
+  "_cache_schema_version": 2,
+  "what_you_do": "Helping people take small steps towards better health so they can live beyond limitations.",
+  "who_you_serve": "People looking to improve their health and live a life full of pizazz.",
+  "signature_programs": "Healthy Meals Made Easy, Ditch the Diet Community, Plant-Powered & Painless Recipes",
+  "booking_link": "https://letsmeet.io/daraleesimmons/ditch-session",
+  "niche": "health, nutrition, wellness",
+  "tags": [
+    "health",
+    "nutrition",
+    "wellness"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping people take small steps towards better health and live a life full of pizazz.",
+  "service_provided": "Healthy recipes, meal planning, nutrition coaching, weight loss support",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:27:15.100529"
 }

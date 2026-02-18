@@ -6,5 +6,22 @@
     "linkedin": "https://www.linkedin.com/posts/stevebungay_appreviewvideo-short-aaa-activity-7307651146502787073-Hz3D",
     "apple_podcast": "https://podcasts.apple.com/zw/podcast/ecommerce-fastlane-shopify-growth-strategies-where/id1383980232"
   },
-  "website": "https://www.envisionit.com.au/about-us.html"
+  "website": "https://www.envisionit.com.au/about-us.html",
+  "_cache_schema_version": 2,
+  "what_you_do": "Envision IT is primarily an onshore software development company. They specialise in ground-breaking research, applications and products development including cyber security.",
+  "who_you_serve": "Envision IT serves SMEs to industry giants such as Aldi, JLL, Shell, Telstra, Autonomous bodies and Government Agencies, City Councils, Education (primary and secondary schools, and tertiary colleges, TAFE and universities, State and Federal Government.",
+  "social_proof": "Envision IT is ISO 9001:2015 and ISO 27001:2013 Certified. They are on the Government Panels such as Commonwealth Government's Digital Marketplace, Victorian Government eServices Panel, Municipal Association of Victoria's ICT Panel (MAV ICT Panel), NSW Government's Advanced ICT Panel, Shell on Ariba, and many others.",
+  "niche": "software development, cyber security",
+  "tags": [
+    "software development",
+    "cyber security",
+    "research",
+    "applications development",
+    "products development"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Envision IT is primarily an onshore software development company that specializes in ground-breaking research, applications and products development including cyber security.",
+  "service_provided": "software development, cyber security, licensing, resource provisioning",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:14:48.185525"
 }

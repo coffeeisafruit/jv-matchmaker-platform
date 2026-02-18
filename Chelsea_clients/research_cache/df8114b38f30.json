@@ -10,5 +10,19 @@
     "youtube": "https://www.youtube.com/watch?v=iYkODsnkoLk"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.adambricker.com/about"
+  "website": "https://www.adambricker.com/about",
+  "_cache_schema_version": 2,
+  "what_you_do": "Adam Bricker is a cinematographer based in Los Angeles.",
+  "social_proof": "Adam Bricker is a seven-time Emmy and four-time ASC nominated cinematographer.",
+  "niche": "cinematography",
+  "phone": "+1.310.860.3727, +1.310.579.9930, +1 (310) 663.0727, +\u202d1 (310) 860-3741\u202c, +44 (0) 207 278 3331, +1 (347) 477-0444",
+  "tags": [
+    "cinematographer",
+    "los angeles",
+    "chicago"
+  ],
+  "business_focus": "Adam Bricker is a cinematographer based in Los Angeles, originally from Chicago.",
+  "service_provided": "cinematography",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:13:47.358070"
 }

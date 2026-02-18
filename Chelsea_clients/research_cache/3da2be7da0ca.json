@@ -9,5 +9,18 @@
     "youtube": "https://www.youtube.com/watch?v=d7PUxtQWfAY"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.outspokenagency.com/dev-aujla"
+  "website": "https://www.outspokenagency.com/dev-aujla",
+  "_cache_schema_version": 2,
+  "what_you_do": "Dev Aujla is a speaker, author, and entrepreneur who focuses on purpose-driven business and social impact.",
+  "who_you_serve": "Businesses, entrepreneurs, and leaders looking to create positive social change.",
+  "niche": "purpose-driven business, social impact",
+  "tags": [
+    "purpose-driven business",
+    "social impact",
+    "entrepreneurship"
+  ],
+  "audience_type": "B2B, entrepreneurs, leaders",
+  "business_focus": "Helping businesses and leaders create positive social change through purpose-driven strategies.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:15:14.704189"
 }

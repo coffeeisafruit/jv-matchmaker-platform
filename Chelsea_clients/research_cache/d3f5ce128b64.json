@@ -9,5 +9,21 @@
     "spotify_podcast": "https://open.spotify.com/episode/7y2XJraFDwWlzIWDeU2tDr"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "http://www.goodtobe.co.uk/"
+  "website": "http://www.goodtobe.co.uk/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I am a mindfulness coach and teacher specialising in children and young people and those who work with them.",
+  "who_you_serve": "children and young people and those who work with them",
+  "signature_programs": "What Colour Is Your Dragon, Digital Mind, Focusing, Action for Happiness, Take a Pause",
+  "booking_link": "http://www.goodtobe.co.uk/takeapause",
+  "niche": "mindfulness, children, young people",
+  "tags": [
+    "mindfulness",
+    "children",
+    "young people"
+  ],
+  "audience_type": "B2C, coaches",
+  "business_focus": "Providing mindfulness coaching and teaching for children, young people, and those who work with them.",
+  "service_provided": "mindfulness coaching, mindfulness teaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:02:00.930018"
 }

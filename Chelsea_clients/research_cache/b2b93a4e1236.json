@@ -9,5 +9,21 @@
     "apple_podcast": "https://podcasts.apple.com/us/podcast/body-justice/id1544021404?l=ko"
   },
   "audience_engagement_score": 0.45,
-  "website": "https://www.joyfullifenutrition.com/"
+  "website": "https://www.joyfullifenutrition.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Virtual nutrition coaching for a nourished & joyful life",
+  "who_you_serve": "People struggling to break free from obsessive food thoughts, rules, and dieting",
+  "social_proof": "Testimonials from clients about the life-changing impact of the coaching",
+  "signature_programs": "Private Nutrition Coaching, Online Courses",
+  "niche": "nutrition, intuitive eating, body image",
+  "tags": [
+    "nutrition",
+    "intuitive eating",
+    "body image"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping people let go of dieting so they can live their most nourished, joyful lives",
+  "service_provided": "Virtual nutrition coaching, intuitive eating coaching, body image healing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:55:18.146734"
 }

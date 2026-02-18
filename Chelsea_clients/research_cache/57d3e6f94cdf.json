@@ -19,5 +19,25 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.podcastersdirectory.com/"
+  "website": "https://www.podcastersdirectory.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Podcasters Directory is a matchmaking platform for podcast guests and hosts.",
+  "who_you_serve": "Experts, authors, and business owners looking to get discovered, and podcasters looking to find relevant, qualified guests.",
+  "seeking": "The website does not explicitly state what partnerships or collaborations they are actively looking for.",
+  "social_proof": "The website does not provide any notable credentials, audience size, or other social proof.",
+  "signature_programs": "The website does not mention any named courses, books, frameworks, or certifications.",
+  "booking_link": "The website does not provide a direct booking link.",
+  "niche": "Podcasting",
+  "phone": "404-490-3414",
+  "tags": [
+    "podcast",
+    "guests",
+    "hosts",
+    "matchmaking"
+  ],
+  "audience_type": "Experts, authors, business owners, podcasters",
+  "business_focus": "Podcasters Directory is a platform that connects podcast guests and hosts.",
+  "service_provided": "Matchmaking, trust signals, events",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:58:24.926177"
 }

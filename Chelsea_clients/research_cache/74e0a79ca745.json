@@ -7,5 +7,22 @@
     "facebook": "https://www.facebook.com/JHACareers/"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://jhacareers.com/"
+  "website": "https://jhacareers.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "John Hadley Associates provides career coaching and job search assistance.",
+  "who_you_serve": "Job seekers and professionals looking to advance their careers.",
+  "social_proof": "Trusted by hundreds of past clients and workshop attendees.",
+  "signature_programs": "Audio Workshop Series on 'Selling Your Achievements'",
+  "booking_link": "https://calendly.com/johnwesthadley/kick-start",
+  "niche": "career coaching",
+  "tags": [
+    "career coaching",
+    "job search",
+    "career enhancement"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping job seekers and professionals advance their careers.",
+  "service_provided": "Career coaching, job search assistance",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:34:18.073392"
 }

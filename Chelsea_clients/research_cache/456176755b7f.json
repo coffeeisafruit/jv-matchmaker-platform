@@ -10,5 +10,23 @@
     "youtube": "https://www.youtube.com/watch?v=e_Ge4Wpo_hw"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://www.callmemkj.com/"
+  "website": "https://www.callmemkj.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Helps SaaS startups tie their customer journey to their profit through category design, conversational design, and customer experience optimization.",
+  "who_you_serve": "SaaS startups and innovative founding teams",
+  "offering": "Category design, conversational design, and customer experience optimization services to help SaaS startups increase revenue and scale.",
+  "social_proof": "Featured in Entrepreneur, Zapier, and other notable publications. Podcast host with proven success stories from CEO guests.",
+  "signature_programs": "Instant Clarity (2-hour consulting session), CEO M.I.S.C.H.I.E.F. Maker Podcast",
+  "booking_link": "https://www.callmemkj.com/instant-clarity/",
+  "niche": "saas, startups, customer experience",
+  "tags": [
+    "saas",
+    "startups",
+    "customer experience"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping SaaS startups and innovative founding teams optimize their customer experience to increase revenue and scale.",
+  "service_provided": "Category design, conversational design, customer experience optimization",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:05:56.181104"
 }

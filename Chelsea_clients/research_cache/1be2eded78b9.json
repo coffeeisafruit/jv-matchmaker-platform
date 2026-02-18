@@ -24,5 +24,20 @@
     }
   ],
   "audience_engagement_score": 0.65,
-  "website": "https://magicfifty.com/about/"
+  "website": "https://magicfifty.com/about/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Michela Fantinel is a life coach who helps women over 50 through a self-growth process to up-level their lives.",
+  "who_you_serve": "Women over 50",
+  "signature_programs": "Magic Fifty Online Coaching Services",
+  "niche": "life coaching, self-growth",
+  "tags": [
+    "life coaching",
+    "self-growth",
+    "women over 50"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping women over 50 through a self-growth process to up-level their lives.",
+  "service_provided": "Life coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:24:25.730332"
 }

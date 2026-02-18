@@ -9,5 +9,19 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://salesreinvented.com/episode-414-valentyn-kokoshko/",
-  "linkedin": "https://ua.linkedin.com/in/valmurashko"
+  "linkedin": "https://ua.linkedin.com/in/valmurashko",
+  "_cache_schema_version": 2,
+  "what_you_do": "Valentyn is a cold-calling professional. He led a team of 25 SDRs at Selling.com. Today, Valentyn helps companies build an effective cold-calling channel by training their SDRs on how to cold-call effectively.",
+  "who_you_serve": "Valentyn has trained over 60 specialists in various industries including SaaS, outstaffing, and IT.",
+  "niche": "cold calling, sales development",
+  "tags": [
+    "cold calling",
+    "sales development",
+    "sales training"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping companies build an effective cold-calling channel by training their SDRs.",
+  "service_provided": "Sales training, cold calling coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:36:16.075422"
 }

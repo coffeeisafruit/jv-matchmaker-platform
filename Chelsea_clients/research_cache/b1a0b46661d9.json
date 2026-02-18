@@ -23,5 +23,23 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.momentivemedia.com/about-3/"
+  "website": "https://www.momentivemedia.com/about-3/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Momentive Media is a boutique marketing agency that specializes in conscious marketing, blending data-driven strategies with soulful storytelling.",
+  "who_you_serve": "Momentive Media works with brands seeking to make a meaningful impact and connect authentically with their audiences.",
+  "seeking": "Momentive Media is seeking partnerships and collaborations with organizations committed to making a positive impact and sharing their mission of conscious marketing.",
+  "signature_programs": "Momentive Media offers a course called 'Discover the AI Advantage \u2013 Unleash Your Brand's True Power'.",
+  "niche": "conscious marketing",
+  "tags": [
+    "marketing",
+    "ai",
+    "conscious",
+    "impact",
+    "storytelling"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Momentive Media's mission is to create marketing campaigns that drive business success and contribute positively to society.",
+  "service_provided": "marketing, AI integration, creative campaigns, marketing automation, affiliate solutions",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:50:29.829075"
 }

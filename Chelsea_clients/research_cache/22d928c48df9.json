@@ -1,0 +1,37 @@
+{
+  "name": "Civic Warriors Podcast",
+  "company": "Civic Warriors Podcast",
+  "website": "https://www.withum.com/resources/civic-warriors-trailer",
+  "list_size": 0,
+  "seeking": "Seeking civic leaders, government officials, nonprofit executives, or community advocates with compelling stories about leadership and civic impact to feature on the podcast. JV partners offering leadership development training, civic engagement tools, or community-focused professional services would align with the Civic Warriors audience. Cross-promotion with public sector organizations, advocacy groups, or leadership certification programs would extend reach.",
+  "who_you_serve": "Civically engaged individuals and community leaders interested in public service and local leadership topics.",
+  "what_you_do": "Hosts podcast content centered on civic engagement and community leadership.",
+  "offering": "Podcast featuring business skills, success discussions and expert insights.",
+  "niche": "health plan advisory",
+  "service_provided": "medical claims audits, risk assessments, compliance audits, eligibility process reviews",
+  "business_size": "medium",
+  "tags": [
+    "health plans",
+    "advisory services",
+    "compliance",
+    "risk management",
+    "audits"
+  ],
+  "social_proof": "Over 30 years of experience in health plan services.",
+  "bio": "Over 30 years of experience in health plan services.",
+  "business_focus": "Hosts podcast content centered on civic engagement and community leadership. (health plan advisory)",
+  "audience_type": "B2C",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/nl/podcast/civic-warriors/id1490035821",
+    "linkedin": "https://www.linkedin.com/posts/withumsmith-brown_the-giving-circle-movement-with-grapevine-activity-7324069720784056320-9nau"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Christian Hickey: From Marine ... - Team Never Quit - Apple Podcasts",
+      "format": "podcast_guest",
+      "source_quote": "week, Marcus and Melanie sit down with an unconventional warrior with ... Sponsors: - Tractorsupply.com/hometownheroes - Navyfederal.org - meetfabiric.com/TNQ - masterclass.com/TNQ - Prizepicks ... Ep",
+      "source_url": "https://podcasts.apple.com/au/podcast/christian-hickey-from-marine-to-green-beret-to-peacemaker/id1119435387?i=1000732960450"
+    }
+  ],
+  "_cache_schema_version": 2
+}

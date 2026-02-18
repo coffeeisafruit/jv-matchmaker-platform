@@ -21,5 +21,6 @@
     "youtube": "https://www.youtube.com/c/LastRequestBarbeque",
     "twitter": "https://twitter.com/LastRequestBBQ"
   },
-  "audience_engagement_score": 0.6000000000000001
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2
 }

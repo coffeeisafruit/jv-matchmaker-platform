@@ -29,5 +29,19 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://cherrytree.com/about/"
+  "website": "https://cherrytree.com/about/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Cherry Tree & Associates provides investment banking services, which has become its primary business line.",
+  "who_you_serve": "Cherry Tree serves business owners, financial sponsors, and large corporations in their M&A transactions, funding efforts and other advisory roles.",
+  "niche": "investment banking",
+  "tags": [
+    "investment banking",
+    "m&a",
+    "advisory"
+  ],
+  "audience_type": "business owners, financial sponsors, corporations",
+  "business_focus": "Cherry Tree, headquartered in Minneapolis, Minnesota, was founded in 1980 as a private equity/venture capital firm and later expanded into investment banking in 1996.",
+  "service_provided": "M&A transactions, funding efforts, advisory roles",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:59:40.617666"
 }

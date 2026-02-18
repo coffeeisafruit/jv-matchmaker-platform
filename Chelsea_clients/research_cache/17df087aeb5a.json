@@ -30,5 +30,23 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://sigunlimited.com/about-us/"
+  "website": "https://sigunlimited.com/about-us/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Guiding leaders and their teams through rapid change and disruption, transforming the complex into the compelling, and seeing potential in businesses, brands and people that others cannot.",
+  "who_you_serve": "Forward-thinking companies around the world and across major business sectors, including tech, manufacturing and professional services.",
+  "social_proof": "Over three decades of experience guiding leaders through multiple recessions, business ages, and the global pandemic.",
+  "signature_programs": "The Thrive Leadership Ecosystem, including the Thrive Leadership Operating System and Performance Ecosystem model.",
+  "booking_link": "https://api.leadconnectorhq.com/widget/bookings/david-edward-discovery-interview",
+  "niche": "leadership transformation",
+  "tags": [
+    "leadership",
+    "transformation",
+    "disruption",
+    "change management"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Transforming how leaders think about their business to navigate disruption, drive growth and performance, and align products and services to evolving customer needs.",
+  "service_provided": "Leadership coaching, business transformation, growth strategy",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:37:23.112423"
 }

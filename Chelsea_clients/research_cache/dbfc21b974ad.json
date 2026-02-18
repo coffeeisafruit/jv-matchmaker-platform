@@ -25,5 +25,6 @@
     "youtube": "https://www.youtube.com/watch?v=WdpC5VF4QNE",
     "linkedin": "https://www.linkedin.com/products/rev-com-rev/"
   },
-  "audience_engagement_score": 0.55
+  "audience_engagement_score": 0.55,
+  "_cache_schema_version": 2
 }

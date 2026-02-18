@@ -19,5 +19,23 @@
     }
   ],
   "audience_engagement_score": 0.65,
-  "website": "https://www.hipcatsociety.com/"
+  "website": "https://www.hipcatsociety.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "HipCat Society provides a marketing platform and coaching for non-marketers to help them set up a strategy, choose the right tactics, and get into momentum to spread their message and gain raving fans.",
+  "who_you_serve": "Coaches, consultants, and service providers",
+  "seeking": "Action-driven and mission-focused coaches, speakers, consultants, or service providers as Founding Members",
+  "booking_link": "https://keap.app/booking/hipcatsociety/15-minute-initial-consultation",
+  "niche": "marketing for non-marketers",
+  "phone": "360.654.4145",
+  "tags": [
+    "marketing",
+    "coaching",
+    "consulting",
+    "service providers"
+  ],
+  "audience_type": "B2B, coaches",
+  "business_focus": "Helping coaches, consultants, and service providers set up marketing automation, reliable systems, and get expert coaching to attract their dream clients.",
+  "service_provided": "Marketing automation, strategy roadmaps, results blueprints, optimized templates and automations, 1:1 and group coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:16:28.822690"
 }

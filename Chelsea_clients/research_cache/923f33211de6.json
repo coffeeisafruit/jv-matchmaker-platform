@@ -10,5 +10,17 @@
     "linkedin": "https://www.linkedin.com/posts/rob-clarke-805a0013_radio-times-has-undergone-its-first-significant-activity-7427301692272062465-GWlH"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://99designs.co.uk/logo-design/contests/logo-design-wilma-republic-38483"
+  "website": "https://99designs.co.uk/logo-design/contests/logo-design-wilma-republic-38483",
+  "_cache_schema_version": 2,
+  "what_you_do": "We are a new internet company based in germany focusing on starting online services with a focus on personalization.",
+  "who_you_serve": "Our B2C sites will carry a disclaimer like this: \"... is a product from Wilma Republic\", wr target audience are our partner companies",
+  "niche": "online services, personalization",
+  "tags": [
+    "online services",
+    "personalization"
+  ],
+  "audience_type": "B2B, B2C",
+  "business_focus": "Starting online services with a focus on personalization",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:49:09.935173"
 }

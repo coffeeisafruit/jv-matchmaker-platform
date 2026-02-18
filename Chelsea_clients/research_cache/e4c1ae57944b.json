@@ -17,5 +17,24 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.businesscardtobusiness.com/press/BC2B_Press_Kit.pdf"
+  "website": "https://www.businesscardtobusiness.com/press/BC2B_Press_Kit.pdf",
+  "_cache_schema_version": 2,
+  "what_you_do": "Reno Lovison provides web video production, podcasting, marketing strategy, and business communication services through RenoWeb.net.",
+  "who_you_serve": "Businesses and nonprofit organizations seeking video production and marketing communication services.",
+  "social_proof": "Author of 'Turn Your Business Card Into Business' (ISBN 1434847683); 500+ LinkedIn connections.",
+  "signature_programs": "Turn Your Business Card Into Business (book)",
+  "niche": "video marketing",
+  "tags": [
+    "video production",
+    "podcasting",
+    "marketing strategy",
+    "business communication",
+    "sales training",
+    "website development"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Video production and marketing strategy for businesses and nonprofits in the Chicago area.",
+  "service_provided": "video production, podcasting, marketing strategy, website development, sales training, promotional products, event management",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:18:05.438114"
 }

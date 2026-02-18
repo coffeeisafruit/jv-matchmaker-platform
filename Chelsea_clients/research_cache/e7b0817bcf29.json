@@ -8,5 +8,24 @@
     "youtube": "https://www.youtube.com/watch?v=DqdwNcw9b18"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.bradwarren.com/"
+  "website": "https://www.bradwarren.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Brad Warren is the founder and owner of Bradley K. Warren & Associates, Inc. Brad is a business coach, seminar leader and trainer, consultant, and a certified ONE Thing trainer.",
+  "who_you_serve": "Brad offers one-on-one coaching to real estate professionals, entrepreneurs, executives, and sole proprietors.",
+  "social_proof": "Brad has taught to audiences across the United States and in 18 foreign countries over the last 35 years, reaching over 40,000 people during that time.",
+  "signature_programs": "The ONE Thing, Platinum Rule, Negotiation Skills, Anger Management, Time Management, Effective Meetings, Powerful Presentations, Lead Generation",
+  "niche": "business coaching",
+  "phone": "510-537-0107",
+  "tags": [
+    "business coach",
+    "seminar leader",
+    "trainer",
+    "consultant",
+    "one thing"
+  ],
+  "audience_type": "B2B, entrepreneurs, executives, sole proprietors",
+  "business_focus": "Brad offers one-on-one coaching and training programs to help clients improve their business effectiveness and productivity.",
+  "service_provided": "coaching, seminars, training, consulting",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:42:38.171388"
 }

@@ -13,5 +13,8 @@
     "spotify_podcast": "https://open.spotify.com/show/6M9siEu4KAUXrbVRGIrued"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "linkedin": "https://www.linkedin.com/in/donna-smith-tech"
+  "linkedin": "https://www.linkedin.com/in/donna-smith-tech",
+  "_cache_schema_version": 2,
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:39:03.042969"
 }

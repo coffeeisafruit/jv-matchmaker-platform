@@ -9,5 +9,13 @@
     "facebook": "https://www.facebook.com/groups/112771712229961/posts/2440395209467588/"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://gerardodonovan.com/"
+  "website": "https://gerardodonovan.com/",
+  "_cache_schema_version": 2,
+  "social_proof": "AFC fellow coach",
+  "niche": "coaching",
+  "tags": [
+    "coaching"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:03:41.798427"
 }

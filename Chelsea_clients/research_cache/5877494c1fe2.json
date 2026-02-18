@@ -17,5 +17,24 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://michelleleecoaching.com/"
+  "website": "https://michelleleecoaching.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Sales and business coach who helps clients increase sales up to 300%, close deals faster, and build stronger relationships using the BANK\u00ae methodology and proven systems.",
+  "who_you_serve": "Business owners and professionals looking to exponentially grow their business through improved sales and relationship-building skills.",
+  "social_proof": "Level 5 Certified BANK\u00ae Coach & Trainer",
+  "signature_programs": "BANK\u00ae methodology; 'Crack the People Code' workshop/event",
+  "niche": "sales coaching",
+  "tags": [
+    "sales coaching",
+    "bank methodology",
+    "business growth",
+    "personality types",
+    "relationship building",
+    "communication"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping business owners increase sales and build stronger relationships using personality-based communication systems.",
+  "service_provided": "sales coaching, business coaching, BANK methodology training, personality type workshops",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:16:55.003601"
 }

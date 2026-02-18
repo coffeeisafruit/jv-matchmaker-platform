@@ -16,5 +16,21 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://investopedia.com/contributors/115"
+  "website": "https://investopedia.com/contributors/115",
+  "_cache_schema_version": 2,
+  "what_you_do": "Partner & Lead Adviser at FMP Wealth Advisers",
+  "who_you_serve": "Clients in Austin, Texas",
+  "social_proof": "Chartered Retirement Planning Counselor (CRPC) and CMT Level II Investment Analyst; Editor of the CMT Association's newsletter, Technically Speaking; Two-time World Champion of Public Speaking Semifinalist",
+  "niche": "financial services",
+  "company": "FMP Wealth Advisers",
+  "tags": [
+    "financial planning",
+    "investment analysis",
+    "public speaking"
+  ],
+  "audience_type": "clients",
+  "business_focus": "Helps clients with their financial planning and investment management needs",
+  "service_provided": "financial planning, investment management",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:41:50.048562"
 }

@@ -9,5 +9,21 @@
     "apple_podcast": "https://podcasts.apple.com/us/podcast/123-meet-lawyerist-ceo-stephanie-everett-creating-scalable/id1398052347?i=1000681546352&l=es-MX"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://coachstephaniewood.com/"
+  "website": "https://coachstephaniewood.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I coach women entrepreneurs to learn various methods to showcase their talents to the world with their Business, their Confidence and their Health",
+  "who_you_serve": "women entrepreneurs",
+  "signature_programs": "Body Knowledge Entrepreneurship Coaching Program",
+  "niche": "women entrepreneurs",
+  "tags": [
+    "women entrepreneurs",
+    "business coaching",
+    "confidence coaching",
+    "health coaching"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Coaching women entrepreneurs to build their business, confidence and health",
+  "service_provided": "Business coaching, confidence coaching, health coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:32:31.622913"
 }

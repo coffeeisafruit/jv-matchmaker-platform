@@ -11,5 +11,22 @@
     "youtube": "https://www.youtube.com/watch?v=yt7WtrVd0is"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://www.olgasperez.com/blog.html"
+  "website": "https://www.olgasperez.com/blog.html",
+  "_cache_schema_version": 2,
+  "what_you_do": "Olga S. P\u00e9rez is a life strategist, keynote speaker, entrepreneur, philanthropist and life coach.",
+  "who_you_serve": "Olga has worked with people from every walk of life, including business owners, parents, couples, celebrities and artists in over six different countries.",
+  "social_proof": "Olga was voted Best Life Coach in Philadelphia in 2021.",
+  "niche": "life coaching",
+  "tags": [
+    "life strategist",
+    "keynote speaker",
+    "entrepreneur",
+    "philanthropist",
+    "life coach"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Empowering individuals to achieve their highest self and reach for their goals.",
+  "service_provided": "life coaching, speaking, events",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:38:16.516813"
 }

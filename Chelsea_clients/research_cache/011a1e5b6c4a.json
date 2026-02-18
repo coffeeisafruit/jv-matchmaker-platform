@@ -7,5 +7,25 @@
     "youtube": "https://www.youtube.com/watch?v=2M-ihvYn2uY"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://positivepsychology.com/case-studies/steve-pearson/"
+  "website": "https://positivepsychology.com/case-studies/steve-pearson/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Steve Pearson is the founder of the Gut Gratitude Community App, a platform dedicated to helping others transform their lives through the power of gratitude.",
+  "who_you_serve": "Steve helps others create a grateful mindset through bespoke coaching programs and the Gut Gratitude Community App.",
+  "signature_programs": [
+    "The Positive Psychology Toolkit\u00a9",
+    "Mindfulness X\u00a9",
+    "The 7 Pillars of a Profitable Practice Course"
+  ],
+  "niche": "gratitude",
+  "tags": [
+    "gratitude",
+    "positive psychology",
+    "mindfulness",
+    "coaching"
+  ],
+  "audience_type": "coaches, individuals",
+  "business_focus": "Helping others transform their lives through the power of gratitude.",
+  "service_provided": "Coaching, community app",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:44:50.691172"
 }

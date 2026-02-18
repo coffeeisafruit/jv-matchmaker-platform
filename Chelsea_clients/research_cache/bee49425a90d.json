@@ -17,5 +17,18 @@
   ],
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://www.theglobeandmail.com/investing/markets/markets-news/GetNews/30877330/researchbacked-solution-by-dr-amanda-tambuyser-to-help-women-reclaim-10-hours-a-week-and-boost-personal-satisfaction-by-70-in-just-8-weeks/",
-  "linkedin": "https://be.linkedin.com/in/dr-amanda-tambuyser"
+  "linkedin": "https://be.linkedin.com/in/dr-amanda-tambuyser",
+  "_cache_schema_version": 2,
+  "what_you_do": "Research-backed solution to help women reclaim 10 hours a week and boost personal satisfaction by 70% in just 8 weeks.",
+  "who_you_serve": "Women",
+  "niche": "women's productivity",
+  "tags": [
+    "women",
+    "productivity",
+    "personal satisfaction"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing a research-backed solution to help women improve their productivity and personal satisfaction.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:03:59.049803"
 }

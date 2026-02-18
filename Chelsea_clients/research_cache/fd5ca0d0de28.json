@@ -7,5 +7,22 @@
     "linkedin": "https://de.linkedin.com/posts/lindengruppenab_asustainabletomorrow-ast-conference-activity-6975858315427815424-4QBs",
     "spotify_podcast": "https://open.spotify.com/artist/560n5qMqJpZzOMxSk7nod4"
   },
-  "website": "https://wowhomesbylinda.com/testimonials"
+  "website": "https://wowhomesbylinda.com/testimonials",
+  "_cache_schema_version": 2,
+  "what_you_do": "Linda von Wowern is a REALTOR and Professional Home Stager helping sellers and buyers in the real estate market.",
+  "who_you_serve": "Home sellers and buyers in the real estate market.",
+  "social_proof": "Client testimonials describing her as going 'above and beyond' with quick sales results.",
+  "niche": "real estate",
+  "tags": [
+    "real estate",
+    "home staging",
+    "realtor",
+    "buyers agent",
+    "sellers agent"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Residential real estate sales and home staging services for buyers and sellers.",
+  "service_provided": "real estate sales, home staging, buyer representation, seller representation",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:15:08.623003"
 }

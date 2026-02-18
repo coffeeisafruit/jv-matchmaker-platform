@@ -17,5 +17,24 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://blairgorman.com/"
+  "website": "https://blairgorman.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Blair Gorman operates Numerologist.com, providing personalized numerology and astrology reports, forecasts, video readings, and numerological guidance.",
+  "who_you_serve": "Individuals seeking personal guidance, life direction, and self-discovery through numerology and astrology.",
+  "social_proof": "Master Numerologist and NLP Master Practitioner with 26 years of practicing numerology; Bachelor of Science degree.",
+  "signature_programs": "Free Numerology Reading; personalized video readings (life path, true path, finding spark, overcoming obstacles)",
+  "niche": "numerology astrology",
+  "tags": [
+    "numerology",
+    "astrology",
+    "life path",
+    "nlp",
+    "personal readings",
+    "spiritual guidance"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing personalized numerology and astrology insights to help individuals understand their life path and personal numbers.",
+  "service_provided": "personalized numerology reports, astrology reports, video readings, free numerology reading, life path analysis",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:18:05.701081"
 }

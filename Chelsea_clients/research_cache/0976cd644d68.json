@@ -23,5 +23,21 @@
   ],
   "audience_engagement_score": 0.55,
   "website": "https://virtualeventsalesteam.com/hpespodcast/",
-  "linkedin": "https://www.linkedin.com/in/shannonlaw"
+  "linkedin": "https://www.linkedin.com/in/shannonlaw",
+  "_cache_schema_version": 2,
+  "what_you_do": "V.E.S.T. (Virtual Event Sales Team) provides coaching and services to help event leaders make a $10,000 or higher coaching offer at their virtual events and have up to 20% of their attendees buy it.",
+  "who_you_serve": "Event leaders and virtual event organizers.",
+  "signature_programs": "The High Profit Event Show Podcast",
+  "booking_link": "https://virtualeventsalesteam.com/lets-do-a-live-strategy-session-to-help-you-reach-your-goals/",
+  "niche": "virtual events",
+  "tags": [
+    "virtual events",
+    "event sales",
+    "coaching"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping event leaders make high-ticket coaching offers at their virtual events.",
+  "service_provided": "Coaching, virtual event sales strategy",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:34:22.248052"
 }

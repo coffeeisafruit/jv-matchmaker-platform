@@ -18,5 +18,21 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://coaches.scalingup.com/coaches/mark-miller"
+  "website": "https://coaches.scalingup.com/coaches/mark-miller",
+  "_cache_schema_version": 2,
+  "what_you_do": "Mark Miller is the founder of Flywheel LLC, a business coaching practice dedicated to accelerating growth in mid-market companies.",
+  "who_you_serve": "Mid-market companies.",
+  "social_proof": "Scaling Up Certified Coach, CEO + Leadership Team Coach, Strategic Planning Facilitator, Global Mastermind Facilitator",
+  "niche": "business coaching",
+  "tags": [
+    "business coaching",
+    "strategic planning",
+    "leadership development",
+    "growth acceleration"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Accelerating growth in mid-market companies through the implementation of a disciplined growth framework.",
+  "service_provided": "Business coaching, strategic planning, leadership development, growth acceleration",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:48:34.015374"
 }

@@ -11,5 +11,25 @@
   },
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://coachmitchrusso.com/program",
-  "linkedin": "https://www.linkedin.com/in/mitchrusso"
+  "linkedin": "https://www.linkedin.com/in/mitchrusso",
+  "_cache_schema_version": 2,
+  "what_you_do": "Mitch Russo is a business coach, author, and podcast host who helps CEOs and entrepreneurs grow their businesses through certification programs and strategic coaching.",
+  "who_you_serve": "Business owners and CEOs who want to scale their companies and create recurring revenue.",
+  "social_proof": "Founded Timeslips Corp and sold it for eight figures; served as COO of Sage PLC; worked with Tony Robbins and Chet Holmes to build a $25M business; author with 25+ years of business experience.",
+  "signature_programs": "The Invisible Organization (book); custom Certification Programs",
+  "booking_link": "https://mitchrusso.com/book-a-call/",
+  "niche": "business coaching",
+  "tags": [
+    "business coaching",
+    "certification programs",
+    "recurring revenue",
+    "ceo strategy",
+    "company scaling",
+    "entrepreneurship"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping CEOs and entrepreneurs scale their businesses and create recurring revenue through custom certification programs.",
+  "service_provided": "business coaching, certification program creation, CEO strategy, company scaling",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:16:53.709527"
 }

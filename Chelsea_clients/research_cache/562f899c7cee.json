@@ -18,5 +18,23 @@
   ],
   "audience_engagement_score": 0.45,
   "website": "https://avagency.com/",
-  "linkedin": "https://www.linkedin.com/in/josh-roberson-b774b819a"
+  "linkedin": "https://www.linkedin.com/in/josh-roberson-b774b819a",
+  "_cache_schema_version": 2,
+  "what_you_do": "The AV Agency helps clients maximize post-event ROI using AV and event production services.",
+  "who_you_serve": "Meeting planners and event organizers seeking to improve event return on investment.",
+  "social_proof": "Featured at AMI Global Procurement Day; Instagram presence as 'the event ROI guy'.",
+  "booking_link": "avagency.com/calendar",
+  "niche": "event AV ROI",
+  "tags": [
+    "event production",
+    "AV services",
+    "event ROI",
+    "meeting planning",
+    "event technology"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Maximizing post-event ROI through AV and event production services for meeting planners.",
+  "service_provided": "AV production, event ROI consulting",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:13:40.669865"
 }

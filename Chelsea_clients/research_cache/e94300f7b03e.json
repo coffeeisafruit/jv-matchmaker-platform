@@ -19,5 +19,20 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://drlaramay.podbean.com/"
+  "website": "https://drlaramay.podbean.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Lara May hosts the Light Body Radio podcast, which provides tools and information to improve health and happiness.",
+  "who_you_serve": "The podcast is for a general audience interested in wellness and holistic health.",
+  "social_proof": "11.4K downloads, 250 episodes",
+  "niche": "holistic health, wellness",
+  "tags": [
+    "holistic health",
+    "wellness",
+    "podcast"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing educational content on holistic health and wellness through a podcast.",
+  "service_provided": "Podcast episodes",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:05:38.332954"
 }

@@ -6,5 +6,23 @@
     "youtube": "https://www.youtube.com/watch?v=3bsi2wZROSc"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://innerbusinesscoach.com/"
+  "website": "https://innerbusinesscoach.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Patty Blakesley provides individualized coaching and a proven system to transform clients and their businesses.",
+  "who_you_serve": "Patty serves clients who desire to improve their life and grow their business.",
+  "social_proof": "Patty is a contributor to the #1 Amazon best-seller, Inspired by the Passion Test.",
+  "booking_link": "https://innerbusinesscoach.com/schedule/",
+  "niche": "business coaching",
+  "phone": "847.922.5509",
+  "company": "Inner Business Coaching",
+  "tags": [
+    "business coaching",
+    "leadership development",
+    "personal coaching"
+  ],
+  "audience_type": "B2B, B2C",
+  "business_focus": "Patty is committed to educate, encourage, inspire and support her clients to improve all aspects of their life and business.",
+  "service_provided": "Personal Coaching, Business Coaching, Leadership Training, Training workshops",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:42:59.040480"
 }

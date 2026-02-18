@@ -3,5 +3,21 @@
   "company": "The Mystic Geek",
   "list_size": 300,
   "offering": "Business Coachi",
-  "website": "https://bookings.themysticgeek.com/"
+  "website": "https://bookings.themysticgeek.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I help spiritual seekers gain the insight to handle whatever life throws at them.",
+  "who_you_serve": "My clients approach me with their concerns - ranging from common topics like work and relationships, to deeper topics like spirit guide messages or overcoming limiting beliefs.",
+  "booking_link": "https://bookings.themysticgeek.com/schedule-a-session/",
+  "niche": "spiritual guidance",
+  "tags": [
+    "intuition",
+    "self-discovery",
+    "spiritual",
+    "guidance"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Providing intuitive guidance and support to spiritual seekers.",
+  "service_provided": "Intuitive readings, spiritual guidance, self-discovery coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:53:04.819531"
 }

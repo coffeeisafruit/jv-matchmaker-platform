@@ -17,5 +17,21 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://nowgoflourish.com/meet-martha-blog/"
+  "website": "https://nowgoflourish.com/meet-martha-blog/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Martha Alexander is a coach who helps others live life fully aligned with their deepest commitments and attend to the health of their mind, body, and spirit.",
+  "who_you_serve": "Those who aspire to live their best life, grow into their purpose, maximize their potential, and flourish.",
+  "booking_link": "https://nowgoflourish.com/contact-me/",
+  "niche": "life coaching, personal growth",
+  "tags": [
+    "life coaching",
+    "personal growth",
+    "wellness",
+    "spirituality"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping individuals live their best life through coaching, workshops, and products.",
+  "service_provided": "Life coaching, workshops, products",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:39:09.449743"
 }

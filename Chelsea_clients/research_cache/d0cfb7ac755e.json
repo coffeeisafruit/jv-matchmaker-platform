@@ -20,5 +20,20 @@
       "source_url": "https://open.spotify.com/episode/4zlWbsPDcq8hEsV4xampJO"
     }
   ],
-  "website": "https://www.bertamedina.com/"
+  "website": "https://www.bertamedina.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Coach, speaker, and author dedicated to helping coaches, speakers, and entrepreneurs unlock their full potential.",
+  "who_you_serve": "Coaches, speakers, and entrepreneurs.",
+  "social_proof": "Testimonials from clients indicating success in transforming lives and guiding individuals to achieve unparalleled success.",
+  "niche": "coaching, speaking, entrepreneurship",
+  "tags": [
+    "coaching",
+    "speaking",
+    "entrepreneurship"
+  ],
+  "audience_type": "coaches, speakers, entrepreneurs",
+  "business_focus": "Empowering coaches, speakers, and entrepreneurs to unlock their full potential.",
+  "service_provided": "coaching, speaking, authoring",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:47:57.448571"
 }

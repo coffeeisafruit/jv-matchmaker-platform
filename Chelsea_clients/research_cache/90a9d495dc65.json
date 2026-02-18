@@ -26,5 +26,6 @@
     "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2FLibrePlanet%2F"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://www.liberatemetm.com/"
+  "website": "https://www.liberatemetm.com/",
+  "_cache_schema_version": 2
 }

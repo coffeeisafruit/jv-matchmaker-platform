@@ -10,5 +10,19 @@
   },
   "audience_engagement_score": 0.55,
   "website": "https://gmailsendertraining.nicolaskyle.com/",
-  "linkedin": "https://ca.linkedin.com/in/nick-kyle-78b1b9156"
+  "linkedin": "https://ca.linkedin.com/in/nick-kyle-78b1b9156",
+  "_cache_schema_version": 2,
+  "what_you_do": "I'm an email list manager and deliverability expert from Vancouver Canada. I work with businesses to revitalize or revive their underperforming or dead email lists and turn them into consistent sources of revenue.",
+  "who_you_serve": "businesses",
+  "niche": "email marketing",
+  "tags": [
+    "email list management",
+    "email deliverability",
+    "email marketing"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping businesses revitalize and revive their email lists.",
+  "service_provided": "email list management, email deliverability",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:32:08.312046"
 }

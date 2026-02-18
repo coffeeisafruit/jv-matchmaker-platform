@@ -10,5 +10,20 @@
     "spotify_podcast": "https://open.spotify.com/episode/2FZCoMlCCL3AmJNwUtboyr"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://charyllewolfe.com/courses-1"
+  "website": "https://charyllewolfe.com/courses-1",
+  "_cache_schema_version": 2,
+  "what_you_do": "Specializing in the unique challenges and opportunities faced by entrepreneurial couples, offering a comprehensive roadmap to build a resilient, successful partnership both at home and in business.",
+  "who_you_serve": "Entrepreneurial couples",
+  "signature_programs": "Relationship Resurrection Blueprint",
+  "niche": "entrepreneurial couples",
+  "tags": [
+    "entrepreneurial couples",
+    "relationship building",
+    "business partnership"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping entrepreneurial couples build resilient, successful partnerships both at home and in business.",
+  "service_provided": "Courses, coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:28:53.482130"
 }

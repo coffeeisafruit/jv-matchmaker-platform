@@ -7,5 +7,17 @@
     "tiktok": "https://www.tiktok.com/discover/home-health-care"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://drlewisnutrition.com/pages/dr-mary-zennett"
+  "website": "https://drlewisnutrition.com/pages/dr-mary-zennett",
+  "_cache_schema_version": 2,
+  "what_you_do": "Dr. Mary Zennett is the Founder of Movement For Global Health. Empowering individuals, activating communities, compassion for the world.",
+  "who_you_serve": "Together we can and will create a healthy world.",
+  "niche": "global health",
+  "tags": [
+    "global health",
+    "healthy world",
+    "empowering individuals"
+  ],
+  "business_focus": "Empowering individuals, activating communities, and creating a healthy world.",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:17:42.695552"
 }

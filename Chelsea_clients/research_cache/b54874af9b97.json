@@ -10,5 +10,21 @@
     "spotify_podcast": "https://open.spotify.com/episode/2CaDa9GpjkTi7Ads83pQgm"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "http://www.lgaconsultants.com/about_bio_leni.htm"
+  "website": "http://www.lgaconsultants.com/about_bio_leni.htm",
+  "_cache_schema_version": 2,
+  "what_you_do": "Leni is an ICF-credentialed coach, certified organizational change management consultant, and leadership and team developer.",
+  "who_you_serve": "Leni's clients include mature and emerging leaders, teams, partners and individual professionals who are navigating disruption, overwhelm and/or key transitions in their lives and careers.",
+  "social_proof": "International Coach Federation (ICF) Associate Certified Coach since 2008, Newfield Network Certified Coach since 2007, MS in OD/Behavioral Sciences and Fellow in Change Management from Johns Hopkins University, Contributing author/editor to Neil Rackham's The SPIN\u00a9 Selling Fieldbook",
+  "niche": "leadership development, organizational change",
+  "tags": [
+    "leadership development",
+    "organizational change",
+    "coaching",
+    "consulting"
+  ],
+  "audience_type": "B2B, individuals",
+  "business_focus": "Leni is an ICF-credentialed coach, certified organizational change management consultant, and leadership and team developer, with over 35 years as a business owner and manager.",
+  "service_provided": "coaching, organizational change management, leadership development, team development",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:55:17.392036"
 }

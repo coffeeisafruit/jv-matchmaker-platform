@@ -1,0 +1,29 @@
+{
+  "name": "Oilfield Basics Discover Podcast",
+  "list_size": 1000,
+  "what_you_do": "Oilfield Basics Discover Podcast produces educational podcast content about the oil and gas industry, likely targeting people looking to enter or understand the oilfield sector.",
+  "offering": "Oilfield Basics Discover Podcast - podcast content about oilfield industry basics",
+  "who_you_serve": "The podcast serves individuals interested in learning about the oilfield industry, including industry professionals and enthusiasts.",
+  "niche": "oilfield education",
+  "company": "Oilfield Basics",
+  "service_provided": "podcast",
+  "phone": "(740) 538-0379",
+  "business_size": "small_team",
+  "tags": [
+    "podcast",
+    "oilfield",
+    "education",
+    "interviews",
+    "industry insights"
+  ],
+  "business_focus": "Oilfield Basics Discover Podcast produces educational podcast content about the oil and gas industry, likely targeting people looking to enter or understand the oilfield sector. (oilfield education)",
+  "audience_type": "B2C",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/ep-1-mwd-basics-with-david-gibson/id1455174997?i=1000431739227",
+    "youtube": "https://www.youtube.com/watch?v=yQxPqlth7_E",
+    "spotify_podcast": "https://open.spotify.com/show/4wfJ1tsnvePOCaxm7R3Mnj"
+  },
+  "audience_engagement_score": 0.55,
+  "website": "https://oilfieldbasics.com/podcast/",
+  "_cache_schema_version": 2
+}

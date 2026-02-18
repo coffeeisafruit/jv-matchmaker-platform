@@ -10,5 +10,25 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://1personalcareercoach.com/about-us",
-  "linkedin": "https://www.linkedin.com/in/davidashensky"
+  "linkedin": "https://www.linkedin.com/in/davidashensky",
+  "_cache_schema_version": 2,
+  "what_you_do": "Career and life coaching that blends mindset transformation with AI-powered strategies to help individuals unlock their capabilities, overcome inner limitations, and create success on their own terms.",
+  "who_you_serve": "Professionals feeling stuck or burned out, coaches and solopreneurs, career changers, and individuals struggling with self-doubt or fear of failure.",
+  "social_proof": "Certified AI Integration & Strategy Consultant, 20+ years in career development, business coaching, and personal growth, Founder of Career Performance Institute, Host of podcast: Live Without Limits: Reach Personal Success on a Daily Basis",
+  "signature_programs": "Live Without Limits: Reach Personal Success on a Daily Basis (podcast), mindset reset courses, daily success challenges",
+  "niche": "Career & Life Coaching",
+  "phone": "404-655-5159",
+  "tags": [
+    "career coaching",
+    "life coaching",
+    "mindset transformation",
+    "ai strategy",
+    "solopreneur coaching",
+    "personal development"
+  ],
+  "audience_type": "B2C, coaches, solopreneurs, professionals",
+  "business_focus": "Empowering professionals and entrepreneurs to transform their mindset and leverage AI tools for career and business growth.",
+  "service_provided": "1:1 career and life coaching sessions, mindset transformation programs, AI strategy consulting for solopreneurs, online courses and live challenges, private masterminds and digital business blueprints",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:35:46.125749"
 }

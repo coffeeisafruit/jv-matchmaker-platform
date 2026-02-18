@@ -9,5 +9,9 @@
     "apple_podcast": "https://podcasts.apple.com/us/podcast/the-impact-compass/id1794590113"
   },
   "audience_engagement_score": 0.45,
-  "website": "https://aceconcierge.net/testimonials/"
+  "website": "https://aceconcierge.net/testimonials/",
+  "_cache_schema_version": 2,
+  "service_provided": "virtual assistant services, social media management, editing, scheduling, client outreach",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:33:39.856168"
 }

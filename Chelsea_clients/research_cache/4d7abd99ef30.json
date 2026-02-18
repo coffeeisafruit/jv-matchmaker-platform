@@ -10,5 +10,21 @@
   },
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://drubenstein.com/",
-  "linkedin": "https://www.linkedin.com/in/drubenstein"
+  "linkedin": "https://www.linkedin.com/in/drubenstein",
+  "_cache_schema_version": 2,
+  "what_you_do": "Owner of All In Entry, a business that helps organize contacts and databases.",
+  "seeking": "Partnerships and collaborations to help clients realize the true value of their database.",
+  "booking_link": "https://drubenstein.com/",
+  "niche": "contact management",
+  "phone": "314-550-0950",
+  "tags": [
+    "contact management",
+    "crm",
+    "database organization"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping businesses and professionals organize their contacts and databases to maximize opportunities and enhance productivity.",
+  "service_provided": "Contact management, CRM optimization, database organization",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:25:53.177491"
 }

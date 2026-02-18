@@ -5,5 +5,8 @@
   "list_size": 0,
   "content_platforms": {
     "apple_podcast": "https://podcasts.apple.com/be/podcast/take-notes-with-balmages-and-bernotas/id1842380531?l=nl"
-  }
+  },
+  "_cache_schema_version": 2,
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:45:29.747167"
 }

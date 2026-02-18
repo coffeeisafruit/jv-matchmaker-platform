@@ -11,5 +11,22 @@
   },
   "audience_engagement_score": 0.4,
   "website": "https://wildwomanmarketing.com/about-us",
-  "linkedin": "https://www.linkedin.com/in/lesliecapps"
+  "linkedin": "https://www.linkedin.com/in/lesliecapps",
+  "_cache_schema_version": 2,
+  "what_you_do": "I'm an international best-selling author, celebrated speaker, and dedicated ultrapreneur. My mission is to help you shine by sharing your truth \u2014 clearly, confidently, and strategically.",
+  "who_you_serve": "I guide you to craft narratives that define and elevate your brand.",
+  "social_proof": "international best-selling author, celebrated speaker",
+  "booking_link": "https://api.meetpaddy.co/widget/booking/7XcnMhF90VgKDyXV26BV",
+  "niche": "business storytelling",
+  "phone": "1-307-703-0444",
+  "tags": [
+    "business storytelling",
+    "brand strategy",
+    "marketing"
+  ],
+  "audience_type": "entrepreneurs, business owners",
+  "business_focus": "Help entrepreneurs and business owners craft narratives that define and elevate their brand.",
+  "service_provided": "business coaching, brand strategy, marketing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:16:02.006336"
 }

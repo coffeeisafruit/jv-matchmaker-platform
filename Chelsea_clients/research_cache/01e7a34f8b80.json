@@ -20,5 +20,19 @@
     }
   ],
   "audience_engagement_score": 0.7000000000000001,
-  "website": "https://www.iheart.com/podcast/269-financial-1st-aid-79816693/"
+  "website": "https://www.iheart.com/podcast/269-financial-1st-aid-79816693/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Vera McCoy provides legal counseling and services regarding real estate and bankruptcy, as well as contract preparation and review, evictions, foreclosure, short sales, and property management and maintenance.",
+  "who_you_serve": "Entrepreneurs and investors who are wanting to start a business or considering bankruptcy.",
+  "niche": "real estate, bankruptcy",
+  "tags": [
+    "real estate",
+    "bankruptcy",
+    "legal services"
+  ],
+  "audience_type": "entrepreneurs, investors",
+  "business_focus": "Providing legal counseling and services related to real estate and bankruptcy.",
+  "service_provided": "legal counseling, real estate, bankruptcy, contract preparation, evictions, foreclosure, short sales, property management",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:31:37.607942"
 }

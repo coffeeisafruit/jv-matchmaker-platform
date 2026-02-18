@@ -18,5 +18,19 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://classes.badassbutterfly.com/"
+  "website": "https://classes.badassbutterfly.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I help women break free from their inner prison of unworthiness and become BADASS in their hearts, minds, and businesses, using their Heart, Soul, and intuition as their guide.",
+  "who_you_serve": "women",
+  "niche": "spiritual life coaching",
+  "tags": [
+    "spiritual",
+    "life coaching",
+    "women"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping women become badass in their hearts, minds, and businesses using their heart, soul, and intuition.",
+  "service_provided": "spiritual life coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:20:52.436665"
 }

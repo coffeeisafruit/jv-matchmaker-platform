@@ -16,5 +16,22 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://www.smartaiventures.com/podcast"
+  "website": "https://www.smartaiventures.com/podcast",
+  "_cache_schema_version": 2,
+  "what_you_do": "We talk with entrepreneurs and top business leaders to discuss how they are using AI to generate revenue and scale faster than ever.",
+  "who_you_serve": "Our listeners range from tech-forward professionals to budding entrepreneurs, all eager to learn from your experience and explore new possibilities in AI.",
+  "seeking": "To join the Smart AI Podcast as a guest, simply fill out our quick Guest Application Form.",
+  "offering": "As a guest, you'll gain visibility with thousands of listeners, connect with new audiences, and position yourself as a thought leader in the AI space.",
+  "social_proof": "With over 10,000 weekly listeners tuning in across every major podcast app, your voice and expertise will reach a wide and engaged audience, ready to learn from your journey.",
+  "niche": "artificial intelligence",
+  "tags": [
+    "artificial intelligence",
+    "business leaders",
+    "entrepreneurs"
+  ],
+  "audience_type": "tech-forward professionals, budding entrepreneurs",
+  "business_focus": "Simplifying AI for the masses by talking with entrepreneurs and business leaders about using AI to generate revenue and scale.",
+  "service_provided": "Podcast, consulting services",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:12:08.407294"
 }

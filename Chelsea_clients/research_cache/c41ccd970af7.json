@@ -29,5 +29,21 @@
   ],
   "audience_engagement_score": 0.55,
   "website": "https://exosadvisors.com/team/michael-sharp/",
-  "linkedin": "https://www.linkedin.com/in/michael-sharp-exosadvisors"
+  "linkedin": "https://www.linkedin.com/in/michael-sharp-exosadvisors",
+  "_cache_schema_version": 2,
+  "what_you_do": "EXOS Advisors guides small business CEOs beyond obstacles that stall growth, with a customized plan to optimize operations and people.",
+  "who_you_serve": "Small business CEOs",
+  "signature_programs": "Core Values Index (CVI) assessment",
+  "niche": "business strategy, operations, talent management",
+  "phone": "(503) 618-1800",
+  "tags": [
+    "business strategy",
+    "operations",
+    "talent management"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping small business CEOs scale their companies through optimized operations and people management.",
+  "service_provided": "Executive Operating System, Sales & Pipeline Development, Talent Management, Trainings, Executive Coaching, Succession Planning",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:44:51.038707"
 }

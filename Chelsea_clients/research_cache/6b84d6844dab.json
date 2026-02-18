@@ -17,5 +17,21 @@
     }
   ],
   "audience_engagement_score": 0.45,
-  "website": "https://about.me/janicedugas"
+  "website": "https://about.me/janicedugas",
+  "_cache_schema_version": 2,
+  "what_you_do": "Social Media Manager and Public Speaker",
+  "who_you_serve": "Clients in need of increased visibility on social media platforms and professional networks",
+  "offering": "Proven marketing and advertising strategies to increase exposure, branding, traffic and client base",
+  "signature_programs": "Majalis Web Media Services",
+  "niche": "social media, marketing",
+  "tags": [
+    "social media",
+    "marketing",
+    "public speaking"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping clients build strong relationships with clients by gaining more visibility on social media platforms and professional networks",
+  "service_provided": "Social media management, training, consulting, web strategy",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:20:35.141536"
 }

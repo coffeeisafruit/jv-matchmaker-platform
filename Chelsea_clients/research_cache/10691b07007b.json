@@ -1,0 +1,42 @@
+{
+  "name": "Patrick O'Mara",
+  "company": "Southern Company",
+  "website": "http://www.southerncompany.com",
+  "linkedin": "http://www.linkedin.com/in/patrick-o-mara-cpcu-aic-82205614",
+  "list_size": 0,
+  "seeking": "Energy sector consultants and enterprise technology providers for infrastructure partnerships. Industry conference speaking opportunities and strategic alliances with utility innovators.",
+  "who_you_serve": "Enterprise energy companies, utilities sector organizations, and infrastructure innovation teams.",
+  "what_you_do": "Speak at energy sector events as contract speaker while working at enterprise-level utility company.",
+  "offering": "Delivers professional services and strategic solutions through Southern Company.",
+  "niche": "distributed energy",
+  "service_provided": "energy management, microgrid solutions, energy efficiency upgrades",
+  "business_size": "large",
+  "tags": [
+    "energy",
+    "innovation",
+    "microgrid",
+    "sustainability",
+    "efficiency"
+  ],
+  "business_focus": "Speak at energy sector events as contract speaker while working at enterprise-level utility company. (distributed energy)",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/posts/patrick-o-mara-49633886_congratulations-to-our-distributor-nuvias-activity-7056667864920940544-xb-s",
+    "apple_podcast": "https://podcasts.apple.com/za/podcast/zach-dell-powering-the-future/id1154105909?i=1000718432133"
+  },
+  "jv_history": [
+    {
+      "partner_name": "#fraternities #sororities #leadershiptraining #publicspeaking | Patrick O'Mara, CPCU, AIC",
+      "format": "summit_speaker",
+      "source_quote": "'Mara, CPCU, AIC\u2019s Post Patrick O'Mara, CPCU, AIC Guinness World Record holder \"Most Speeches in 24 Hours\" \\| Keynote Speaker \\| Presentation Skills Trainer \\| Public ... - [(Ken) Patrick",
+      "source_url": "https://www.linkedin.com/posts/patrick-o-mara-cpcu-aic-82205614_fraternities-sororities-leadershiptraining-activity-7289376161892032512-EsUi"
+    },
+    {
+      "partner_name": "Zach Dell - Powering the Future",
+      "format": "podcast_guest",
+      "source_quote": ". Zach is the co-founder and CEO of Base Power Company. Base is a modern power company ... Please enjoy my conversation with Zach Dell.\u00a0 For the full show notes, transcript, and links to mentioned con",
+      "source_url": "https://podcasts.apple.com/za/podcast/zach-dell-powering-the-future/id1154105909?i=1000718432133"
+    }
+  ],
+  "_cache_schema_version": 2
+}

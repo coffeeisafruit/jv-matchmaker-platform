@@ -16,5 +16,19 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://about.me/inspire3"
+  "website": "https://about.me/inspire3",
+  "_cache_schema_version": 2,
+  "what_you_do": "Creates products that help unlock the power of your mind using scientifically-proven methods.",
+  "niche": "Mind power",
+  "tags": [
+    "mind power",
+    "personal development",
+    "social media",
+    "architecture",
+    "art"
+  ],
+  "business_focus": "Creating products that unlock the power of the mind using scientifically-proven methods.",
+  "service_provided": "Social Media Management, Architecture, Art",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:24:43.817600"
 }

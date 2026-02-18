@@ -11,5 +11,8 @@
     "youtube": "https://www.youtube.com/watch?v=lsuEuC0xA1I"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://www.sparkleclassacademy.com/pages/about"
+  "website": "https://www.sparkleclassacademy.com/pages/about",
+  "_cache_schema_version": 2,
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:03:40.733371"
 }

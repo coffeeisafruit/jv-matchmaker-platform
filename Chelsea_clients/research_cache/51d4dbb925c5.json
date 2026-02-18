@@ -6,5 +6,19 @@
   "content_platforms": {
     "linkedin": "https://www.linkedin.com/posts/lyubomir-kuchuk_ai-business-networking-activity-7077759832618930176-JuFS"
   },
-  "website": "https://www.skool.com/@lyubo-kuchuk-7330"
+  "website": "https://www.skool.com/@lyubo-kuchuk-7330",
+  "_cache_schema_version": 2,
+  "what_you_do": "Founder of RemoStaff, Outsourcing Expert that helps business owners get their life back and achieve freedom.",
+  "who_you_serve": "Business owners",
+  "niche": "outsourcing",
+  "tags": [
+    "outsourcing",
+    "business freedom",
+    "remote work"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping business owners achieve freedom through outsourcing.",
+  "service_provided": "Outsourcing services",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:11:47.509504"
 }

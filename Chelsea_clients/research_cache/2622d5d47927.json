@@ -25,5 +25,22 @@
     }
   ],
   "audience_engagement_score": 0.65,
-  "website": "https://glennandcompany.com/home/"
+  "website": "https://glennandcompany.com/home/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Glenn and Company provides consulting, coaching, and capacity building services.",
+  "who_you_serve": "Non-profits, socially conscious small businesses, for-profit organizations becoming more socially responsible, and healthcare/social service providers transitioning from practitioners to leaders.",
+  "niche": "social entrepreneurship, growth mindset",
+  "phone": "913.915.8465, 913.230.6707",
+  "tags": [
+    "consulting",
+    "coaching",
+    "capacity building",
+    "social entrepreneurship",
+    "growth mindset"
+  ],
+  "audience_type": "B2B, non-profits, socially conscious businesses",
+  "business_focus": "Helping organizations and individuals develop growth mindsets and business strategies to improve efficiency and productivity.",
+  "service_provided": "consulting, coaching, leadership development",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:37:43.041852"
 }

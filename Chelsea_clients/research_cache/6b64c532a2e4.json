@@ -15,5 +15,21 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://reclaimyourinnergoddess.com.au/shari-ware/"
+  "website": "https://reclaimyourinnergoddess.com.au/shari-ware/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Shari Ware is a Health Mindset Specialist, best selling author & international speaker who, after releasing 100kg naturally, is on a mission to help you to LEAP off the weight merry-go-round and navigate the path to a healthier you that's not defined by a number on a scale or the size of your body \u2013 she helps you to find YOUR healthy, YOUR way!",
+  "social_proof": "best selling author",
+  "booking_link": "https://bit.ly/3m4PebP",
+  "niche": "health mindset",
+  "company": "Reclaim Your Inner Goddess",
+  "tags": [
+    "health",
+    "mindset",
+    "author",
+    "speaker"
+  ],
+  "business_focus": "Helping people find a healthier way of living that is not defined by their weight or body size",
+  "service_provided": "health mindset coaching, speaking",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:29:55.275548"
 }

@@ -19,5 +19,15 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://allinbusinesscoaching.com/"
+  "website": "https://allinbusinesscoaching.com/",
+  "_cache_schema_version": 2,
+  "who_you_serve": "USA based businesses needing to raise funding fast",
+  "niche": "business funding",
+  "tags": [
+    "business funding",
+    "usa businesses"
+  ],
+  "audience_type": "B2B",
+  "_owl_enriched": true,
+  "_owl_timestamp": "2026-02-18T05:21:29.497792"
 }

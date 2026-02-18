@@ -58,5 +58,6 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://heysummit.com/speakers"
+  "website": "https://heysummit.com/speakers",
+  "_cache_schema_version": 2
 }

@@ -22,5 +22,14 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://www.lizohara.ca/"
+  "website": "https://www.lizohara.ca/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Embodiment Wellness Coach",
+  "niche": "wellness",
+  "tags": [
+    "wellness",
+    "embodiment"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:03:20.130405"
 }

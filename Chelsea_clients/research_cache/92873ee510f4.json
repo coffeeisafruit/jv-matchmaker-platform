@@ -10,5 +10,8 @@
     "apple_podcast": "https://podcasts.apple.com/au/podcast/the-empowered-career-woman-podcast/id1800040014",
     "spotify_podcast": "https://open.spotify.com/episode/0QGXNPGlPvFb9HGQ9g1Pkk"
   },
-  "audience_engagement_score": 0.6000000000000001
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2,
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:32:44.853699"
 }

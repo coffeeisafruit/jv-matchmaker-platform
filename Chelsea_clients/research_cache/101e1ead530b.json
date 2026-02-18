@@ -15,5 +15,24 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://browndevelopments.com/"
+  "website": "https://browndevelopments.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Business development, sales, leadership development, and inclusive leadership consulting firm that partners with clients to define outcomes, develop plans, and deliver results.",
+  "who_you_serve": "Organizations and leaders at all levels seeking business strategy, sales improvement, leadership development, and DEI strategies.",
+  "signature_programs": "Total Success System, Be the CEO of You, Onion Based System for Sales, Onion Based System for Realtors & Lenders, 3Ds of Success (Define-Develop-Deliver), You & Self Inc, Dive",
+  "niche": "Business consulting",
+  "tags": [
+    "business development",
+    "sales consulting",
+    "leadership development",
+    "executive coaching",
+    "dei strategies",
+    "real estate",
+    "sales mentorship"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Business strategy and consulting firm specializing in leadership development, sales mentorship, DEI strategies, and real estate wealth building.",
+  "service_provided": "Executive Coaching, Leadership Development, Sales & Account Management Consulting, DEI Strategies, Business Systems & Frameworks, Real Estate Investment Opportunities",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:24:50.356711"
 }

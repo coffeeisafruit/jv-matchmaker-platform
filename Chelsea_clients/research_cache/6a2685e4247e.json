@@ -9,5 +9,19 @@
     "spotify_podcast": "https://open.spotify.com/show/3rs4oZQnhWOHzq7LvjFL51"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://www.nishamanekmd.com/speaking"
+  "website": "https://www.nishamanekmd.com/speaking",
+  "_cache_schema_version": 2,
+  "what_you_do": "Keynote speaker on consciousness, healing, and the future of medicine.",
+  "social_proof": "Excellent reviews from attendees at the Monroe Institute conference.",
+  "booking_link": "https://www.nishamanekmd.com/speaking-inquiry",
+  "niche": "consciousness, healing, medicine",
+  "tags": [
+    "consciousness",
+    "healing",
+    "medicine"
+  ],
+  "business_focus": "Keynote speaking on consciousness, healing, and the future of medicine.",
+  "service_provided": "Keynote speaking",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:51:07.645661"
 }

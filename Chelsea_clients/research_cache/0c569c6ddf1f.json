@@ -15,5 +15,19 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://www.edmylett.com/"
+  "website": "https://www.edmylett.com/",
+  "_cache_schema_version": 2,
+  "social_proof": "Ranked #1 Mindset & Performance Coach in the World, 10,500+ 5-Star Reviews, Featured in Forbes, Success, Entrepreneur, USA Today",
+  "signature_programs": "The Power of One More, #MAXOUT Your Life",
+  "niche": "mindset, performance coaching",
+  "tags": [
+    "mindset",
+    "performance coaching",
+    "motivation"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Helping people become the best version of themselves through mindset and performance coaching",
+  "service_provided": "speaking, podcasting, books",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:53:44.072737"
 }

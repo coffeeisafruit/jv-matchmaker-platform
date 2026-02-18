@@ -24,5 +24,23 @@
     }
   ],
   "audience_engagement_score": 0.65,
-  "website": "https://billionsuccess.com/melisa-ruscsak/"
+  "website": "https://billionsuccess.com/melisa-ruscsak/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Founder of Trient Press, a traditional publishing house that also plans to offer print on demand and self-publishing resources.",
+  "who_you_serve": "Authors, particularly indie authors looking for traditional publishing or self-publishing support.",
+  "social_proof": "Featured in Billion Success interview; previously founded Ruscsak Films and Publishing in 2019.",
+  "niche": "Book publishing",
+  "tags": [
+    "publishing",
+    "traditional publishing",
+    "indie authors",
+    "self-publishing",
+    "editing",
+    "book marketing"
+  ],
+  "audience_type": "Authors and writers (B2B/B2C)",
+  "business_focus": "Helping authors reach their publishing goals through traditional publishing and upcoming self-publishing resources.",
+  "service_provided": "Traditional publishing, editing advocacy, upcoming print on demand, upcoming self-publishing resources",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:25:51.228428"
 }

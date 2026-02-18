@@ -10,5 +10,21 @@
     "spotify_podcast": "https://open.spotify.com/episode/3MuJHxutPMk9tQnnVuJHO5"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.empresstravelclub.com/"
+  "website": "https://www.empresstravelclub.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Empress Travel Club is an exclusive travel club that provides luxury travel planning and concierge services.",
+  "who_you_serve": "Empress Travel Club serves a selective membership of modern explorers and individuals who share a love for extraordinary travel experiences.",
+  "social_proof": "Endorsed by Four Seasons, Virtuoso, Marriott, Belmond, Hyatt, and other travel industry leaders.",
+  "niche": "luxury travel",
+  "phone": "(818) 860-4480",
+  "tags": [
+    "luxury",
+    "travel planning",
+    "concierge services"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Empress Travel Club provides an exclusive membership experience that exceeds expectations for modern explorers.",
+  "service_provided": "travel planning, concierge services",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:40:27.625357"
 }

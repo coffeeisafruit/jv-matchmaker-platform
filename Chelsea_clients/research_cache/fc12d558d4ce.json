@@ -12,5 +12,22 @@
   },
   "audience_engagement_score": 0.6000000000000001,
   "website": "https://www.mikedomitrz.com/",
-  "linkedin": "https://www.linkedin.com/in/mikedomitrz"
+  "linkedin": "https://www.linkedin.com/in/mikedomitrz",
+  "_cache_schema_version": 2,
+  "what_you_do": "Mike Domitrz is a speaker, author, and leading authority on respect, consent, and healthy relationships.",
+  "who_you_serve": "Mike Domitrz serves schools, campuses, the US Military, and corporate clients.",
+  "social_proof": "Mike Domitrz is a Hall of Fame speaker and has helped transform the culture of hundreds of organizations worldwide.",
+  "booking_link": "https://calendly.com/mikedomitrz/talk-with-mike-domitrz",
+  "niche": "respect, consent, relationships",
+  "phone": "800-329-9390",
+  "tags": [
+    "respect",
+    "consent",
+    "healthy relationships"
+  ],
+  "audience_type": "B2B, B2C, schools, military",
+  "business_focus": "Mike Domitrz helps organizations transform their culture through keynotes, workshops, and coaching focused on respect, consent, and healthy relationships.",
+  "service_provided": "keynotes, workshops, coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:05:57.908850"
 }

@@ -17,5 +17,21 @@
   ],
   "audience_engagement_score": 0.55,
   "website": "https://hybridglobalpublishing.com/meet-the-team",
-  "linkedin": "https://www.linkedin.com/in/kbstrauss21"
+  "linkedin": "https://www.linkedin.com/in/kbstrauss21",
+  "_cache_schema_version": 2,
+  "what_you_do": "Hybrid Global Publishing is a firm that works with Entrepreneurs, Speakers, and coaches to help them write, publish, distribute, and promote their books in order to generate unlimited leads, get on more speaking stages, and grow their business by attracting more clients.",
+  "who_you_serve": "Entrepreneurs, Speakers, and coaches",
+  "social_proof": "Karen has helped over 1000 business owners become successful published authors and has helped 700 authors reach #1 bestselling status.",
+  "booking_link": "https://hybridglobalpublishing.com/schedule-a-call-with-karen",
+  "niche": "publishing, book promotion",
+  "tags": [
+    "publishing",
+    "book promotion",
+    "entrepreneurship"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Hybrid Global Publishing helps entrepreneurs, speakers, and coaches write, publish, distribute, and promote their books.",
+  "service_provided": "writing, publishing, distribution, promotion",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:20:54.454631"
 }

@@ -18,5 +18,21 @@
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://sharongalluzzo.com/the-profit-connections-podcast/"
+  "website": "https://sharongalluzzo.com/the-profit-connections-podcast/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Sharon Galluzzo is a business coach and host of The Profit Connections Podcast.",
+  "who_you_serve": "Business owners looking to grow their profits and freedom.",
+  "signature_programs": "The Profit Growth Audit, Strategic Biz Blueprint",
+  "booking_link": "https://meeting.calendarhero.com/strategicbizblueprintsharon",
+  "niche": "business coaching",
+  "tags": [
+    "business coaching",
+    "profit growth",
+    "business strategy"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping business owners grow their profits and freedom.",
+  "service_provided": "Business coaching, profit growth strategy",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:15:28.884726"
 }

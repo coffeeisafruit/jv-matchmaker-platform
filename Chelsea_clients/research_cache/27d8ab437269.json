@@ -8,5 +8,21 @@
     "facebook": "https://www.facebook.com/kristen.hayes.75/"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://tutorialspoint.com/course/how-to-build-profitable-relationships-that-grow-your-business-with-kristen-hayse/index.asp"
+  "website": "https://tutorialspoint.com/course/how-to-build-profitable-relationships-that-grow-your-business-with-kristen-hayse/index.asp",
+  "_cache_schema_version": 2,
+  "social_proof": "Ken Burke, founder and CEO of The EntrepreneurNOW! Network is a speaker, serial entrepreneur, mentor, and author. Ken founded MarketLive, a market-leading, enterprise-class ecommerce software platform used by major merchants who ran $2b in online sales through its platform. He sold MarketLive to Vista Equity Partners in 2016. Ken authored the book, \"Intelligent Selling: The Art and Science of Selling Online,\" as well as hundreds of industry articles. He earned his MBA in Entrepreneurship from the USC Marshall School of Business, which later awarded him the honor of Entrepreneur of the Year.",
+  "niche": "business",
+  "tags": [
+    "business",
+    "entrepreneurship",
+    "ecommerce",
+    "speaking",
+    "mentoring",
+    "author"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Ken Burke is a speaker, serial entrepreneur, mentor, and author who founded the market-leading ecommerce software platform MarketLive.",
+  "service_provided": "speaking, entrepreneurship mentoring, authoring books and articles",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:03:42.956143"
 }

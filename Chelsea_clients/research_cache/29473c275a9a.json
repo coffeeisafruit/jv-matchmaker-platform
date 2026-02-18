@@ -9,5 +9,20 @@
     "youtube": "https://www.youtube.com/watch?v=09bQFY9WNug"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://royvarner.com/about/"
+  "website": "https://royvarner.com/about/",
+  "_cache_schema_version": 2,
+  "what_you_do": "I spent over 4 decades mastering the art and science of video and film production for Fortune 500 companies. My focus now is to apply those street smarts to your videos and on-camera live presentations, to help you present yourself to your ideal customers professionally as just the right resource for their goals.",
+  "who_you_serve": "My focus now is to apply those street smarts to your videos and on-camera live presentations, to help you present yourself to your ideal customers professionally as just the right resource for their goals.",
+  "booking_link": "https://calendly.com/royvarner/chat",
+  "niche": "video production, on-camera presentation",
+  "tags": [
+    "video production",
+    "on-camera presentation",
+    "coaching"
+  ],
+  "audience_type": "coaches, entrepreneurs, business owners",
+  "business_focus": "Helping clients present themselves professionally on video and in live presentations to their ideal customers.",
+  "service_provided": "video production, on-camera presentation coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:50:30.860865"
 }

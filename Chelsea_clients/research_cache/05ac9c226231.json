@@ -17,5 +17,22 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://www.stepitupqueen.com/"
+  "website": "https://www.stepitupqueen.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Lisa J. MacDonald is an author, coach, and expert in productivity, creativity, and mindset.",
+  "who_you_serve": "Creative entrepreneurs",
+  "social_proof": "Author of 30 books, coach for 20 years",
+  "signature_programs": "Step It Up or Get Out of the Way, Hidden Female Power, Purpose Driven Business, Just Finish Your Damn Project Program, Just Finish Your Damn Project Workshop",
+  "niche": "Productivity, creativity, mindset",
+  "tags": [
+    "productivity",
+    "creativity",
+    "mindset",
+    "business coaching"
+  ],
+  "audience_type": "Entrepreneurs",
+  "business_focus": "To help creative entrepreneurs revolutionize their impact.",
+  "service_provided": "Coaching, consulting, workshops, books",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:23:20.448094"
 }

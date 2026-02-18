@@ -15,5 +15,21 @@
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://danielaaron.com/"
+  "website": "https://danielaaron.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Daniel Aaron is an inspirational author, coach and transformational entertainer.",
+  "who_you_serve": "Leaders who refuse to settle for stress, scarcity, or stuckness, and want to build masterpiece lives and businesses.",
+  "social_proof": "Author, coach, transformational entertainer",
+  "signature_programs": "The Art of Spiritual Leadership (book), Vibrant Life Coaching, The Art of Vibrant Living Show",
+  "niche": "leadership, transformation, vibrant living",
+  "tags": [
+    "leadership",
+    "transformation",
+    "vibrant living"
+  ],
+  "audience_type": "B2B, B2C, coaches",
+  "business_focus": "Empowering people to break free from mediocre monotony and create vibrant thriving lives.",
+  "service_provided": "Coaching, speaking, entertainment, publishing",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:11:35.313085"
 }

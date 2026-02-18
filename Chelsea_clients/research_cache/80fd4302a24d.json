@@ -15,5 +15,20 @@
     }
   ],
   "website": "https://startup.club/lead-with-your-story/",
-  "linkedin": "https://www.linkedin.com/in/sharyn-konyak"
+  "linkedin": "https://www.linkedin.com/in/sharyn-konyak",
+  "_cache_schema_version": 2,
+  "what_you_do": "Lead with Your Story is a show that teaches how to craft brand stories to attract, engage, and excite investors and customers.",
+  "who_you_serve": "Entrepreneurs and business owners",
+  "signature_programs": "Lead With Your Story",
+  "booking_link": "https://startup.club/calendar/category/coach-yu-digital-marketing/",
+  "niche": "entrepreneurship, storytelling",
+  "tags": [
+    "entrepreneurship",
+    "storytelling"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping entrepreneurs and business owners craft effective brand stories.",
+  "service_provided": "Hosting a weekly show, providing tips and strategies on storytelling",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:38:11.415810"
 }

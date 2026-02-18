@@ -25,5 +25,6 @@
     "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2FAndreaYHolland%2F"
   },
   "audience_engagement_score": 0.4,
-  "website": "https://www.andreaholland.com/"
+  "website": "https://www.andreaholland.com/",
+  "_cache_schema_version": 2
 }

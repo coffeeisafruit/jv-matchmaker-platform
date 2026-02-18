@@ -17,5 +17,22 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://refinedimages.net/"
+  "website": "https://refinedimages.net/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Patty Buccellato is an image coach who helps clients improve their visual presence and personal style.",
+  "who_you_serve": "Patty serves professional women, including those in finance and corporate roles.",
+  "social_proof": "Patty is a published author and image coach.",
+  "signature_programs": "The Wardrobe Simplifier (ebook)",
+  "niche": "image consulting",
+  "phone": "248-650-2916",
+  "tags": [
+    "image consulting",
+    "personal style",
+    "professional women"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Patty helps professional women improve their visual presence and personal style.",
+  "service_provided": "One-on-one coaching, corporate training, speaking",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:49:57.254033"
 }

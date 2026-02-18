@@ -7,5 +7,20 @@
     "linkedin": "https://www.linkedin.com/pulse/challenges-starting-group-coach-how-overcome-them-groupcoachinghq"
   },
   "audience_engagement_score": 0.55,
-  "website": "https://goroundtable.com/group-coaching/"
+  "website": "https://goroundtable.com/group-coaching/",
+  "_cache_schema_version": 2,
+  "what_you_do": "The Roundtable provides group coaching programs to help leaders develop their skills.",
+  "who_you_serve": "The Roundtable serves leaders and high potential individuals.",
+  "signature_programs": "The Roundtable Catalyst, The Roundtable for High Performance Team Coach, The Roundtable for Leaders",
+  "niche": "leadership development",
+  "tags": [
+    "group coaching",
+    "leadership development",
+    "high potential leaders"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "The Roundtable provides group coaching programs to help leaders and high potential individuals develop their skills.",
+  "service_provided": "group coaching, team coaching, executive coaching",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:04:35.847318"
 }

@@ -22,5 +22,14 @@
     }
   ],
   "audience_engagement_score": 0.55,
-  "website": "https://jeffgignac.com/profile/posts"
+  "website": "https://jeffgignac.com/profile/posts",
+  "_cache_schema_version": 2,
+  "niche": "motivational, spiritual",
+  "tags": [
+    "motivating",
+    "mastery",
+    "spiritual"
+  ],
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T02:12:28.987446"
 }

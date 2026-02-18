@@ -24,5 +24,24 @@
   ],
   "audience_engagement_score": 0.55,
   "website": "https://speakermatch.com/profile/speaker/kenmiller/programs",
-  "linkedin": "https://www.linkedin.com/in/kenmiller84"
+  "linkedin": "https://www.linkedin.com/in/kenmiller84",
+  "_cache_schema_version": 2,
+  "what_you_do": "Motivational and keynote speaker empowering nonprofits, inspiring people, and leading with truth.",
+  "who_you_serve": "Nonprofits and organizations seeking motivational keynote speakers.",
+  "social_proof": "CFRE (Certified Fund Raising Executive) credential.",
+  "booking_link": "https://speakermatch.com/profile/speaker/kenmiller/programs",
+  "niche": "Nonprofit motivation",
+  "tags": [
+    "nonprofit",
+    "motivational speaker",
+    "keynote",
+    "fundraising",
+    "leadership",
+    "inspiration"
+  ],
+  "audience_type": "Nonprofits",
+  "business_focus": "Empowering nonprofits and inspiring people through motivational keynote speaking.",
+  "service_provided": "Keynote speaking",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:26:13.918181"
 }

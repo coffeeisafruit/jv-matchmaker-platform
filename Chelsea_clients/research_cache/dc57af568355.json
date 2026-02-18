@@ -1,0 +1,30 @@
+{
+  "name": "Your Path to Nonprofit Leadership",
+  "list_size": 1000,
+  "seeking": "Nonprofit consultants, leadership coaches, and fundraising experts for podcast guest interviews, sponsor partnerships, and cross-promotion to nonprofit professional audiences.",
+  "who_you_serve": "Nonprofit professionals, leaders, and fundraising experts seeking leadership development.",
+  "what_you_do": "Host Your Path to Nonprofit Leadership podcast, providing leadership guidance and resources for nonprofit professionals.",
+  "offering": "Podcast",
+  "business_focus": "Host Your Path to Nonprofit Leadership podcast, providing leadership guidance and resources for nonprofit professionals.",
+  "audience_type": "Nonprofit professionals, leaders, and fundraising experts seeking leadership development.",
+  "content_platforms": {
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/your-path-to-nonprofit-leadership/id1487854841",
+    "linkedin": "https://www.linkedin.com/pulse/navigating-nonprofit-leadership-essential-insights-langlois-m-ed-"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Your Path to Nonprofit Leadership - Podcast",
+      "format": "podcast_guest",
+      "source_quote": "Your Path to Nonprofit Leadership features more than 120 interviews with nonprofit leaders and philanthropy experts, as well as deep-dive solo ... themselves constantly running on empty and teetering ",
+      "source_url": "https://podcasts.apple.com/us/podcast/your-path-to-nonprofit-leadership/id1487854841"
+    },
+    {
+      "partner_name": "Your Path to Nonprofit Leadership",
+      "format": "endorsement",
+      "source_quote": "Your Path to Nonprofit Leadership features more than 120 interviews with nonprofit leaders and",
+      "source_url": "https://podcasts.apple.com/gb/podcast/your-path-to-nonprofit-leadership/id1487854841"
+    }
+  ],
+  "website": "https://galassolearningsolutions.com/podcast/your-path-to-nonprofit-leadership/",
+  "_cache_schema_version": 2
+}

@@ -28,5 +28,6 @@
     "apple_podcast": "https://podcasts.apple.com/us/podcast/undimmed-a-clearlife-podcast/id1744054267",
     "spotify_podcast": "https://open.spotify.com/show/3rBabzGZ7cjMPKCr8ackUW?kref=OJ8j0NfAQeXc&kuid=3137a806-318a-497f-9ab0-df56eaf7fd8b-1745193600"
   },
-  "audience_engagement_score": 0.6000000000000001
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2
 }

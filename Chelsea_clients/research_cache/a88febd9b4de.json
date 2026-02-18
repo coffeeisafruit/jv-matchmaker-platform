@@ -10,5 +10,21 @@
     "instagram": "https://www.instagram.com/crewsandiego/p/CyMqT5INuS9/"
   },
   "audience_engagement_score": 0.65,
-  "website": "https://www.drjreed.com/"
+  "website": "https://www.drjreed.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Dr. Jasmine Reed, a licensed psychologist and founder of Ubuntu Psychological Services, has dedicated her career to fostering resilience and healing within underrepresented communities.",
+  "who_you_serve": "Individuals and communities",
+  "booking_link": "https://www.drjreed.com/contact",
+  "niche": "mental health, wellness",
+  "tags": [
+    "psychology",
+    "resilience",
+    "healing",
+    "underrepresented communities"
+  ],
+  "audience_type": "B2C",
+  "business_focus": "Transforming workplace culture and supporting individual mental wellness through tailored solutions.",
+  "service_provided": "program development, consulting, coaching, therapy, speaking",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:41:13.965354"
 }

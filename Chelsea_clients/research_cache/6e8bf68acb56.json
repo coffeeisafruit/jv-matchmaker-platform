@@ -10,5 +10,6 @@
     "youtube": "https://www.youtube.com/watch?v=uIvbdFZVD1c",
     "spotify_podcast": "https://open.spotify.com/track/7i7Eyw0ADDExVeZFFEC2z1"
   },
-  "audience_engagement_score": 0.6000000000000001
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2
 }

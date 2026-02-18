@@ -10,5 +10,24 @@
     "youtube": "https://www.youtube.com/watch?v=x4FcEHg_7BE"
   },
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://entrepreneursrocketfuel.com/"
+  "website": "https://entrepreneursrocketfuel.com/",
+  "_cache_schema_version": 2,
+  "what_you_do": "Makes speaking on stages accessible and fun for entrepreneurs and coaches to share their message, with expertise in audience engagement and speak-to-sell.",
+  "who_you_serve": "Entrepreneurs and coaches who want to share their message through speaking.",
+  "social_proof": "Award-winning international inspirational public speaker, keynote speaker, TEDx speaker, authority on speak-to-sell, broadcast personality of Speakers Playhouse.",
+  "signature_programs": "Speakers Playhouse, Entrepreneurs Rocket Fuel, Keynoting Kamp, Podapalooza, Influencers Cruise, Ten Simple Activities to Become a Recognized Speaker (free guide)",
+  "niche": "Public speaking",
+  "tags": [
+    "public speaking",
+    "speak-to-sell",
+    "audience engagement",
+    "networking events",
+    "entrepreneurship",
+    "virtual stages"
+  ],
+  "audience_type": "Entrepreneurs and coaches",
+  "business_focus": "Making speaking on stages accessible and fun for entrepreneurs and coaches through events, training, and community.",
+  "service_provided": "Speaking events, gamified networking events (Speakers Playhouse), speaker training (Keynoting Kamp), podcast events (Podapalooza), networking cruise (Influencers Cruise), entrepreneur community",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T00:26:57.040407"
 }

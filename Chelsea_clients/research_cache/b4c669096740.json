@@ -11,5 +11,19 @@
   },
   "audience_engagement_score": 0.65,
   "website": "https://goodbodybrain.podbean.com/",
-  "linkedin": "https://www.linkedin.com/in/sally-good-ph-d-05115213b"
+  "linkedin": "https://www.linkedin.com/in/sally-good-ph-d-05115213b",
+  "_cache_schema_version": 2,
+  "what_you_do": "Dr. Sally Good & her team is hired by business owners/coaches to optimize their business, leveraging Divinely inspired BIG IDEAs with the power of AI. She helps build a \"forever-legacy\" seven-figure business, guaranteed.",
+  "who_you_serve": "Business owners/coaches",
+  "niche": "business optimization, ai, big ideas",
+  "tags": [
+    "business optimization",
+    "ai",
+    "big ideas"
+  ],
+  "audience_type": "B2B",
+  "business_focus": "Helping business owners/coaches optimize their business using AI and big ideas",
+  "service_provided": "Business optimization, AI consulting, big idea development",
+  "_crawl4ai_enriched": true,
+  "_crawl4ai_timestamp": "2026-02-18T01:10:09.185036"
 }
