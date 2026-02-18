@@ -907,9 +907,257 @@ class ReportHubView(ReportAccessMixin, View):
         return render(request, 'matching/report_hub.html', {'report': report})
 
 
+def _outreach_clean_url(value: str) -> str:
+    """Strip trailing commas and whitespace from URLs."""
+    if not value:
+        return ''
+    return value.strip().rstrip(',')
+
+
+def _outreach_extract_linkedin(sp: SupabaseProfile) -> str:
+    """Get LinkedIn URL, checking both linkedin and website fields."""
+    if sp.linkedin and 'linkedin.com' in sp.linkedin.lower():
+        return _outreach_clean_url(sp.linkedin)
+    if sp.website and 'linkedin.com' in sp.website.lower():
+        return _outreach_clean_url(sp.website)
+    return ''
+
+
+def _outreach_extract_website(sp: SupabaseProfile) -> str:
+    """Get actual website URL, excluding social/scheduling links."""
+    if not sp.website:
+        return ''
+    url = _outreach_clean_url(sp.website)
+    for domain in ('linkedin.com', 'facebook.com', 'calendly.com', 'cal.com', 'tinyurl.com'):
+        if domain in url.lower():
+            return ''
+    return url
+
+
+def _outreach_extract_schedule(sp: SupabaseProfile) -> str:
+    """Get scheduling link from booking_link or website."""
+    if sp.booking_link:
+        return _outreach_clean_url(sp.booking_link)
+    if sp.website and ('calendly.com' in sp.website.lower() or 'cal.com' in sp.website.lower()):
+        return _outreach_clean_url(sp.website)
+    return ''
+
+
+def _outreach_format_list_size(size) -> str:
+    if not size:
+        return ''
+    if size >= 1_000_000:
+        return f'{size / 1_000_000:.0f}M+'
+    if size >= 1000:
+        return f'{size // 1000}K'
+    return str(size)
+
+
+def _outreach_build_tagline(sp: SupabaseProfile) -> str:
+    return sp.what_you_do or sp.offering or sp.niche or sp.business_focus or ''
+
+
+def _outreach_clean_company(sp: SupabaseProfile) -> str:
+    """Extract a clean company name, filtering out niche/category text."""
+    company = (sp.company or '').strip()
+    if company.startswith((',', '.')):
+        company = company.lstrip(',.').strip()
+    category_words = {
+        'business skills', 'self improvement', 'success', 'fitness',
+        'lifestyle', 'mental health', 'health', 'personal finances',
+        'relationships', 'spirituality', 'natural health', 'service provider',
+    }
+    segments = [s.strip().lower() for s in company.split(',')]
+    if any(seg in category_words for seg in segments):
+        real = [s.strip() for s in company.split(',') if s.strip().lower() not in category_words]
+        company = real[0] if real else ''
+    if company.count(',') >= 1:
+        first = company.split(',')[0].strip()
+        company = first if first and len(first) > 3 else ''
+    if not company or company.lower() in ('more info', 'n/a', 'none', 'tbd'):
+        return sp.name
+    return company
+
+
+def _outreach_assign_section(sp: SupabaseProfile, score: float) -> tuple:
+    """Assign outreach section using tier thresholds.
+
+    Returns (section_key, section_label, section_note).
+    Uses tier-aligned thresholds: hand_picked (>=67), strong (>=55), wildcard (<55).
+    """
+    has_email = bool(sp.email)
+    has_linkedin = bool(_outreach_extract_linkedin(sp))
+    has_schedule = bool(_outreach_extract_schedule(sp))
+
+    if sp.booking_link and sp.seeking and 'jv' in (sp.seeking or '').lower():
+        return 'jv_programs', 'JV Programs', 'Apply directly via their partner page'
+
+    if score >= 67 and has_email:
+        return 'priority', 'Priority Contacts', 'Hand-picked matches — reach out this week'
+
+    if score >= 55 and has_email:
+        return 'this_week', 'This Week', 'Strong matches — email available'
+
+    if has_schedule:
+        return 'this_week', 'This Week', 'Schedule a call directly'
+
+    if has_linkedin:
+        return 'low_priority', 'LinkedIn Outreach', 'Connect on LinkedIn first'
+
+    return 'low_priority', 'Research Needed', 'Find contact info before outreach'
+
+
+def _outreach_assign_badge(sp: SupabaseProfile, score: float) -> str:
+    if score >= 67:
+        return 'Hand-Picked'
+    if sp.seeking and 'jv' in (sp.seeking or '').lower():
+        return 'Active JV'
+    if score >= 55:
+        return 'Strong Match'
+    if (sp.list_size or 0) >= 100000:
+        return f'{_outreach_format_list_size(sp.list_size)} Reach'
+    return ''
+
+
+def _outreach_assign_badge_style(score: float) -> str:
+    if score >= 67:
+        return 'priority'
+    return 'fit'
+
+
+def _outreach_build_tags(sp: SupabaseProfile, score: float) -> list:
+    tags = []
+    all_text = ' '.join(filter(None, [
+        sp.niche or '', sp.who_you_serve or '',
+        sp.what_you_do or '', sp.offering or '',
+    ])).lower()
+
+    if 'women' in all_text or 'female' in all_text:
+        tags.append({'label': 'Women', 'style': 'fit'})
+    if 'coach' in all_text:
+        tags.append({'label': 'Coaches', 'style': 'fit'})
+    if 'speaker' in all_text or 'speaking' in all_text:
+        tags.append({'label': 'Speakers', 'style': 'fit'})
+    if 'entrepreneur' in all_text:
+        tags.append({'label': 'Entrepreneurs', 'style': 'fit'})
+    if 'author' in all_text or 'book' in all_text:
+        tags.append({'label': 'Author', 'style': 'fit'})
+    if 'event' in all_text or 'summit' in all_text:
+        tags.append({'label': 'Events', 'style': 'fit'})
+    if 'podcast' in all_text:
+        tags.append({'label': 'Podcast', 'style': 'fit'})
+
+    if sp.seeking and 'jv' in (sp.seeking or '').lower():
+        tags.append({'label': 'Active JV', 'style': 'priority'})
+    if score >= 67:
+        tags.append({'label': 'Hand-Picked', 'style': 'priority'})
+
+    if (sp.list_size or 0) >= 50000:
+        tags.append({'label': 'Large List', 'style': 'fit'})
+
+    return tags[:4]
+
+
+def _outreach_build_audience(sp: SupabaseProfile) -> str:
+    parts = []
+    if sp.list_size:
+        parts.append(f'{sp.list_size:,} subscribers')
+    if sp.who_you_serve:
+        parts.append(sp.who_you_serve)
+    elif sp.niche:
+        parts.append(f'{sp.niche} audience')
+    if sp.offering and sp.offering not in ' '.join(parts):
+        parts.append(f'Offering: {sp.offering}')
+    return '. '.join(parts) if parts else ''
+
+
+def _outreach_build_detail_note(sp: SupabaseProfile) -> str:
+    parts = []
+    if sp.signature_programs:
+        parts.append(f'Programs: {sp.signature_programs}')
+    if sp.business_focus and sp.business_focus != sp.niche:
+        parts.append(f'Focus: {sp.business_focus}')
+    if sp.notes:
+        for line in sp.notes.split('\n')[:2]:
+            line = line.strip()
+            if line and len(line) < 200:
+                parts.append(line)
+    return ' · '.join(parts) if parts else ''
+
+
+def _outreach_build_why_fit(sp: SupabaseProfile, match_context: dict) -> str:
+    """Build why-fit text from match_context JSON or profile fields."""
+    if match_context:
+        parts = []
+        for dim_key in ('intent', 'synergy', 'momentum'):
+            dim = match_context.get(dim_key, {})
+            for factor in dim.get('factors', []):
+                if factor.get('score', 0) >= 6.0:
+                    detail = factor.get('detail', '')
+                    if detail:
+                        parts.append(detail)
+        if parts:
+            return '. '.join(parts[:3]) + '.'
+
+    # Fallback to profile fields
+    parts = []
+    if sp.who_you_serve:
+        parts.append(sp.who_you_serve)
+    elif sp.niche:
+        parts.append(f'{sp.niche} specialist')
+    if sp.what_you_do:
+        parts.append(sp.what_you_do)
+    return '. '.join(parts) if parts else ''
+
+
+def _outreach_assign_section_from_dict(pd: dict) -> tuple:
+    """Assign section from a partner dict (used after building the dict)."""
+    score = pd.get('match_score', 0)
+    has_email = bool(pd.get('email'))
+    has_linkedin = bool(pd.get('linkedin'))
+    has_schedule = bool(pd.get('schedule'))
+    is_jv_program = bool(pd.get('apply_url'))
+
+    if is_jv_program:
+        return 'jv_programs', 'JV Programs', 'Apply directly via their partner page'
+    if score >= 67 and has_email:
+        return 'priority', 'Priority Contacts', 'Hand-picked matches — reach out this week'
+    if score >= 55 and has_email:
+        return 'this_week', 'This Week', 'Strong matches — email available'
+    if has_schedule:
+        return 'this_week', 'This Week', 'Schedule a call directly'
+    if has_linkedin:
+        return 'low_priority', 'LinkedIn Outreach', 'Connect on LinkedIn first'
+    return 'low_priority', 'Research Needed', 'Find contact info before outreach'
+
+
+def _outreach_build_partner_dict(sp: SupabaseProfile, score: float, match_context: dict) -> dict:
+    """Build a dict matching ReportPartner field names from live SupabaseProfile data."""
+    return {
+        'id': str(sp.id),
+        'name': sp.name,
+        'company': _outreach_clean_company(sp),
+        'tagline': _outreach_build_tagline(sp),
+        'email': sp.email or '',
+        'website': _outreach_extract_website(sp),
+        'phone': sp.phone or '',
+        'linkedin': _outreach_extract_linkedin(sp),
+        'apply_url': sp.booking_link or '',
+        'schedule': _outreach_extract_schedule(sp),
+        'badge': _outreach_assign_badge(sp, score),
+        'badge_style': _outreach_assign_badge_style(score),
+        'list_size': _outreach_format_list_size(sp.list_size),
+        'audience': _outreach_build_audience(sp),
+        'why_fit': _outreach_build_why_fit(sp, match_context),
+        'detail_note': _outreach_build_detail_note(sp),
+        'tags': _outreach_build_tags(sp, score),
+        'match_score': score,
+    }
+
+
 class ReportOutreachView(ReportAccessMixin, View):
     """
-    Partner outreach list grouped by section.
+    Partner outreach list from live SupabaseMatch + SupabaseProfile data.
     No login required -- access is verified via session.
     """
 
@@ -918,8 +1166,73 @@ class ReportOutreachView(ReportAccessMixin, View):
         if error_redirect:
             return error_redirect
 
-        partners = report.partners.all()
+        client_sp = report.supabase_profile
+        if not client_sp:
+            # Fallback to frozen snapshot if no linked profile
+            return self._fallback_to_snapshot(request, report)
 
+        # Query live matches from SupabaseMatch, ordered by harmonic_mean
+        matches = (
+            SupabaseMatch.objects
+            .filter(Q(profile_id=client_sp.id) | Q(suggested_profile_id=client_sp.id))
+            .filter(harmonic_mean__isnull=False)
+            .order_by('-harmonic_mean')[:15]
+        )
+
+        # Collect partner IDs and batch-load profiles (avoids N+1 queries)
+        matches = list(matches)
+        partner_ids = set()
+        for match in matches:
+            if str(match.profile_id) == str(client_sp.id):
+                partner_ids.add(match.suggested_profile_id)
+            else:
+                partner_ids.add(match.profile_id)
+
+        profiles_by_id = {
+            sp.id: sp
+            for sp in SupabaseProfile.objects.filter(id__in=partner_ids)
+        }
+
+        # Build partner dicts from live data
+        partner_dicts = []
+        for match in matches:
+            if str(match.profile_id) == str(client_sp.id):
+                partner_sp = profiles_by_id.get(match.suggested_profile_id)
+            else:
+                partner_sp = profiles_by_id.get(match.profile_id)
+
+            if not partner_sp:
+                continue
+
+            score = float(match.harmonic_mean)
+            match_context = match.match_context or {}
+            partner_dicts.append(_outreach_build_partner_dict(partner_sp, score, match_context))
+
+        # Assign sections dynamically
+        section_buckets = {}
+        for pd in partner_dicts:
+            section_key, label, note = _outreach_assign_section_from_dict(pd)
+            if section_key not in section_buckets:
+                section_buckets[section_key] = {
+                    'key': section_key, 'label': label, 'note': note, 'partners': [],
+                }
+            section_buckets[section_key]['partners'].append(pd)
+
+        sections = []
+        for key in ('priority', 'this_week', 'low_priority', 'jv_programs'):
+            if key in section_buckets:
+                sections.append(section_buckets[key])
+
+        context = {
+            'report': report,
+            'sections': sections,
+            'total_partners': len(partner_dicts),
+        }
+        return render(request, 'matching/report_outreach.html', context)
+
+    def _fallback_to_snapshot(self, request, report):
+        """Fall back to ReportPartner snapshot when no live profile is linked."""
+        partners = report.partners.all()
         sections = []
         for section_key in ['priority', 'this_week', 'low_priority', 'jv_programs']:
             section_partners = partners.filter(section=section_key)
@@ -931,7 +1244,6 @@ class ReportOutreachView(ReportAccessMixin, View):
                     'note': first.section_note or '',
                     'partners': section_partners,
                 })
-
         context = {
             'report': report,
             'sections': sections,

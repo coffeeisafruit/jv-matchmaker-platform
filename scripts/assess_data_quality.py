@@ -39,6 +39,111 @@ class DataQualityAssessor:
         """Establish database connection"""
         return psycopg2.connect(self.database_url)
 
+    def _get_coverage_stats(self) -> Dict:
+        """Query DB for coverage statistics used in the HTML report."""
+        conn = self.connect()
+        cur = conn.cursor()
+
+        def count(where: str) -> int:
+            cur.execute(f"SELECT COUNT(*) FROM profiles WHERE {where}")
+            return cur.fetchone()[0]
+
+        total = count("TRUE")
+
+        contact_fields = []
+        for name, where in [
+            ("Email", "email IS NOT NULL AND email != ''"),
+            ("Phone", "phone IS NOT NULL AND phone != ''"),
+            ("LinkedIn", "linkedin IS NOT NULL AND linkedin != ''"),
+            ("Website", "website IS NOT NULL AND website != ''"),
+            ("Booking link", "booking_link IS NOT NULL AND booking_link != ''"),
+            ("Secondary emails", "secondary_emails IS NOT NULL AND array_length(secondary_emails, 1) > 0"),
+        ]:
+            n = count(where)
+            contact_fields.append((name, n, n * 100 / total))
+
+        profile_fields = []
+        for name, where in [
+            ("Name", "name IS NOT NULL AND name != ''"),
+            ("Company", "company IS NOT NULL AND company != ''"),
+            ("Bio", "bio IS NOT NULL AND bio != ''"),
+            ("Niche", "niche IS NOT NULL AND niche != ''"),
+            ("List size", "list_size IS NOT NULL AND list_size > 0"),
+            ("Revenue tier", "revenue_tier IS NOT NULL AND revenue_tier != ''"),
+            ("Who you serve", "who_you_serve IS NOT NULL AND who_you_serve != ''"),
+            ("Seeking", "seeking IS NOT NULL AND seeking != ''"),
+            ("Signature programs", "signature_programs IS NOT NULL AND signature_programs != ''"),
+            ("Tags", "tags IS NOT NULL AND array_length(tags, 1) > 0"),
+        ]:
+            n = count(where)
+            profile_fields.append((name, n, n * 100 / total))
+
+        tiers = []
+        for label, where in [
+            ("T1: Has email", "email IS NOT NULL AND email != ''"),
+            ("T2: Phone only", "(email IS NULL OR email = '') AND phone IS NOT NULL AND phone != ''"),
+            ("T3: Booking only", "(email IS NULL OR email = '') AND (phone IS NULL OR phone = '') AND booking_link IS NOT NULL AND booking_link != ''"),
+            ("T4: LinkedIn only", "(email IS NULL OR email = '') AND (phone IS NULL OR phone = '') AND (booking_link IS NULL OR booking_link = '') AND linkedin IS NOT NULL AND linkedin != ''"),
+            ("T5: Website only", "(email IS NULL OR email = '') AND (phone IS NULL OR phone = '') AND (booking_link IS NULL OR booking_link = '') AND (linkedin IS NULL OR linkedin = '') AND website IS NOT NULL AND website != ''"),
+            ("T6: Unreachable", "(email IS NULL OR email = '') AND (phone IS NULL OR phone = '') AND (booking_link IS NULL OR booking_link = '') AND (linkedin IS NULL OR linkedin = '') AND (website IS NULL OR website = '')"),
+        ]:
+            n = count(where)
+            tiers.append((label, n, n * 100 / total))
+
+        # Email sources
+        cur.execute("""
+            SELECT COALESCE(enrichment_metadata->'field_meta'->'email'->>'source', 'unknown') AS source,
+                   COUNT(*) AS n
+            FROM profiles WHERE email IS NOT NULL AND email != ''
+            GROUP BY source ORDER BY n DESC
+        """)
+        email_sources = [(r[0], r[1]) for r in cur.fetchall()]
+
+        # Contactable = email OR phone OR booking
+        contactable = count(
+            "(email IS NOT NULL AND email != '') OR "
+            "(phone IS NOT NULL AND phone != '') OR "
+            "(booking_link IS NOT NULL AND booking_link != '')"
+        )
+
+        # Completeness
+        completeness_sql = """
+            (CASE WHEN email IS NOT NULL AND email != '' THEN 1 ELSE 0 END) +
+            (CASE WHEN phone IS NOT NULL AND phone != '' THEN 1 ELSE 0 END) +
+            (CASE WHEN linkedin IS NOT NULL AND linkedin != '' THEN 1 ELSE 0 END) +
+            (CASE WHEN website IS NOT NULL AND website != '' THEN 1 ELSE 0 END) +
+            (CASE WHEN company IS NOT NULL AND company != '' THEN 1 ELSE 0 END) +
+            (CASE WHEN bio IS NOT NULL AND bio != '' THEN 1 ELSE 0 END) +
+            (CASE WHEN niche IS NOT NULL AND niche != '' THEN 1 ELSE 0 END) +
+            (CASE WHEN seeking IS NOT NULL AND seeking != '' THEN 1 ELSE 0 END) +
+            (CASE WHEN who_you_serve IS NOT NULL AND who_you_serve != '' THEN 1 ELSE 0 END) +
+            (CASE WHEN list_size IS NOT NULL AND list_size > 0 THEN 1 ELSE 0 END)
+        """
+        cur.execute(f"SELECT ROUND(AVG(({completeness_sql})::numeric / 10 * 100), 1) FROM profiles")
+        avg_completeness = float(cur.fetchone()[0])
+
+        cur.execute(f"SELECT COUNT(*) FROM profiles WHERE ({completeness_sql}) >= 8")
+        rich_profiles = cur.fetchone()[0]
+
+        cur.execute(f"SELECT COUNT(*) FROM profiles WHERE ({completeness_sql}) >= 5")
+        medium_profiles = cur.fetchone()[0]
+
+        conn.close()
+
+        return {
+            'total': total,
+            'contact_fields': contact_fields,
+            'profile_fields': profile_fields,
+            'tiers': tiers,
+            'email_sources': email_sources,
+            'contactable_pct': contactable * 100 / total,
+            'avg_completeness': avg_completeness,
+            'rich_profiles': rich_profiles,
+            'rich_pct': rich_profiles * 100 / total,
+            'medium_profiles': medium_profiles,
+            'medium_pct': medium_profiles * 100 / total,
+        }
+
     def assess_duplicates(self) -> List[Dict]:
         """Find potential duplicates using multiple strategies"""
         print("=" * 70)
@@ -411,13 +516,16 @@ class DataQualityAssessor:
         medium_risk += sum(1 for e in self.invalid_emails if e['risk'] == 'MEDIUM')
         medium_risk += sum(1 for i in self.inconsistencies if i['risk'] == 'MEDIUM')
 
+        # ── Gather coverage stats from DB ──
+        coverage = self._get_coverage_stats()
+
         # Generate HTML report
         html = f"""<!DOCTYPE html>
 <html>
 <head>
-    <title>Data Quality Report - {datetime.now().strftime('%Y-%m-%d %H:%M')}</title>
+    <title>Data Quality &amp; Coverage Report - {datetime.now().strftime('%Y-%m-%d %H:%M')}</title>
     <style>
-        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; margin: 40px; }}
+        body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; margin: 40px; color: #1a1a1a; }}
         h1 {{ color: #1a1a1a; }}
         h2 {{ color: #2c3e50; margin-top: 40px; border-bottom: 2px solid #3498db; padding-bottom: 10px; }}
         .summary {{ background: #ecf0f1; padding: 20px; border-radius: 8px; margin: 20px 0; }}
@@ -431,11 +539,124 @@ class DataQualityAssessor:
         .issue {{ background: #fff; border-left: 4px solid #f39c12; padding: 15px; margin: 10px 0; }}
         .profile {{ margin: 5px 0; padding: 5px; background: #f8f9fa; }}
         .reason {{ color: #7f8c8d; font-style: italic; }}
+        .coverage-section {{ margin: 20px 0; }}
+        .coverage-table {{ border-collapse: collapse; width: 100%; max-width: 700px; }}
+        .coverage-table th {{ text-align: left; padding: 10px 12px; background: #2c3e50; color: white; }}
+        .coverage-table td {{ padding: 8px 12px; border-bottom: 1px solid #ecf0f1; }}
+        .coverage-table tr:hover {{ background: #f8f9fa; }}
+        .bar-cell {{ width: 200px; }}
+        .bar {{ height: 20px; border-radius: 4px; display: inline-block; vertical-align: middle; }}
+        .bar-contact {{ background: #3498db; }}
+        .bar-profile {{ background: #2ecc71; }}
+        .bar-tier {{ background: #9b59b6; }}
+        .pct {{ font-weight: bold; color: #2c3e50; min-width: 50px; display: inline-block; }}
+        .tier-grid {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 700px; margin: 15px 0; }}
+        .tier-card {{ background: #f8f9fa; border-radius: 8px; padding: 16px; border-left: 4px solid #3498db; }}
+        .tier-card.t1 {{ border-left-color: #2ecc71; }}
+        .tier-card.t2 {{ border-left-color: #3498db; }}
+        .tier-card.t3 {{ border-left-color: #f39c12; }}
+        .tier-card.t4 {{ border-left-color: #e67e22; }}
+        .tier-card.t5 {{ border-left-color: #e74c3c; }}
+        .tier-card.t6 {{ border-left-color: #95a5a6; }}
+        .tier-card .tier-label {{ font-size: 13px; color: #7f8c8d; }}
+        .tier-card .tier-value {{ font-size: 22px; font-weight: bold; color: #2c3e50; }}
+        .tier-card .tier-pct {{ font-size: 14px; color: #95a5a6; }}
+        .headline-stats {{ display: flex; gap: 20px; flex-wrap: wrap; margin: 20px 0; }}
+        .headline-card {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 12px; padding: 20px 28px; min-width: 150px; }}
+        .headline-card.green {{ background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }}
+        .headline-card.orange {{ background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }}
+        .headline-card .hl-value {{ font-size: 36px; font-weight: bold; }}
+        .headline-card .hl-label {{ font-size: 14px; opacity: 0.9; }}
+        .source-table {{ border-collapse: collapse; margin: 15px 0; }}
+        .source-table td, .source-table th {{ padding: 6px 16px; text-align: left; }}
+        .source-table th {{ background: #ecf0f1; }}
+        .completeness {{ font-size: 18px; margin: 10px 0; }}
     </style>
 </head>
 <body>
-    <h1>Data Quality Assessment Report</h1>
-    <p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+    <h1>Database Quality &amp; Coverage Report</h1>
+    <p>Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} &mdash; {coverage['total']} profiles</p>
+
+    <!-- ═══════════════ COVERAGE SECTION ═══════════════ -->
+
+    <h2>Database Coverage</h2>
+
+    <div class="headline-stats">
+        <div class="headline-card">
+            <div class="hl-value">{coverage['total']:,}</div>
+            <div class="hl-label">Total Profiles</div>
+        </div>
+        <div class="headline-card green">
+            <div class="hl-value">{coverage['contactable_pct']:.0f}%</div>
+            <div class="hl-label">Directly Contactable</div>
+        </div>
+        <div class="headline-card orange">
+            <div class="hl-value">{coverage['avg_completeness']}%</div>
+            <div class="hl-label">Avg Completeness</div>
+        </div>
+    </div>
+
+    <h3>Contact Fields</h3>
+    <table class="coverage-table">
+        <tr><th>Field</th><th>Count</th><th>Coverage</th><th class="bar-cell">Bar</th></tr>
+"""
+        for field_name, count, pct in coverage['contact_fields']:
+            bar_width = int(pct * 2)
+            html += f"""        <tr>
+            <td>{field_name}</td>
+            <td>{count:,}</td>
+            <td><span class="pct">{pct:.1f}%</span></td>
+            <td class="bar-cell"><span class="bar bar-contact" style="width:{bar_width}px"></span></td>
+        </tr>
+"""
+        html += """    </table>
+
+    <h3>Profile Fields</h3>
+    <table class="coverage-table">
+        <tr><th>Field</th><th>Count</th><th>Coverage</th><th class="bar-cell">Bar</th></tr>
+"""
+        for field_name, count, pct in coverage['profile_fields']:
+            bar_width = int(pct * 2)
+            html += f"""        <tr>
+            <td>{field_name}</td>
+            <td>{count:,}</td>
+            <td><span class="pct">{pct:.1f}%</span></td>
+            <td class="bar-cell"><span class="bar bar-profile" style="width:{bar_width}px"></span></td>
+        </tr>
+"""
+        html += """    </table>
+
+    <h3>Contactability Tiers</h3>
+    <div class="tier-grid">
+"""
+        tier_classes = ['t1', 't2', 't3', 't4', 't5', 't6']
+        for i, (label, count, pct) in enumerate(coverage['tiers']):
+            cls = tier_classes[i] if i < len(tier_classes) else ''
+            html += f"""        <div class="tier-card {cls}">
+            <div class="tier-label">{label}</div>
+            <div class="tier-value">{count:,}</div>
+            <div class="tier-pct">{pct:.1f}%</div>
+        </div>
+"""
+        html += """    </div>
+
+    <h3>Email Sources</h3>
+    <table class="source-table">
+        <tr><th>Source</th><th>Count</th></tr>
+"""
+        for source, count in coverage['email_sources']:
+            html += f"        <tr><td>{source}</td><td>{count:,}</td></tr>\n"
+
+        html += f"""    </table>
+
+    <div class="completeness">
+        <strong>Profiles with 8+/10 key fields:</strong> {coverage['rich_profiles']:,} ({coverage['rich_pct']:.1f}%) &nbsp;|&nbsp;
+        <strong>Profiles with 5+/10:</strong> {coverage['medium_profiles']:,} ({coverage['medium_pct']:.1f}%)
+    </div>
+
+    <!-- ═══════════════ QUALITY SECTION ═══════════════ -->
+
+    <h2>Data Quality Issues</h2>
 
     <div class="summary">
         <div class="stat">

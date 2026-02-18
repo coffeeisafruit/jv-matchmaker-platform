@@ -644,12 +644,21 @@ class SafeEnrichmentPipeline:
         website = profile.get('website')
         linkedin = profile.get('linkedin')
 
-        # METHOD 1: Website scraping (VERIFIED - found on actual site)
+        # METHOD 1: Website scraping (VERIFIED - found on actual site via Playwright)
         if website:
-            email = await self.try_website_scraping_async(website, name, session)
-            if email:
-                self.stats['website_scrape'] += 1
-                return profile, email, 'website_scrape'
+            scrape_result = await self.try_website_scraping_async(website, name, session)
+            if scrape_result:
+                email = scrape_result.get('email')
+                # Attach secondary data to profile for downstream DB write
+                if scrape_result.get('secondary_emails'):
+                    profile['_scraped_secondary_emails'] = scrape_result['secondary_emails']
+                if scrape_result.get('phone') and not profile.get('phone'):
+                    profile['_scraped_phone'] = scrape_result['phone']
+                if scrape_result.get('booking_link') and not profile.get('booking_link'):
+                    profile['_scraped_booking_link'] = scrape_result['booking_link']
+                if email:
+                    self.stats['website_scrape'] += 1
+                    return profile, email, 'website_scrape'
 
         # METHOD 2: LinkedIn scraping (VERIFIED - found on actual profile)
         if linkedin:
@@ -667,58 +676,24 @@ class SafeEnrichmentPipeline:
         website: str,
         name: str,
         session: aiohttp.ClientSession
-    ) -> Optional[str]:
-        """Scrape website for ACTUAL email addresses"""
+    ) -> Optional[Dict]:
+        """
+        Scrape website for contact info using ContactScraper (Playwright).
+
+        Returns dict with {email, secondary_emails, phone, booking_link} or None.
+        """
         if self.dry_run:
             return None
 
         try:
-            if not website.startswith('http'):
-                website = f'https://{website}'
+            from matching.enrichment.contact_scraper import ContactScraper
+            scraper = ContactScraper(browse_timeout=45)
+            result = await asyncio.to_thread(
+                scraper.scrape_contact_info, website, name
+            )
 
-            # Try multiple pages in parallel
-            urls = [
-                website,
-                f"{website}/contact",
-                f"{website}/about",
-                f"{website}/team"
-            ]
-
-            tasks = [self.fetch_url_async(url, session) for url in urls]
-            responses = await asyncio.gather(*tasks, return_exceptions=True)
-
-            # Extract emails from successful responses
-            all_emails = []
-            for response in responses:
-                if isinstance(response, str):
-                    emails = re.findall(
-                        r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
-                        response
-                    )
-                    all_emails.extend(emails)
-
-            # Filter out generic emails
-            valid_emails = [
-                e for e in all_emails
-                if not any(x in e.lower() for x in [
-                    'noreply', 'spam', 'abuse', 'postmaster', 'example',
-                    'privacy', 'legal', 'dmca', 'support', 'info', 'hello'
-                ])
-            ]
-
-            if valid_emails:
-                # Strongly prefer emails matching person's name
-                name_parts = name.lower().split()
-                for email in valid_emails:
-                    email_lower = email.lower()
-                    # Must match first AND last name
-                    if len(name_parts) >= 2:
-                        if name_parts[0] in email_lower and name_parts[-1] in email_lower:
-                            return email
-
-                # If no name match, be conservative - return None
-                # (Could be generic support@ or sales@)
-                return None
+            if result.get('email') or result.get('secondary_emails') or result.get('phone'):
+                return result
 
         except Exception as e:
             logger.warning(f"Website email scraping failed for {website}: {e}")
@@ -1202,21 +1177,33 @@ class SafeEnrichmentPipeline:
 
                 needs_apollo = []
                 for profile, email, method in batch_results:
+                    result_dict = {
+                        'profile_id': profile['id'],
+                        'name': profile['name'],
+                        'company': profile.get('company', ''),
+                        'email': email or '',
+                        'method': method or '',
+                        'list_size': profile.get('list_size', 0),
+                        'enriched_at': datetime.now().isoformat(),
+                        '_tier': profile.get('_tier', 0),
+                        'enrichment_metadata': profile.get('enrichment_metadata'),
+                    }
+                    # Pass through scraped secondary data from ContactScraper
+                    if profile.get('_scraped_secondary_emails'):
+                        result_dict['secondary_emails'] = profile['_scraped_secondary_emails']
+                    if profile.get('_scraped_phone'):
+                        result_dict['phone'] = profile['_scraped_phone']
+                    if profile.get('_scraped_booking_link'):
+                        result_dict['booking_link'] = profile['_scraped_booking_link']
+
                     if email:
-                        results.append({
-                            'profile_id': profile['id'],
-                            'name': profile['name'],
-                            'company': profile.get('company', ''),
-                            'email': email,
-                            'method': method,
-                            'list_size': profile.get('list_size', 0),
-                            'enriched_at': datetime.now().isoformat(),
-                            '_tier': profile.get('_tier', 0),
-                            'enrichment_metadata': profile.get('enrichment_metadata'),
-                        })
+                        results.append(result_dict)
                         self.stats['enriched'] += 1
                         self.stats['emails_found'] += 1
                     else:
+                        # Even without primary email, write secondary data if found
+                        if result_dict.get('secondary_emails') or result_dict.get('phone'):
+                            results.append(result_dict)
                         needs_apollo.append(profile)
 
                 # Step 2: Apollo fallback for profiles without emails

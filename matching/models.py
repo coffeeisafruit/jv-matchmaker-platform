@@ -65,6 +65,14 @@ class SupabaseProfile(models.Model):
     content_platforms = models.JSONField(null=True, blank=True)  # {podcast_name, youtube_channel, instagram_handle, ...}
     audience_engagement_score = models.FloatField(null=True, blank=True)  # 0.0-1.0
 
+    # Embedding columns (vector(1024) in Postgres, read as text by Django ORM)
+    embedding_seeking = models.TextField(null=True, blank=True)
+    embedding_offering = models.TextField(null=True, blank=True)
+    embedding_who_you_serve = models.TextField(null=True, blank=True)
+    embedding_what_you_do = models.TextField(null=True, blank=True)
+    embeddings_model = models.CharField(max_length=100, null=True, blank=True)
+    embeddings_updated_at = models.DateTimeField(null=True, blank=True)
+
     # Recommendation pressure
     recommendation_pressure_30d = models.IntegerField(null=True, blank=True)
     pressure_updated_at = models.DateTimeField(null=True, blank=True)

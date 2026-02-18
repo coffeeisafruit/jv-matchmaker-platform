@@ -338,7 +338,7 @@ class Command(BaseCommand):
             score_ab = result['score_ab']
             breakdown_ab = result['breakdown_ab']
 
-            why_fit = self._build_why_fit_from_ismc(p, breakdown_ab)
+            why_fit = self._build_why_fit_from_ismc(p, breakdown_ab, client_sp)
 
             # Build reason summary from top ISMC factors
             reasons = []
@@ -365,57 +365,90 @@ class Command(BaseCommand):
         self.stdout.write(f'  Top {len(top_matches)} selected')
         return top_matches
 
-    def _build_why_fit_from_ismc(self, partner: SupabaseProfile, breakdown: dict) -> str:
-        """Build a narrative why-fit paragraph from ISMC breakdown factors."""
+    def _build_why_fit_from_ismc(
+        self, partner: SupabaseProfile, breakdown: dict, client: SupabaseProfile
+    ) -> str:
+        """Build a client-aware why-fit narrative from ISMC breakdown.
+
+        Explains WHY this partner fits the client, not just what the partner does.
+        References synergy scores, audience overlap, and mutual value.
+        """
         parts = []
+        client_first = client.name.split()[0] if client.name else 'You'
 
-        # Intent signals
-        intent_factors = breakdown.get('intent', {}).get('factors', [])
-        for f in intent_factors:
-            if f['score'] >= 7.0 and f['name'] == 'JV History':
-                parts.append(f'{partner.name} {f["detail"]}.')
-            if f['score'] >= 7.0 and f['name'] == 'Seeking Stated':
-                if partner.seeking:
-                    parts.append(f'Actively seeking: {partner.seeking}.')
+        # --- Synergy narrative (the core of "why fit") ---
+        synergy_factors = {
+            f['name']: f for f in breakdown.get('synergy', {}).get('factors', [])
+        }
 
-        # Synergy signals
-        synergy_factors = breakdown.get('synergy', {}).get('factors', [])
-        for f in synergy_factors:
-            if f['score'] >= 6.0 and f['name'] == 'Offering↔Seeking':
-                if partner.what_you_do:
-                    parts.append(partner.what_you_do)
-                elif partner.offering:
-                    parts.append(partner.offering)
-            if f['score'] >= 6.0 and f['name'] == 'Audience Alignment':
-                if partner.who_you_serve:
-                    parts.append(f'Audience: {partner.who_you_serve}.')
-            if f['score'] >= 6.0 and f['name'] == 'Platform Overlap':
-                parts.append(f'{f["detail"]}.')
+        # Offering↔Seeking: explain what the partner offers that the client seeks
+        off_seek = synergy_factors.get('Offering↔Seeking', {})
+        if off_seek.get('score', 0) >= 6.0:
+            method = off_seek.get('method', 'word_overlap')
+            strength = 'Strong' if off_seek['score'] >= 8.0 else 'Good'
+            if method == 'semantic':
+                parts.append(f'{strength} offering-to-seeking alignment ({off_seek["score"]:.0f}/10).')
+            else:
+                parts.append(f'{strength} keyword alignment between what they offer and what {client_first} seeks.')
 
-        # Momentum signals
-        momentum_factors = breakdown.get('momentum', {}).get('factors', [])
-        for f in momentum_factors:
-            if f['score'] >= 7.0 and f['name'] == 'List Size':
-                ls = partner.list_size or 0
-                if ls >= 50000:
-                    parts.append(f'Large audience of {ls:,}+ subscribers — ideal for cross-promotion.')
-                elif ls >= 10000:
-                    parts.append(f'{ls:,} subscribers — solid reach for partnership.')
-            if f['score'] >= 7.0 and f['name'] == 'Social Reach':
-                reach = partner.social_reach or 0
-                if reach >= 10000:
-                    parts.append(f'{reach:,} social reach.')
+            # Explain the actual connection
+            partner_offers = (partner.offering or partner.what_you_do or '').strip()
+            client_seeks = (client.seeking or '').strip()
+            if partner_offers and client_seeks:
+                # Truncate to keep it readable
+                p_short = partner_offers[:120].rsplit(' ', 1)[0] if len(partner_offers) > 120 else partner_offers
+                parts.append(f'They offer {p_short.lower().rstrip(".")}.')
 
-        # Fallback if nothing scored high enough
+        # Audience Alignment: explain shared audience
+        aud = synergy_factors.get('Audience Alignment', {})
+        if aud.get('score', 0) >= 6.0:
+            partner_serves = (partner.who_you_serve or '').strip()
+            client_serves = (client.who_you_serve or '').strip()
+            if partner_serves and client_serves:
+                p_short = partner_serves[:100].rsplit(' ', 1)[0] if len(partner_serves) > 100 else partner_serves
+                parts.append(f'Their audience ({p_short.rstrip(".")}) overlaps with {client_first}\'s target market.')
+            elif partner_serves:
+                parts.append(f'Serves: {partner_serves[:100]}.')
+
+        # Role Compatibility
+        role = synergy_factors.get('Role Compatibility', {})
+        if role.get('score', 0) >= 7.0:
+            detail = role.get('detail', '')
+            if detail and '?' not in detail:
+                parts.append(f'Complementary roles: {detail}.')
+
+        # --- Intent signal (JV history) ---
+        intent_factors = {
+            f['name']: f for f in breakdown.get('intent', {}).get('factors', [])
+        }
+        jv_hist = intent_factors.get('JV History', {})
+        if jv_hist.get('score', 0) >= 7.0:
+            parts.append(f'Proven JV track record ({jv_hist["detail"]}).')
+
+        # --- Momentum signals (reach & scale) ---
+        momentum_factors = {
+            f['name']: f for f in breakdown.get('momentum', {}).get('factors', [])
+        }
+        ls_factor = momentum_factors.get('List Size', {})
+        ls = partner.list_size or 0
+        reach = partner.social_reach or 0
+        if ls >= 50000:
+            parts.append(f'{ls:,}+ subscribers — strong cross-promotion potential.')
+        elif ls >= 10000:
+            parts.append(f'{ls:,} subscribers.')
+        if reach >= 50000:
+            parts.append(f'{reach:,} social reach.')
+
+        # --- Fallback: ensure at least one meaningful sentence ---
         if not parts:
-            if partner.who_you_serve:
-                parts.append(f'{partner.who_you_serve}.')
-            elif partner.niche:
-                parts.append(f'{partner.niche} specialist.')
-            if partner.what_you_do:
-                parts.append(partner.what_you_do)
+            if partner.niche and client.niche:
+                parts.append(f'{partner.niche} professional — potential niche overlap with {client.niche}.')
+            elif partner.what_you_do:
+                parts.append(partner.what_you_do[:150])
+            else:
+                parts.append('Business alignment detected across multiple ISMC dimensions.')
 
-        return ' '.join(parts) if parts else ''
+        return ' '.join(parts)
 
     def _build_detail_note(self, partner: SupabaseProfile, client: dict) -> str:
         """Generate the italic detail note for the expanded card view."""

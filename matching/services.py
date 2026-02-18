@@ -2,7 +2,7 @@
 Match Scoring Service for JV Matcher Module.
 
 Implements the ISMC (Intent, Synergy, Momentum, Context) scoring framework
-using a weighted harmonic mean for the final score calculation.
+using a weighted geometric mean for the final score calculation.
 
 Also includes PartnershipAnalyzer for dynamic partnership insights that
 integrates ICP and Transformation data with pre-computed SupabaseMatch data.
@@ -10,12 +10,16 @@ integrates ICP and Transformation data with pre-computed SupabaseMatch data.
 
 from dataclasses import dataclass, field
 from typing import Optional, List, Dict, Any
+import json
+import logging
 import math
 import re
 
 from django.conf import settings
 
 from .models import Profile, Match, SupabaseProfile, SupabaseMatch
+
+logger = logging.getLogger('matching.services')
 
 
 @dataclass
@@ -681,10 +685,11 @@ class PartnershipAnalyzer:
     """
 
     # Tier thresholds based on harmonic_mean (0-100 scale)
+    # Calibrated for ISMC distribution: mean ~57.5, stdev ~5.7, range 25-78
     TIER_THRESHOLDS = {
-        'hand_picked': 80,  # 80%+ = rare, exceptional match
-        'strong': 60,       # 60-80% = solid potential
-        'wildcard': 0,      # Below 60% or no score = discovery
+        'hand_picked': 67,  # ~Top 5%, no weak dimensions (geometric mean enforces this)
+        'strong': 55,       # Above mean, solid signal across most dimensions
+        'wildcard': 0,      # Below average, algorithm doesn't see strong fit
     }
 
     def __init__(
@@ -1244,6 +1249,204 @@ class SupabaseMatchScoringService:
         'enterprise': 4,
     }
 
+    # Calibrated embedding similarity → 0-10 score mapping.
+    # Derived from validation data: synonym mean=0.75, random noise mean=0.53.
+    EMBEDDING_SCORE_THRESHOLDS = [
+        (0.75, 10.0),  # Strong semantic match (synonym-level)
+        (0.65,  8.0),  # Good match, well above noise floor
+        (0.60,  6.0),  # Possible match, threshold zone
+        (0.53,  4.5),  # At random-pair mean, weak signal
+    ]
+    EMBEDDING_SCORE_DEFAULT = 3.0  # Below noise floor — no signal
+
+    # --- Role compatibility ---
+    # Maps raw network_role values to canonical categories.
+    _ROLE_NORMALIZE = {
+        'service provider': 'Service Provider',
+        'service_provider': 'Service Provider',
+        'generalist': 'Service Provider',
+        'practitioner': 'Service Provider',
+        'specialist': 'Service Provider',
+        'general business professional': 'Service Provider',
+        'operator': 'Service Provider',
+        'thought leader': 'Thought Leader',
+        'thought_leader': 'Thought Leader',
+        'speaker': 'Thought Leader',
+        'speaker / author': 'Thought Leader',
+        'connector': 'Connector',
+        'hub': 'Connector',
+        'bridge': 'Connector',
+        'connector / network builder': 'Connector',
+        'connector / community builder': 'Connector',
+        'connector_partner_seeker': 'Connector',
+        'newcomer': 'Newcomer',
+        'product creator': 'Product Creator',
+        'creator': 'Product Creator',
+        'media/publisher': 'Media/Publisher',
+        'content creator': 'Media/Publisher',
+        'content_creator': 'Media/Publisher',
+        'content creator / educator': 'Media/Publisher',
+        'content_creator_influencer': 'Media/Publisher',
+        'broadcaster': 'Media/Publisher',
+        'media / content creator': 'Media/Publisher',
+        'media_content_creator': 'Media/Publisher',
+        'amplifier / media': 'Media/Publisher',
+        'amplifier': 'Media/Publisher',
+        'influencer': 'Media/Publisher',
+        'community builder': 'Community Builder',
+        'affiliate/promoter': 'Affiliate/Promoter',
+        'audience builder': 'Affiliate/Promoter',
+        'referral_partner': 'Affiliate/Promoter',
+        'educator': 'Educator',
+        'educator_trainer': 'Educator',
+        'educator / coach': 'Educator',
+        'educator/trainer': 'Educator',
+        'speaker / educator': 'Educator',
+        'speaker/educator': 'Educator',
+        'thought leader / educator': 'Educator',
+        'expert, educator': 'Educator',
+        'coach': 'Coach',
+        'coach / mentor': 'Coach',
+        'coach / consultant': 'Coach',
+        'coach / practitioner': 'Coach',
+        'coach/speaker': 'Coach',
+        'expert/advisor': 'Expert/Advisor',
+        'expert': 'Expert/Advisor',
+        'advisor': 'Expert/Advisor',
+        'consultant': 'Expert/Advisor',
+        'consultant / advisor': 'Expert/Advisor',
+        'strategic advisor': 'Expert/Advisor',
+        'industry expert': 'Expert/Advisor',
+    }
+
+    # Symmetric role-pair compatibility scores (0-10).
+    # Keyed by frozenset so (A,B) == (B,A).
+    _ROLE_COMPAT = {
+        # --- HIGH (8-10): clear, proven JV format ---
+        frozenset(['Media/Publisher', 'Thought Leader']): 9.0,
+        frozenset(['Media/Publisher', 'Coach']): 8.5,
+        frozenset(['Media/Publisher', 'Educator']): 8.5,
+        frozenset(['Media/Publisher', 'Expert/Advisor']): 8.5,
+        frozenset(['Media/Publisher', 'Product Creator']): 8.0,
+        frozenset(['Connector', 'Service Provider']): 8.5,
+        frozenset(['Connector', 'Thought Leader']): 8.5,
+        frozenset(['Connector', 'Media/Publisher']): 8.5,
+        frozenset(['Connector', 'Coach']): 8.0,
+        frozenset(['Connector', 'Product Creator']): 8.0,
+        frozenset(['Connector', 'Educator']): 8.0,
+        frozenset(['Connector', 'Expert/Advisor']): 8.0,
+        frozenset(['Community Builder', 'Thought Leader']): 9.0,
+        frozenset(['Community Builder', 'Educator']): 8.5,
+        frozenset(['Community Builder', 'Coach']): 8.0,
+        frozenset(['Community Builder', 'Media/Publisher']): 8.0,
+        frozenset(['Affiliate/Promoter', 'Product Creator']): 9.0,
+        frozenset(['Affiliate/Promoter', 'Coach']): 8.0,
+        frozenset(['Coach', 'Product Creator']): 8.0,
+        # --- MODERATE (5-7): possible, needs niche alignment ---
+        frozenset(['Community Builder', 'Service Provider']): 7.5,
+        frozenset(['Community Builder', 'Product Creator']): 7.0,
+        frozenset(['Community Builder', 'Connector']): 7.0,
+        frozenset(['Community Builder', 'Expert/Advisor']): 7.0,
+        frozenset(['Thought Leader', 'Product Creator']): 7.0,
+        frozenset(['Thought Leader', 'Educator']): 7.0,
+        frozenset(['Coach', 'Educator']): 7.5,
+        frozenset(['Expert/Advisor', 'Thought Leader']): 6.5,
+        frozenset(['Expert/Advisor', 'Educator']): 6.5,
+        frozenset(['Expert/Advisor', 'Product Creator']): 6.5,
+        frozenset(['Thought Leader', 'Coach']): 6.5,
+        frozenset(['Affiliate/Promoter', 'Service Provider']): 7.5,
+        frozenset(['Affiliate/Promoter', 'Educator']): 7.5,
+        frozenset(['Affiliate/Promoter', 'Media/Publisher']): 6.5,
+        frozenset(['Affiliate/Promoter', 'Connector']): 6.0,
+        frozenset(['Affiliate/Promoter', 'Thought Leader']): 6.0,
+        frozenset(['Affiliate/Promoter', 'Community Builder']): 6.0,
+        frozenset(['Affiliate/Promoter', 'Expert/Advisor']): 5.5,
+        frozenset(['Service Provider', 'Thought Leader']): 6.0,
+        frozenset(['Service Provider', 'Educator']): 6.0,
+        frozenset(['Service Provider', 'Coach']): 6.0,
+        frozenset(['Service Provider', 'Product Creator']): 6.0,
+        frozenset(['Service Provider', 'Media/Publisher']): 6.0,
+        frozenset(['Service Provider', 'Affiliate/Promoter']): 6.5,
+        frozenset(['Service Provider', 'Community Builder']): 6.5,
+        frozenset(['Service Provider', 'Expert/Advisor']): 5.5,
+        # Same-role pairings
+        frozenset(['Connector']): 6.0,
+        frozenset(['Community Builder']): 6.0,
+        frozenset(['Service Provider']): 5.5,
+        frozenset(['Coach']): 5.5,
+        frozenset(['Educator']): 5.5,
+        frozenset(['Thought Leader']): 5.0,
+        frozenset(['Product Creator']): 5.0,
+        frozenset(['Media/Publisher']): 5.0,
+        frozenset(['Expert/Advisor']): 5.0,
+        frozenset(['Affiliate/Promoter']): 4.0,
+        # --- LOW (3-4.5): newcomers, unclear format ---
+        frozenset(['Newcomer']): 3.0,
+        frozenset(['Newcomer', 'Connector']): 5.0,
+        frozenset(['Newcomer', 'Community Builder']): 5.0,
+        frozenset(['Newcomer', 'Thought Leader']): 4.5,
+        frozenset(['Newcomer', 'Coach']): 4.5,
+        frozenset(['Newcomer', 'Educator']): 4.5,
+        frozenset(['Newcomer', 'Media/Publisher']): 4.5,
+        frozenset(['Newcomer', 'Service Provider']): 4.0,
+        frozenset(['Newcomer', 'Product Creator']): 4.0,
+        frozenset(['Newcomer', 'Expert/Advisor']): 4.0,
+        frozenset(['Newcomer', 'Affiliate/Promoter']): 3.5,
+    }
+
+    def _normalize_role(self, raw: str | None) -> str | None:
+        """Normalize a network_role value to a canonical category."""
+        if not raw:
+            return None
+        return self._ROLE_NORMALIZE.get(raw.lower().strip())
+
+    def _role_compat_score(self, role_a: str | None, role_b: str | None) -> float:
+        """Score structural compatibility between two network roles (0-10)."""
+        if not role_a or not role_b:
+            return 5.0  # Neutral when role data is missing
+        key = frozenset([role_a, role_b])
+        return self._ROLE_COMPAT.get(key, 5.0)
+
+    @staticmethod
+    def _parse_pgvector(value) -> list[float] | None:
+        """Parse a pgvector column value into a list of floats.
+
+        pgvector returns values as strings like '[0.1,0.2,...]'.
+        Returns None if the value is empty or unparseable.
+        """
+        if value is None:
+            return None
+        if isinstance(value, list):
+            return value
+        if isinstance(value, str):
+            s = value.strip()
+            if not s or s == '':
+                return None
+            try:
+                return json.loads(s)
+            except (json.JSONDecodeError, ValueError):
+                return None
+        return None
+
+    @staticmethod
+    def _cosine_similarity(vec_a: list[float], vec_b: list[float]) -> float:
+        """Cosine similarity between two vectors, clamped to [0, 1]."""
+        if not vec_a or not vec_b or len(vec_a) != len(vec_b):
+            return 0.0
+        dot = sum(a * b for a, b in zip(vec_a, vec_b))
+        norm_a = math.sqrt(sum(a * a for a in vec_a))
+        norm_b = math.sqrt(sum(b * b for b in vec_b))
+        if norm_a == 0 or norm_b == 0:
+            return 0.0
+        return max(0.0, min(1.0, dot / (norm_a * norm_b)))
+
+    def _embedding_to_score(self, similarity: float) -> float:
+        """Convert cosine similarity to a calibrated 0-10 score."""
+        for threshold, score in self.EMBEDDING_SCORE_THRESHOLDS:
+            if similarity >= threshold:
+                return score
+        return self.EMBEDDING_SCORE_DEFAULT
+
     def score_pair(
         self,
         profile_a: SupabaseProfile,
@@ -1289,17 +1492,29 @@ class SupabaseMatchScoringService:
         momentum = self._score_momentum(target)
         context = self._score_context(target)
 
-        # Weighted harmonic mean of components (0-10 scale)
-        components = [
-            (intent['score'], self.WEIGHTS['intent']),
-            (synergy['score'], self.WEIGHTS['synergy']),
-            (momentum['score'], self.WEIGHTS['momentum']),
-            (context['score'], self.WEIGHTS['context']),
-        ]
+        # Build components, excluding dimensions with None scores
+        # (Momentum returns None when all sub-factors lack data)
+        dimension_scores = {
+            'intent': intent['score'],
+            'synergy': synergy['score'],
+            'momentum': momentum['score'],
+            'context': context['score'],
+        }
+
+        components = []
+        for dim, weight in self.WEIGHTS.items():
+            score = dimension_scores[dim]
+            if score is not None:
+                components.append((score, weight))
+
+        # Weighted geometric mean (redistributes weight proportionally)
         epsilon = 1e-10
         total_weight = sum(w for _, w in components)
-        reciprocal_sum = sum(w / max(s, epsilon) for s, w in components)
-        final_0_10 = total_weight / reciprocal_sum if reciprocal_sum > 0 else 0.0
+        if total_weight > 0 and components:
+            log_sum = sum(w * math.log(max(s, epsilon)) for s, w in components)
+            final_0_10 = math.exp(log_sum / total_weight)
+        else:
+            final_0_10 = 0.0
 
         # Convert to 0-100 scale
         final_score = final_0_10 * 10
@@ -1315,13 +1530,20 @@ class SupabaseMatchScoringService:
 
     # ----- Intent (45%) — Does this partner want to collaborate? -----
 
+    # Fields checked by Profile Investment score
+    _INVESTMENT_FIELDS = [
+        'bio', 'what_you_do', 'who_you_serve', 'offering', 'seeking',
+        'niche', 'tags', 'company', 'website', 'booking_link',
+        'linkedin', 'audience_type', 'network_role',
+    ]
+
     def _score_intent(self, target: SupabaseProfile) -> dict:
         """Score partnership readiness signals for target profile."""
         factors = []
         total = 0.0
         max_total = 0.0
 
-        # Factor 1: JV History (weight 3)
+        # Factor 1: JV History (weight 4.0) — strongest intent signal
         jv_list = target.jv_history if isinstance(target.jv_history, list) else []
         jv_count = len(jv_list)
         if jv_count >= 3:
@@ -1329,43 +1551,42 @@ class SupabaseMatchScoringService:
         elif jv_count >= 1:
             jv_score = 7.0
         else:
-            jv_score = 3.0  # Neutral, not punished
-        factors.append({'name': 'JV History', 'score': jv_score, 'weight': 3,
+            jv_score = 4.0  # No data ≠ no history
+        factors.append({'name': 'JV History', 'score': jv_score, 'weight': 4,
                         'detail': f'{jv_count} past partnerships'})
-        total += jv_score * 3
+        total += jv_score * 4
+        max_total += 10 * 4
+
+        # Factor 2: Booking link (weight 3.5) — "I'm taking meetings"
+        has_booking = bool(target.booking_link and target.booking_link.strip())
+        booking_score = 8.0 if has_booking else 3.0
+        factors.append({'name': 'Booking Link', 'score': booking_score, 'weight': 3.5,
+                        'detail': 'Ready for meetings' if has_booking else 'No booking link'})
+        total += booking_score * 3.5
+        max_total += 10 * 3.5
+
+        # Factor 3: Profile Investment (weight 3.0) — gradient effort signal
+        populated = 0
+        for field_name in self._INVESTMENT_FIELDS:
+            val = getattr(target, field_name, None)
+            if val is not None:
+                if isinstance(val, str) and val.strip():
+                    populated += 1
+                elif isinstance(val, list) and len(val) > 0:
+                    populated += 1
+        invest_score = (populated / len(self._INVESTMENT_FIELDS)) * 10
+        factors.append({'name': 'Profile Investment', 'score': round(invest_score, 1), 'weight': 3,
+                        'detail': f'{populated}/{len(self._INVESTMENT_FIELDS)} fields populated'})
+        total += invest_score * 3
         max_total += 10 * 3
 
-        # Factor 2: Seeking populated (weight 2.5)
-        seeking_text = (target.seeking or '').strip()
-        seeking_score = 9.0 if len(seeking_text) > 10 else 3.0
-        factors.append({'name': 'Seeking Stated', 'score': seeking_score, 'weight': 2.5,
-                        'detail': 'Actively seeking partners' if seeking_score > 5 else 'No stated needs'})
-        total += seeking_score * 2.5
-        max_total += 10 * 2.5
-
-        # Factor 3: Booking link (weight 2)
-        has_booking = bool(target.booking_link and target.booking_link.strip())
-        booking_score = 8.0 if has_booking else 4.0
-        factors.append({'name': 'Booking Link', 'score': booking_score, 'weight': 2,
-                        'detail': 'Ready for meetings' if has_booking else 'No booking link'})
-        total += booking_score * 2
-        max_total += 10 * 2
-
-        # Factor 4: Subscription status (weight 2)
-        is_member = (target.status or '').lower() == 'member'
-        status_score = 8.0 if is_member else 5.0
-        factors.append({'name': 'Subscription', 'score': status_score, 'weight': 2,
-                        'detail': 'Active member' if is_member else target.status or 'Unknown'})
-        total += status_score * 2
-        max_total += 10 * 2
-
-        # Factor 5: Website presence (weight 1.5)
+        # Factor 4: Website presence (weight 2.5) — professional seriousness
         has_website = bool(target.website and target.website.strip())
         website_score = 7.0 if has_website else 2.0
-        factors.append({'name': 'Website', 'score': website_score, 'weight': 1.5,
+        factors.append({'name': 'Website', 'score': website_score, 'weight': 2.5,
                         'detail': 'Website available' if has_website else 'No website'})
-        total += website_score * 1.5
-        max_total += 10 * 1.5
+        total += website_score * 2.5
+        max_total += 10 * 2.5
 
         score = (total / max_total) * 10 if max_total > 0 else 0
         return {'score': round(score, 2), 'factors': factors}
@@ -1375,45 +1596,85 @@ class SupabaseMatchScoringService:
     def _score_synergy(
         self, source: SupabaseProfile, target: SupabaseProfile
     ) -> dict:
-        """Score business complementarity between source and target."""
+        """Score business complementarity between source and target.
+
+        Uses embedding cosine similarity when available (calibrated thresholds
+        from validation data), falls back to word overlap when embeddings are null.
+        """
         factors = []
         total = 0.0
         max_total = 0.0
 
-        # Factor 1: Offering-to-seeking alignment (weight 3)
-        alignment_score = self._text_overlap_score(
-            source.seeking or '', target.offering or target.what_you_do or ''
+        # Factor 1: Offering-to-seeking alignment (weight 3.5)
+        src_seeking_emb = self._parse_pgvector(getattr(source, 'embedding_seeking', None))
+        # Prefer embedding_offering, fall back to embedding_what_you_do
+        tgt_offering_emb = (
+            self._parse_pgvector(getattr(target, 'embedding_offering', None))
+            or self._parse_pgvector(getattr(target, 'embedding_what_you_do', None))
         )
-        factors.append({'name': 'Offering↔Seeking', 'score': alignment_score, 'weight': 3,
-                        'detail': f'Alignment score: {alignment_score:.1f}/10'})
-        total += alignment_score * 3
-        max_total += 10 * 3
 
-        # Factor 2: Revenue tier compatibility (weight 2.5)
-        rev_score = self._revenue_tier_compat(
-            source.revenue_tier, target.revenue_tier
-        )
-        factors.append({'name': 'Revenue Tier', 'score': rev_score, 'weight': 2.5,
-                        'detail': f'{source.revenue_tier or "?"} ↔ {target.revenue_tier or "?"}'})
-        total += rev_score * 2.5
+        if src_seeking_emb and tgt_offering_emb:
+            sim = self._cosine_similarity(src_seeking_emb, tgt_offering_emb)
+            alignment_score = self._embedding_to_score(sim)
+            method = 'semantic'
+            detail = f'Cosine similarity: {sim:.3f} → {alignment_score:.1f}/10'
+        else:
+            alignment_score = self._text_overlap_score(
+                source.seeking or '', target.offering or target.what_you_do or ''
+            )
+            method = 'word_overlap'
+            detail = f'Word overlap: {alignment_score:.1f}/10'
+
+        factors.append({'name': 'Offering↔Seeking', 'score': alignment_score, 'weight': 3.5,
+                        'detail': detail, 'method': method})
+        total += alignment_score * 3.5
+        max_total += 10 * 3.5
+
+        # Factor 2: Audience alignment (weight 3.0)
+        src_serve_emb = self._parse_pgvector(getattr(source, 'embedding_who_you_serve', None))
+        tgt_serve_emb = self._parse_pgvector(getattr(target, 'embedding_who_you_serve', None))
+
+        if src_serve_emb and tgt_serve_emb:
+            sim = self._cosine_similarity(src_serve_emb, tgt_serve_emb)
+            audience_score = self._embedding_to_score(sim)
+            method = 'semantic'
+            detail = f'Cosine similarity: {sim:.3f} → {audience_score:.1f}/10'
+        else:
+            audience_score = self._text_overlap_score(
+                source.who_you_serve or '', target.who_you_serve or ''
+            )
+            method = 'word_overlap'
+            detail = f'Word overlap: {audience_score:.1f}/10'
+
+        factors.append({'name': 'Audience Alignment', 'score': audience_score, 'weight': 3.0,
+                        'detail': detail, 'method': method})
+        total += audience_score * 3.0
+        max_total += 10 * 3.0
+
+        # Factor 3: Role compatibility (weight 2.5) — structural JV format fit
+        role_a = self._normalize_role(source.network_role)
+        role_b = self._normalize_role(target.network_role)
+        compat_score = self._role_compat_score(role_a, role_b)
+        factors.append({'name': 'Role Compatibility', 'score': compat_score, 'weight': 2.5,
+                        'detail': f'{role_a or "?"} ↔ {role_b or "?"}'})
+        total += compat_score * 2.5
         max_total += 10 * 2.5
 
-        # Factor 3: Content platform overlap (weight 2)
-        platform_score, shared = self._platform_overlap(source, target)
-        detail = f'Shared: {", ".join(shared)}' if shared else 'No platform overlap'
-        factors.append({'name': 'Platform Overlap', 'score': platform_score, 'weight': 2,
-                        'detail': detail})
-        total += platform_score * 2
-        max_total += 10 * 2
-
-        # Factor 4: Audience alignment (weight 2.5)
-        audience_score = self._text_overlap_score(
-            source.who_you_serve or '', target.who_you_serve or ''
+        # Factor 4: Revenue tier compatibility (weight 2.0, null-aware)
+        # Only scored when BOTH profiles have real revenue data;
+        # excluded otherwise so weight redistributes to other factors.
+        src_rev = source.revenue_tier
+        tgt_rev = target.revenue_tier
+        has_rev_data = (
+            src_rev and src_rev.strip() and src_rev != 'unknown'
+            and tgt_rev and tgt_rev.strip() and tgt_rev != 'unknown'
         )
-        factors.append({'name': 'Audience Alignment', 'score': audience_score, 'weight': 2.5,
-                        'detail': f'Audience similarity: {audience_score:.1f}/10'})
-        total += audience_score * 2.5
-        max_total += 10 * 2.5
+        if has_rev_data:
+            rev_score = self._revenue_tier_compat(src_rev, tgt_rev)
+            factors.append({'name': 'Revenue Tier', 'score': rev_score, 'weight': 2.0,
+                            'detail': f'{src_rev} ↔ {tgt_rev}'})
+            total += rev_score * 2.0
+            max_total += 10 * 2.0
 
         score = (total / max_total) * 10 if max_total > 0 else 0
         return {'score': round(score, 2), 'factors': factors}
@@ -1514,7 +1775,12 @@ class SupabaseMatchScoringService:
     # ----- Momentum (20%) — How active/engaged is this partner? -----
 
     def _score_momentum(self, target: SupabaseProfile) -> dict:
-        """Score activity and engagement signals."""
+        """Score activity and engagement signals.
+
+        Null-aware: only scores sub-factors that have real data.
+        If ALL sub-factors are null, returns score=None so the caller
+        can redistribute Momentum's weight to other dimensions.
+        """
         factors = []
         total = 0.0
         max_total = 0.0
@@ -1523,60 +1789,61 @@ class SupabaseMatchScoringService:
         engagement = target.audience_engagement_score
         if engagement is not None:
             eng_score = min(10.0, engagement * 10)
-        else:
-            eng_score = 4.0  # Neutral when missing
-        factors.append({'name': 'Audience Engagement', 'score': round(eng_score, 1), 'weight': 3,
-                        'detail': f'Engagement: {engagement:.2f}' if engagement else 'Unknown'})
-        total += eng_score * 3
-        max_total += 10 * 3
+            factors.append({'name': 'Audience Engagement', 'score': round(eng_score, 1), 'weight': 3,
+                            'detail': f'Engagement: {engagement:.2f}'})
+            total += eng_score * 3
+            max_total += 10 * 3
 
         # Factor 2: Social reach (weight 2)
-        reach = target.social_reach or 0
-        if reach >= 100000:
-            reach_score = 10.0
-        elif reach >= 50000:
-            reach_score = 8.0
-        elif reach >= 10000:
-            reach_score = 6.5
-        elif reach >= 1000:
-            reach_score = 5.0
-        elif reach > 0:
-            reach_score = 4.0
-        else:
-            reach_score = 3.0
-        factors.append({'name': 'Social Reach', 'score': reach_score, 'weight': 2,
-                        'detail': f'{reach:,} followers' if reach > 0 else 'Unknown'})
-        total += reach_score * 2
-        max_total += 10 * 2
+        reach = target.social_reach
+        if reach is not None and reach > 0:
+            if reach >= 100000:
+                reach_score = 10.0
+            elif reach >= 50000:
+                reach_score = 8.0
+            elif reach >= 10000:
+                reach_score = 6.5
+            elif reach >= 1000:
+                reach_score = 5.0
+            else:
+                reach_score = 4.0
+            factors.append({'name': 'Social Reach', 'score': reach_score, 'weight': 2,
+                            'detail': f'{reach:,} followers'})
+            total += reach_score * 2
+            max_total += 10 * 2
 
         # Factor 3: Current projects (weight 2.5)
         has_projects = bool(target.current_projects and len(target.current_projects.strip()) > 10)
-        proj_score = 8.0 if has_projects else 4.0
-        factors.append({'name': 'Active Projects', 'score': proj_score, 'weight': 2.5,
-                        'detail': 'Active projects noted' if has_projects else 'No current projects'})
-        total += proj_score * 2.5
-        max_total += 10 * 2.5
+        if has_projects:
+            proj_score = 8.0
+            factors.append({'name': 'Active Projects', 'score': proj_score, 'weight': 2.5,
+                            'detail': 'Active projects noted'})
+            total += proj_score * 2.5
+            max_total += 10 * 2.5
 
         # Factor 4: List size as growth indicator (weight 2.5)
-        list_size = target.list_size or 0
-        if list_size >= 100000:
-            list_score = 9.0
-        elif list_size >= 50000:
-            list_score = 8.0
-        elif list_size >= 10000:
-            list_score = 7.0
-        elif list_size >= 1000:
-            list_score = 5.5
-        elif list_size > 0:
-            list_score = 4.0
-        else:
-            list_score = 3.0
-        factors.append({'name': 'List Size', 'score': list_score, 'weight': 2.5,
-                        'detail': f'{list_size:,}' if list_size > 0 else 'Unknown'})
-        total += list_score * 2.5
-        max_total += 10 * 2.5
+        list_size = target.list_size
+        if list_size is not None and list_size > 0:
+            if list_size >= 100000:
+                list_score = 9.0
+            elif list_size >= 50000:
+                list_score = 8.0
+            elif list_size >= 10000:
+                list_score = 7.0
+            elif list_size >= 1000:
+                list_score = 5.5
+            else:
+                list_score = 4.0
+            factors.append({'name': 'List Size', 'score': list_score, 'weight': 2.5,
+                            'detail': f'{list_size:,}'})
+            total += list_score * 2.5
+            max_total += 10 * 2.5
 
-        score = (total / max_total) * 10 if max_total > 0 else 0
+        # All fields null → return None score so caller skips this dimension
+        if max_total == 0:
+            return {'score': None, 'factors': [], 'detail': 'No momentum data available'}
+
+        score = (total / max_total) * 10
         return {'score': round(score, 2), 'factors': factors}
 
     # ----- Context (10%) — Data quality and reliability -----
