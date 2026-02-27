@@ -32,25 +32,20 @@ class ClaudeVerificationService:
     Supports both Anthropic API and OpenRouter.
     """
 
-    def __init__(self):
-        # Try OpenRouter first (already configured in project), then Anthropic
-        self.openrouter_key = getattr(settings, 'OPENROUTER_API_KEY', '') or os.environ.get('OPENROUTER_API_KEY', '')
-        self.anthropic_key = getattr(settings, 'ANTHROPIC_API_KEY', '') or os.environ.get('ANTHROPIC_API_KEY', '')
-
-        if self.openrouter_key:
-            self.use_openrouter = True
-            self.api_key = self.openrouter_key
-            self.model = "anthropic/claude-sonnet-4"  # Via OpenRouter
-        elif self.anthropic_key:
-            self.use_openrouter = False
-            self.api_key = self.anthropic_key
-            self.model = "claude-sonnet-4-20250514"
-        else:
-            self.use_openrouter = False
-            self.api_key = None
-            self.model = None
-
-        self.max_tokens = 1024
+    def __init__(self, use_agents: bool = False):
+        from .claude_client import ClaudeClient
+        openrouter_key = getattr(settings, 'OPENROUTER_API_KEY', '') or os.environ.get('OPENROUTER_API_KEY', '')
+        anthropic_key = getattr(settings, 'ANTHROPIC_API_KEY', '') or os.environ.get('ANTHROPIC_API_KEY', '')
+        self.client = ClaudeClient(
+            max_tokens=1024,
+            openrouter_key=openrouter_key,
+            anthropic_key=anthropic_key,
+        )
+        self.api_key = self.client.api_key
+        self.use_openrouter = self.client.use_openrouter
+        self.model = self.client.model
+        self.max_tokens = self.client.max_tokens
+        self.use_agents = use_agents
 
     def is_available(self) -> bool:
         """Check if the verification service has a configured API key."""
@@ -58,53 +53,11 @@ class ClaudeVerificationService:
 
     def _call_claude(self, prompt: str) -> str:
         """Call Claude via OpenRouter or Anthropic API."""
-        if not self.api_key:
-            logger.warning("No API key configured (OPENROUTER_API_KEY or ANTHROPIC_API_KEY)")
+        if not hasattr(self, 'client') or not self.client:
+            if not getattr(self, 'api_key', None):
+                logger.warning("No API key configured (OPENROUTER_API_KEY or ANTHROPIC_API_KEY)")
             return None
-
-        try:
-            if self.use_openrouter:
-                # Use OpenRouter via OpenAI-compatible API
-                import openai
-
-                client = openai.OpenAI(
-                    base_url="https://openrouter.ai/api/v1",
-                    api_key=self.api_key,
-                )
-
-                response = client.chat.completions.create(
-                    model=self.model,
-                    max_tokens=self.max_tokens,
-                    temperature=0,  # Deterministic for verification
-                    messages=[
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-
-                return response.choices[0].message.content
-            else:
-                # Use Anthropic directly
-                import anthropic
-
-                client = anthropic.Anthropic(api_key=self.api_key)
-
-                message = client.messages.create(
-                    model=self.model,
-                    max_tokens=self.max_tokens,
-                    temperature=0,
-                    messages=[
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-
-                return message.content[0].text
-
-        except ImportError as e:
-            logger.warning(f"Required package not installed: {e}")
-            return None
-        except Exception as e:
-            logger.error(f"Error calling AI API: {e}")
-            return None
+        return self.client.call(prompt)
 
     def verify_formatting(self, content: str, field_name: str, max_length: int = 450) -> AIVerificationResult:
         """
@@ -135,6 +88,9 @@ Respond in JSON format:
     "reasoning": "Brief explanation of your evaluation"
 }}"""
 
+        if getattr(self, 'use_agents', False):
+            from .claude_client import formatting_verifier
+            return self._verify_via_agent(formatting_verifier, prompt, field_name)
         response = self._call_claude(prompt)
         return self._parse_response(response, field_name)
 
@@ -173,6 +129,9 @@ Respond in JSON format:
     "reasoning": "Brief explanation of your evaluation"
 }}"""
 
+        if getattr(self, 'use_agents', False):
+            from .claude_client import content_verifier
+            return self._verify_via_agent(content_verifier, prompt, 'content_quality')
         response = self._call_claude(prompt)
         return self._parse_response(response, 'content_quality')
 
@@ -207,6 +166,9 @@ Respond in JSON format:
     "reasoning": "Brief explanation of your evaluation"
 }}"""
 
+        if getattr(self, 'use_agents', False):
+            from .claude_client import data_quality_verifier
+            return self._verify_via_agent(data_quality_verifier, prompt, 'data_quality')
         response = self._call_claude(prompt)
         return self._parse_response(response, 'data_quality')
 
@@ -243,6 +205,9 @@ Respond in JSON format:
     "reasoning": "Brief explanation of your evaluation"
 }}"""
 
+        if getattr(self, 'use_agents', False):
+            from .claude_client import content_verifier
+            return self._verify_via_agent(content_verifier, prompt, 'outreach_message')
         response = self._call_claude(prompt)
         return self._parse_response(response, 'outreach_message')
 
@@ -274,6 +239,31 @@ Return ONLY the rewritten content, no explanation."""
         if response:
             return response.strip()
         return content  # Return original if AI fails
+
+    def _verify_via_agent(self, agent, prompt: str, field_name: str) -> AIVerificationResult:
+        """Run verification through a Pydantic AI agent with fallback to raw call."""
+        from .claude_client import get_pydantic_model
+
+        model = get_pydantic_model()
+        if not model:
+            logger.warning("No Pydantic AI model for verification, using raw call")
+            response = self._call_claude(prompt)
+            return self._parse_response(response, field_name)
+
+        try:
+            result = agent.run_sync(prompt, model=model)
+            typed = result.output
+            return AIVerificationResult(
+                passed=typed.passed,
+                score=typed.score,
+                issues=typed.issues,
+                suggestions=typed.suggestions,
+                reasoning=typed.reasoning,
+            )
+        except Exception as e:
+            logger.error(f"Agent verification failed for {field_name}: {e}")
+            response = self._call_claude(prompt)
+            return self._parse_response(response, field_name)
 
     def _parse_response(self, response: str, field_name: str) -> AIVerificationResult:
         """Parse JSON response from Claude."""

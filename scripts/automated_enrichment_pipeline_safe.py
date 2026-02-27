@@ -1881,7 +1881,7 @@ class SafeEnrichmentPipeline:
                 groups = {}  # template_key → (query, [params_list])
                 for set_parts, params in profile_updates:
                     set_clause = sql.SQL(", ").join(set_parts)
-                    template_key = set_clause.as_string(conn)
+                    template_key = tuple(repr(sp) for sp in set_parts)
                     if template_key not in groups:
                         query = sql.SQL("UPDATE profiles SET {} WHERE id = %s").format(set_clause)
                         groups[template_key] = (query, [])

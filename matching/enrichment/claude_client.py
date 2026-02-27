@@ -1,17 +1,25 @@
 """
-Shared Claude API client.
+Shared Claude API client and Pydantic AI agents.
 
-Consolidates duplicated API key detection, Claude API calls (OpenRouter
-preferred, Anthropic fallback), and JSON response parsing from:
-
-- ProfileResearchService (ai_research.py)
-- ClaudeVerificationService (ai_verification.py)
+Provides:
+  - ClaudeClient: raw API calls with tenacity retry (backward compat)
+  - get_pydantic_model(): returns a Pydantic AI model for agent usage
+  - Pre-configured agents: research_agent, extended_signals_agent,
+    formatting_verifier, content_verifier, data_quality_verifier
 """
 
 import json
 import logging
 import os
 from typing import Dict, Optional
+
+from pydantic_ai import Agent
+
+from matching.enrichment.schemas import (
+    CoreProfileExtraction,
+    ExtendedSignalsExtraction,
+    AIVerificationResult,
+)
 
 from tenacity import (
     retry,
@@ -157,3 +165,96 @@ class ClaudeClient:
         except (json.JSONDecodeError, ValueError) as e:
             logger.warning(f"Failed to parse JSON response: {e}")
             return None
+
+
+# ────────────────────────────────────────────────────────────────
+# Pydantic AI model resolver + pre-configured agents
+# ────────────────────────────────────────────────────────────────
+
+def get_pydantic_model():
+    """Return a Pydantic AI model configured with available API keys.
+
+    Prefers OpenRouter (via OpenAI provider) over direct Anthropic.
+    Returns None if no API key is available.
+    """
+    openrouter_key = anthropic_key = ""
+    try:
+        from django.conf import settings
+        openrouter_key = getattr(settings, 'OPENROUTER_API_KEY', '') or os.environ.get('OPENROUTER_API_KEY', '')
+        anthropic_key = getattr(settings, 'ANTHROPIC_API_KEY', '') or os.environ.get('ANTHROPIC_API_KEY', '')
+    except Exception:
+        openrouter_key = os.environ.get('OPENROUTER_API_KEY', '')
+        anthropic_key = os.environ.get('ANTHROPIC_API_KEY', '')
+
+    if openrouter_key:
+        from pydantic_ai.providers.openai import OpenAIProvider
+        from pydantic_ai.models.openai import OpenAIModel
+        provider = OpenAIProvider(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=openrouter_key,
+        )
+        return OpenAIModel("anthropic/claude-sonnet-4", provider=provider)
+    elif anthropic_key:
+        from pydantic_ai.models.anthropic import AnthropicModel
+        return AnthropicModel("claude-sonnet-4-20250514", api_key=anthropic_key)
+    else:
+        return None
+
+
+# --- Research agents ---
+
+research_agent = Agent(
+    output_type=CoreProfileExtraction,
+    instructions=(
+        "You are a business research assistant extracting FACTUAL profile data. "
+        "Only extract information that is EXPLICITLY stated on the website. "
+        "DO NOT make assumptions or infer anything. If information is not clearly "
+        "stated, leave that field empty. Business accuracy matters — do NOT "
+        "fabricate or assume. Set confidence to 'high' only if you found clear, "
+        "explicit statements. Include source_quotes with 1-2 direct quotes."
+    ),
+)
+
+extended_signals_agent = Agent(
+    output_type=ExtendedSignalsExtraction,
+    instructions=(
+        "You are a business intelligence analyst extracting PARTNERSHIP and "
+        "REVENUE signals. Only extract information that is EXPLICITLY stated "
+        "or clearly demonstrated. Do NOT fabricate partnerships, prices, or "
+        "platform names. Revenue tier should be based on evidence, not "
+        "assumptions. For jv_history, only include partnerships you can cite "
+        "from the content."
+    ),
+)
+
+
+# --- Verification agents ---
+
+formatting_verifier = Agent(
+    output_type=AIVerificationResult,
+    instructions=(
+        "You are a content formatting quality checker. Evaluate text for: "
+        "complete sentences, clear structure, readability, appropriate length "
+        "(max 450 chars), and whether it describes benefits for both parties. "
+        "Score 0-100 based on formatting quality."
+    ),
+)
+
+content_verifier = Agent(
+    output_type=AIVerificationResult,
+    instructions=(
+        "You are a content quality evaluator. Check text for: personalization, "
+        "use of actual data (not generic phrases), specific benefits mentioned, "
+        "and whether the content is compelling and accurate. Score 0-100."
+    ),
+)
+
+data_quality_verifier = Agent(
+    output_type=AIVerificationResult,
+    instructions=(
+        "You are a data quality checker for business profiles. Verify: email "
+        "format validity, website vs LinkedIn distinction, contact info quality, "
+        "no placeholder values, and that data is in the correct fields. "
+        "Score 0-100 based on data integrity."
+    ),
+)

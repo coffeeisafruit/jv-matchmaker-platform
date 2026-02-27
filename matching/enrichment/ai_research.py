@@ -510,25 +510,20 @@ class ProfileResearchService:
     Uses Crawl4AI for multi-page site discovery and Claude for data extraction.
     """
 
-    def __init__(self):
-        # Try OpenRouter first, then Anthropic
-        self.openrouter_key = getattr(settings, 'OPENROUTER_API_KEY', '') or os.environ.get('OPENROUTER_API_KEY', '')
-        self.anthropic_key = getattr(settings, 'ANTHROPIC_API_KEY', '') or os.environ.get('ANTHROPIC_API_KEY', '')
-
-        if self.openrouter_key:
-            self.use_openrouter = True
-            self.api_key = self.openrouter_key
-            self.model = "anthropic/claude-sonnet-4"
-        elif self.anthropic_key:
-            self.use_openrouter = False
-            self.api_key = self.anthropic_key
-            self.model = "claude-sonnet-4-20250514"
-        else:
-            self.use_openrouter = False
-            self.api_key = None
-            self.model = None
-
-        self.max_tokens = 2048
+    def __init__(self, use_agents: bool = False):
+        from .claude_client import ClaudeClient
+        openrouter_key = getattr(settings, 'OPENROUTER_API_KEY', '') or os.environ.get('OPENROUTER_API_KEY', '')
+        anthropic_key = getattr(settings, 'ANTHROPIC_API_KEY', '') or os.environ.get('ANTHROPIC_API_KEY', '')
+        self.client = ClaudeClient(
+            max_tokens=2048,
+            openrouter_key=openrouter_key,
+            anthropic_key=anthropic_key,
+        )
+        self.api_key = self.client.api_key
+        self.use_openrouter = self.client.use_openrouter
+        self.model = self.client.model
+        self.max_tokens = self.client.max_tokens
+        self.use_agents = use_agents
         # Cache raw website content for downstream verification (Layer 2)
         self._content_cache: Dict[str, str] = {}
         self._crawler = SmartCrawler()
@@ -595,7 +590,10 @@ class ProfileResearchService:
             logger.info(f"  Booking link for {name}: {regex_booking_link}")
 
         # Step 3: Core profile extraction (Prompt 1)
-        researched = self._extract_profile_data(name, content, website, existing_data)
+        if getattr(self, 'use_agents', False):
+            researched = self._extract_profile_data_agent(name, content, website, existing_data)
+        else:
+            researched = self._extract_profile_data(name, content, website, existing_data)
 
         # Step 3b: Merge booking link — regex wins over AI (more reliable for URLs)
         if regex_booking_link:
@@ -605,7 +603,10 @@ class ProfileResearchService:
                 metadata.setdefault('fields_updated', []).append('booking_link')
 
         # Step 4: Extended signals extraction (Prompt 2)
-        extended = self._extract_extended_signals(name, content, website, social_links)
+        if getattr(self, 'use_agents', False):
+            extended = self._extract_extended_signals_agent(name, content, website, social_links)
+        else:
+            extended = self._extract_extended_signals(name, content, website, social_links)
         if extended:
             researched['_extended_signals'] = extended
             # Merge social links with AI-extracted platform data
@@ -859,71 +860,14 @@ IMPORTANT:
 
     def _call_claude(self, prompt: str) -> Optional[str]:
         """Call Claude via OpenRouter or Anthropic API."""
-        if not self.api_key:
+        if not hasattr(self, 'client') or not self.client:
             return None
-
-        try:
-            if self.use_openrouter:
-                import openai
-
-                client = openai.OpenAI(
-                    base_url="https://openrouter.ai/api/v1",
-                    api_key=self.api_key,
-                )
-
-                response = client.chat.completions.create(
-                    model=self.model,
-                    max_tokens=self.max_tokens,
-                    temperature=0,  # Deterministic for accuracy
-                    messages=[
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-
-                return response.choices[0].message.content
-            else:
-                import anthropic
-
-                client = anthropic.Anthropic(api_key=self.api_key)
-
-                message = client.messages.create(
-                    model=self.model,
-                    max_tokens=self.max_tokens,
-                    temperature=0,
-                    messages=[
-                        {"role": "user", "content": prompt}
-                    ]
-                )
-
-                return message.content[0].text
-
-        except ImportError as e:
-            logger.warning(f"Required package not installed: {e}")
-            return None
-        except Exception as e:
-            logger.error(f"Error calling AI API: {e}")
-            return None
+        return self.client.call(prompt)
 
     def _parse_json_response(self, response: str) -> Optional[Dict]:
         """Parse a JSON response from Claude, handling markdown code blocks."""
-        if not response:
-            return None
-
-        try:
-            text = response.strip()
-            if "```json" in text:
-                start = text.find("```json") + 7
-                end = text.find("```", start)
-                text = text[start:end].strip()
-            elif "```" in text:
-                start = text.find("```") + 3
-                end = text.find("```", start)
-                text = text[start:end].strip()
-
-            return json.loads(text)
-        except (json.JSONDecodeError, ValueError) as e:
-            logger.warning(f"Failed to parse JSON response: {e}")
-            return None
+        from .claude_client import ClaudeClient
+        return ClaudeClient.parse_json(response)
 
     def _parse_research_response(self, response: str, name: str, existing: Dict) -> Dict:
         """Parse Prompt 1 AI response and merge with existing data, preserving extraction metadata."""
@@ -1019,6 +963,125 @@ IMPORTANT:
 
         result['_extraction_metadata'] = extraction_metadata
         return result
+
+    # ── Pydantic AI agent-based extraction methods ──────────────────
+
+    def _extract_profile_data_agent(
+        self, name: str, content: str, website: str, existing: Dict
+    ) -> Dict:
+        """Prompt 1 via Pydantic AI agent: structured profile extraction."""
+        from .claude_client import research_agent, get_pydantic_model
+        from .schemas import Confidence
+
+        model = get_pydantic_model()
+        if not model:
+            logger.warning("No Pydantic AI model available, falling back to raw call")
+            return self._extract_profile_data(name, content, website, existing)
+
+        prompt_content = content[:15000]
+        prompt = (
+            f"Person: {name}\nWebsite: {website}\n\n"
+            f"Website Content (from multiple pages):\n<content>\n{prompt_content}\n</content>"
+        )
+
+        try:
+            result_obj = research_agent.run_sync(prompt, model=model)
+            extraction = result_obj.output
+        except Exception as e:
+            logger.error(f"Agent extraction failed for {name}: {e}")
+            return self._extract_profile_data(name, content, website, existing)
+
+        # Apply same confidence gating and merge logic as _parse_research_response
+        result = {}
+        confidence = extraction.confidence.value
+
+        extraction_metadata = {
+            'source': 'website_research',
+            'confidence': confidence,
+            'source_quotes': extraction.source_quotes,
+            'extracted_at': datetime.now().isoformat(),
+            'fields_updated': [],
+        }
+
+        if confidence in ('high', 'medium'):
+            for field in ['what_you_do', 'who_you_serve', 'seeking', 'offering']:
+                new_value = getattr(extraction, field).strip()
+                existing_value = existing.get(field, '').strip()
+                if new_value and (not existing_value or len(existing_value) < 10):
+                    result[field] = new_value
+                    extraction_metadata['fields_updated'].append(field)
+
+            if extraction.social_proof and not existing.get('bio'):
+                result['bio'] = extraction.social_proof
+                extraction_metadata['fields_updated'].append('bio')
+
+            for field in ['signature_programs', 'booking_link', 'niche', 'phone',
+                          'current_projects', 'company']:
+                new_value = getattr(extraction, field).strip()
+                if new_value:
+                    result[field] = new_value
+                    extraction_metadata['fields_updated'].append(field)
+
+            if extraction.business_size.value:
+                result['business_size'] = extraction.business_size.value
+                extraction_metadata['fields_updated'].append('business_size')
+
+            if extraction.list_size is not None and extraction.list_size > 0:
+                result['list_size'] = extraction.list_size
+                extraction_metadata['fields_updated'].append('list_size')
+
+            if extraction.tags:
+                result['tags'] = extraction.tags
+                extraction_metadata['fields_updated'].append('tags')
+
+            for field in ['audience_type', 'business_focus', 'service_provided']:
+                new_value = getattr(extraction, field).strip()
+                if new_value:
+                    result[field] = new_value
+                    extraction_metadata['fields_updated'].append(field)
+        else:
+            logger.warning(f"  Low confidence for {name} (agent) — dropping extracted fields")
+
+        result['_extraction_metadata'] = extraction_metadata
+        return result
+
+    def _extract_extended_signals_agent(
+        self, name: str, content: str, website: str, social_links: Dict
+    ) -> Optional[Dict]:
+        """Prompt 2 via Pydantic AI agent: structured extended signals extraction."""
+        from .claude_client import extended_signals_agent, get_pydantic_model
+
+        model = get_pydantic_model()
+        if not model:
+            return self._extract_extended_signals(name, content, website, social_links)
+
+        prompt_content = content[:15000]
+        price_signals = extract_price_signals(content)
+        price_hint = f"\nDetected price mentions: {', '.join(price_signals)}" if price_signals else ""
+        social_hint = f"\nDetected social media links: {json.dumps(social_links)}" if social_links else ""
+
+        prompt = (
+            f"Person: {name}\nWebsite: {website}{price_hint}{social_hint}\n\n"
+            f"Website Content (from multiple pages):\n<content>\n{prompt_content}\n</content>"
+        )
+
+        try:
+            result_obj = extended_signals_agent.run_sync(prompt, model=model)
+            extraction = result_obj.output
+        except Exception as e:
+            logger.error(f"Extended signals agent failed for {name}: {e}")
+            return self._extract_extended_signals(name, content, website, social_links)
+
+        # Convert typed output to dict format expected by the rest of the pipeline
+        return {
+            'revenue_tier': extraction.revenue_tier.value,
+            'revenue_signals': extraction.revenue_signals,
+            'jv_history': [p.model_dump() for p in extraction.jv_history],
+            'content_platforms': extraction.content_platforms.model_dump(),
+            'audience_engagement_signals': extraction.audience_engagement_signals,
+            'confidence': extraction.confidence.value,
+            'source_quotes': extraction.source_quotes,
+        }
 
 
 class ProfileResearchCache:

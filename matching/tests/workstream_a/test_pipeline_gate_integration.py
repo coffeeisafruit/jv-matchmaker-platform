@@ -72,6 +72,19 @@ def _mock_get_conn(mock_conn):
     return _ctx
 
 
+def _get_email_batch_params(mock_exec):
+    """Extract email batch params from execute_batch mock calls.
+
+    The email batch uses a raw SQL string containing 'SET email',
+    distinguishing it from profile field grouped batch calls (sql.SQL objects).
+    """
+    for call in mock_exec.call_args_list:
+        sql_arg = str(call[0][1])
+        if 'email = %s' in sql_arg:
+            return call[0][2]
+    return None
+
+
 # ---------------------------------------------------------------------------
 # Tests
 # ---------------------------------------------------------------------------
@@ -93,9 +106,10 @@ class TestVerifiedEmailWritten:
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
 
-            # execute_batch should have been called with one update tuple
+            # execute_batch should have been called with one email update tuple
             assert mock_exec.called
-            updates = mock_exec.call_args[0][2]
+            updates = _get_email_batch_params(mock_exec)
+            assert updates is not None, "No email batch call found"
             assert len(updates) == 1
             assert updates[0][0] == 'valid@acmecorp.com'  # email value
 
@@ -118,11 +132,10 @@ class TestQuarantinedEmailSkipped:
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
 
-            # execute_batch should not be called (no valid updates)
-            if mock_exec.called:
-                updates = mock_exec.call_args[0][2]
-                # None of the updates should be for the quarantined profile
-                for u in updates:
+            # No email batch should exist for quarantined profiles
+            email_updates = _get_email_batch_params(mock_exec)
+            if email_updates:
+                for u in email_updates:
                     assert u[5] != 'p2'  # profile_id is the last element
 
             # Stats should reflect quarantine
@@ -185,7 +198,8 @@ class TestUnverifiedConfidenceReduced:
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
 
             assert mock_exec.called
-            updates = mock_exec.call_args[0][2]
+            updates = _get_email_batch_params(mock_exec)
+            assert updates is not None, "No email batch call found"
             assert len(updates) == 1
 
             # The confidence in the update tuple is at index 2
@@ -211,7 +225,8 @@ class TestVerifiedConfidenceUnmodified:
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
 
-            updates = mock_exec.call_args[0][2]
+            updates = _get_email_batch_params(mock_exec)
+            assert updates is not None, "No email batch call found"
             confidence = updates[0][2]
             assert confidence == pytest.approx(0.90)
             assert pipeline.stats['gate_verified'] == 1
@@ -234,7 +249,8 @@ class TestEmailMetadataFields:
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
 
-            updates = mock_exec.call_args[0][2]
+            updates = _get_email_batch_params(mock_exec)
+            assert updates is not None, "No email batch call found"
             # Index 1 is the JSON metadata string
             metadata = json.loads(updates[0][1])
             assert 'verification_status' in metadata
@@ -299,6 +315,7 @@ class TestAutoFixApplied:
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
 
-            updates = mock_exec.call_args[0][2]
+            updates = _get_email_batch_params(mock_exec)
+            assert updates is not None, "No email batch call found"
             # The email in the update should be the fixed version
             assert updates[0][0] == 'fixed@company.com'
