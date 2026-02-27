@@ -37,7 +37,7 @@ django.setup()
 import psycopg2
 from psycopg2 import sql
 from psycopg2.extras import RealDictCursor, execute_batch
-from psycopg2.pool import SimpleConnectionPool
+from psycopg2.pool import ThreadedConnectionPool
 from dotenv import load_dotenv
 from matching.enrichment import VerificationGate, GateStatus
 from matching.enrichment.ai_research import research_and_enrich_profile
@@ -113,9 +113,9 @@ class SafeEnrichmentPipeline:
     def _ensure_pool(self):
         """Lazily initialize the connection pool on first use."""
         if self._pool is None:
-            self._pool = SimpleConnectionPool(
+            self._pool = ThreadedConnectionPool(
                 minconn=1,
-                maxconn=3,
+                maxconn=20,
                 dsn=os.environ['DATABASE_URL']
             )
 
@@ -1876,25 +1876,38 @@ class SafeEnrichmentPipeline:
                         logger.error(f"Email batch update failed: {e}")
                         cursor.execute("ROLLBACK TO SAVEPOINT email_batch")
 
-                # Profile field updates — SAVEPOINT per profile (H5)
+                # Profile field updates — grouped batch execution
                 failed_updates = 0
-                for i, (set_parts, params) in enumerate(profile_updates):
+                groups = {}  # template_key → (query, [params_list])
+                for set_parts, params in profile_updates:
                     set_clause = sql.SQL(", ").join(set_parts)
-                    query = sql.SQL("UPDATE profiles SET {} WHERE id = %s").format(set_clause)
-                    sp_created = False
+                    template_key = set_clause.as_string(conn)
+                    if template_key not in groups:
+                        query = sql.SQL("UPDATE profiles SET {} WHERE id = %s").format(set_clause)
+                        groups[template_key] = (query, [])
+                    groups[template_key][1].append(params)
+
+                for group_idx, (template_key, (query, param_list)) in enumerate(groups.items()):
+                    cursor.execute(f"SAVEPOINT batch_group_{group_idx}")
                     try:
-                        cursor.execute(f"SAVEPOINT sp_{i}")
-                        sp_created = True
-                        cursor.execute(query, params)
-                        cursor.execute(f"RELEASE SAVEPOINT sp_{i}")
+                        execute_batch(cursor, query, param_list)
+                        cursor.execute(f"RELEASE SAVEPOINT batch_group_{group_idx}")
                     except Exception as e:
-                        failed_updates += 1
-                        logger.warning(f"Profile field update failed: {e}")
-                        if sp_created:
+                        logger.warning(f"Batch group {group_idx} failed ({len(param_list)} profiles): {e}")
+                        cursor.execute(f"ROLLBACK TO SAVEPOINT batch_group_{group_idx}")
+                        # Fallback: per-profile execution for failed group
+                        for j, p in enumerate(param_list):
                             try:
-                                cursor.execute(f"ROLLBACK TO SAVEPOINT sp_{i}")
-                            except Exception:
-                                pass
+                                cursor.execute(f"SAVEPOINT fallback_{group_idx}_{j}")
+                                cursor.execute(query, p)
+                                cursor.execute(f"RELEASE SAVEPOINT fallback_{group_idx}_{j}")
+                            except Exception as e2:
+                                failed_updates += 1
+                                logger.warning(f"Profile update fallback failed: {e2}")
+                                try:
+                                    cursor.execute(f"ROLLBACK TO SAVEPOINT fallback_{group_idx}_{j}")
+                                except Exception:
+                                    pass
                 if failed_updates:
                     logger.warning(f"  {failed_updates}/{len(profile_updates)} profile updates failed")
 
