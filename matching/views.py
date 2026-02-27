@@ -6,12 +6,16 @@ Provides profile management, match listing, and score calculation endpoints.
 
 import csv
 import io
+import json
+import os
+import re
 import time
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
+from django.db import models
+from django.db.models import Count, Max, Min, Q, Sum
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
@@ -907,6 +911,25 @@ class ReportHubView(ReportAccessMixin, View):
         return render(request, 'matching/report_hub.html', {'report': report})
 
 
+def _get_tracking_context(report) -> dict:
+    """Build tracking config for analytics JS in report templates."""
+    from django.conf import settings
+    supabase_url = getattr(settings, 'SUPABASE_URL', '') or ''
+    supabase_key = getattr(settings, 'SUPABASE_KEY', '') or ''
+    ctx = {}
+    if supabase_url and supabase_key:
+        ctx['tracking_config'] = json.dumps({
+            'supabase_url': supabase_url,
+            'supabase_anon_key': supabase_key,
+            'report_id': report.id,
+            'access_code': report.access_code,
+        })
+    clarity_id = os.environ.get('CLARITY_PROJECT_ID', '')
+    if clarity_id:
+        ctx['clarity_project_id'] = clarity_id
+    return ctx
+
+
 def _outreach_clean_url(value: str) -> str:
     """Strip trailing commas and whitespace from URLs."""
     if not value:
@@ -1155,6 +1178,30 @@ def _outreach_build_partner_dict(sp: SupabaseProfile, score: float, match_contex
     }
 
 
+def _snapshot_to_partner_dict(rp) -> dict:
+    """Convert a ReportPartner model instance to the dict format the template expects."""
+    return {
+        'id': str(rp.source_profile_id or rp.pk),
+        'name': rp.name,
+        'company': rp.company,
+        'tagline': rp.tagline,
+        'email': rp.email,
+        'website': rp.website,
+        'phone': rp.phone,
+        'linkedin': rp.linkedin,
+        'apply_url': rp.apply_url,
+        'schedule': rp.schedule,
+        'badge': rp.badge,
+        'badge_style': rp.badge_style,
+        'list_size': rp.list_size,
+        'audience': rp.audience,
+        'why_fit': rp.why_fit,
+        'detail_note': rp.detail_note,
+        'tags': rp.tags or [],
+        'match_score': rp.match_score or 0,
+    }
+
+
 class ReportOutreachView(ReportAccessMixin, View):
     """
     Partner outreach list from live SupabaseMatch + SupabaseProfile data.
@@ -1166,9 +1213,12 @@ class ReportOutreachView(ReportAccessMixin, View):
         if error_redirect:
             return error_redirect
 
+        # If report has frozen partner data, use it (curated + algorithmic)
+        if report.partners.exists():
+            return self._fallback_to_snapshot(request, report)
+
         client_sp = report.supabase_profile
         if not client_sp:
-            # Fallback to frozen snapshot if no linked profile
             return self._fallback_to_snapshot(request, report)
 
         # Query live matches from SupabaseMatch, ordered by harmonic_mean
@@ -1208,8 +1258,19 @@ class ReportOutreachView(ReportAccessMixin, View):
             match_context = match.match_context or {}
             partner_dicts.append(_outreach_build_partner_dict(partner_sp, score, match_context))
 
+        # Inject curated partners from ReportPartner snapshot
+        curated_partners = report.partners.filter(section='curated').order_by('rank')
+
         # Assign sections dynamically
         section_buckets = {}
+
+        if curated_partners.exists():
+            section_buckets['curated'] = {
+                'key': 'curated', 'label': 'Personally Selected',
+                'note': 'Hand-curated by your JV matching team',
+                'partners': [_snapshot_to_partner_dict(cp) for cp in curated_partners],
+            }
+
         for pd in partner_dicts:
             section_key, label, note = _outreach_assign_section_from_dict(pd)
             if section_key not in section_buckets:
@@ -1219,14 +1280,16 @@ class ReportOutreachView(ReportAccessMixin, View):
             section_buckets[section_key]['partners'].append(pd)
 
         sections = []
-        for key in ('priority', 'this_week', 'low_priority', 'jv_programs'):
+        for key in ('curated', 'priority', 'this_week', 'low_priority', 'jv_programs'):
             if key in section_buckets:
                 sections.append(section_buckets[key])
 
+        curated_count = len(curated_partners)
         context = {
             'report': report,
             'sections': sections,
-            'total_partners': len(partner_dicts),
+            'total_partners': len(partner_dicts) + curated_count,
+            **_get_tracking_context(report),
         }
         return render(request, 'matching/report_outreach.html', context)
 
@@ -1234,7 +1297,7 @@ class ReportOutreachView(ReportAccessMixin, View):
         """Fall back to ReportPartner snapshot when no live profile is linked."""
         partners = report.partners.all()
         sections = []
-        for section_key in ['priority', 'this_week', 'low_priority', 'jv_programs']:
+        for section_key in ['curated', 'priority', 'this_week', 'low_priority', 'jv_programs']:
             section_partners = partners.filter(section=section_key)
             if section_partners.exists():
                 first = section_partners.first()
@@ -1248,6 +1311,7 @@ class ReportOutreachView(ReportAccessMixin, View):
             'report': report,
             'sections': sections,
             'total_partners': partners.count(),
+            **_get_tracking_context(report),
         }
         return render(request, 'matching/report_outreach.html', context)
 
@@ -1269,6 +1333,7 @@ class ReportProfileView(ReportAccessMixin, View):
             context = _build_profile_context(sp, report)
         else:
             context = {**report.client_profile, 'report': report}
+        context.update(_get_tracking_context(report))
         return render(request, 'matching/report_profile.html', context)
 
 
@@ -1377,21 +1442,44 @@ class ReportProfileConfirmView(ReportAccessMixin, View):
 # Report profile helpers
 # ---------------------------------------------------------------------------
 
+def _build_seeking_goals(seeking_text):
+    """Split seeking text into meaningful bullet points.
+
+    Uses sentence boundaries or semicolons — never commas, which appear
+    inside natural prose and produce fragments like "BizOpp" or "health".
+    """
+    if not seeking_text:
+        return []
+    text = seeking_text.strip()
+    # Try sentence boundaries (period/exclamation followed by space + uppercase)
+    sentences = re.split(r'(?<=[.!])\s+(?=[A-Z])', text)
+    if len(sentences) >= 2:
+        return [s.strip() for s in sentences if s.strip()][:5]
+    # Try semicolons
+    if ';' in text:
+        return [s.strip() for s in text.split(';') if s.strip()][:5]
+    # Single block — return as one item
+    return [text]
+
+
 def _build_profile_context(sp, report):
     """Build template context from live SupabaseProfile data."""
     name = sp.name or ''
     company = sp.company or ''
     first_name = name.split()[0] if name else ''
 
-    seeking_goals = [s.strip() for s in (sp.seeking or '').split(',') if s.strip()][:5]
+    seeking_goals = _build_seeking_goals(sp.seeking or '')
 
     credentials = []
     if company and company != name:
         credentials.append(f'Founder of {company}')
     if sp.signature_programs:
         credentials.append(sp.signature_programs)
-    if sp.social_proof:
+    if getattr(sp, 'social_proof', None):
         credentials.append(sp.social_proof)
+
+    bio_text = sp.bio or (f'{name} is the founder of {company}.' if company else '')
+    who_text = (sp.who_you_serve or 'entrepreneurs and business owners').rstrip('.')
 
     meta = sp.enrichment_metadata or {}
     field_meta = meta.get('field_meta', {})
@@ -1400,35 +1488,52 @@ def _build_profile_context(sp, report):
         for info in field_meta.values()
     )
 
-    return {
+    context = {
         'report': report,
         'contact_name': name,
         'avatar_initials': ''.join(w[0].upper() for w in name.split()[:2]) if name else '??',
         'title': f'{name} \u00b7 {company}' if company else name,
-        'program_name': company,
+        'program_name': company or sp.signature_programs or name,
         'program_sub': sp.offering or '',
         'program_focus': sp.niche or 'Business Growth',
-        'target_audience': 'Target Audience',
+        'target_audience': sp.audience_type or sp.niche or 'Entrepreneurs & Business Owners',
         'target_audience_sub': sp.who_you_serve or '',
         'network_reach': _format_list_size(sp.list_size) if sp.list_size else 'Growing',
         'network_reach_sub': f"{first_name}'s subscriber network",
         'main_website': sp.website or '',
         'key_message': sp.offering or '',
-        'about_story': sp.bio or (f'{name} is the founder of {company}.' if company else ''),
+        'about_story': bio_text,
+        'about_story_paragraphs': [p.strip() for p in bio_text.split('\n\n') if p.strip()] if bio_text else [],
         'credentials': credentials,
-        'ideal_partner_intro': f'Partners serving <strong>{sp.who_you_serve or "entrepreneurs and business owners"}</strong>.',
-        'ideal_partner_sub': sp.seeking or '',
+        'ideal_partner_intro': f'Partners serving <strong>{who_text}</strong>.',
+        'ideal_partner_sub': sp.what_you_do or '',
         'seeking_goals': seeking_goals,
-        'seeking_focus': sp.seeking or '',
         'contact_email': sp.email or '',
         'tiers': [],
         'offers_partners': [],
         'shared_stage': [],
         'perfect_for': [],
         'faqs': [],
+        'resource_links': [],
+        'partner_deliverables': [],
+        'why_converts': [],
+        'launch_stats': None,
         'has_unconfirmed_edits': has_unconfirmed,
         'has_supabase_profile': True,
     }
+
+    # Overlay rich JV Brief data from client_profile (tiers, FAQs, etc.)
+    cp = report.client_profile or {}
+    for field in ('tiers', 'offers_partners', 'faqs', 'resource_links',
+                  'partner_deliverables', 'why_converts', 'launch_stats',
+                  'credentials', 'key_message_headline', 'key_message_points',
+                  'program_name', 'program_sub', 'program_focus',
+                  'about_story', 'about_story_paragraphs',
+                  'seeking_goals', 'ideal_partner_intro', 'ideal_partner_sub'):
+        if field in cp and cp[field]:
+            context[field] = cp[field]
+
+    return context
 
 
 def _format_list_size(size):
@@ -1550,3 +1655,403 @@ class ApolloWebhookView(View):
                 continue
 
         return JsonResponse({'status': 'ok', 'updated': updated})
+
+
+# =============================================================================
+# ANALYTICS DASHBOARD VIEWS (admin-only, login required)
+# =============================================================================
+
+class AnalyticsDashboardView(LoginRequiredMixin, View):
+    """
+    System-level analytics overview showing all active reports,
+    top alerts, and a global engagement funnel.
+    """
+
+    def get(self, request):
+        from django.utils import timezone
+        from .models import (
+            EngagementSummary, AnalyticsInsight, ReportPartner,
+        )
+
+        now = timezone.now()
+
+        # ---- Report cards with engagement stats ----
+        active_reports = MemberReport.objects.filter(is_active=True).order_by('-month')
+        report_stats = []
+
+        for report in active_reports:
+            # Page-level summary (partner_id='')
+            page_summary = (
+                EngagementSummary.objects
+                .filter(report=report, partner_id='')
+                .first()
+            )
+
+            # Partner-level summaries
+            partner_summaries = EngagementSummary.objects.filter(
+                report=report
+            ).exclude(partner_id='')
+
+            total_partners = partner_summaries.count() or ReportPartner.objects.filter(report=report).count()
+            contacted = partner_summaries.filter(any_contact_action=True).count()
+
+            total_sessions = page_summary.total_sessions if page_summary else 0
+            template_opens = page_summary.template_open_count if page_summary else 0
+            template_copies = page_summary.template_copy_count if page_summary else 0
+            template_copy_rate = (
+                round(template_copies * 100 / template_opens)
+                if template_opens > 0 else 0
+            )
+
+            days_since_visit = None
+            if page_summary and page_summary.last_visit_at:
+                days_since_visit = (now - page_summary.last_visit_at).days
+            elif report.last_accessed_at:
+                days_since_visit = (now - report.last_accessed_at).days
+
+            report_stats.append({
+                'report': report,
+                'total_sessions': total_sessions,
+                'total_partners': total_partners,
+                'contacted': contacted,
+                'template_copy_rate': template_copy_rate,
+                'days_since_visit': days_since_visit,
+            })
+
+        # ---- Active alerts (top 10, CRITICAL first) ----
+        severity_order = {'critical': 0, 'warning': 1, 'info': 2}
+        alerts = list(
+            AnalyticsInsight.objects
+            .filter(is_active=True, is_dismissed=False)
+            .select_related('report')
+            .order_by('-created_at')[:50]
+        )
+        alerts.sort(key=lambda a: (severity_order.get(a.severity, 9), -a.created_at.timestamp()))
+        alerts = alerts[:10]
+
+        # ---- Global funnel ----
+        all_partner_summaries = EngagementSummary.objects.exclude(partner_id='')
+        shown = all_partner_summaries.count()
+        expanded = all_partner_summaries.filter(card_expand_count__gt=0).count()
+        contacted_global = all_partner_summaries.filter(any_contact_action=True).count()
+
+        funnel = {
+            'shown': shown,
+            'expanded': expanded,
+            'contacted': contacted_global,
+            'expanded_pct': round(expanded * 100 / shown) if shown > 0 else 0,
+            'contacted_pct': round(contacted_global * 100 / shown) if shown > 0 else 0,
+        }
+
+        return render(request, 'matching/analytics/dashboard.html', {
+            'report_stats': report_stats,
+            'alerts': alerts,
+            'funnel': funnel,
+        })
+
+
+class AnalyticsReportDetailView(LoginRequiredMixin, View):
+    """
+    Per-report analytics deep dive: sessions, funnel, partner engagement,
+    score-vs-engagement, template effectiveness, interventions, insights.
+    """
+
+    def get(self, request, report_id):
+        from django.utils import timezone
+        from .models import (
+            MemberReport, EngagementSummary, OutreachEvent,
+            ReportPartner, AnalyticsInsight, AnalyticsIntervention,
+        )
+
+        report = get_object_or_404(MemberReport, id=report_id)
+        now = timezone.now()
+
+        # ---- Session timeline ----
+        sessions_raw = (
+            OutreachEvent.objects
+            .filter(report_id=report.id)
+            .values('session_id')
+            .annotate(
+                event_count=Count('id'),
+                started_at=Min('created_at'),
+                ended_at=Max('created_at'),
+            )
+            .order_by('-started_at')[:20]
+        )
+
+        sessions = []
+        for s in sessions_raw:
+            if s['started_at'] and s['ended_at']:
+                delta = s['ended_at'] - s['started_at']
+                minutes = int(delta.total_seconds() // 60)
+                secs = int(delta.total_seconds() % 60)
+                duration = f"{minutes}m {secs}s" if minutes else f"{secs}s"
+            else:
+                duration = "--"
+            sessions.append({
+                'started_at': s['started_at'],
+                'event_count': s['event_count'],
+                'duration': duration,
+            })
+
+        # ---- Page-level summary ----
+        page_summary = (
+            EngagementSummary.objects
+            .filter(report=report, partner_id='')
+            .first()
+        )
+
+        # ---- Partner summaries + ReportPartner data ----
+        partner_summaries = {
+            ps.partner_id: ps
+            for ps in EngagementSummary.objects.filter(report=report).exclude(partner_id='')
+        }
+
+        report_partners = ReportPartner.objects.filter(report=report).select_related('source_profile')
+
+        partner_rows = []
+        for rp in report_partners:
+            pid = str(rp.source_profile_id) if rp.source_profile_id else ''
+            ps = partner_summaries.get(pid)
+
+            partner_rows.append({
+                'name': rp.name,
+                'section': rp.section_label or rp.section,
+                'match_score': round(rp.match_score) if rp.match_score else None,
+                'expand_count': ps.card_expand_count if ps else 0,
+                'avg_dwell_s': round(ps.avg_card_dwell_ms / 1000, 1) if ps and ps.avg_card_dwell_ms else 0,
+                'email_clicked': ps.email_click_count > 0 if ps else False,
+                'linkedin_clicked': ps.linkedin_click_count > 0 if ps else False,
+                'schedule_clicked': ps.schedule_click_count > 0 if ps else False,
+                'apply_clicked': ps.apply_click_count > 0 if ps else False,
+                'was_checked': ps.was_checked if ps else False,
+                'first_action': (
+                    ps.first_action_at.strftime('%b %d, %H:%M')
+                    if ps and ps.first_action_at else None
+                ),
+                '_contacted': ps.any_contact_action if ps else False,
+                '_score': rp.match_score or 0,
+            })
+
+        # ---- Engagement funnel ----
+        shown = len(partner_rows)
+        expanded = sum(1 for p in partner_rows if p['expand_count'] > 0)
+        contacted = sum(1 for p in partner_rows if p['_contacted'])
+
+        funnel = {
+            'shown': shown,
+            'expanded': expanded,
+            'contacted': contacted,
+            'expanded_pct': round(expanded * 100 / shown) if shown > 0 else 0,
+            'contacted_pct': round(contacted * 100 / shown) if shown > 0 else 0,
+        }
+
+        # ---- Score vs engagement buckets ----
+        buckets_def = [
+            ('80+', 80, 200),
+            ('60-80', 60, 80),
+            ('40-60', 40, 60),
+            ('<40', 0, 40),
+        ]
+
+        score_buckets = []
+        for label, low, high in buckets_def:
+            in_bucket = [p for p in partner_rows if low <= p['_score'] < high]
+            total = len(in_bucket)
+            bucket_contacted = sum(1 for p in in_bucket if p['_contacted'])
+            score_buckets.append({
+                'label': label,
+                'total': total,
+                'contacted': bucket_contacted,
+                'contact_rate': round(bucket_contacted * 100 / total) if total > 0 else 0,
+            })
+
+        # ---- Template effectiveness ----
+        template_stats = {
+            'opens': page_summary.template_open_count if page_summary else 0,
+            'copies': page_summary.template_copy_count if page_summary else 0,
+            'copy_rate': (
+                round(
+                    page_summary.template_copy_count * 100
+                    / page_summary.template_open_count
+                )
+                if page_summary and page_summary.template_open_count > 0 else 0
+            ),
+        }
+
+        # ---- Interventions ----
+        interventions = AnalyticsIntervention.objects.filter(report=report).order_by('-created_at')
+
+        # ---- Insights ----
+        insights = (
+            AnalyticsInsight.objects
+            .filter(report=report, is_active=True, is_dismissed=False)
+            .order_by('-created_at')
+        )
+
+        return render(request, 'matching/analytics/report_detail.html', {
+            'report': report,
+            'sessions': sessions,
+            'funnel': funnel,
+            'partner_rows': partner_rows,
+            'score_buckets': score_buckets,
+            'template_stats': template_stats,
+            'interventions': interventions,
+            'insights': insights,
+        })
+
+
+class AnalyticsInsightsView(LoginRequiredMixin, View):
+    """
+    Filterable feed of all analytics insights across all reports.
+    """
+
+    def get(self, request):
+        from .models import AnalyticsInsight
+
+        severity = request.GET.get('severity', '').strip().lower()
+
+        qs = AnalyticsInsight.objects.filter(
+            is_active=True, is_dismissed=False
+        ).select_related('report').order_by('-created_at')
+
+        # Counts for filter buttons (before filtering)
+        all_active = AnalyticsInsight.objects.filter(is_active=True, is_dismissed=False)
+        counts = {
+            'all': all_active.count(),
+            'critical': all_active.filter(severity='critical').count(),
+            'warning': all_active.filter(severity='warning').count(),
+            'info': all_active.filter(severity='info').count(),
+        }
+
+        if severity in ('critical', 'warning', 'info'):
+            qs = qs.filter(severity=severity)
+
+        return render(request, 'matching/analytics/insights.html', {
+            'insights': qs,
+            'current_severity': severity if severity in ('critical', 'warning', 'info') else '',
+            'counts': counts,
+        })
+
+
+class AnalyticsInsightDismissView(LoginRequiredMixin, View):
+    """
+    Dismiss an insight via POST. Redirects back to the referring page.
+    """
+
+    def post(self, request, insight_id):
+        from django.utils import timezone
+        from .models import AnalyticsInsight
+
+        insight = get_object_or_404(AnalyticsInsight, id=insight_id)
+        insight.is_dismissed = True
+        insight.dismissed_at = timezone.now()
+        insight.save(update_fields=['is_dismissed', 'dismissed_at'])
+
+        # Redirect back to referrer or dashboard
+        referer = request.META.get('HTTP_REFERER')
+        if referer:
+            return redirect(referer)
+        return redirect('matching:analytics-dashboard')
+
+
+# ─── PIPELINE STATS API (for architecture_diagram.html live data) ───
+
+class PipelineStatsAPIView(LoginRequiredMixin, View):
+    """
+    JSON endpoint returning live pipeline health stats from Supabase.
+    Used by architecture_diagram.html Data Health tab.
+    """
+
+    def get(self, request):
+        from django.db.models import Count, Q
+        from django.db.models.functions import Coalesce
+
+        total = SupabaseProfile.objects.filter(
+            name__isnull=False
+        ).exclude(name='').count()
+
+        # Field coverage counts
+        fields_to_check = {
+            'bio': Q(bio__isnull=False) & ~Q(bio=''),
+            'niche': Q(niche__isnull=False) & ~Q(niche=''),
+            'who_you_serve': Q(who_you_serve__isnull=False) & ~Q(who_you_serve=''),
+            'seeking': Q(seeking__isnull=False) & ~Q(seeking=''),
+            'offering': Q(offering__isnull=False) & ~Q(offering=''),
+            'what_you_do': Q(what_you_do__isnull=False) & ~Q(what_you_do=''),
+            'business_focus': Q(business_focus__isnull=False) & ~Q(business_focus=''),
+            'service_provided': Q(service_provided__isnull=False) & ~Q(service_provided=''),
+            'signature_programs': Q(signature_programs__isnull=False) & ~Q(signature_programs=''),
+            'current_projects': Q(current_projects__isnull=False) & ~Q(current_projects=''),
+            'name': Q(name__isnull=False) & ~Q(name=''),
+            'company': Q(company__isnull=False) & ~Q(company=''),
+            'website': Q(website__isnull=False) & ~Q(website=''),
+            'linkedin': Q(linkedin__isnull=False) & ~Q(linkedin=''),
+            'phone': Q(phone__isnull=False) & ~Q(phone=''),
+            'email': Q(email__isnull=False) & ~Q(email=''),
+            'booking_link': Q(booking_link__isnull=False) & ~Q(booking_link=''),
+            'revenue_tier': Q(revenue_tier__isnull=False) & ~Q(revenue_tier=''),
+            'avatar_url': Q(avatar_url__isnull=False) & ~Q(avatar_url=''),
+        }
+
+        base_qs = SupabaseProfile.objects.filter(
+            name__isnull=False
+        ).exclude(name='')
+
+        field_coverage = {}
+        for field_name, q_filter in fields_to_check.items():
+            count = base_qs.filter(q_filter).count()
+            field_coverage[field_name] = {
+                'count': count,
+                'pct': round(count / total * 100, 1) if total else 0,
+            }
+
+        # Pipeline stage counts
+        enriched = base_qs.filter(last_enriched_at__isnull=False).count()
+        embedded = base_qs.filter(
+            embedding_seeking__isnull=False
+        ).exclude(embedding_seeking='').count()
+        scored = SupabaseMatch.objects.filter(
+            harmonic_mean__isnull=False
+        ).values('profile_id').distinct().count()
+        reported = MemberReport.objects.filter(is_active=True).count()
+
+        pipeline_stages = {
+            'ingested': total,
+            'enriched': enriched,
+            'embedded': embedded,
+            'scored': scored,
+            'reported': reported,
+        }
+
+        # Source distribution from enrichment_metadata
+        source_distribution = {}
+        try:
+            from django.db import connection
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT sub.source_val, COUNT(*) AS field_count
+                    FROM profiles,
+                        LATERAL jsonb_each(enrichment_metadata->'field_meta')
+                            AS fields(field_name, field_info),
+                        LATERAL (
+                            SELECT field_info->>'source' AS source_val
+                        ) sub
+                    WHERE enrichment_metadata IS NOT NULL
+                      AND enrichment_metadata->'field_meta' IS NOT NULL
+                      AND name IS NOT NULL AND name != ''
+                    GROUP BY sub.source_val
+                    ORDER BY field_count DESC
+                """)
+                for row in cursor.fetchall():
+                    if row[0]:
+                        source_distribution[row[0]] = row[1]
+        except Exception:
+            source_distribution = {'error': 'Could not query source distribution'}
+
+        return JsonResponse({
+            'total_profiles': total,
+            'field_coverage': field_coverage,
+            'pipeline_stages': pipeline_stages,
+            'source_distribution': source_distribution,
+        })

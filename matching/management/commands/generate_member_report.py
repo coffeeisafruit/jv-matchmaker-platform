@@ -11,6 +11,7 @@ Usage:
     python manage.py generate_member_report --client-name "Janet Bray Attwood" --month 2026-02 --enrich
 """
 
+import json
 import re
 import secrets
 from datetime import date, datetime, timedelta
@@ -124,6 +125,18 @@ class Command(BaseCommand):
             '--launch-date', type=str, default=None,
             help='Launch date for countdown timer (YYYY-MM-DD)',
         )
+        parser.add_argument(
+            '--pinned-partners', type=str, default=None,
+            help='Path to JSON file with manually curated partners to include at top of report',
+        )
+        parser.add_argument(
+            '--update', action='store_true',
+            help='Replace partners on the most recent existing report instead of creating a new one',
+        )
+        parser.add_argument(
+            '--jv-brief', type=str, default=None,
+            help='Path to JSON file with JV Brief overrides (tiers, FAQs, commissions, etc.) to merge into client_profile',
+        )
 
     def handle(self, *args, **options):
         # --all mode: generate reports for every active member
@@ -168,46 +181,115 @@ class Command(BaseCommand):
         if options['enrich']:
             self._enrich_matches(top_matches, client_dict)
 
-        # Generate access code
-        access_code = secrets.token_hex(4).upper()
+        # Load pinned partners (if provided)
+        pinned_partners = self._load_pinned_partners(options.get('pinned_partners'))
 
-        # Build client_profile JSON (matches DEMO_PROFILE structure)
-        client_profile_json = self._build_client_profile(client_sp)
-
-        # Build outreach templates
-        outreach_templates = self._build_outreach_templates(client_sp)
-
-        # Determine company name (--company override or clean up Supabase data)
-        company_name = options.get('company') or self._clean_company_name(client_sp)
-
-        # Create MemberReport
-        expires_at = timezone.now() + timedelta(days=options['expires_days'])
-        launch_date = None
-        if options.get('launch_date'):
-            launch_date = timezone.make_aware(
-                datetime.strptime(options['launch_date'], '%Y-%m-%d')
+        # --update mode: reuse existing report; otherwise create new one
+        if options.get('update'):
+            report = self._find_existing_report(client_sp)
+            if not report:
+                raise CommandError(
+                    f'No existing report found for {client_sp.name}. '
+                    f'Run without --update to create a new one.'
+                )
+            # Clear old partners and refresh report metadata
+            old_count = report.partners.count()
+            report.partners.all().delete()
+            company_name = options.get('company') or self._clean_company_name(client_sp)
+            report.company_name = company_name
+            client_profile_json = self._build_client_profile(client_sp)
+            jv_brief_path = options.get('jv_brief')
+            if jv_brief_path:
+                with open(jv_brief_path) as f:
+                    client_profile_json.update(json.load(f))
+            report.client_profile = client_profile_json
+            report.outreach_templates = self._build_outreach_templates(client_sp)
+            report.save()
+            self.stdout.write(
+                f'UPDATE MODE: Replacing {old_count} partners on existing report '
+                f'(code: {report.access_code})'
             )
+        else:
+            # Generate access code
+            access_code = secrets.token_hex(4).upper()
 
-        report = MemberReport.objects.create(
-            member_name=client_sp.name,
-            member_email=client_sp.email or '',
-            company_name=company_name,
-            access_code=access_code,
-            month=month_date,
-            expires_at=expires_at,
-            is_active=True,
-            client_profile=client_profile_json,
-            supabase_profile=client_sp,
-            outreach_templates=outreach_templates,
-            launch_date=launch_date,
-            footer_text=f'Report generated for {client_sp.name}.',
-        )
+            # Build client_profile JSON (matches DEMO_PROFILE structure)
+            client_profile_json = self._build_client_profile(client_sp)
+            jv_brief_path = options.get('jv_brief')
+            if jv_brief_path:
+                with open(jv_brief_path) as f:
+                    client_profile_json.update(json.load(f))
+
+            # Build outreach templates
+            outreach_templates = self._build_outreach_templates(client_sp)
+
+            # Determine company name (--company override or clean up Supabase data)
+            company_name = options.get('company') or self._clean_company_name(client_sp)
+
+            # Create MemberReport
+            expires_at = timezone.now() + timedelta(days=options['expires_days'])
+            launch_date = None
+            if options.get('launch_date'):
+                launch_date = timezone.make_aware(
+                    datetime.strptime(options['launch_date'], '%Y-%m-%d')
+                )
+
+            report = MemberReport.objects.create(
+                member_name=client_sp.name,
+                member_email=client_sp.email or '',
+                company_name=company_name,
+                access_code=access_code,
+                month=month_date,
+                expires_at=expires_at,
+                is_active=True,
+                client_profile=client_profile_json,
+                supabase_profile=client_sp,
+                outreach_templates=outreach_templates,
+                launch_date=launch_date,
+                footer_text=f'Report generated for {client_sp.name}.',
+            )
 
         # Create ReportPartner records
         self.stdout.write('\nCreating partner records...')
-        section_counts = {'priority': 0, 'this_week': 0, 'low_priority': 0, 'jv_programs': 0}
+        section_counts = {'curated': 0, 'priority': 0, 'this_week': 0, 'low_priority': 0, 'jv_programs': 0}
 
-        for rank, match in enumerate(top_matches, 1):
+        # Create pinned/curated partners first (rank 1, 2, ...)
+        rank_offset = 0
+        for rank, pin in enumerate(pinned_partners, 1):
+            ReportPartner.objects.create(
+                report=report,
+                rank=rank,
+                section='curated',
+                section_label='Personally Selected',
+                section_note='Hand-curated by your JV matching team',
+                name=pin['name'],
+                company=pin.get('company', ''),
+                tagline=pin.get('tagline', ''),
+                email=pin.get('email', ''),
+                website=pin.get('website', ''),
+                phone=pin.get('phone', ''),
+                linkedin=pin.get('linkedin', ''),
+                apply_url='',
+                schedule='',
+                badge='Personally Selected',
+                badge_style='priority',
+                list_size='',
+                audience=pin.get('audience', ''),
+                why_fit=pin.get('why_fit', ''),
+                detail_note=pin.get('contact_note', ''),
+                tags=[{'label': 'Curated', 'style': 'priority'}],
+                match_score=100.0,
+                source_profile=pin.get('_source_profile'),
+            )
+            section_counts['curated'] += 1
+            self.stdout.write(
+                f'  {rank}. {pin["name"]} [curated] '
+                f'(contact: {pin.get("contact_name", "N/A")})'
+            )
+            rank_offset = rank
+
+        # Create algorithmic partner records (rank after pinned)
+        for rank, match in enumerate(top_matches, rank_offset + 1):
             partner_sp = match['partner']
             section, section_label, section_note = self._assign_section(match, rank, top_n)
             section_counts[section] += 1
@@ -256,13 +338,15 @@ class Command(BaseCommand):
         self.stdout.write(f'\n  Member:      {report.member_name}')
         self.stdout.write(f'  Company:     {report.company_name}')
         self.stdout.write(f'  Month:       {month_date.strftime("%B %Y")}')
-        self.stdout.write(f'  Partners:    {len(top_matches)}')
-        self.stdout.write(f'  Sections:    priority={section_counts["priority"]}, '
+        self.stdout.write(f'  Partners:    {len(pinned_partners) + len(top_matches)}')
+        self.stdout.write(f'  Sections:    curated={section_counts["curated"]}, '
+                          f'priority={section_counts["priority"]}, '
                           f'this_week={section_counts["this_week"]}, '
                           f'low_priority={section_counts["low_priority"]}, '
                           f'jv_programs={section_counts["jv_programs"]}')
-        self.stdout.write(f'  Expires:     {expires_at.strftime("%B %d, %Y")}')
-        self.stdout.write(self.style.SUCCESS(f'\n  ACCESS CODE: {access_code}'))
+        if report.expires_at:
+            self.stdout.write(f'  Expires:     {report.expires_at.strftime("%B %d, %Y")}')
+        self.stdout.write(self.style.SUCCESS(f'\n  ACCESS CODE: {report.access_code}'))
         self.stdout.write(f'  Report URL:  /matching/report/{report.id}/\n')
 
     # =========================================================================
@@ -680,6 +764,8 @@ class Command(BaseCommand):
         name = sp.name
         company = self._clean_company_name(sp)
         first_name = name.split()[0] if name else ''
+        bio_text = sp.bio or f'{name} is the founder of {company}.'
+        who_text = (sp.who_you_serve or 'entrepreneurs and business owners').rstrip('.')
 
         return {
             'client': {
@@ -689,10 +775,10 @@ class Command(BaseCommand):
             'contact_name': name,
             'avatar_initials': ''.join(w[0].upper() for w in name.split()[:2]) if name else '??',
             'title': f'{name} · {company}',
-            'program_name': company,
+            'program_name': company or sp.signature_programs or name,
             'program_sub': sp.offering or '',
             'program_focus': sp.niche or 'Business Growth',
-            'target_audience': 'Target Audience',
+            'target_audience': sp.audience_type or sp.niche or 'Entrepreneurs & Business Owners',
             'target_audience_sub': sp.who_you_serve or '',
             'network_reach': self._format_list_size(sp.list_size) or 'Growing',
             'network_reach_sub': f'{first_name}\'s subscriber network',
@@ -700,15 +786,19 @@ class Command(BaseCommand):
             'main_website': _extract_website(sp) or '',
             'offers_partners': self._build_offers_partners(sp),
             'key_message': sp.offering or '',
-            'about_story': sp.bio or f'{name} is the founder of {company}.',
+            'about_story': bio_text,
+            'about_story_paragraphs': [p.strip() for p in bio_text.split('\n\n') if p.strip()] if bio_text else [],
             'shared_stage': [],
             'credentials': self._build_credentials(sp),
-            'ideal_partner_intro': f'Partners serving <strong>{sp.who_you_serve or "entrepreneurs and business owners"}</strong>.',
-            'ideal_partner_sub': sp.seeking or '',
+            'ideal_partner_intro': f'Partners serving <strong>{who_text}</strong>.',
+            'ideal_partner_sub': sp.what_you_do or '',
             'perfect_for': [],
             'seeking_goals': self._build_seeking_goals(sp),
-            'seeking_focus': sp.seeking or '',
             'faqs': [],
+            'resource_links': [],
+            'partner_deliverables': [],
+            'why_converts': [],
+            'launch_stats': None,
             'contact_email': 'help@jvmatches.com',
         }
 
@@ -742,13 +832,19 @@ class Command(BaseCommand):
         return creds
 
     def _build_seeking_goals(self, sp: SupabaseProfile) -> list:
-        goals = []
-        if sp.seeking:
-            for line in sp.seeking.split(','):
-                line = line.strip()
-                if line:
-                    goals.append(line)
-        return goals[:5]
+        """Split seeking text on sentences or semicolons, never commas."""
+        if not sp.seeking:
+            return []
+        text = sp.seeking.strip()
+        # Try sentence boundaries (period/exclamation followed by space + uppercase)
+        sentences = re.split(r'(?<=[.!])\s+(?=[A-Z])', text)
+        if len(sentences) >= 2:
+            return [s.strip() for s in sentences if s.strip()][:5]
+        # Try semicolons
+        if ';' in text:
+            return [s.strip() for s in text.split(';') if s.strip()][:5]
+        # Single block
+        return [text]
 
     # =========================================================================
     # OUTREACH TEMPLATES
@@ -784,6 +880,45 @@ class Command(BaseCommand):
     # =========================================================================
     # UTILITY
     # =========================================================================
+
+    def _load_pinned_partners(self, path: str | None) -> list:
+        """Load manually curated partners from a JSON file."""
+        if not path:
+            return []
+        try:
+            with open(path) as f:
+                pinned_data = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            raise CommandError(f'Failed to load pinned partners from {path}: {e}')
+
+        # Try to resolve each to a SupabaseProfile for source_profile FK
+        for pin in pinned_data:
+            name_query = pin['name'].split('/')[0].strip()
+            sp = SupabaseProfile.objects.filter(
+                name__icontains=name_query
+            ).first()
+            pin['_source_profile'] = sp
+            if sp:
+                self.stdout.write(f'  Pinned partner "{pin["name"]}" linked to profile: {sp.name}')
+            else:
+                self.stdout.write(f'  Pinned partner "{pin["name"]}" — no matching profile (OK)')
+
+        self.stdout.write(f'Loaded {len(pinned_data)} pinned partners from {path}')
+        return pinned_data
+
+    def _find_existing_report(self, client_sp: SupabaseProfile) -> MemberReport | None:
+        """Find the most recent active report for this member."""
+        return (
+            MemberReport.objects
+            .filter(supabase_profile=client_sp, is_active=True)
+            .order_by('-created_at')
+            .first()
+        ) or (
+            MemberReport.objects
+            .filter(member_name__iexact=client_sp.name, is_active=True)
+            .order_by('-created_at')
+            .first()
+        )
 
     @staticmethod
     def _parse_month(month_str: str | None) -> date:

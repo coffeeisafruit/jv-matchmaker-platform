@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JV Matchmaker · Client Profile</title>
+    <title>Next Level DeFi · Client Profile</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    
     <style>
         :root { --cream: #faf8f5; --ink: #1a1a1a; --forest: #1e3a2f; --gold: #c9a962; --gold-light: #e8d5a8; --muted: #8b8680; --blush: #f4e8e1; --card: #ffffff; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
         body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
-        .container { max-width: 520px; margin: 0 auto; padding: 24px 20px 80px; position: relative; }
+        .container { max-width: 820px; margin: 0 auto; padding: 24px 20px 80px; position: relative; }
         .header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--gold-light); margin-bottom: 32px; }
+        .hub-link { margin-bottom: 16px; font-size: 13px; }
+        .hub-link a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
         .back-link { display: inline-block; font-size: 13px; color: var(--muted); text-decoration: none; margin-bottom: 12px; }
         .back-link:hover { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
         .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
@@ -51,10 +54,13 @@
         .text-block strong { color: var(--forest); }
         .text-block ul { list-style: none; margin: 0.5rem 0; }
         .text-block li { padding: 0.25rem 0; padding-left: 1rem; position: relative; }
-        .text-block li::before { content: "•"; position: absolute; left: 0; color: var(--gold); }
-        .key-message { background: var(--forest); border-radius: 8px; padding: 1.5rem; text-align: center; margin-bottom: 1.25rem; }
-        .key-message-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold-light); margin-bottom: 0.5rem; }
-        .key-message-text { font-size: 1.125rem; font-weight: 600; white-space: pre-line; color: var(--gold); }
+        .text-block li::before { content: "\2022"; position: absolute; left: 0; color: var(--gold); }
+        .key-message { background: var(--forest); border-radius: 8px; padding: 2rem 2.5rem; margin-bottom: 1.25rem; }
+        .key-message-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gold-light); margin-bottom: 0.75rem; text-align: center; }
+        .key-message-headline { font-family: 'Playfair Display', Georgia, serif; font-size: 1.375rem; font-weight: 500; color: var(--gold); text-align: center; margin-bottom: 1.25rem; line-height: 1.3; }
+        .key-message-points { list-style: none; padding: 0; display: grid; gap: 0.625rem; }
+        .key-message-points li { color: var(--gold-light); font-size: 0.9375rem; padding-left: 1.5rem; position: relative; line-height: 1.4; }
+        .key-message-points li::before { content: "·"; position: absolute; left: 0.5rem; color: var(--gold); font-weight: 700; font-size: 1.25rem; line-height: 1.2; }
         .faq-item { border-bottom: 1px solid var(--blush); }
         .faq-item:last-child { border-bottom: none; }
         .faq-question { padding: 0.875rem 1.25rem; font-size: 0.875rem; font-weight: 500; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
@@ -79,187 +85,410 @@
 </head>
 <body>
     <div class="container">
+        
+        <p class="hub-link"><a href="index.html">&#8592; Partner report home</a></p>
+        
         <header class="header">
-            <a href="outreach.html" class="back-link">← Back to Partner Outreach</a>
+            
             <div class="header-eyebrow">Client Profile</div>
-            <h1>Once Upon a Time Partners</h1>
+            <h1>Vadim Voss</h1>
             <div class="header-meta">
-                Fairy Tale Lead · February 2026 · <a href="outreach.html">View Partner Outreach List</a>
+                
+                Vadim Voss
+                
             </div>
+            
         </header>
 
+        
+
         <main class="main">
+            <!-- Client Card -->
             <div class="client-card">
-                <div class="client-avatar">OU</div>
+                <div class="client-avatar">VV</div>
                 <div class="client-info">
-                    <h2>Fairy Tale Lead</h2>
-                    <div class="client-company">Once Upon a Time Partners</div>
-                    <div class="client-title">Creator of Once Upon a Time Partners · Premium events and transformations</div>
+                    <h2>Vadim Voss</h2>
+                    <div class="client-company">Next Level DeFi</div>
+                    <div class="client-title">Founder</div>
                 </div>
             </div>
 
+            <!-- The Offer -->
             <div class="section">
                 <div class="section-header"><span class="section-title">The Offer</span></div>
                 <div class="section-body">
                     <div class="info-grid">
                         <div class="info-item">
                             <label>Current Program</label>
-                            <div class="value">Once Upon a Time</div>
-                            <div class="sub">3-tier events and expansion program</div>
+                            <div class="value">DFY DeFi Setup Experience</div>
+                            <div class="sub">DFY (Done-For-You) system where Vadim personally walks every client through setup and yield activation via Zoom screen-share. Once set up, nothing else needed — ongoing support included. High-ticket, low-refund, audience-friendly.</div>
                         </div>
                         <div class="info-item">
                             <label>Program Focus</label>
-                            <div class="value highlight">Events &amp; Global Reach</div>
+                            <div class="value highlight">DeFi / Crypto Passive Income</div>
                         </div>
                         <div class="info-item">
                             <label>Target Audience</label>
-                            <div class="value">Leaders &amp; Entrepreneurs</div>
-                            <div class="sub">Ready for premium events and transformation</div>
+                            <div class="value">Financial marketing, biz-op, investing, and crypto audiences</div>
+                            <div class="sub">Non-technical people who want passive crypto income: complete beginners, retirees and near-retirees wanting to maximize bull market gains and secure retirement, busy professionals who want more free time, and investors curious about DeFi but intimidated by complexity. Audiences in biz-op, investing, financial education, trading, and make-money-online spaces.</div>
                         </div>
                         <div class="info-item">
                             <label>Network Reach</label>
-                            <div class="value">50+ Kingdoms</div>
-                            <div class="sub">1,000+ story-led facilitators</div>
+                            <div class="value">2K</div>
+                            <div class="sub">Vadim&#x27;s subscriber network</div>
                         </div>
                     </div>
+                    
                     <div class="tier-grid">
-                        <div class="tier-box">
-                            <div class="tier-name">Tier 1: Once Upon a Time</div>
-                            <div class="tier-desc">Just starting, want to host memorable events</div>
+                        
+                        <div class="tier-box ">
+                            <div class="tier-name">Standard — $2,997</div>
+                            <div class="tier-desc">4 DFY Zoom sessions: wallet + yield setup, strategy, automation (Beefy, 20 blockchains), Q&amp;A. All sessions recorded.</div>
                         </div>
+                        
                         <div class="tier-box highlight">
-                            <div class="tier-name">Tier 2: Ever After</div>
-                            <div class="tier-desc">Established, ready to scale events globally</div>
+                            <div class="tier-name">Elite (VIP) — $4,997</div>
+                            <div class="tier-desc">Everything in Standard + full course, 12-month VIP Telegram support, bi-weekly Zoom Q&amp;A clinics, 30-day priority DM access to Vadim.</div>
                         </div>
-                        <div class="tier-box">
-                            <div class="tier-name">Tier 3: Happily Ever After</div>
-                            <div class="tier-desc">Advanced, building a global story-led presence</div>
-                        </div>
+                        
                     </div>
+                    
+                    
                     <div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f0f0f0;">
                         <div class="info-item">
                             <label>Main Website</label>
-                            <a href="https://example.com" target="_blank" rel="noopener">example.com</a>
+                            <a href="https://www.nextleveldefi.com" target="_blank" rel="noopener">https://www.nextleveldefi.com</a>
                         </div>
                     </div>
+                    
                 </div>
             </div>
 
+            <!-- What Client Offers Partners -->
+            
             <div class="section">
-                <div class="section-header"><span class="section-title">What Once Upon a Time Partners Offers Partners</span></div>
+                <div class="section-header"><span class="section-title">What Next Level DeFi Offers Partners</span></div>
                 <div class="section-body">
                     <div class="commission-grid">
-                        <div class="commission-box">
-                            <div class="commission-value">1,000+</div>
-                            <div class="commission-label">story-led facilitators</div>
-                        </div>
-                        <div class="commission-box">
-                            <div class="commission-value">50+</div>
-                            <div class="commission-label">kingdoms reached</div>
-                        </div>
-                        <div class="commission-box">
-                            <div class="commission-value">Premium</div>
-                            <div class="commission-label">event credibility</div>
-                        </div>
+                        
                         <div class="commission-box highlight">
-                            <div class="commission-value">ENGAGED</div>
-                            <div class="commission-label">transformation seekers</div>
+                            <div class="commission-value">40%</div>
+                            <div class="commission-label">JV Commission</div>
                         </div>
+                        
+                        <div class="commission-box ">
+                            <div class="commission-value">$178</div>
+                            <div class="commission-label">EPC</div>
+                        </div>
+                        
+                        <div class="commission-box ">
+                            <div class="commission-value">$546</div>
+                            <div class="commission-label">Value / Lead</div>
+                        </div>
+                        
+                        <div class="commission-box ">
+                            <div class="commission-value">~0%</div>
+                            <div class="commission-label">Refund Rate</div>
+                        </div>
+                        
                     </div>
+                    
+                    <div class="text-block" style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f0f0f0;">
+                        <p><strong>What You Get:</strong></p>
+                        <ul>
+                            
+                            <li>Swipe emails + subject lines</li>
+                            
+                            <li>Affiliate tracking links</li>
+                            
+                            <li>Replay + opt-in pages ready to go</li>
+                            
+                            <li>Optional co-host webinar / live Q&amp;A session</li>
+                            
+                            <li>No crypto ads or exchange compliance needed for promotion</li>
+                            
+                        </ul>
+                    </div>
+                    
+                    
+                    <div class="text-block" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f0f0f0;">
+                        <p><strong>Why This Offer Converts:</strong></p>
+                        <ul>
+                            
+                            <li>100% Done-For-You — no tech barrier for your list</li>
+                            
+                            <li>Designed for non-crypto audiences who want safe passive yield</li>
+                            
+                            <li>Hand-held and supported — your audience feels guided, not sold</li>
+                            
+                            <li>High EPCs from a $3K–$5K offer</li>
+                            
+                            <li>Works for biz-op, investing, health, or “make money while you sleep” audiences</li>
+                            
+                            <li>Clients stay, get results, and send referrals — builds trust equity with your list</li>
+                            
+                        </ul>
+                    </div>
+                    
                 </div>
             </div>
+            
 
+            <!-- Proven Results -->
+            
+            <div class="section">
+                <div class="section-header"><span class="section-title">Proven Results</span></div>
+                <div class="section-body text-block">
+                    
+                    <p style="color: var(--muted); font-size: 0.8125rem; margin-bottom: 0.75rem;">Chris James DFY JV #1 · Non-crypto health/wellness list</p>
+                    
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        
+                        <div style="padding: 0.5rem; background: var(--blush); border-radius: 4px;">
+                            <div style="font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;">Registration Visitors</div>
+                            <div style="font-weight: 600; font-size: 0.9375rem;">922</div>
+                        </div>
+                        
+                        <div style="padding: 0.5rem; background: var(--blush); border-radius: 4px;">
+                            <div style="font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;">Registrants</div>
+                            <div style="font-weight: 600; font-size: 0.9375rem;">300 (32.5% opt-in)</div>
+                        </div>
+                        
+                        <div style="padding: 0.5rem; background: var(--blush); border-radius: 4px;">
+                            <div style="font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;">Live Attendees</div>
+                            <div style="font-weight: 600; font-size: 0.9375rem;">140 (46.7% attendance)</div>
+                        </div>
+                        
+                        <div style="padding: 0.5rem; background: var(--blush); border-radius: 4px;">
+                            <div style="font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;">Standard Sales</div>
+                            <div style="font-weight: 600; font-size: 0.9375rem;">13 × $2,997 = $38,961</div>
+                        </div>
+                        
+                        <div style="padding: 0.5rem; background: var(--blush); border-radius: 4px;">
+                            <div style="font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;">Elite Sales</div>
+                            <div style="font-weight: 600; font-size: 0.9375rem;">25 × $4,997 = $124,925</div>
+                        </div>
+                        
+                        <div style="padding: 0.5rem; background: var(--blush); border-radius: 4px;">
+                            <div style="font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;">Total Sales</div>
+                            <div style="font-weight: 600; font-size: 0.9375rem;">$163,886</div>
+                        </div>
+                        
+                        <div style="padding: 0.5rem; background: var(--blush); border-radius: 4px;">
+                            <div style="font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;">Value Per Lead</div>
+                            <div style="font-weight: 600; font-size: 0.9375rem;">$546</div>
+                        </div>
+                        
+                        <div style="padding: 0.5rem; background: var(--blush); border-radius: 4px;">
+                            <div style="font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;">Value Per Attendee</div>
+                            <div style="font-weight: 600; font-size: 0.9375rem;">$1,171</div>
+                        </div>
+                        
+                        <div style="padding: 0.5rem; background: var(--blush); border-radius: 4px;">
+                            <div style="font-size: 0.6875rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em;">EPC</div>
+                            <div style="font-weight: 600; font-size: 0.9375rem;">$177.75</div>
+                        </div>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+            
+
+            <!-- Key Positioning Message -->
+            
             <div class="key-message">
                 <div class="key-message-label">Key Positioning Message</div>
-                <div class="key-message-text">"You teach them how to BUILD their business.
-Once Upon a Time teaches them how to make it a STORY worth sharing."</div>
+                <div class="key-message-headline">$163K from a single JV launch to a small health/wellness list</div>
+                
+                <ul class="key-message-points">
+                    
+                    <li>DFY Crypto (DeFi) Passive Income White Glove coaching program ($2,997–$4,997)</li>
+                    
+                    <li>40% commission · $178 EPC · Near-zero refund rate</li>
+                    
+                    <li>Swipe copy, tracking links, and replay pages provided</li>
+                    
+                    <li>No crypto ads or exchange compliance required</li>
+                    
+                </ul>
+                
             </div>
+            
 
+            <!-- About Section -->
             <div class="section">
-                <div class="section-header"><span class="section-title">About Fairy Tale Lead</span></div>
+                <div class="section-header"><span class="section-title">About Vadim Voss</span></div>
                 <div class="section-body text-block">
-                    <p><strong>The Story:</strong> Once Upon a Time Partners is the creator of a premium events and transformation program helping leaders and entrepreneurs host unforgettable experiences and build global networks. Built on story-led methodology with a network of facilitators across 50+ kingdoms.</p>
-                    <p><strong>Shared Stage With:</strong></p>
+                    
+                        
+                        <p><strong>The Story:</strong> Vadim Voss is a business professional and founder of Next Level DeFi, where he helps everyday people turn crypto from a confusing &quot;casino&quot; into a practical, repeatable passive-income system.</p>
+                        
+                        <p>After more than a decade in the crypto markets—and over 20 years as an entrepreneur—Vadim noticed the same pattern over and over: most people don’t fail because they’re “not smart enough”… they fail because the setup is stressful, the information is scattered, and one wrong click can cost real money. So he built a simpler path.</p>
+                        
+                        <p>That path became Next Level DeFi: a beginner-friendly framework that starts with clear education, then moves into a guided strategy, and—if someone wants it—hands-on help to get fully set up and running.</p>
+                        
+                        <p>Today, Vadim’s mission is straightforward: make DeFi accessible, safe, and actionable for non-technical people, so they can start generating passive income without spending months on YouTube, chasing hype tokens, or guessing what to do next.</p>
+                        
+                    
+                    
+                    
+                    <p><strong>Credentials / Core Offers:</strong></p>
                     <ul>
-                        <li>The Grand Ball</li>
-                        <li>Kingdom Summit</li>
-                        <li>Forest Council</li>
-                        <li>Tower Retreat</li>
-                        <li>Castle Conference</li>
-                        <li>Enchanted Workshop</li>
+                        
+                        
+                        <li><strong>Next Level DeFi</strong> (Founder): DeFi education + systems designed for total beginners who want real results with less stress.</li>
+                        
+                        
+                        
+                        <li><strong>DFY DeFi Setup Experience</strong>: A guided, white-glove setup process (done with you / for you) to get everything working correctly and avoid costly mistakes.</li>
+                        
+                        
+                        
+                        <li><strong>DeFi Training Workshop</strong>: A step-by-step training that explains the fundamentals in plain English and shows the exact path from “confused beginner” to “confident, set up, and earning.”</li>
+                        
+                        
                     </ul>
-                    <p><strong>Credentials:</strong></p>
-                    <ul>
-                        <li>Creator of Once Upon a Time Partners</li>
-                        <li>Premium events and transformation methodology</li>
-                        <li>Global network of 1,000+ story-led facilitators in 50+ kingdoms</li>
-                        <li>Featured at major kingdom events worldwide</li>
-                        <li>Transformation leader for 15+ years</li>
-                    </ul>
+                    
                 </div>
             </div>
 
+            <!-- Resources & Proof -->
+            
+            <div class="section">
+                <div class="section-header"><span class="section-title">Resources &amp; Proof</span></div>
+                <div class="section-body text-block">
+                    <ul>
+                        
+                        <li><a href="https://www.nextleveldefi.com/workshop" target="_blank" rel="noopener">Workshop Page</a> — The page partners should promote (after initial sign-up)</li>
+                        
+                        <li><a href="https://www.nextleveldefi.com/workshop-replay" target="_blank" rel="noopener">Webinar Replay</a> — The exact presentation that generated $163K</li>
+                        
+                        <li><a href="https://www.nextleveldefi.com/defi-workshop" target="_blank" rel="noopener">Registration Page</a> — See the funnel your audience will experience</li>
+                        
+                        <li><a href="https://www.nextleveldefi.com/testimonials" target="_blank" rel="noopener">Student Testimonials</a> — From the $997 DIY offer — course + group Telegram support</li>
+                        
+                        <li><a href="https://nextleveldefi.kartra.com/videopage/daXne7hB4Ua4" target="_blank" rel="noopener">Partner Testimonial — Professor Spira</a> — Health &amp; Wellness audience</li>
+                        
+                        <li><a href="https://nextleveldefi.kartra.com/videopage/dc19liXFVUYf" target="_blank" rel="noopener">Partner Testimonial — Caleb Jones</a> — Business &amp; Make Money Online audience</li>
+                        
+                    </ul>
+                </div>
+            </div>
+            
+
+            <!-- Ideal Partner Profile -->
             <div class="section">
                 <div class="section-header"><span class="section-title">Ideal Partner Profile</span></div>
                 <div class="section-body text-block">
-                    <p>Coaches, entrepreneurs, and transformation leaders who serve <strong>purpose-driven individuals ready to expand their impact through premium events and storytelling</strong>.</p>
-                    <p style="color: var(--muted);">Their clients learn to build their business — Once Upon a Time teaches them to make it a story worth sharing.</p>
-                    <p><strong>Perfect For:</strong></p>
-                    <ul>
-                        <li>Business coaches ready to offer clients event and visibility pathways</li>
-                        <li>Transformation leaders with audiences seeking purpose and impact</li>
-                        <li>Event hosts and retreat leaders with engaged communities</li>
-                        <li>Speakers and authors looking for collaborative storytelling opportunities</li>
-                    </ul>
+                    
+                    <p>Partners serving <strong>audiences in financial marketing, biz-op, investing, trading, and make-money-online spaces who want safe passive DeFi income without needing crypto experience</strong>.</p>
+                    
+                    
+                    <p style="color: var(--muted);">DFY (Done-For-You) system that helps anyone start earning passive DeFi income safely — without needing any tech skills or crypto experience.</p>
+                    
+                    
                 </div>
             </div>
 
+            <!-- What Client Is Seeking -->
+            
             <div class="section">
-                <div class="section-header"><span class="section-title">What Fairy Tale Lead Is Seeking</span></div>
+                <div class="section-header"><span class="section-title">What Vadim Voss Is Seeking</span></div>
                 <div class="section-body text-block">
                     <p><strong>JV Partnership Goals:</strong></p>
                     <ul>
-                        <li>Partners with audiences of leaders and entrepreneurs</li>
-                        <li>Speakers for joint events, summits, and retreats</li>
-                        <li>Podcast hosts in personal development and business spaces</li>
-                        <li>Complementary program owners for cross-promotion</li>
-                        <li>Influencers in transformation and purpose-driven business</li>
+                        
+                        <li>JV partners with email lists, podcasts, or masterminds in financial marketing, biz-op, investing, trading, crypto, and MMO spaces.</li>
+                        
+                        <li>Partners who attend or speak at events like Financial Marketing Summit.</li>
+                        
+                        <li>Audiences of non-technical people interested in passive income, retirement planning, or financial freedom.</li>
+                        
+                        <li>Health, wellness, and prepper audiences also convert well.</li>
+                        
                     </ul>
-                    <p style="margin-top: 1rem;"><strong>Program Focus:</strong> Once Upon a Time Partners — helping leaders and entrepreneurs expand their reach through premium events and a proven story-led network.</p>
                 </div>
             </div>
+            
 
+            <!-- Partner FAQs -->
+            
             <div class="section">
                 <div class="section-header"><span class="section-title">Partner FAQs</span></div>
                 <div style="padding: 0;">
-                    <div class="faq-item" onclick="this.classList.toggle('open')">
-                        <div class="faq-question">What makes Once Upon a Time different? <span class="faq-toggle">▼</span></div>
-                        <div class="faq-answer">Once Upon a Time Partners provides direct access to premium event experiences, story-led methodology, and a global network of facilitators. The proven track record and network across 50+ kingdoms provide real expansion opportunities for leaders ready to host memorable events.</div>
+                    
+                    <div class="faq-item" onclick="this.classList.toggle('open'); if (typeof jvTrack !== 'undefined') jvTrack('faq_toggle', null, {faq_index: 0, is_open: this.classList.contains('open')})">
+                        <div class="faq-question">
+                            How does the DFY setup work?
+                            <span class="faq-toggle">&#9660;</span>
+                        </div>
+                        <div class="faq-answer">Vadim personally walks each client through setup via Zoom screen-share on a trusted platform. The first yield-generating position is set up within 1 hour of the first session. All sessions are recorded so clients can follow along later.</div>
                     </div>
-                    <div class="faq-item" onclick="this.classList.toggle('open')">
-                        <div class="faq-question">Who is the ideal referral? <span class="faq-toggle">▼</span></div>
-                        <div class="faq-answer">Leaders and entrepreneurs at any stage who want to expand through events and storytelling. The 3-tier program meets them where they are — whether just starting or ready to scale globally.</div>
+                    
+                    <div class="faq-item" onclick="this.classList.toggle('open'); if (typeof jvTrack !== 'undefined') jvTrack('faq_toggle', null, {faq_index: 1, is_open: this.classList.contains('open')})">
+                        <div class="faq-question">
+                            What&#x27;s the difference between Standard and Elite?
+                            <span class="faq-toggle">&#9660;</span>
+                        </div>
+                        <div class="faq-answer">Standard ($2,997): 4 DFY Zoom sessions covering wallet setup, yield strategy, automation across 20+ blockchains, and Q&amp;A. Elite ($4,997): Everything in Standard plus the full course, 12 months VIP Telegram support, bi-weekly live Zoom Q&amp;A clinics, and 30-day priority DM access to Vadim.</div>
                     </div>
-                    <div class="faq-item" onclick="this.classList.toggle('open')">
-                        <div class="faq-question">What's the partnership structure? <span class="faq-toggle">▼</span></div>
-                        <div class="faq-answer">Various collaboration options: joint events, podcast appearances, summit speaking, cross-promotion, and affiliate partnerships. Flexible to fit partner needs.</div>
+                    
+                    <div class="faq-item" onclick="this.classList.toggle('open'); if (typeof jvTrack !== 'undefined') jvTrack('faq_toggle', null, {faq_index: 2, is_open: this.classList.contains('open')})">
+                        <div class="faq-question">
+                            How does the refund policy work?
+                            <span class="faq-toggle">&#9660;</span>
+                        </div>
+                        <div class="faq-answer">Full refund if no yield-generating position within 14 days of purchase. Vadim sets it up in the first session, so success is guaranteed as long as they book within the 14-day window. Only 1 refund request in the last JV — near-zero refund rate.</div>
                     </div>
-                    <div class="faq-item" onclick="this.classList.toggle('open')">
-                        <div class="faq-question">What results have partners seen? <span class="faq-toggle">▼</span></div>
-                        <div class="faq-answer">Partners gain access to an engaged audience and global network. Many have seen list growth and new client acquisition through collaborative events and storytelling.</div>
+                    
+                    <div class="faq-item" onclick="this.classList.toggle('open'); if (typeof jvTrack !== 'undefined') jvTrack('faq_toggle', null, {faq_index: 3, is_open: this.classList.contains('open')})">
+                        <div class="faq-question">
+                            When and how do I get paid?
+                            <span class="faq-toggle">&#9660;</span>
+                        </div>
+                        <div class="faq-answer">40% commission on all collected sales, paid a few days after the last sale. Higher splits available for volume partners. No payment plans — clients can use Klarna at checkout.</div>
                     </div>
+                    
+                    <div class="faq-item" onclick="this.classList.toggle('open'); if (typeof jvTrack !== 'undefined') jvTrack('faq_toggle', null, {faq_index: 4, is_open: this.classList.contains('open')})">
+                        <div class="faq-question">
+                            What do I need to create for promotion?
+                            <span class="faq-toggle">&#9660;</span>
+                        </div>
+                        <div class="faq-answer">Nothing. We provide swipe emails with subject lines, affiliate tracking links, replay and opt-in pages. Optional: co-host the webinar or join for a live Q&amp;A. No crypto ads or exchange compliance needed.</div>
+                    </div>
+                    
+                    <div class="faq-item" onclick="this.classList.toggle('open'); if (typeof jvTrack !== 'undefined') jvTrack('faq_toggle', null, {faq_index: 5, is_open: this.classList.contains('open')})">
+                        <div class="faq-question">
+                            Does this work for non-crypto audiences?
+                            <span class="faq-toggle">&#9660;</span>
+                        </div>
+                        <div class="faq-answer">Yes — it&#x27;s designed for it. The $163K JV launch was to a health/wellness list with zero crypto experience. Works great for biz-op, investing, or “make money while you sleep” audiences. Your audience will feel guided, not sold.</div>
+                    </div>
+                    
                 </div>
             </div>
+            
 
+            <!-- Confirm Profile -->
+            
+
+            <!-- Contact Footer -->
+            
             <div class="contact-footer">
                 <div>Questions or updates?</div>
-                <a href="mailto:help@jvmatches.com">help@jvmatches.com</a>
+                <a href="mailto:realvadimvoss@gmail.com">realvadimvoss@gmail.com</a>
             </div>
+            
         </main>
 
         <div class="footer">
-            Report generated for Fairy Tale Lead. · <a href="index.html">Partner report</a> · <a href="profile.html">Client Profile</a> · <a href="outreach.html">Partner Outreach</a>
+            
+            Next Level DeFi &middot; <a href="index.html">Partner report</a> &middot; Client Profile &middot; <a href="https://www.nextleveldefi.com" target="_blank" rel="noopener">https://www.nextleveldefi.com</a>
+            
         </div>
     </div>
+    
 </body>
 </html>
