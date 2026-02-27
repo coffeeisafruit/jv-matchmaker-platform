@@ -1,0 +1,5 @@
+exclude:
+  - "*.md"
+  - implementation/
+  - planning/
+  - research/
