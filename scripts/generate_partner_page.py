@@ -264,8 +264,6 @@ def _render_outreach_card(match: dict, idx: int, section_key: str) -> str:
         company_line += f' &middot; {_esc(niche)}'
 
     tags_html = ''
-    tier_label, tier_class = _score_tier(score)
-    tags_html += f'<span class="tag {tier_class}">{tier_label} ({score:.0f})</span>'
     if list_size:
         tags_html += f'<span class="tag tag-fit">{list_size} List</span>'
     for t in tags_list[:3]:
@@ -408,7 +406,7 @@ def generate_outreach(profile: dict, matches: list[dict]) -> str:
 
     templates_json = json.dumps({
         "initial": {
-            "text": f"Hi [Partner Name],\n\nI came across your work and love what you're doing for [their audience]. I'm {profile.get('name', '')} with {profile.get('company', '')}, and I think our audiences could really benefit from knowing about each other.\n\nWould you be open to a quick call to explore some partnership ideas?\n\nBest,\n{profile.get('name', '')}",
+            "text": f"Hi [Partner Name],\n\nI came across your work and love what you're doing for [their audience]. I'm {profile.get('name', '')} with {profile.get('company', '')}, and I think our audiences could really benefit from knowing about each other.\n\nWould you be open to a quick call to explore some partnership ideas? Here's my calendar if you'd like to pick a time: [Insert booking link]\n\nBest,\n{profile.get('name', '')}",
             "title": "Initial Outreach"
         },
         "followup": {
