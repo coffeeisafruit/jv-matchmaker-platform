@@ -71,6 +71,56 @@ def _clean_url(url: str) -> str:
     return re.sub(r'^https?://(www\.)?', '', url).rstrip('/')
 
 
+def _truncate(text: str, max_len: int) -> str:
+    """Truncate text at the nearest sentence/clause boundary, never mid-word."""
+    if not text or len(text) <= max_len:
+        return text
+    truncated = text[:max_len]
+    # 1. Try sentence boundary (period, !, ?)
+    for sep in ['. ', '! ', '? ']:
+        last = truncated.rfind(sep)
+        if last > max_len * 0.4:
+            return truncated[:last + 1]
+    # 2. Try clause boundary (comma, semicolon) — reads more naturally
+    for sep in [', ', '; ']:
+        last = truncated.rfind(sep)
+        if last > max_len * 0.4:
+            return truncated[:last].rstrip(' ,;') + '.'
+    # 3. Fall back to last word boundary, avoiding dangling prepositions/articles
+    last_space = truncated.rfind(' ')
+    if last_space > max_len * 0.3:
+        candidate = truncated[:last_space]
+        # Back up past dangling prepositions/articles
+        dangling = {'on', 'in', 'at', 'of', 'for', 'to', 'the', 'a', 'an', 'and', 'or', 'with', 'by', 'their', 'its'}
+        words = candidate.rsplit(' ', 2)
+        if len(words) >= 2 and words[-1].lower().rstrip('.,;:') in dangling:
+            candidate = candidate[:candidate.rfind(' ', 0, len(candidate) - 1)]
+        return candidate.rstrip('.,;: ') + '.'
+    return truncated.rstrip('.,;: ') + '.'
+
+
+def _clean_match_reason(reason: str) -> str:
+    """Strip internal scoring language from match_reason before display."""
+    if not reason:
+        return ''
+    # Remove "Keyword match: ['...'] ↔ ['...']" patterns
+    reason = re.sub(r"Keyword match:\s*\[.*?\]\s*↔\s*\[.*?\]", '', reason)
+    # Remove ⚠️ warnings
+    reason = re.sub(r'⚠️\s*Based on profile data\s*', '', reason)
+    reason = re.sub(r'⚠️[^.]*\.?\s*', '', reason)
+    # Clean up leftover whitespace / punctuation
+    reason = re.sub(r'\.\s*\.', '.', reason)
+    reason = reason.strip(' .')
+    return reason
+
+
+def _clean_offering(offering: str) -> str:
+    """Strip leading commas/whitespace from offering lists."""
+    if not offering:
+        return ''
+    return offering.lstrip(', ').strip()
+
+
 def _parse_tags(tags) -> list[str]:
     if not tags:
         return []
@@ -199,7 +249,7 @@ def _render_outreach_card(match: dict, idx: int, section_key: str) -> str:
 
     company_line = company
     if what:
-        company_line += f' &middot; {what[:120]}'
+        company_line += f' &middot; {_truncate(what, 120)}'
     elif niche:
         company_line += f' &middot; {_esc(niche)}'
 
@@ -239,13 +289,16 @@ def _render_outreach_card(match: dict, idx: int, section_key: str) -> str:
         audience_parts.append(f'{_format_list_size(match.get("list_size"))} subscribers.')
     if who:
         audience_parts.append(who)
-    if offering:
-        audience_parts.append(f'Offering: {offering}')
+    cleaned_offering = _clean_offering(offering)
+    if cleaned_offering:
+        audience_parts.append(f'Offering: {cleaned_offering}')
     if audience_parts:
         detail_rows += f'<div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">{" ".join(audience_parts)}</span></div>'
 
-    if reason:
-        detail_rows += f'<div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">{reason}</span></div>'
+    raw_reason = match.get('match_reason') or ''
+    cleaned_reason = _clean_match_reason(raw_reason)
+    if cleaned_reason:
+        detail_rows += f'<div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">{_esc(cleaned_reason)}</span></div>'
 
     if website:
         detail_rows += f'<div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="{_esc(website)}" target="_blank" rel="noopener">{_esc(website)}</a></span></div>'
@@ -259,7 +312,7 @@ def _render_outreach_card(match: dict, idx: int, section_key: str) -> str:
     detail_note = ''
     bio = match.get('bio') or ''
     if bio and len(bio) > 20:
-        detail_note = f'<div class="detail-note">{_esc(bio[:300])}</div>'
+        detail_note = f'<div class="detail-note">{_esc(_truncate(bio, 300))}</div>'
 
     return f"""
             <div class="card" data-partner-id="{idx}" data-section-key="{section_key}" data-match-score="{score:.1f}" data-partner-name="{name}">
@@ -569,7 +622,7 @@ def generate_profile(profile: dict) -> str:
 
     info_items = ''
     if profile.get('what_you_do'):
-        info_items += f'<div class="info-item"><label>Current Focus</label><div class="value">{what_you_do[:150]}</div></div>'
+        info_items += f'<div class="info-item"><label>Current Focus</label><div class="value">{_truncate(what_you_do, 150)}</div></div>'
     if niche:
         info_items += f'<div class="info-item"><label>Niche</label><div class="value highlight">{niche}</div></div>'
     if who_you_serve:
@@ -626,7 +679,10 @@ def generate_profile(profile: dict) -> str:
 
     ideal_html = ''
     if who_you_serve:
-        ideal_html = f'<div class="section"><div class="section-header"><span class="section-title">Ideal Partner Profile</span></div><div class="section-body text-block"><p>Partners serving <strong>{who_you_serve}</strong>.</p>{f"<p style=color:var(--muted)>{what_you_do}</p>" if what_you_do else ""}</div></div>'
+        focus_note = ''
+        if what_you_do:
+            focus_note = f'<p style="color:var(--muted); margin-top: 0.75rem;">{_truncate(what_you_do, 200)}</p>'
+        ideal_html = f'<div class="section"><div class="section-header"><span class="section-title">Ideal Partner Profile</span></div><div class="section-body text-block"><p>Partners serving <strong>{who_you_serve}</strong>.</p>{focus_note}</div></div>'
 
     seeking_html = ''
     if seeking:
@@ -709,7 +765,7 @@ def generate_profile(profile: dict) -> str:
         <header class="header">
             <div class="header-eyebrow">Client Profile</div>
             <h1>{name}</h1>
-            <div class="header-meta">{name}</div>
+            <div class="header-meta">{company if company else name}</div>
         </header>
         <main class="main">
             <div class="client-card">
