@@ -26,6 +26,10 @@ from pathlib import Path
 import psycopg2
 from psycopg2.extras import RealDictCursor
 
+# Add project root to path so we can import matching modules
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from matching.enrichment.text_sanitizer import TextSanitizer
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -100,18 +104,24 @@ def _truncate(text: str, max_len: int) -> str:
 
 
 def _clean_match_reason(reason: str) -> str:
-    """Strip internal scoring language from match_reason before display."""
+    """Strip internal scoring artifacts from match_reason before display.
+
+    Mirrors TextSanitizer.validate_match_reason() logic for use outside Django.
+    """
     if not reason:
         return ''
     # Remove "Keyword match: ['...'] ↔ ['...']" patterns
-    reason = re.sub(r"Keyword match:\s*\[.*?\]\s*↔\s*\[.*?\]", '', reason)
+    reason = re.sub(r"Keyword match:\s*\[.*?\]\s*[↔⟷]\s*\[.*?\]", '', reason)
     # Remove ⚠️ warnings
-    reason = re.sub(r'⚠️\s*Based on profile data\s*', '', reason)
     reason = re.sub(r'⚠️[^.]*\.?\s*', '', reason)
-    # Clean up leftover whitespace / punctuation
+    # Remove score references like "(score: 73.2)"
+    reason = re.sub(r'\(score:\s*[\d.]+\)', '', reason)
+    # Remove internal field references like "synergy_score=0.85"
+    reason = re.sub(r'\w+_score\s*=\s*[\d.]+', '', reason)
+    # Clean up leftover punctuation/whitespace
     reason = re.sub(r'\.\s*\.', '.', reason)
-    reason = reason.strip(' .')
-    return reason
+    reason = re.sub(r'\s{2,}', ' ', reason)
+    return reason.strip(' .')
 
 
 def _clean_offering(offering: str) -> str:
@@ -801,53 +811,44 @@ def generate_profile(profile: dict) -> str:
 # ---------------------------------------------------------------------------
 
 def _qa_check(profile: dict, matches: list[dict]) -> list[str]:
-    """Run data quality checks before rendering. Returns list of warnings."""
+    """Run data quality checks before rendering.
+
+    Delegates bio/company/offering validation to TextSanitizer (single source
+    of truth) so every client gets the same quality gate.
+    """
     warnings = []
-    name = profile.get('name', 'Unknown')
+
+    def _check_record(record: dict, label: str):
+        """Check one profile record (client or partner)."""
+        name = record.get('name', 'Unknown')
+        prefix = f'{label} {name}' if label else name
+
+        # Bio: delegate to TextSanitizer.validate_bio()
+        bio = record.get('bio') or ''
+        if bio and TextSanitizer.validate_bio(bio, name) != bio:
+            warnings.append(f'{prefix}: Bio fails validation (template/offering-as-role)')
+
+        # Company: delegate to TextSanitizer.validate_company()
+        company = record.get('company') or ''
+        if company and TextSanitizer.validate_company(company, name) != company:
+            warnings.append(f'{prefix}: Company fails validation (generic descriptor)')
+
+        # Offering syntax
+        offering = record.get('offering') or ''
+        if offering and TextSanitizer.clean_list_field(offering) != offering:
+            warnings.append(f'{prefix}: Offering has syntax issues')
+
+        # Match reason (partners only)
+        reason = record.get('match_reason') or ''
+        if reason and TextSanitizer.validate_match_reason(reason) != reason:
+            warnings.append(f'{prefix}: match_reason contains internal artifacts')
 
     # Check client profile
-    bio = profile.get('bio') or ''
-    if bio and re.search(r'is an? (podcast|email|website|webinar|course)\b', bio, re.I):
-        warnings.append(f'{name}: Bio has offering-as-role error: "{bio[:60]}..."')
-    if bio and 'They specialize' in bio:
-        warnings.append(f'{name}: Bio uses generic "They specialize" phrasing')
-
-    offering = profile.get('offering') or ''
-    if offering.startswith(',') or offering.startswith(';'):
-        warnings.append(f'{name}: Offering field starts with punctuation')
+    _check_record(profile, '')
 
     # Check each partner match
     for m in matches:
-        pname = m.get('name', 'Unknown')
-        reason = m.get('match_reason') or ''
-        if 'Keyword match:' in reason or '⚠️' in reason:
-            warnings.append(f'{pname}: match_reason contains internal scoring language')
-        if re.search(r'\[\'.*?\'\]', reason):
-            warnings.append(f'{pname}: match_reason contains array syntax')
-
-        pbio = m.get('bio') or ''
-        if pbio and re.search(r'is an? (podcast|email|website|webinar|course)\b', pbio, re.I):
-            warnings.append(f'{pname}: Bio has offering-as-role error')
-        if pbio and 'serves as ' in pbio:
-            # Check if the role after "serves as" looks like an offering name
-            role_match = re.search(r'serves as ([A-Z][A-Za-z ]+?) at ', pbio)
-            if role_match and role_match.group(1) in {
-                'Public Speaking', 'Business Coaching', 'Email Marketing',
-                'Content Creation', 'Podcast Host', 'Video Marketing',
-            }:
-                warnings.append(f'{pname}: Bio has offering-as-role in "serves as" pattern')
-
-        poffering = m.get('offering') or ''
-        if poffering.startswith(',') or poffering.startswith(';'):
-            warnings.append(f'{pname}: Offering starts with punctuation')
-
-        what = m.get('what_you_do') or ''
-        if what and len(what) > 120:
-            truncated = what[:120]
-            if not any(truncated.endswith(s) for s in ['.', '!', '?']):
-                # Check if truncation would cut mid-word
-                if truncated[-1] != ' ' and (len(what) > 120 and what[120] != ' '):
-                    warnings.append(f'{pname}: what_you_do may truncate mid-word at 120 chars')
+        _check_record(m, 'Partner')
 
     return warnings
 
@@ -856,39 +857,20 @@ def _qa_check(profile: dict, matches: list[dict]) -> list[str]:
 # CLI
 # ---------------------------------------------------------------------------
 
-def main():
-    parser = argparse.ArgumentParser(description='Generate a 3-page shareable partner report')
-    parser.add_argument('name', nargs='?', help='Partner name to look up')
-    parser.add_argument('--id', dest='profile_id', help='Profile UUID')
-    parser.add_argument('--top', type=int, default=10, help='Number of top matches to show')
-    parser.add_argument('--output-dir', help='Output directory (default: pages/<slug>/)')
-    args = parser.parse_args()
-
-    if not args.name and not args.profile_id:
-        parser.error('Provide either a name or --id')
-
-    db_url = os.environ.get('DATABASE_URL')
-    if not db_url:
-        sys.exit('ERROR: DATABASE_URL not set')
-
-    conn = psycopg2.connect(db_url)
-    try:
-        profile = fetch_profile(conn, name=args.name, profile_id=args.profile_id)
-        matches = fetch_matches(conn, str(profile['id']), top=args.top)
-    finally:
-        conn.close()
+def _generate_for_profile(conn, profile: dict, top: int, output_base: Path,
+                          strict: bool) -> tuple[bool, list[str]]:
+    """Generate pages for one profile. Returns (success, warnings)."""
+    matches = fetch_matches(conn, str(profile['id']), top=top)
+    if not matches:
+        return False, [f'{profile["name"]}: No matches found']
 
     slug = _slug(profile['name'])
-    output_dir = Path(args.output_dir) if args.output_dir else Path(__file__).resolve().parent.parent / 'pages' / slug
+    output_dir = output_base / slug
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Pre-render QA check — flag data quality issues before generating
     warnings = _qa_check(profile, matches)
-    if warnings:
-        print(f'  ⚠ Data quality warnings ({len(warnings)}):')
-        for w in warnings:
-            print(f'    - {w}')
-        print()
+    if warnings and strict:
+        return False, warnings
 
     pages = {
         'index.html': generate_index(profile),
@@ -901,13 +883,106 @@ def main():
         with open(path, 'w') as f:
             f.write(content)
 
-    print(f'Generated 3-page report in: {output_dir}/')
-    print(f'  Profile: {profile["name"]} ({profile.get("company") or "N/A"})')
-    print(f'  Matches: {len(matches)} partners')
-    print(f'  Pages:')
-    for filename in pages:
-        print(f'    - {filename}')
-    print(f'  Open in browser: file://{os.path.abspath(output_dir / "index.html")}')
+    return True, warnings
+
+
+def _fetch_all_members(conn) -> list[dict]:
+    """Fetch all profiles that have scored matches."""
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cur.execute("""
+        SELECT DISTINCT p.*
+        FROM profiles p
+        INNER JOIN match_suggestions ms ON ms.profile_id = p.id
+        WHERE ms.harmonic_mean IS NOT NULL
+        ORDER BY p.name
+    """)
+    return [dict(r) for r in cur.fetchall()]
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Generate a 3-page shareable partner report')
+    parser.add_argument('name', nargs='?', help='Partner name to look up')
+    parser.add_argument('--id', dest='profile_id', help='Profile UUID')
+    parser.add_argument('--all', action='store_true',
+                        help='Generate pages for ALL profiles with scored matches')
+    parser.add_argument('--top', type=int, default=10, help='Number of top matches to show')
+    parser.add_argument('--output-dir', help='Output directory (default: pages/<slug>/)')
+    parser.add_argument('--strict', action='store_true',
+                        help='Abort generation if QA warnings are found')
+    args = parser.parse_args()
+
+    if not args.name and not args.profile_id and not args.all:
+        parser.error('Provide a name, --id, or --all')
+
+    db_url = os.environ.get('DATABASE_URL')
+    if not db_url:
+        sys.exit('ERROR: DATABASE_URL not set')
+
+    output_base = (Path(args.output_dir) if args.output_dir
+                   else Path(__file__).resolve().parent.parent / 'pages')
+
+    conn = psycopg2.connect(db_url)
+    try:
+        if args.all:
+            # Batch mode: generate for all profiles with matches
+            profiles = _fetch_all_members(conn)
+            print(f'Generating pages for {len(profiles)} profiles...\n')
+            success_count = 0
+            warn_count = 0
+            fail_count = 0
+            for profile in profiles:
+                name = profile['name']
+                ok, warnings = _generate_for_profile(
+                    conn, profile, args.top, output_base, args.strict)
+                if ok and not warnings:
+                    print(f'  ✓ {name}')
+                    success_count += 1
+                elif ok and warnings:
+                    print(f'  ⚠ {name} ({len(warnings)} warnings)')
+                    for w in warnings:
+                        print(f'      {w}')
+                    success_count += 1
+                    warn_count += 1
+                else:
+                    print(f'  ✗ {name}')
+                    for w in warnings:
+                        print(f'      {w}')
+                    fail_count += 1
+
+            print(f'\n--- Batch complete ---')
+            print(f'  Generated: {success_count}')
+            if warn_count:
+                print(f'  With warnings: {warn_count}')
+            if fail_count:
+                print(f'  Failed/skipped: {fail_count}')
+            print(f'  Output: {output_base}/')
+        else:
+            # Single profile mode
+            profile = fetch_profile(conn, name=args.name, profile_id=args.profile_id)
+            ok, warnings = _generate_for_profile(
+                conn, profile, args.top, output_base, args.strict)
+
+            if warnings:
+                print(f'  ⚠ Data quality warnings ({len(warnings)}):')
+                for w in warnings:
+                    print(f'    - {w}')
+                if not ok:
+                    sys.exit(f'\n  STRICT MODE: Aborting due to {len(warnings)} QA warning(s).')
+                print()
+
+            slug = _slug(profile['name'])
+            output_dir = output_base / slug
+            print(f'Generated 3-page report in: {output_dir}/')
+            print(f'  Profile: {profile["name"]} ({profile.get("company") or "N/A"})')
+            matches = fetch_matches(conn, str(profile['id']), top=args.top)
+            print(f'  Matches: {len(matches)} partners')
+            print(f'  Pages:')
+            print(f'    - index.html')
+            print(f'    - outreach.html')
+            print(f'    - profile.html')
+            print(f'  Open in browser: file://{os.path.abspath(output_dir / "index.html")}')
+    finally:
+        conn.close()
 
 
 if __name__ == '__main__':

@@ -237,6 +237,22 @@ class TextSanitizer:
                     f"Bio for {name} has offering-as-role: '{bio[:60]}...'"
                 )
                 return ''
+        # Pattern: Third-person template bios from AI generation
+        # e.g. "They specialize in...", "Their services include...",
+        #      "The company provides..."
+        template_start = re.match(
+            r'^(They|Their|The company|The organization)\s+'
+            r'(\w+\s+)?'  # optional noun (e.g. "Their services include")
+            r'(specialize|specializes|provide|provides|offer|offers|'
+            r'focus|focuses|deliver|delivers|include|includes|'
+            r'are dedicated|are committed|are known|are focused)\b',
+            bio, re.IGNORECASE,
+        )
+        if template_start:
+            logger.warning(
+                f"Bio for {name} uses template phrasing: '{bio[:60]}...'"
+            )
+            return ''
         return bio
 
     @classmethod

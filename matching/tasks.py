@@ -82,7 +82,8 @@ def recalculate_matches_for_profile(profile_id: str):
                 match.score_ab = new_scores['score_ab']
                 match.score_ba = new_scores['score_ba']
                 match.harmonic_mean = new_scores['harmonic_mean']
-                match.save(update_fields=['score_ab', 'score_ba', 'harmonic_mean'])
+                match.match_reason = new_scores.get('match_reason', '')
+                match.save(update_fields=['score_ab', 'score_ba', 'harmonic_mean', 'match_reason'])
 
                 logger.info(
                     f"Match {match.id} recalculated: "

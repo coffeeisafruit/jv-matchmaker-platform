@@ -152,6 +152,9 @@ class SupabaseMatch(models.Model):
         ordering = ['-harmonic_mean']
         verbose_name = 'Supabase Match'
         verbose_name_plural = 'Supabase Matches'
+        indexes = [
+            models.Index(fields=['profile_id', '-harmonic_mean'], name='idx_match_profile_score'),
+        ]
 
     def __str__(self):
         return f"Match {self.profile_id} <-> {self.suggested_profile_id} ({self.harmonic_mean})"

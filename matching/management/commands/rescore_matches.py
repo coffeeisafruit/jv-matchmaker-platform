@@ -161,6 +161,7 @@ class Command(BaseCommand):
                     m.score_ab = result['score_ab']
                     m.score_ba = result['score_ba']
                     m.harmonic_mean = result['harmonic_mean']
+                    m.match_reason = result.get('match_reason', '')
                     m.match_context = json.dumps({
                         'breakdown_ab': result['breakdown_ab'],
                         'breakdown_ba': result['breakdown_ba'],
@@ -179,7 +180,7 @@ class Command(BaseCommand):
             if to_update and not dry_run:
                 SupabaseMatch.objects.bulk_update(
                     to_update,
-                    ['score_ab', 'score_ba', 'harmonic_mean', 'match_context'],
+                    ['score_ab', 'score_ba', 'harmonic_mean', 'match_reason', 'match_context'],
                     batch_size=batch_size,
                 )
 

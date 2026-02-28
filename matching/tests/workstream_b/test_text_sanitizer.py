@@ -189,6 +189,24 @@ class TestValidateBio:
     def test_empty_returns_empty(self):
         assert TextSanitizer.validate_bio('') == ''
 
+    def test_they_specialize_blocked(self):
+        assert TextSanitizer.validate_bio('They specialize in management consulting and leadership training.', 'Test Corp') == ''
+
+    def test_they_provide_blocked(self):
+        assert TextSanitizer.validate_bio('They provide coaching services for entrepreneurs.', 'Test Corp') == ''
+
+    def test_the_company_blocked(self):
+        assert TextSanitizer.validate_bio('The company specializes in digital marketing solutions.', 'Test Corp') == ''
+
+    def test_their_services_blocked(self):
+        assert TextSanitizer.validate_bio('Their services include web design and branding.', 'Test Corp') == ''
+
+    def test_they_are_dedicated_blocked(self):
+        assert TextSanitizer.validate_bio('They are dedicated to delivering exceptional results for their clients.', 'Test Corp') == ''
+
+    def test_they_are_committed_blocked(self):
+        assert TextSanitizer.validate_bio('They are committed to providing world-class coaching.', 'Test Corp') == ''
+
 
 # --- validate_match_reason() tests ---
 

@@ -18,6 +18,7 @@ import re
 from django.conf import settings
 
 from .models import Profile, Match, SupabaseProfile, SupabaseMatch
+from .enrichment.text_sanitizer import TextSanitizer
 
 logger = logging.getLogger('matching.services')
 
@@ -1482,6 +1483,9 @@ class SupabaseMatchScoringService:
             'match_reason': match_reason,
         }
 
+    # Niches that are too generic or are data artifacts
+    NICHE_BLOCKLIST = {'host', 'other', 'misc', 'none', 'n/a', 'unknown', ''}
+
     def _generate_match_reason(
         self,
         profile_a: SupabaseProfile,
@@ -1490,56 +1494,162 @@ class SupabaseMatchScoringService:
         breakdown_ba: dict,
         harmonic_mean: float,
     ) -> str:
-        """Generate a human-readable match reason from ISMC breakdown.
+        """Generate an insightful, specific match reason for a partner pair.
 
-        Produces client-safe text with no internal scoring language.
+        Builds from 5 signal layers: audience overlap, offering↔seeking
+        alignment, collaboration format, scale context, and niche fit.
+        Output reads like a thoughtful recommendation, not an algorithm.
         """
+        name_b = (profile_b.name or '').split()[0]  # First name for natural tone
         parts = []
 
-        # Identify strongest dimensions
-        synergy_ab = breakdown_ab.get('synergy', {}).get('score')
-        synergy_ba = breakdown_ba.get('synergy', {}).get('score')
-        intent_b = breakdown_ab.get('intent', {}).get('score')
+        # --- Layer 1: Audience overlap (strongest signal) ---
+        who_a = (profile_a.who_you_serve or '').lower()
+        who_b = (profile_b.who_you_serve or '').lower()
+        name_b_lower = (profile_b.name or '').lower()
+        if who_a and who_b:
+            # Find shared audience keywords (4+ char words, skip stop/generic words)
+            stop = {'and', 'the', 'for', 'who', 'are', 'that', 'with', 'their',
+                    'seeking', 'looking', 'need', 'want', 'people', 'those',
+                    'individuals', 'help', 'from', 'them', 'they', 'have',
+                    'been', 'into', 'more', 'also', 'like', 'just', 'about'}
+            # Also exclude the partner's own name words
+            name_words = set(name_b_lower.split())
+            words_a = {w for w in re.split(r'[,\s]+', who_a)
+                       if len(w) > 4 and w not in stop and w not in name_words}
+            words_b = {w for w in re.split(r'[,\s]+', who_b)
+                       if len(w) > 4 and w not in stop and w not in name_words}
+            shared = words_a & words_b
+            if shared:
+                # Use up to 2 shared audience terms
+                terms = sorted(shared)[:2]
+                parts.append(
+                    f'Both serve {" and ".join(terms)}, '
+                    f'creating a natural audience bridge for cross-promotion'
+                )
+            elif who_b and name_b_lower not in who_b[:30]:
+                # Complementary audiences — truncate at word boundary
+                audience_summary = self._truncate_at_boundary(who_b, 80)
+                parts.append(f'{name_b} reaches {audience_summary}')
 
-        # Niche overlap
-        niche_a = (profile_a.niche or '').lower()
-        niche_b = (profile_b.niche or '').lower()
-        if niche_a and niche_b:
-            if niche_a == niche_b:
-                parts.append(f'Shared focus on {profile_b.niche.lower()}')
-            else:
-                parts.append(f'Complementary niches in {niche_b} and {niche_a}')
-
-        # Synergy assessment
-        avg_synergy = 0
-        count = 0
-        if synergy_ab is not None:
-            avg_synergy += synergy_ab
-            count += 1
-        if synergy_ba is not None:
-            avg_synergy += synergy_ba
-            count += 1
-        if count > 0:
-            avg_synergy /= count
-            if avg_synergy >= 7:
-                parts.append('Highly compatible for joint ventures')
-            elif avg_synergy >= 5:
-                parts.append('Good potential for collaboration')
-            else:
-                parts.append('Worth exploring partnership opportunities')
-
-        # Collaboration suggestion based on offerings
+        # --- Layer 2: Offering↔Seeking alignment ---
+        seeking_a = (profile_a.seeking or '').lower()
         offering_b = (profile_b.offering or '').lower()
-        if 'podcast' in offering_b:
-            parts.append("Suggested collaboration: Guest appearances on each other's podcasts/shows")
-        elif 'speaking' in offering_b or 'event' in offering_b:
-            parts.append('Suggested collaboration: Co-hosted webinar or speaking event')
-        elif 'email' in offering_b or 'list' in offering_b:
-            parts.append('Suggested collaboration: Cross-promotion to email audiences')
-        elif 'course' in offering_b or 'program' in offering_b:
-            parts.append('Suggested collaboration: Joint program or course bundle')
+        if seeking_a and offering_b:
+            seek_items = {s.strip() for s in seeking_a.split(',') if s.strip()}
+            offer_items = {o.strip() for o in offering_b.split(',') if o.strip()}
+            # Find items where seeking keyword appears in an offering
+            matched = set()
+            for seek in seek_items:
+                seek_words = {w for w in seek.split() if len(w) > 3}
+                for offer in offer_items:
+                    if any(sw in offer.lower() for sw in seek_words):
+                        matched.add(offer.strip().title())
+                        break
+            if matched:
+                match_text = ', '.join(sorted(matched)[:2])
+                parts.append(f'{name_b} offers {match_text} — aligning with your partnership goals')
 
-        return '. '.join(parts) if parts else 'Skills alignment detected'
+        # --- Layer 3: Concrete collaboration format ---
+        platforms_b = profile_b.content_platforms or {}
+        list_b = profile_b.list_size or 0
+        list_a = profile_a.list_size or 0
+        sig_programs = (profile_b.signature_programs or '').strip()
+
+        podcast_name = ''
+        if isinstance(platforms_b, dict):
+            podcast_name = (platforms_b.get('podcast_name') or '').strip()
+
+        if podcast_name:
+            reach = f' to their {self._format_reach(list_b)} audience' if list_b > 1000 else ''
+            parts.append(
+                f'Suggested next step: A guest appearance on {podcast_name}{reach}'
+            )
+        elif 'podcast' in offering_b:
+            parts.append(
+                f'Suggested next step: A podcast guest swap to cross-pollinate audiences'
+            )
+        elif ('speaking' in offering_b or 'event' in offering_b
+              or 'webinar' in offering_b):
+            niche_topic = self._clean_niche(profile_b.niche) or 'your shared area of focus'
+            parts.append(
+                f'Suggested next step: A co-hosted webinar on {niche_topic}'
+            )
+        elif 'course' in offering_b or 'program' in offering_b:
+            if sig_programs:
+                program = sig_programs.split(',')[0].strip()[:50]
+                parts.append(
+                    f'Suggested next step: Explore a joint program building on {program}'
+                )
+            else:
+                parts.append(
+                    f'Suggested next step: A joint program combining your complementary expertise'
+                )
+        elif list_a > 5000 and list_b > 5000:
+            combined = self._format_reach(list_a + list_b)
+            parts.append(
+                f'Suggested next step: A co-promoted email campaign to your combined {combined} subscribers'
+            )
+        else:
+            parts.append(
+                f'Suggested next step: An introductory call to explore mutual referral opportunities'
+            )
+
+        # --- Layer 4: Niche context (only when meaningful) ---
+        niche_a = (profile_a.niche or '').lower().strip()
+        niche_b = (profile_b.niche or '').lower().strip()
+        if (niche_a and niche_b
+                and niche_a not in self.NICHE_BLOCKLIST
+                and niche_b not in self.NICHE_BLOCKLIST):
+            if niche_a == niche_b and not parts:
+                # Only add niche if we don't have richer signals
+                parts.insert(0, f'Shared focus on {profile_b.niche.lower()}')
+
+        reason = '. '.join(parts) if parts else 'Complementary business profiles worth a conversation'
+        return TextSanitizer.validate_match_reason(reason)
+
+    @staticmethod
+    def _format_reach(size: int) -> str:
+        """Format audience size for display: 295000 → '295K'."""
+        if not size:
+            return ''
+        if size >= 1_000_000:
+            return f'{size / 1_000_000:.1f}M'
+        if size >= 1_000:
+            return f'{size // 1_000}K'
+        return str(size)
+
+    def _clean_niche(self, niche: str | None) -> str:
+        """Return niche if it's meaningful, empty string otherwise."""
+        if not niche:
+            return ''
+        cleaned = niche.strip().lower()
+        if cleaned in self.NICHE_BLOCKLIST or len(cleaned) < 4:
+            return ''
+        return niche.strip().lower()
+
+    # Words that shouldn't end a truncated phrase
+    _TRAILING_FILLER = {
+        'and', 'or', 'but', 'the', 'a', 'an', 'in', 'on', 'at', 'to',
+        'for', 'of', 'as', 'by', 'with', 'from', 'who', 'that', 'their',
+        'are', 'is', 'be', 'its', 'particularly', 'including', 'such',
+    }
+
+    @classmethod
+    def _truncate_at_boundary(cls, text: str, max_length: int) -> str:
+        """Truncate text at a word boundary, stripping trailing filler words."""
+        if not text or len(text) <= max_length:
+            return text
+        # Find the last space before the limit
+        cut = text.rfind(' ', 0, max_length)
+        if cut == -1:
+            cut = max_length
+        truncated = text[:cut].rstrip(' ,;')
+        # Strip trailing prepositions/conjunctions/articles
+        words = truncated.split()
+        while words and words[-1].lower() in cls._TRAILING_FILLER:
+            words.pop()
+        return ' '.join(words) if words else truncated
 
     def _score_directional(
         self,
