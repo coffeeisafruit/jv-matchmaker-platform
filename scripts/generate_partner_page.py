@@ -704,9 +704,7 @@ def generate_profile(profile: dict) -> str:
         tag_items = ''.join(f'<li>{_esc(t)}</li>' for t in tags)
         tags_html = f'<div class="section"><div class="section-header"><span class="section-title">Areas of Expertise</span></div><div class="section-body text-block"><ul>{tag_items}</ul></div></div>'
 
-    contact_html = ''
-    if email:
-        contact_html = f'<div class="contact-footer"><div>Questions or updates?</div><a href="mailto:{_esc(email)}">{_esc(email)}</a></div>'
+    contact_html = '<div class="contact-footer"><div>Questions or updates?</div><a href="mailto:help@jvmatches.com">help@jvmatches.com</a></div>'
 
     return f"""<!DOCTYPE html>
 <html lang="en">
