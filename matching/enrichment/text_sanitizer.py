@@ -1,12 +1,16 @@
 """
-Text sanitization for PDF rendering.
+Text sanitization and field validation.
 
 Fixes Unicode characters, word-safe truncation, capitalization, and formatting.
+Also validates AI-extracted fields for common quality issues.
 Extracted from match_enrichment.py for single-responsibility.
 """
 
+import logging
 import re
 from typing import List
+
+logger = logging.getLogger(__name__)
 
 
 class TextSanitizer:
@@ -145,3 +149,113 @@ class TextSanitizer:
             item = cls.capitalize_bullet(item)
             formatted.append(f"{bullet} {item}")
         return '\n'.join(formatted)
+
+    # ------------------------------------------------------------------
+    # Post-enrichment field validation
+    # ------------------------------------------------------------------
+
+    # Generic terms that are NOT real company names
+    GENERIC_COMPANY_BLOCKLIST = {
+        'app development', 'web development', 'software development',
+        'marketing', 'consulting', 'coaching', 'training', 'education',
+        'health', 'wellness', 'fitness', 'spirituality', 'personal development',
+        'real estate', 'finance', 'technology', 'business', 'sales',
+        'social media', 'content creation', 'public speaking', 'leadership',
+        'self improvement', 'self-improvement', 'mindfulness', 'meditation',
+        'entrepreneurship', 'digital marketing', 'online marketing',
+        'service provider', 'freelance', 'freelancer',
+    }
+
+    @classmethod
+    def clean_list_field(cls, text: str) -> str:
+        """Clean comma-separated list fields (offering, seeking, tags).
+
+        Fixes: leading commas, trailing commas, double commas, extra spaces.
+        """
+        if not text:
+            return ''
+        # Strip leading/trailing punctuation and whitespace
+        text = text.strip(' ,;:\n\t')
+        # Fix double commas or comma-space-comma
+        text = re.sub(r',\s*,', ',', text)
+        # Normalize spacing around commas
+        text = re.sub(r'\s*,\s*', ', ', text)
+        return text.strip()
+
+    @classmethod
+    def validate_company(cls, company: str, name: str = '') -> str:
+        """Validate company name isn't a generic business descriptor.
+
+        Returns the company name if valid, empty string if it's generic.
+        """
+        if not company:
+            return ''
+        normalized = company.strip().lower()
+        if normalized in cls.GENERIC_COMPANY_BLOCKLIST:
+            logger.warning(
+                f"Rejected generic company name '{company}' for {name}"
+            )
+            return ''
+        # Reject if it matches the person's name exactly
+        if name and normalized == name.strip().lower():
+            return ''
+        return company.strip()
+
+    @classmethod
+    def validate_bio(cls, bio: str, name: str = '') -> str:
+        """Validate bio text for common AI generation errors.
+
+        Catches: "X is a [offering_name]", "X serves as [offering_name]"
+        Returns cleaned bio or empty string if unfixable.
+        """
+        if not bio:
+            return ''
+        # Pattern: "[Name] is a [single noun that's an offering, not a role]"
+        # e.g. "David Riklan is a podcast at SelfGrowth.com"
+        offering_as_role = re.match(
+            r'^(.+?) is an? (podcast|email|website|webinar|course|'
+            r'newsletter|blog|audio book|ebook|app|software|platform)\b',
+            bio, re.IGNORECASE,
+        )
+        if offering_as_role:
+            logger.warning(
+                f"Bio for {name} has offering-as-role: '{bio[:60]}...'"
+            )
+            return ''
+        # Pattern: "[Name] serves as [Offering Name] at [Company]"
+        serves_as_offering = re.match(
+            r'^(.+?) serves as ([A-Z][A-Za-z ]+) at ',
+            bio,
+        )
+        if serves_as_offering:
+            role = serves_as_offering.group(2).strip()
+            # Check if the "role" looks like an offering (capitalized like a product)
+            if role in {'Public Speaking', 'Business Coaching', 'Email Marketing',
+                        'Content Creation', 'Podcast Host', 'Video Marketing',
+                        'Social Media', 'Web Design', 'Graphic Design'}:
+                logger.warning(
+                    f"Bio for {name} has offering-as-role: '{bio[:60]}...'"
+                )
+                return ''
+        return bio
+
+    @classmethod
+    def validate_match_reason(cls, reason: str) -> str:
+        """Strip internal scoring artifacts from match_reason text.
+
+        Removes: keyword arrays, warning symbols, score references.
+        """
+        if not reason:
+            return ''
+        # Remove "Keyword match: ['...'] ↔ ['...']" patterns
+        reason = re.sub(r"Keyword match:\s*\[.*?\]\s*[↔⟷]\s*\[.*?\]", '', reason)
+        # Remove ⚠️ warnings
+        reason = re.sub(r'⚠️[^.]*\.?\s*', '', reason)
+        # Remove score references like "(score: 73.2)"
+        reason = re.sub(r'\(score:\s*[\d.]+\)', '', reason)
+        # Remove internal field references like "synergy_score=0.85"
+        reason = re.sub(r'\w+_score\s*=\s*[\d.]+', '', reason)
+        # Clean up leftover punctuation/whitespace
+        reason = re.sub(r'\.\s*\.', '.', reason)
+        reason = re.sub(r'\s{2,}', ' ', reason)
+        return reason.strip(' .')

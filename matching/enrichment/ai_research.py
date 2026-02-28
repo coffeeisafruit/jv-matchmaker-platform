@@ -20,6 +20,8 @@ from urllib.parse import urlparse, urljoin
 
 from django.conf import settings
 
+from matching.enrichment.text_sanitizer import TextSanitizer
+
 logger = logging.getLogger(__name__)
 
 
@@ -899,23 +901,34 @@ IMPORTANT:
                 existing_value = existing.get(field, '').strip()
 
                 if new_value and (not existing_value or len(existing_value) < 10):
-                    result[field] = new_value
-                    extraction_metadata['fields_updated'].append(field)
-                    logger.info(f"  Added {field}: {new_value[:60]}...")
+                    # Clean list fields (offering, seeking) for leading commas
+                    if field in ('offering', 'seeking'):
+                        new_value = TextSanitizer.clean_list_field(new_value)
+                    if new_value:
+                        result[field] = new_value
+                        extraction_metadata['fields_updated'].append(field)
+                        logger.info(f"  Added {field}: {new_value[:60]}...")
 
             social_proof = data.get('social_proof', '').strip()
             if social_proof and not existing.get('bio'):
-                result['bio'] = social_proof
-                extraction_metadata['fields_updated'].append('bio')
+                # Validate bio for common AI errors (offering-as-role, etc.)
+                validated_bio = TextSanitizer.validate_bio(social_proof, name)
+                if validated_bio:
+                    result['bio'] = validated_bio
+                    extraction_metadata['fields_updated'].append('bio')
 
             # --- New optional fields (string-valued) ---
             for field in ['signature_programs', 'booking_link', 'niche', 'phone',
                           'current_projects', 'company', 'business_size']:
                 new_value = (data.get(field) or '').strip() if isinstance(data.get(field), str) else ''
                 if new_value:
-                    result[field] = new_value
-                    extraction_metadata['fields_updated'].append(field)
-                    logger.info(f"  Added {field}: {new_value[:60]}...")
+                    # Validate company names against generic blocklist
+                    if field == 'company':
+                        new_value = TextSanitizer.validate_company(new_value, name)
+                    if new_value:
+                        result[field] = new_value
+                        extraction_metadata['fields_updated'].append(field)
+                        logger.info(f"  Added {field}: {new_value[:60]}...")
 
             # list_size: must be an integer or None
             raw_list_size = data.get('list_size')

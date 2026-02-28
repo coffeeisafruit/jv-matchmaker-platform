@@ -797,6 +797,62 @@ def generate_profile(profile: dict) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Pre-render QA check
+# ---------------------------------------------------------------------------
+
+def _qa_check(profile: dict, matches: list[dict]) -> list[str]:
+    """Run data quality checks before rendering. Returns list of warnings."""
+    warnings = []
+    name = profile.get('name', 'Unknown')
+
+    # Check client profile
+    bio = profile.get('bio') or ''
+    if bio and re.search(r'is an? (podcast|email|website|webinar|course)\b', bio, re.I):
+        warnings.append(f'{name}: Bio has offering-as-role error: "{bio[:60]}..."')
+    if bio and 'They specialize' in bio:
+        warnings.append(f'{name}: Bio uses generic "They specialize" phrasing')
+
+    offering = profile.get('offering') or ''
+    if offering.startswith(',') or offering.startswith(';'):
+        warnings.append(f'{name}: Offering field starts with punctuation')
+
+    # Check each partner match
+    for m in matches:
+        pname = m.get('name', 'Unknown')
+        reason = m.get('match_reason') or ''
+        if 'Keyword match:' in reason or '⚠️' in reason:
+            warnings.append(f'{pname}: match_reason contains internal scoring language')
+        if re.search(r'\[\'.*?\'\]', reason):
+            warnings.append(f'{pname}: match_reason contains array syntax')
+
+        pbio = m.get('bio') or ''
+        if pbio and re.search(r'is an? (podcast|email|website|webinar|course)\b', pbio, re.I):
+            warnings.append(f'{pname}: Bio has offering-as-role error')
+        if pbio and 'serves as ' in pbio:
+            # Check if the role after "serves as" looks like an offering name
+            role_match = re.search(r'serves as ([A-Z][A-Za-z ]+?) at ', pbio)
+            if role_match and role_match.group(1) in {
+                'Public Speaking', 'Business Coaching', 'Email Marketing',
+                'Content Creation', 'Podcast Host', 'Video Marketing',
+            }:
+                warnings.append(f'{pname}: Bio has offering-as-role in "serves as" pattern')
+
+        poffering = m.get('offering') or ''
+        if poffering.startswith(',') or poffering.startswith(';'):
+            warnings.append(f'{pname}: Offering starts with punctuation')
+
+        what = m.get('what_you_do') or ''
+        if what and len(what) > 120:
+            truncated = what[:120]
+            if not any(truncated.endswith(s) for s in ['.', '!', '?']):
+                # Check if truncation would cut mid-word
+                if truncated[-1] != ' ' and (len(what) > 120 and what[120] != ' '):
+                    warnings.append(f'{pname}: what_you_do may truncate mid-word at 120 chars')
+
+    return warnings
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -825,6 +881,14 @@ def main():
     slug = _slug(profile['name'])
     output_dir = Path(args.output_dir) if args.output_dir else Path(__file__).resolve().parent.parent / 'pages' / slug
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Pre-render QA check — flag data quality issues before generating
+    warnings = _qa_check(profile, matches)
+    if warnings:
+        print(f'  ⚠ Data quality warnings ({len(warnings)}):')
+        for w in warnings:
+            print(f'    - {w}')
+        print()
 
     pages = {
         'index.html': generate_index(profile),

@@ -1,7 +1,7 @@
-"""Tests for TextSanitizer class in matching.enrichment.match_enrichment."""
+"""Tests for TextSanitizer class."""
 
 import pytest
-from matching.enrichment.match_enrichment import TextSanitizer
+from matching.enrichment.text_sanitizer import TextSanitizer
 
 
 # --- sanitize() tests ---
@@ -124,3 +124,94 @@ class TestNormalizeWhitespace:
     def test_excess_newlines_collapsed(self):
         result = TextSanitizer._normalize_whitespace('a\n\n\n\n\nb')
         assert result == 'a\n\nb'
+
+
+# --- clean_list_field() tests ---
+
+class TestCleanListField:
+    def test_leading_comma_stripped(self):
+        assert TextSanitizer.clean_list_field(', Audio Books, Content') == 'Audio Books, Content'
+
+    def test_leading_semicolon_stripped(self):
+        assert TextSanitizer.clean_list_field('; First, Second') == 'First, Second'
+
+    def test_double_comma_fixed(self):
+        assert TextSanitizer.clean_list_field('A,, B, C') == 'A, B, C'
+
+    def test_spacing_normalized(self):
+        assert TextSanitizer.clean_list_field('A ,B,  C') == 'A, B, C'
+
+    def test_empty_returns_empty(self):
+        assert TextSanitizer.clean_list_field('') == ''
+        assert TextSanitizer.clean_list_field('  ,  ') == ''
+
+
+# --- validate_company() tests ---
+
+class TestValidateCompany:
+    def test_real_company_passes(self):
+        assert TextSanitizer.validate_company('SelfGrowth.com') == 'SelfGrowth.com'
+
+    def test_generic_blocked(self):
+        assert TextSanitizer.validate_company('App Development') == ''
+        assert TextSanitizer.validate_company('coaching') == ''
+        assert TextSanitizer.validate_company('Personal Development') == ''
+
+    def test_name_match_blocked(self):
+        assert TextSanitizer.validate_company('John Smith', name='John Smith') == ''
+
+    def test_empty_returns_empty(self):
+        assert TextSanitizer.validate_company('') == ''
+
+    def test_legitimate_companies_with_generic_words(self):
+        # Companies that contain generic words but are real names
+        assert TextSanitizer.validate_company('The Effective Way™') == 'The Effective Way™'
+        assert TextSanitizer.validate_company('Beyond the Dawn Digital') == 'Beyond the Dawn Digital'
+
+
+# --- validate_bio() tests ---
+
+class TestValidateBio:
+    def test_good_bio_passes(self):
+        bio = 'David Riklan is the founder of SelfGrowth.com, specializing in personal growth.'
+        assert TextSanitizer.validate_bio(bio, 'David Riklan') == bio
+
+    def test_offering_as_role_blocked(self):
+        assert TextSanitizer.validate_bio('David is a podcast at SelfGrowth.com', 'David') == ''
+        assert TextSanitizer.validate_bio('Jane is a webinar platform', 'Jane') == ''
+
+    def test_serves_as_offering_blocked(self):
+        assert TextSanitizer.validate_bio('Shannon serves as Public Speaking at SNS', 'Shannon') == ''
+
+    def test_legitimate_serves_as_passes(self):
+        assert TextSanitizer.validate_bio('Jane serves as CEO at Acme Corp', 'Jane') != ''
+
+    def test_empty_returns_empty(self):
+        assert TextSanitizer.validate_bio('') == ''
+
+
+# --- validate_match_reason() tests ---
+
+class TestValidateMatchReason:
+    def test_keyword_arrays_stripped(self):
+        reason = "Keyword match: ['Speaking'] ↔ ['Article Submission Sites']"
+        assert TextSanitizer.validate_match_reason(reason) == ''
+
+    def test_warning_emoji_stripped(self):
+        reason = 'Good match. ⚠️ Based on profile data'
+        result = TextSanitizer.validate_match_reason(reason)
+        assert '⚠️' not in result
+        assert 'Good match' in result
+
+    def test_clean_reason_unchanged(self):
+        reason = 'Shared focus on wellness and personal development'
+        assert TextSanitizer.validate_match_reason(reason) == reason
+
+    def test_score_references_stripped(self):
+        reason = 'Good match (score: 73.2) for collaboration'
+        result = TextSanitizer.validate_match_reason(reason)
+        assert 'score' not in result
+        assert 'Good match' in result
+
+    def test_empty_returns_empty(self):
+        assert TextSanitizer.validate_match_reason('') == ''

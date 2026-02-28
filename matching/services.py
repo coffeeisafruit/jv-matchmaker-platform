@@ -1469,13 +1469,77 @@ class SupabaseMatchScoringService:
         else:
             hm = 0.0
 
+        match_reason = self._generate_match_reason(
+            profile_a, profile_b, breakdown_ab, breakdown_ba, hm
+        )
+
         return {
             'score_ab': round(score_ab, 2),
             'score_ba': round(score_ba, 2),
             'harmonic_mean': round(hm, 2),
             'breakdown_ab': breakdown_ab,
             'breakdown_ba': breakdown_ba,
+            'match_reason': match_reason,
         }
+
+    def _generate_match_reason(
+        self,
+        profile_a: SupabaseProfile,
+        profile_b: SupabaseProfile,
+        breakdown_ab: dict,
+        breakdown_ba: dict,
+        harmonic_mean: float,
+    ) -> str:
+        """Generate a human-readable match reason from ISMC breakdown.
+
+        Produces client-safe text with no internal scoring language.
+        """
+        parts = []
+
+        # Identify strongest dimensions
+        synergy_ab = breakdown_ab.get('synergy', {}).get('score')
+        synergy_ba = breakdown_ba.get('synergy', {}).get('score')
+        intent_b = breakdown_ab.get('intent', {}).get('score')
+
+        # Niche overlap
+        niche_a = (profile_a.niche or '').lower()
+        niche_b = (profile_b.niche or '').lower()
+        if niche_a and niche_b:
+            if niche_a == niche_b:
+                parts.append(f'Shared focus on {profile_b.niche.lower()}')
+            else:
+                parts.append(f'Complementary niches in {niche_b} and {niche_a}')
+
+        # Synergy assessment
+        avg_synergy = 0
+        count = 0
+        if synergy_ab is not None:
+            avg_synergy += synergy_ab
+            count += 1
+        if synergy_ba is not None:
+            avg_synergy += synergy_ba
+            count += 1
+        if count > 0:
+            avg_synergy /= count
+            if avg_synergy >= 7:
+                parts.append('Highly compatible for joint ventures')
+            elif avg_synergy >= 5:
+                parts.append('Good potential for collaboration')
+            else:
+                parts.append('Worth exploring partnership opportunities')
+
+        # Collaboration suggestion based on offerings
+        offering_b = (profile_b.offering or '').lower()
+        if 'podcast' in offering_b:
+            parts.append("Suggested collaboration: Guest appearances on each other's podcasts/shows")
+        elif 'speaking' in offering_b or 'event' in offering_b:
+            parts.append('Suggested collaboration: Co-hosted webinar or speaking event')
+        elif 'email' in offering_b or 'list' in offering_b:
+            parts.append('Suggested collaboration: Cross-promotion to email audiences')
+        elif 'course' in offering_b or 'program' in offering_b:
+            parts.append('Suggested collaboration: Joint program or course bundle')
+
+        return '. '.join(parts) if parts else 'Skills alignment detected'
 
     def _score_directional(
         self,
