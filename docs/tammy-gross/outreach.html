@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reel Novels &middot; Partner Outreach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --cream: #faf8f5; --ink: #1a1a1a; --forest: #1e3a2f; --gold: #c9a962; --gold-light: #e8d5a8; --muted: #8b8680; --blush: #f4e8e1; --card: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+        .container { max-width: 820px; margin: 0 auto; padding: 24px 20px 120px; position: relative; }
+        .hub-link { margin-bottom: 16px; font-size: 13px; }
+        .hub-link a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--gold-light); margin-bottom: 32px; }
+        .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 500; color: var(--forest); letter-spacing: -0.02em; }
+        .header-meta { margin-top: 12px; font-size: 13px; color: var(--muted); }
+        .header-meta a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .progress { text-align: center; padding: 28px 24px; background: var(--card); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 32px; position: relative; }
+        .progress::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 3px; background: var(--gold); border-radius: 0 0 2px 2px; }
+        .progress-number { font-family: 'Playfair Display', Georgia, serif; font-size: 48px; font-weight: 500; color: var(--forest); line-height: 1; }
+        .progress-number span { color: var(--muted); font-size: 32px; }
+        .progress-label { font-size: 13px; color: var(--muted); margin-top: 8px; letter-spacing: 0.02em; }
+        .progress-bar { height: 3px; background: var(--blush); border-radius: 2px; margin-top: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--forest), var(--gold)); border-radius: 2px; transition: width 0.4s ease; }
+        .reset-btn { margin-top: 16px; padding: 8px 16px; background: transparent; border: 1px solid var(--gold-light); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+        .reset-btn:hover { background: var(--blush); color: var(--forest); border-color: var(--gold); }
+        .section { margin-bottom: 36px; }
+        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--gold-light); }
+        .section-title { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 500; color: var(--forest); }
+        .section-count { font-size: 12px; color: var(--gold); font-weight: 600; }
+        .section-note { font-size: 11px; color: var(--muted); margin-left: auto; font-style: italic; }
+        .card { background: var(--card); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .card.done { opacity: 0.5; }
+        .card.done .card-name { text-decoration: line-through; text-decoration-color: var(--muted); }
+        .card-inner { display: flex; align-items: stretch; }
+        .card-check { width: 52px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-right: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; transition: background 0.15s; }
+        .card-check:hover { background: var(--blush); }
+        .checkbox { width: 22px; height: 22px; border: 2px solid var(--gold-light); border-radius: 50%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .card.done .checkbox { background: var(--forest); border-color: var(--forest); }
+        .card.done .checkbox::after { content: "\2713"; color: white; font-size: 12px; font-weight: 600; }
+        .card-content { flex: 1; padding: 16px 20px; min-width: 0; }
+        .card-name { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+        .card-company { font-size: 13px; color: var(--muted); }
+        .card-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .tag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 3px; letter-spacing: 0.03em; text-transform: uppercase; }
+        .tag-priority { background: var(--forest); color: white; }
+        .tag-fit { background: var(--blush); color: var(--forest); }
+        .tag-warn { background: #fef3c7; color: #92400e; }
+        .expand-hint { font-size: 10px; color: var(--gold); margin-top: 6px; opacity: 0.8; }
+        .card.expanded .expand-hint { display: none; }
+        .card-action { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 16px; gap: 6px; }
+        .card-reach { font-size: 11px; color: var(--muted); font-weight: 500; }
+        .action-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: var(--forest); color: white; border-radius: 8px; text-decoration: none; transition: transform 0.15s, background 0.15s; }
+        .action-btn:hover { transform: scale(1.08); background: var(--gold); }
+        .action-btn:active { transform: scale(0.98); }
+        .action-btn svg { width: 20px; height: 20px; }
+        .action-btn.linkedin { background: #0077b5; }
+        .action-btn.linkedin:hover { background: #005885; }
+        .card-details { display: none; padding: 0 20px 16px 72px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--blush); }
+        .card.expanded .card-details { display: block; }
+        .card-details-inner { padding-top: 12px; }
+        .detail-row { display: flex; gap: 8px; margin-bottom: 6px; }
+        .detail-label { font-weight: 600; color: var(--forest); min-width: 60px; flex-shrink: 0; }
+        .detail-value { color: var(--ink); }
+        .detail-value a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .detail-note { font-style: italic; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--gold-light); }
+        .footer-note { text-align: center; padding: 24px 0 0; font-size: 12px; color: var(--muted); border-top: 1px solid var(--gold-light); margin-top: 8px; }
+        .footer-note a { color: var(--forest); }
+        .template-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 2px solid var(--gold); padding: 16px 20px; z-index: 100; }
+        .template-bar-inner { max-width: 820px; margin: 0 auto; display: flex; gap: 12px; }
+        .template-btn { flex: 1; padding: 14px 16px; background: var(--cream); border: 1px solid var(--gold-light); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--forest); cursor: pointer; transition: all 0.15s; }
+        .template-btn:hover { background: var(--blush); border-color: var(--gold); }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(30, 58, 47, 0.6); backdrop-filter: blur(4px); z-index: 200; align-items: flex-end; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: var(--card); width: 100%; max-width: 820px; max-height: 85vh; border-radius: 16px 16px 0 0; overflow: hidden; animation: slideUp 0.25s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--gold-light); }
+        .modal-title { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 500; color: var(--forest); }
+        .modal-close { width: 36px; height: 36px; border: none; background: var(--cream); border-radius: 50%; font-size: 20px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+        .modal-close:hover { background: var(--blush); }
+        .modal-body { padding: 24px; overflow-y: auto; max-height: 55vh; }
+        .template-text { font-size: 14px; line-height: 1.7; white-space: pre-wrap; background: var(--cream); padding: 20px; border-radius: 8px; border: 1px solid var(--gold-light); color: var(--ink); }
+        .modal-action { padding: 20px 24px; border-top: 1px solid var(--gold-light); }
+        .copy-btn { width: 100%; padding: 16px; background: var(--forest); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+        .copy-btn:hover { background: var(--gold); color: var(--ink); }
+        @media (max-width: 480px) { .container { padding: 16px 16px 120px; } .header h1 { font-size: 24px; } .progress-number { font-size: 40px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p class="hub-link"><a href="index.html">&larr; Partner report home</a></p>
+        <header class="header">
+            <div class="header-eyebrow">Partner Outreach</div>
+            <h1>Reel Novels</h1>
+            <div class="header-meta">Tammy Gross &middot; <a href="profile.html">View Profile</a></div>
+        </header>
+        <div class="progress">
+            <div class="progress-number"><span id="doneCount">0</span><span>/</span><span id="totalCount">10</span></div>
+            <div class="progress-label">partners contacted</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+            <button class="reset-btn" type="button" onclick="resetProgress()">Reset Progress</button>
+        </div>
+        
+        <section class="section" data-section-key="strong">
+            <div class="section-header">
+                <span class="section-title">Strong Matches</span>
+                <span class="section-count">7</span>
+                <span class="section-note">High potential &mdash; worth reaching out</span>
+            </div>
+            
+            <div class="card" data-partner-id="0" data-section-key="strong" data-match-score="64.9" data-partner-name="Suzanne Evans">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Suzanne Evans</div>
+                        <div class="card-company">Driven Inc. &middot; Provides world class training on speaking, selling from the stage.</div>
+                        <div class="card-tags"><span class="tag tag-fit">91K List</span><span class="tag tag-fit">Speaking</span><span class="tag tag-fit">Stage Selling</span><span class="tag tag-fit">High Ticket Sales</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">91K</span><a href="mailto:evans@driveninc.com" class="action-btn" onclick="event.stopPropagation()" title="Email Suzanne Evans"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:evans@driveninc.com">evans@driveninc.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">91K subscribers. Business owners looking to start or grow their business using speaking and selling from the stage. Offering: speaking training, selling training, events training, stage selling success training</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Tammy Gross offers. Complementary niches. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://driveninc.com/" target="_blank" rel="noopener">https://driveninc.com/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 917-324-2574</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/suzanne-evans-driven" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">NY Times Best-Selling Author, Inc 500/5000 list company, grew from secretary to 7 million dollar business</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="1" data-section-key="strong" data-match-score="62.4" data-partner-name="Heather Black">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Heather Black</div>
+                        <div class="card-company">Phoenix Collaborations &middot; I help my clients get clear on their goals so speaking and events support their business and aren&#x27;t just another.</div>
+                        <div class="card-tags"><span class="tag tag-fit">2K List</span><span class="tag tag-fit">Speaking Strategist</span><span class="tag tag-fit">Event Expert</span><span class="tag tag-fit">Detail Wrangler</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">2K</span><a href="mailto:heather@tedxlasvegas.org" class="action-btn" onclick="event.stopPropagation()" title="Email Heather Black"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:heather@tedxlasvegas.org">heather@tedxlasvegas.org</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">2K subscribers. I work with purpose-driven speakers and established business owners who feel called to make an impact… but find themselves stuck in the messy middle. Offering: Business Coaching, Business Consulting, Event Hosting, Event Management, Speaker Training</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://www.phoenixcollaborations.com/about" target="_blank" rel="noopener">https://www.phoenixcollaborations.com/about</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 803-603-3554</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/phoenixcollaborations" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Heather Black serves as Speaker Relations &amp; Readiness Coordinator at Phoenix Collaborations. Specializing in nonprofit organization management.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="2" data-section-key="strong" data-match-score="61.6" data-partner-name="Sharon Miles">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Sharon Miles</div>
+                        <div class="card-company">QARS Solutions &middot; Lead QARS Solutions providing business consulting, podcasting, and course creation training for speakers.</div>
+                        <div class="card-tags"><span class="tag tag-fit">223 List</span><span class="tag tag-fit">Consulting</span><span class="tag tag-fit">Provider</span><span class="tag tag-fit">Business Skills</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">223</span><a href="mailto:symiles@qarssolutions.com" class="action-btn" onclick="event.stopPropagation()" title="Email Sharon Miles"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:symiles@qarssolutions.com">symiles@qarssolutions.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">223 subscribers. Service providers, business consultants, and speakers seeking collaboration, event hosting, and course creation partnerships. Offering: Business Coaching, Business Consulting, Course Creation Training, Podcast Host</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://linktr.ee/SharonYvonneMiles" target="_blank" rel="noopener">https://linktr.ee/SharonYvonneMiles</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 312-933-7074</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/sharonyvonnemiles" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Sharon Miles serves as Chief Executive Officer at QARS Solutions. They provide business coaching, business consulting, course creation training, podcast host. Their areas of expertise include management consulting, Business Skills, Service Provider.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="3" data-section-key="strong" data-match-score="61.4" data-partner-name="Jane Deuber">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Jane Deuber</div>
+                        <div class="card-company">Magpai, Global Experts Accelerator &middot; Jane Deuber is a business strategist and entrepreneur who helps coaches, consultants.</div>
+                        <div class="card-tags"><span class="tag tag-fit">10K List</span><span class="tag tag-fit">Business Strategy</span><span class="tag tag-fit">Assessment Marketing</span><span class="tag tag-fit">Entrepreneurship</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">10K</span><a href="mailto:jane@magpai.com" class="action-btn" onclick="event.stopPropagation()" title="Email Jane Deuber"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:jane@magpai.com">jane@magpai.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">10K subscribers. Jane serves mission-driven entrepreneurs and business professionals looking to scale their businesses and improve their marketing strategies. Offering: Business Consulting, Email List Building, Email Marketing Software, Lead Generation Specialists, Sales Training</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://legalwebsitewarrior.com/podcast/jane-deuber/" target="_blank" rel="noopener">https://legalwebsitewarrior.com/podcast/jane-deuber/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 831-869-9233</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/janedeuber" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Two-time best-selling author, international speaker, seven-time successful entrepreneur</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="4" data-section-key="strong" data-match-score="61.1" data-partner-name="David Edward">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">David Edward</div>
+                        <div class="card-company">Strategic Initiatives Group &middot; Guiding leaders and their teams through rapid change and disruption, transforming the complex into the compelling.</div>
+                        <div class="card-tags"><span class="tag tag-fit">Leadership</span><span class="tag tag-fit">Transformation</span><span class="tag tag-fit">Disruption</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><a href="mailto:david@sigunlimited.com" class="action-btn" onclick="event.stopPropagation()" title="Email David Edward"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:david@sigunlimited.com">david@sigunlimited.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">Forward-thinking companies around the world and across major business sectors, including tech, manufacturing and professional services. Offering: Business Coaching, Business Consulting, Group Coaching</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://sigunlimited.com/about-us/" target="_blank" rel="noopener">https://sigunlimited.com/about-us/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 519-878-2593</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="http://www.linkedin.com/in/david-edward-7a889b7" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">David Edward is a Founder &amp; Growth Specialist at Strategic Initiatives Group. They specialize in management consulting. They provide business coaching and business consulting. They focus on business skills and service provider.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="5" data-section-key="strong" data-match-score="61.1" data-partner-name="Julie Hood">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Julie Hood</div>
+                        <div class="card-company">CourseCreatorsHQ.com &middot; Julie Hood is the CEO of CourseCreatorsHQ, a company that helps entrepreneurs create successful online mini-courses.</div>
+                        <div class="card-tags"><span class="tag tag-fit">11K List</span><span class="tag tag-fit">Online Courses</span><span class="tag tag-fit">Mini-Courses</span><span class="tag tag-fit">Entrepreneurship</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">11K</span><a href="mailto:julie.hood@rubinbrown.com" class="action-btn" onclick="event.stopPropagation()" title="Email Julie Hood"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:julie.hood@rubinbrown.com">julie.hood@rubinbrown.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">11K subscribers. Entrepreneurs looking to create and market online mini-courses. Offering: Business Consulting, Coach Marketing Training, Content Creation, Content Marketing, Course Creation Training</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://ericarosscoach.com/1404/podcast-season-2-episode-174-how-mini-courses-create-quick-wins-with-guest-julie-hood-ceo-of-cchq/" target="_blank" rel="noopener">https://ericarosscoach.com/1404/podcast-season-2-episode-174-how-mini-courses-create-quick-wins-with-guest-julie-hood-ceo-of-cchq/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 636-946-5148</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="http://www.linkedin.com/in/juliehoodonline" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Julie Hood is Information Technology Consultant at CourseCreatorsHQ.com, specializing in Business Skills, Service Provider, and Success within the accounting sector. They focus on partnerships with Accountants and financial professionals creating courses for content partnership opportunities.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="6" data-section-key="strong" data-match-score="60.1" data-partner-name="Catharine O&#x27;Leary">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Catharine O&#x27;Leary</div>
+                        <div class="card-company">Client Intelligence Agency &middot; Delivers quiz funnels, email list building, lead generation.</div>
+                        <div class="card-tags"><span class="tag tag-fit">Consulting</span><span class="tag tag-fit">Training</span><span class="tag tag-fit">Success</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><a href="mailto:catharine@catharineoleary.com" class="action-btn" onclick="event.stopPropagation()" title="Email Catharine O&#x27;Leary"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:catharine@catharineoleary.com">catharine@catharineoleary.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">Coaches building client pipelines, funnel-focused entrepreneurs, and service providers seeking quiz funnels, lead generation, and email list growth. Offering: Business Coaching, Coach Marketing Training, Email List Building, Funnel Creation Consulting, Funnel Creation Tools, Group Coaching, Lead Generation Specialists, Marketing Coach, Podcast Host, Podcast Marketing</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="http://www.clientintelligenceagency.com" target="_blank" rel="noopener">http://www.clientintelligenceagency.com</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 519-216-4045</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="http://www.linkedin.com/in/catharineoleary" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Catharine O&#x27;Leary is the founder of Client Intelligence Agency, specializing in Founder and CEO, serving management consulting.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section" data-section-key="good">
+            <div class="section-header">
+                <span class="section-title">Good Fit</span>
+                <span class="section-count">3</span>
+                <span class="section-note">Solid alignment &mdash; follow up as capacity allows</span>
+            </div>
+            
+            <div class="card" data-partner-id="7" data-section-key="good" data-match-score="59.4" data-partner-name="Ellen Finkelstein">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Ellen Finkelstein</div>
+                        <div class="card-company">Ellen Finkelstein, Inc. &middot; Ellen Finkelstein is an expert in PowerPoint and presentation skills, providing training and consulting services.</div>
+                        <div class="card-tags"><span class="tag tag-fit">11K List</span><span class="tag tag-fit">Powerpoint</span><span class="tag tag-fit">Presentations</span><span class="tag tag-fit">Training</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">11K</span><a href="mailto:ellen@ellenfinkelstein.com" class="action-btn" onclick="event.stopPropagation()" title="Email Ellen Finkelstein"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:ellen@ellenfinkelstein.com">ellen@ellenfinkelstein.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">11K subscribers. Professionals who need to create effective PowerPoint presentations for work. Offering: Specializes in Business Skills, Service Provider, and Success solutions and services</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://www.ellenfinkelstein.com/" target="_blank" rel="noopener">https://www.ellenfinkelstein.com/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 800-285-7772</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/ellenfinkelstein" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Ellen Finkelstein works at Ellen Finkelstein, Inc. They specialize in information technology &amp; services. They focus on business skills and service provider.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="8" data-section-key="good" data-match-score="58.8" data-partner-name="Carol Abrahamson">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Carol Abrahamson</div>
+                        <div class="card-company">Executive Authors &middot; Founded by executive author expert, strategist, mentor, coach and multi-award-winning author Carol Abrahamson.</div>
+                        <div class="card-tags"><span class="tag tag-fit">2K List</span><span class="tag tag-fit">Executive Author</span><span class="tag tag-fit">Business Growth</span><span class="tag tag-fit">Book Strategy</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">2K</span><a href="mailto:carol@executiveauthors.com" class="action-btn" onclick="event.stopPropagation()" title="Email Carol Abrahamson"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:carol@executiveauthors.com">carol@executiveauthors.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">2K subscribers. Executives seeking important business outcomes from their book. Offering: Branding, Business Coaching, Business Consulting, Group Coaching, Mastermind Groups, Online Education for Business Owners, Podcast Host, Publishing Services</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://executiveauthors.com/about/meet-carol-abrahamson/" target="_blank" rel="noopener">https://executiveauthors.com/about/meet-carol-abrahamson/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 779-777-6966</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="http://www.linkedin.com/in/carolabrahamson" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Carol Abrahamson is the founder of Executive Authors, specializing in Founder &amp; CEO, serving publishing.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="9" data-section-key="good" data-match-score="58.7" data-partner-name="Sally A Curtis">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Sally A Curtis</div>
+                        <div class="card-company">Content Repurposing Wiz &middot; Sally A. Curtis is a professional speaker specializing in content strategy and marketing.</div>
+                        <div class="card-tags"><span class="tag tag-fit">29K List</span><span class="tag tag-fit">Content Creation</span><span class="tag tag-fit">Content Strategy</span><span class="tag tag-fit">Marketing</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">29K</span><a href="mailto:sallycurtis@drivingmissdaisy.com.au" class="action-btn" onclick="event.stopPropagation()" title="Email Sally A Curtis"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:sallycurtis@drivingmissdaisy.com.au">sallycurtis@drivingmissdaisy.com.au</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">29K subscribers. Sally serves businesses and organizations looking to enhance their content creation and strategy, particularly those struggling with content monetization and audience engagement. Offering: Podcast (Success Secrets Exposed), speaking services, content amplification</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Tammy Gross offers. Complementary niches. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://www.sallyacurtis.biz/" target="_blank" rel="noopener">https://www.sallyacurtis.biz/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+61 407 607 809</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="http://www.linkedin.com/in/sallyacurtis" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Top 20 Australia Female Podcaster, 25+ years experience</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="footer-note">Report generated for Tammy Gross.</div>
+    </div>
+    <div class="template-bar">
+        <div class="template-bar-inner">
+            <button class="template-btn" type="button" onclick="showTemplate('initial')">Copy Outreach Email</button>
+            <button class="template-btn" type="button" onclick="showTemplate('followup')">Copy Follow-up</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Email Template</div>
+                <button class="modal-close" type="button" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body"><div class="template-text" id="modalContent"></div></div>
+            <div class="modal-action"><button class="copy-btn" type="button" id="copyBtn" onclick="copyAndClose()">Copy to Clipboard</button></div>
+        </div>
+    </div>
+    <script>
+        var templates = {"initial": {"text": "Hi [Partner Name],\n\nI came across your work and love what you're doing for [their audience]. I'm Tammy Gross with Reel Novels, and I think our audiences could really benefit from knowing about each other.\n\nWould you be open to a quick call to explore some partnership ideas? Here's my calendar if you'd like to pick a time: [Insert booking link]\n\nBest,\nTammy Gross", "title": "Initial Outreach"}, "followup": {"text": "Hi [Partner Name],\n\nJust following up on my earlier message. I'd love to connect and explore how we might support each other's communities.\n\nNo pressure at all \u2014 just thought there might be a great fit.\n\nWarmly,\nTammy Gross", "title": "Follow-Up"}};
+        var STORAGE_KEY = 'report_outreach_tammy-gross';
+        var activeTemplateId = null;
+        function toggleCard(card) { card.classList.toggle('done'); updateProgress(); saveState(); }
+        function toggleExpand(card) { card.classList.toggle('expanded'); }
+        function updateProgress() {
+            var total = document.querySelectorAll('.card').length;
+            var done = document.querySelectorAll('.card.done').length;
+            document.getElementById('doneCount').textContent = done;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('progressFill').style.width = (total ? (done / total * 100) : 0) + '%';
+        }
+        function saveState() {
+            var state = [];
+            document.querySelectorAll('.card').forEach(function(card, i) { if (card.classList.contains('done')) state.push(i); });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+        function loadState() {
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) { try { var state = JSON.parse(saved); var cards = document.querySelectorAll('.card'); state.forEach(function(i) { if (cards[i]) cards[i].classList.add('done'); }); } catch(e) {} }
+            updateProgress();
+        }
+        function resetProgress() {
+            if (confirm('Clear all progress? This cannot be undone.')) {
+                localStorage.removeItem(STORAGE_KEY);
+                document.querySelectorAll('.card.done').forEach(function(card) { card.classList.remove('done'); });
+                updateProgress();
+            }
+        }
+        function showTemplate(id) {
+            activeTemplateId = id;
+            var tmpl = templates[id]; if (!tmpl) return;
+            document.getElementById('modalTitle').textContent = tmpl.title || 'Email Template';
+            document.getElementById('modalContent').textContent = tmpl.text || '';
+            document.getElementById('modal').classList.add('open');
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('open');
+            var btn = document.getElementById('copyBtn'); btn.textContent = 'Copy to Clipboard'; btn.style.background = ''; btn.style.color = '';
+        }
+        function copyAndClose() {
+            var tmpl = templates[activeTemplateId]; if (!tmpl) return;
+            navigator.clipboard.writeText(tmpl.text || '').then(function() {
+                var btn = document.getElementById('copyBtn'); btn.textContent = 'Copied!'; btn.style.background = 'var(--gold)'; btn.style.color = 'var(--ink)';
+                setTimeout(function() { closeModal(); }, 800);
+            });
+        }
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+        loadState();
+    </script>
+</body>
+</html>

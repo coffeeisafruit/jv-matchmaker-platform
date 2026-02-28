@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gunwerks &middot; Partner Outreach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --cream: #faf8f5; --ink: #1a1a1a; --forest: #1e3a2f; --gold: #c9a962; --gold-light: #e8d5a8; --muted: #8b8680; --blush: #f4e8e1; --card: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+        .container { max-width: 820px; margin: 0 auto; padding: 24px 20px 120px; position: relative; }
+        .hub-link { margin-bottom: 16px; font-size: 13px; }
+        .hub-link a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--gold-light); margin-bottom: 32px; }
+        .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 500; color: var(--forest); letter-spacing: -0.02em; }
+        .header-meta { margin-top: 12px; font-size: 13px; color: var(--muted); }
+        .header-meta a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .progress { text-align: center; padding: 28px 24px; background: var(--card); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 32px; position: relative; }
+        .progress::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 3px; background: var(--gold); border-radius: 0 0 2px 2px; }
+        .progress-number { font-family: 'Playfair Display', Georgia, serif; font-size: 48px; font-weight: 500; color: var(--forest); line-height: 1; }
+        .progress-number span { color: var(--muted); font-size: 32px; }
+        .progress-label { font-size: 13px; color: var(--muted); margin-top: 8px; letter-spacing: 0.02em; }
+        .progress-bar { height: 3px; background: var(--blush); border-radius: 2px; margin-top: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--forest), var(--gold)); border-radius: 2px; transition: width 0.4s ease; }
+        .reset-btn { margin-top: 16px; padding: 8px 16px; background: transparent; border: 1px solid var(--gold-light); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+        .reset-btn:hover { background: var(--blush); color: var(--forest); border-color: var(--gold); }
+        .section { margin-bottom: 36px; }
+        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--gold-light); }
+        .section-title { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 500; color: var(--forest); }
+        .section-count { font-size: 12px; color: var(--gold); font-weight: 600; }
+        .section-note { font-size: 11px; color: var(--muted); margin-left: auto; font-style: italic; }
+        .card { background: var(--card); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .card.done { opacity: 0.5; }
+        .card.done .card-name { text-decoration: line-through; text-decoration-color: var(--muted); }
+        .card-inner { display: flex; align-items: stretch; }
+        .card-check { width: 52px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-right: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; transition: background 0.15s; }
+        .card-check:hover { background: var(--blush); }
+        .checkbox { width: 22px; height: 22px; border: 2px solid var(--gold-light); border-radius: 50%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .card.done .checkbox { background: var(--forest); border-color: var(--forest); }
+        .card.done .checkbox::after { content: "\2713"; color: white; font-size: 12px; font-weight: 600; }
+        .card-content { flex: 1; padding: 16px 20px; min-width: 0; }
+        .card-name { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+        .card-company { font-size: 13px; color: var(--muted); }
+        .card-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .tag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 3px; letter-spacing: 0.03em; text-transform: uppercase; }
+        .tag-priority { background: var(--forest); color: white; }
+        .tag-fit { background: var(--blush); color: var(--forest); }
+        .tag-warn { background: #fef3c7; color: #92400e; }
+        .expand-hint { font-size: 10px; color: var(--gold); margin-top: 6px; opacity: 0.8; }
+        .card.expanded .expand-hint { display: none; }
+        .card-action { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 16px; gap: 6px; }
+        .card-reach { font-size: 11px; color: var(--muted); font-weight: 500; }
+        .action-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: var(--forest); color: white; border-radius: 8px; text-decoration: none; transition: transform 0.15s, background 0.15s; }
+        .action-btn:hover { transform: scale(1.08); background: var(--gold); }
+        .action-btn:active { transform: scale(0.98); }
+        .action-btn svg { width: 20px; height: 20px; }
+        .action-btn.linkedin { background: #0077b5; }
+        .action-btn.linkedin:hover { background: #005885; }
+        .card-details { display: none; padding: 0 20px 16px 72px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--blush); }
+        .card.expanded .card-details { display: block; }
+        .card-details-inner { padding-top: 12px; }
+        .detail-row { display: flex; gap: 8px; margin-bottom: 6px; }
+        .detail-label { font-weight: 600; color: var(--forest); min-width: 60px; flex-shrink: 0; }
+        .detail-value { color: var(--ink); }
+        .detail-value a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .detail-note { font-style: italic; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--gold-light); }
+        .footer-note { text-align: center; padding: 24px 0 0; font-size: 12px; color: var(--muted); border-top: 1px solid var(--gold-light); margin-top: 8px; }
+        .footer-note a { color: var(--forest); }
+        .template-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 2px solid var(--gold); padding: 16px 20px; z-index: 100; }
+        .template-bar-inner { max-width: 820px; margin: 0 auto; display: flex; gap: 12px; }
+        .template-btn { flex: 1; padding: 14px 16px; background: var(--cream); border: 1px solid var(--gold-light); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--forest); cursor: pointer; transition: all 0.15s; }
+        .template-btn:hover { background: var(--blush); border-color: var(--gold); }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(30, 58, 47, 0.6); backdrop-filter: blur(4px); z-index: 200; align-items: flex-end; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: var(--card); width: 100%; max-width: 820px; max-height: 85vh; border-radius: 16px 16px 0 0; overflow: hidden; animation: slideUp 0.25s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--gold-light); }
+        .modal-title { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 500; color: var(--forest); }
+        .modal-close { width: 36px; height: 36px; border: none; background: var(--cream); border-radius: 50%; font-size: 20px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+        .modal-close:hover { background: var(--blush); }
+        .modal-body { padding: 24px; overflow-y: auto; max-height: 55vh; }
+        .template-text { font-size: 14px; line-height: 1.7; white-space: pre-wrap; background: var(--cream); padding: 20px; border-radius: 8px; border: 1px solid var(--gold-light); color: var(--ink); }
+        .modal-action { padding: 20px 24px; border-top: 1px solid var(--gold-light); }
+        .copy-btn { width: 100%; padding: 16px; background: var(--forest); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+        .copy-btn:hover { background: var(--gold); color: var(--ink); }
+        @media (max-width: 480px) { .container { padding: 16px 16px 120px; } .header h1 { font-size: 24px; } .progress-number { font-size: 40px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p class="hub-link"><a href="index.html">&larr; Partner report home</a></p>
+        <header class="header">
+            <div class="header-eyebrow">Partner Outreach</div>
+            <h1>Gunwerks</h1>
+            <div class="header-meta">Jason Byer &middot; <a href="profile.html">View Profile</a></div>
+        </header>
+        <div class="progress">
+            <div class="progress-number"><span id="doneCount">0</span><span>/</span><span id="totalCount">10</span></div>
+            <div class="progress-label">partners contacted</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+            <button class="reset-btn" type="button" onclick="resetProgress()">Reset Progress</button>
+        </div>
+        
+        <section class="section" data-section-key="strong">
+            <div class="section-header">
+                <span class="section-title">Strong Matches</span>
+                <span class="section-count">5</span>
+                <span class="section-note">High potential &mdash; worth reaching out</span>
+            </div>
+            
+            <div class="card" data-partner-id="0" data-section-key="strong" data-match-score="64.0" data-partner-name="Suzanne Evans">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Suzanne Evans</div>
+                        <div class="card-company">Driven Inc. &middot; Provides world class training on speaking, selling from the stage.</div>
+                        <div class="card-tags"><span class="tag tag-fit">91K List</span><span class="tag tag-fit">Speaking</span><span class="tag tag-fit">Stage Selling</span><span class="tag tag-fit">High Ticket Sales</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">91K</span><a href="mailto:evans@driveninc.com" class="action-btn" onclick="event.stopPropagation()" title="Email Suzanne Evans"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:evans@driveninc.com">evans@driveninc.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">91K subscribers. Business owners looking to start or grow their business using speaking and selling from the stage. Offering: speaking training, selling training, events training, stage selling success training</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Suzanne Evans offers. Complementary niches. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://driveninc.com/" target="_blank" rel="noopener">https://driveninc.com/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 917-324-2574</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/suzanne-evans-driven" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">NY Times Best-Selling Author, Inc 500/5000 list company, grew from secretary to 7 million dollar business</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="1" data-section-key="strong" data-match-score="63.6" data-partner-name="Julie Hood">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Julie Hood</div>
+                        <div class="card-company">CourseCreatorsHQ.com &middot; Julie Hood is the CEO of CourseCreatorsHQ, a company that helps entrepreneurs create successful online mini-courses.</div>
+                        <div class="card-tags"><span class="tag tag-fit">11K List</span><span class="tag tag-fit">Online Courses</span><span class="tag tag-fit">Mini-Courses</span><span class="tag tag-fit">Entrepreneurship</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">11K</span><a href="mailto:julie.hood@rubinbrown.com" class="action-btn" onclick="event.stopPropagation()" title="Email Julie Hood"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:julie.hood@rubinbrown.com">julie.hood@rubinbrown.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">11K subscribers. Entrepreneurs looking to create and market online mini-courses. Offering: Business Consulting, Coach Marketing Training, Content Creation, Content Marketing, Course Creation Training</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://ericarosscoach.com/1404/podcast-season-2-episode-174-how-mini-courses-create-quick-wins-with-guest-julie-hood-ceo-of-cchq/" target="_blank" rel="noopener">https://ericarosscoach.com/1404/podcast-season-2-episode-174-how-mini-courses-create-quick-wins-with-guest-julie-hood-ceo-of-cchq/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 636-946-5148</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="http://www.linkedin.com/in/juliehoodonline" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Julie Hood is Information Technology Consultant at CourseCreatorsHQ.com, specializing in Business Skills, Service Provider, and Success within the accounting sector. They focus on partnerships with Accountants and financial professionals creating courses for content partnership opportunities.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="2" data-section-key="strong" data-match-score="61.6" data-partner-name="Colleen Davis">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Colleen Davis</div>
+                        <div class="card-company">Intentional Visibility &middot; Intentional Visibility provides done-for-you branding, websites, books.</div>
+                        <div class="card-tags"><span class="tag tag-fit">8K List</span><span class="tag tag-fit">Branding</span><span class="tag tag-fit">Websites</span><span class="tag tag-fit">Books</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">8K</span><a href="mailto:colleen@colleendavis.com" class="action-btn" onclick="event.stopPropagation()" title="Email Colleen Davis"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:colleen@colleendavis.com">colleen@colleendavis.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">8K subscribers. High-achieving entrepreneurs and purpose-driven leaders Offering: Branding, Business Consulting, Content Creation, Copywriting, Graphic Designers, Logo Design, Public Speaking, Website Design</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://intentionalvisibility.com/" target="_blank" rel="noopener">https://intentionalvisibility.com/</a></span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/intentionalbranding" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Colleen Davis is the founder of Intentional Visibility, specializing in Branding, Business Consulting, Content Creation, Copywriting, Graphic Designers, Logo Design, Public Speaking, Website Design, serving Business Skills, Service Provider.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="3" data-section-key="strong" data-match-score="60.9" data-partner-name="Barbara Cunningham">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Barbara Cunningham</div>
+                        <div class="card-company">Loyalty Processing &middot; Barbara Cunningham helps businesses reduce credit card processing fees by implementing an Interchange Plus pricing.</div>
+                        <div class="card-tags"><span class="tag tag-fit">3K List</span><span class="tag tag-fit">Credit Card Processing</span><span class="tag tag-fit">Financial Services</span><span class="tag tag-fit">Cost Reduction</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">3K</span><a href="mailto:Barbara@LoyaltyProcessing.com" class="action-btn" onclick="event.stopPropagation()" title="Email Barbara Cunningham"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:Barbara@LoyaltyProcessing.com">Barbara@LoyaltyProcessing.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">3K subscribers. She serves CFOs, Controllers, Owners, E-Commerce Merchants, B2B companies, Retail Stores, Coaches, and Educational Institutions. Offering: Business Consulting, Merchant Services, Shoppingcarts</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">213.248.6787</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/barbaracunnigham" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">17 years of experience, ETA Certified Payment Professional, served over 1,000 clients.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="4" data-section-key="strong" data-match-score="60.2" data-partner-name="Can Provide Virtual">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Can Provide Virtual</div>
+                        <div class="card-company">Professionals Inc. &middot; Provides virtual assistant staffing, business coaching, and professional services for growing companies.</div>
+                        <div class="card-tags"><span class="tag tag-fit">914 List</span><span class="tag tag-fit">Consulting</span><span class="tag tag-fit">Pr</span><span class="tag tag-fit">Success</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">914</span><a href="mailto:cpvprofessionals@gmail.com" class="action-btn" onclick="event.stopPropagation()" title="Email Can Provide Virtual"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:cpvprofessionals@gmail.com">cpvprofessionals@gmail.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">914 subscribers. Growing companies, service professionals, and entrepreneurs seeking virtual assistant staffing, business coaching, and operational support. Offering: Business Coachi</span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 403-647-4183</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/company/virtualprofessionalsgroup" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Can Provide Virtual is the founder of Professionals Inc., specializing in Business Coachi, serving Business Skills, Service Provider, Success.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="section" data-section-key="good">
+            <div class="section-header">
+                <span class="section-title">Good Fit</span>
+                <span class="section-count">5</span>
+                <span class="section-note">Solid alignment &mdash; follow up as capacity allows</span>
+            </div>
+            
+            <div class="card" data-partner-id="5" data-section-key="good" data-match-score="59.6" data-partner-name="Angeline Gillings">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Angeline Gillings</div>
+                        <div class="card-company">AMP-G &middot; Provides management consulting and business transformation services for mid-sized organizations.</div>
+                        <div class="card-tags"><span class="tag tag-fit">Consulting</span><span class="tag tag-fit">Development</span><span class="tag tag-fit">Business Coaching</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><a href="mailto:angeline@ampgbusiness.com" class="action-btn" onclick="event.stopPropagation()" title="Email Angeline Gillings"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:angeline@ampgbusiness.com">angeline@ampgbusiness.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">Mid-sized businesses and organizations needing management consulting and business transformation. Offering: Business Coaching, Business Consulting</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="http://www.ampgbusiness.com" target="_blank" rel="noopener">http://www.ampgbusiness.com</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 305-972-7751</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="http://www.linkedin.com/in/angelinegillings" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Angeline Gillings works at AMP-G. They specialize in the management consulting sector. Their services include Business Coaching, Business Consulting.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="6" data-section-key="good" data-match-score="59.0" data-partner-name="Christine Rothdeutsch">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Christine Rothdeutsch</div>
+                        <div class="card-company">Implementing Your Vision &middot; Christine Rothdeutsch is a business productivity and profitability expert who helps entrepreneurs streamline.</div>
+                        <div class="card-tags"><span class="tag tag-fit">4K List</span><span class="tag tag-fit">Business Productivity</span><span class="tag tag-fit">Profitability</span><span class="tag tag-fit">Entrepreneurship</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">4K</span><a href="mailto:christine@implementingyourvision.com" class="action-btn" onclick="event.stopPropagation()" title="Email Christine Rothdeutsch"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:christine@implementingyourvision.com">christine@implementingyourvision.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">4K subscribers. Entrepreneurs and small business owners Offering: Business Consulting, CRM, Email List Building, Funnel Creation Consulting, Landing Page Tools, Opt-In Page Creation, Podcast Creation, Podcast Host, Podcast Services, Speaking Opportunities</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://christinerothdeutsch.com/blog" target="_blank" rel="noopener">https://christinerothdeutsch.com/blog</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 610-349-9192</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="http://www.linkedin.com/in/christinerothdeutsch" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Christine Rothdeutsch is the founder of Implementing Your Vision, specializing in Productivity strategist, mindset coach, and owner of Implementing Your Vision, serving Business Skills, Service Provider.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="7" data-section-key="good" data-match-score="58.8" data-partner-name="Tyrone Matheson">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Tyrone Matheson</div>
+                        <div class="card-company">The Tyrone Matheson Group &middot; The Tyrone Matheson Group is a management consulting firm that helps businesses uncover hidden revenue and turn it into.</div>
+                        <div class="card-tags"><span class="tag tag-fit">49K List</span><span class="tag tag-fit">Joint Ventures</span><span class="tag tag-fit">Strategic Alliances</span><span class="tag tag-fit">Revenue Growth</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">49K</span><a href="mailto:cso@tyronematheson.com" class="action-btn" onclick="event.stopPropagation()" title="Email Tyrone Matheson"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:cso@tyronematheson.com">cso@tyronematheson.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">49K subscribers. Small businesses with under 100 employees looking to scale, grow, expand, or transition. Offering: Business Consulting, Joint Venture Resources, Membership Platform, Working Capital</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://tyronematheson.com/partnerships/" target="_blank" rel="noopener">https://tyronematheson.com/partnerships/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 905-220-7566</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://ca.linkedin.com/in/tyronerainmakermatheson" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Chief Rainmaker title and partnership with LeadGen.com</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="8" data-section-key="good" data-match-score="58.4" data-partner-name="Caitlin Doemner">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Caitlin Doemner</div>
+                        <div class="card-company">Ecstatic Way &middot; Caitlin Cogan Doemner is a serial entrepreneur, author.</div>
+                        <div class="card-tags"><span class="tag tag-fit">16K List</span><span class="tag tag-fit">Serial Entrepreneur</span><span class="tag tag-fit">Author</span><span class="tag tag-fit">Sales Expert</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">16K</span><a href="https://www.linkedin.com/in/cscdoemner" target="_blank" rel="noopener" class="action-btn linkedin" onclick="event.stopPropagation()" title="LinkedIn"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">16K subscribers. Caitlin empowers audiences worldwide. Offering: Business Coaching, Business Consulting, Coach Marketing Training, Group Coaching, Marketing Coach, Sales Training</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://caitlincogandoemner.com/" target="_blank" rel="noopener">https://caitlincogandoemner.com/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 858-444-5152</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/cscdoemner" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Caitlin Doemner is the founder of Ecstatic Way, specializing in Founding Partner, serving professional training &amp; coaching.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="9" data-section-key="good" data-match-score="58.4" data-partner-name="Jason Kirkham">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Jason Kirkham</div>
+                        <div class="card-company">U.S. Small Business Administration &middot; Manages lender relations for Small Business Administration connecting government resources with entrepreneurs.</div>
+                        <div class="card-tags"><span class="tag tag-fit">Small Business</span><span class="tag tag-fit">Entrepreneurship</span><span class="tag tag-fit">Ip</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><a href="mailto:jason.kirkham@sba.gov" class="action-btn" onclick="event.stopPropagation()" title="Email Jason Kirkham"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:jason.kirkham@sba.gov">jason.kirkham@sba.gov</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">Small business owners and SBA lenders needing government financing guidance and loan program expertise. Offering: Business Skills, Service Provider services and solutions</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Jason Kirkham offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="http://www.sba.gov" target="_blank" rel="noopener">http://www.sba.gov</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 801-900-6962</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="http://www.linkedin.com/in/jasonkirkham" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Jason Kirkham serves as Lender Relations Specialist at U.S. Small Business Administration. Specializing in government administration.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="footer-note">Report generated for Jason Byer.</div>
+    </div>
+    <div class="template-bar">
+        <div class="template-bar-inner">
+            <button class="template-btn" type="button" onclick="showTemplate('initial')">Copy Outreach Email</button>
+            <button class="template-btn" type="button" onclick="showTemplate('followup')">Copy Follow-up</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Email Template</div>
+                <button class="modal-close" type="button" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body"><div class="template-text" id="modalContent"></div></div>
+            <div class="modal-action"><button class="copy-btn" type="button" id="copyBtn" onclick="copyAndClose()">Copy to Clipboard</button></div>
+        </div>
+    </div>
+    <script>
+        var templates = {"initial": {"text": "Hi [Partner Name],\n\nI came across your work and love what you're doing for [their audience]. I'm Jason Byer with Gunwerks, and I think our audiences could really benefit from knowing about each other.\n\nWould you be open to a quick call to explore some partnership ideas? Here's my calendar if you'd like to pick a time: [Insert booking link]\n\nBest,\nJason Byer", "title": "Initial Outreach"}, "followup": {"text": "Hi [Partner Name],\n\nJust following up on my earlier message. I'd love to connect and explore how we might support each other's communities.\n\nNo pressure at all \u2014 just thought there might be a great fit.\n\nWarmly,\nJason Byer", "title": "Follow-Up"}};
+        var STORAGE_KEY = 'report_outreach_jason-byer';
+        var activeTemplateId = null;
+        function toggleCard(card) { card.classList.toggle('done'); updateProgress(); saveState(); }
+        function toggleExpand(card) { card.classList.toggle('expanded'); }
+        function updateProgress() {
+            var total = document.querySelectorAll('.card').length;
+            var done = document.querySelectorAll('.card.done').length;
+            document.getElementById('doneCount').textContent = done;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('progressFill').style.width = (total ? (done / total * 100) : 0) + '%';
+        }
+        function saveState() {
+            var state = [];
+            document.querySelectorAll('.card').forEach(function(card, i) { if (card.classList.contains('done')) state.push(i); });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+        function loadState() {
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) { try { var state = JSON.parse(saved); var cards = document.querySelectorAll('.card'); state.forEach(function(i) { if (cards[i]) cards[i].classList.add('done'); }); } catch(e) {} }
+            updateProgress();
+        }
+        function resetProgress() {
+            if (confirm('Clear all progress? This cannot be undone.')) {
+                localStorage.removeItem(STORAGE_KEY);
+                document.querySelectorAll('.card.done').forEach(function(card) { card.classList.remove('done'); });
+                updateProgress();
+            }
+        }
+        function showTemplate(id) {
+            activeTemplateId = id;
+            var tmpl = templates[id]; if (!tmpl) return;
+            document.getElementById('modalTitle').textContent = tmpl.title || 'Email Template';
+            document.getElementById('modalContent').textContent = tmpl.text || '';
+            document.getElementById('modal').classList.add('open');
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('open');
+            var btn = document.getElementById('copyBtn'); btn.textContent = 'Copy to Clipboard'; btn.style.background = ''; btn.style.color = '';
+        }
+        function copyAndClose() {
+            var tmpl = templates[activeTemplateId]; if (!tmpl) return;
+            navigator.clipboard.writeText(tmpl.text || '').then(function() {
+                var btn = document.getElementById('copyBtn'); btn.textContent = 'Copied!'; btn.style.background = 'var(--gold)'; btn.style.color = 'var(--ink)';
+                setTimeout(function() { closeModal(); }, 800);
+            });
+        }
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+        loadState();
+    </script>
+</body>
+</html>

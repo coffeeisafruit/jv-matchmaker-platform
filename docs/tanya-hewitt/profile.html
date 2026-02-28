@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beyond Safety Compliance &middot; Client Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --cream: #faf8f5; --ink: #1a1a1a; --forest: #1e3a2f; --gold: #c9a962; --gold-light: #e8d5a8; --muted: #8b8680; --blush: #f4e8e1; --card: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+        .container { max-width: 820px; margin: 0 auto; padding: 24px 20px 80px; position: relative; }
+        .hub-link { margin-bottom: 16px; font-size: 13px; }
+        .hub-link a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--gold-light); margin-bottom: 32px; }
+        .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 500; color: var(--forest); letter-spacing: -0.02em; }
+        .header-meta { margin-top: 12px; font-size: 13px; color: var(--muted); }
+        .header-meta a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .main { margin-bottom: 2rem; }
+        .client-card { background: var(--card); border-radius: 8px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; gap: 1rem; align-items: flex-start; }
+        .client-avatar { width: 56px; height: 56px; background: var(--forest); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 600; font-size: 1.25rem; flex-shrink: 0; }
+        .client-info h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 1.125rem; font-weight: 500; color: var(--forest); }
+        .client-company { color: var(--muted); font-size: 0.875rem; }
+        .client-title { color: var(--ink); font-size: 0.8125rem; margin-top: 0.25rem; }
+        .section { background: var(--card); border-radius: 8px; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; }
+        .section-header { padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--gold-light); background: var(--cream); }
+        .section-title { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 500; color: var(--forest); }
+        .section-body { padding: 1.25rem; }
+        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+        @media (max-width: 480px) { .info-grid { grid-template-columns: 1fr; } }
+        .info-item label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.25rem; }
+        .info-item .value { font-weight: 600; font-size: 0.9375rem; color: var(--ink); }
+        .info-item .sub { font-size: 0.75rem; color: var(--muted); }
+        .info-item .highlight { color: var(--gold); }
+        .info-item a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .commission-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem; }
+        .commission-box { text-align: center; padding: 1rem; background: var(--blush); border-radius: 6px; }
+        .commission-box.highlight { background: var(--forest); }
+        .commission-value { font-size: 1.25rem; font-weight: 700; color: var(--ink); }
+        .commission-box.highlight .commission-value { color: var(--gold); }
+        .commission-label { font-size: 0.6875rem; color: var(--muted); margin-top: 0.25rem; }
+        .commission-box.highlight .commission-label { color: var(--gold-light); }
+        .text-block { font-size: 0.875rem; color: var(--ink); }
+        .text-block p { margin-bottom: 1rem; }
+        .text-block p:last-child { margin-bottom: 0; }
+        .text-block strong { color: var(--forest); }
+        .text-block ul { list-style: none; margin: 0.5rem 0; }
+        .text-block li { padding: 0.25rem 0; padding-left: 1rem; position: relative; }
+        .text-block li::before { content: "\2022"; position: absolute; left: 0; color: var(--gold); }
+        .contact-footer { background: var(--card); border-radius: 8px; padding: 1.25rem; text-align: center; font-size: 0.8125rem; color: var(--muted); margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .contact-footer a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .footer { border-top: 1px solid var(--gold-light); padding: 1.5rem; text-align: center; font-size: 0.75rem; color: var(--muted); }
+        .footer a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p class="hub-link"><a href="index.html">&larr; Partner report home</a></p>
+        <header class="header">
+            <div class="header-eyebrow">Client Profile</div>
+            <h1>Tanya Hewitt</h1>
+            <div class="header-meta">Beyond Safety Compliance</div>
+        </header>
+        <main class="main">
+            <div class="client-card">
+                <div class="client-avatar">TH</div>
+                <div class="client-info">
+                    <h2>Tanya Hewitt</h2>
+                    <div class="client-company">Beyond Safety Compliance</div>
+                    <div class="client-title">occupational health and safety</div>
+                </div>
+            </div>
+            <div class="section">
+                <div class="section-header"><span class="section-title">The Profile</span></div>
+                <div class="section-body"><div class="info-grid"><div class="info-item"><label>Current Focus</label><div class="value">Canadian Occupational Safety provides news, policy changes, and thought leadership in the field of occupational health and safety.</div></div><div class="info-item"><label>Niche</label><div class="value highlight">occupational health and safety</div></div><div class="info-item"><label>Target Audience</label><div class="value">The platform serves professionals and organizations in the occupational health and safety sector, including safety leaders, employers, and workers.</div></div><div class="info-item"><label>Network Reach</label><div class="value">10K</div><div class="sub">Tanya Hewitt&#x27;s subscriber network</div></div></div></div>
+            </div>
+            
+            <div class="section">
+                <div class="section-header"><span class="section-title">What Tanya Hewitt Offers Partners</span></div>
+                <div class="section-body"><div class="commission-grid"><div class="commission-box highlight"><div class="commission-value">10K</div><div class="commission-label">Email List</div></div><div class="commission-box"><div class="commission-value">2K</div><div class="commission-label">Social Reach</div></div><div class="commission-box"><div class="commission-value">55%</div><div class="commission-label">Engagement</div></div></div><div class="text-block" style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f0f0f0;"><p><strong>What You Get:</strong></p><ul><li>Business Consulting</li><li>Communication Training</li><li>Group Coaching</li><li>Online Course Creation</li><li>Podcast Host</li><li>Public Speaking</li><li>Webinar Training</li></ul></div></div>
+            </div>
+            
+            <div class="section">
+                <div class="section-header"><span class="section-title">About Tanya Hewitt</span></div>
+                <div class="section-body text-block"><p>Tanya Hewitt serves as Training Associate at Beyond Safety Compliance. Their areas of expertise include occupational health and safety, Canadian Occupational Safety provides news, policy changes.</p><p><strong>Credentials / Core Offers:</strong></p><ul><li><strong>Business Consulting</strong></li><li><strong>Communication Training</strong></li><li><strong>Group Coaching</strong></li><li><strong>Online Course Creation</strong></li><li><strong>Podcast Host</strong></li><li><strong>Public Speaking</strong></li></ul></div>
+            </div>
+            <div class="section"><div class="section-header"><span class="section-title">Resources &amp; Links</span></div><div class="section-body text-block"><ul><li><a href="http://www.linkedin.com/in/tanya-hewitt" target="_blank" rel="noopener">LinkedIn Profile</a></li><li><a href="https://www.youtube.com/watch?v=97sg4QiTDU0" target="_blank" rel="noopener">YouTube</a></li></ul></div></div>
+            <div class="section"><div class="section-header"><span class="section-title">Ideal Partner Profile</span></div><div class="section-body text-block"><p>Partners serving <strong>The platform serves professionals and organizations in the occupational health and safety sector, including safety leaders, employers, and workers.</strong>.</p><p style="color:var(--muted); margin-top: 0.75rem;">Canadian Occupational Safety provides news, policy changes, and thought leadership in the field of occupational health and safety.</p></div></div>
+            <div class="section"><div class="section-header"><span class="section-title">What Tanya Hewitt Is Seeking</span></div><div class="section-body text-block"><p><strong>JV Partnership Goals:</strong></p><ul><li>Partners with safety technology providers and HR consulting firms for co-delivered occupational health training. Access to safety professionals and employers through podcast guest swaps and webinar collaborations.</li></ul></div></div>
+            <div class="section"><div class="section-header"><span class="section-title">Areas of Expertise</span></div><div class="section-body text-block"><ul><li>occupational health</li><li>safety news</li><li>policy changes</li><li>thought leadership</li></ul></div></div>
+            
+        </main>
+        <div class="footer">
+            Beyond Safety Compliance &middot; <a href="index.html">Partner report</a> &middot; Client Profile
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weightcontroltherapy.com &middot; Partner Outreach</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --cream: #faf8f5; --ink: #1a1a1a; --forest: #1e3a2f; --gold: #c9a962; --gold-light: #e8d5a8; --muted: #8b8680; --blush: #f4e8e1; --card: #ffffff; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
+        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+        .container { max-width: 820px; margin: 0 auto; padding: 24px 20px 120px; position: relative; }
+        .hub-link { margin-bottom: 16px; font-size: 13px; }
+        .hub-link a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--gold-light); margin-bottom: 32px; }
+        .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 500; color: var(--forest); letter-spacing: -0.02em; }
+        .header-meta { margin-top: 12px; font-size: 13px; color: var(--muted); }
+        .header-meta a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .progress { text-align: center; padding: 28px 24px; background: var(--card); border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); margin-bottom: 32px; position: relative; }
+        .progress::before { content: ""; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 40px; height: 3px; background: var(--gold); border-radius: 0 0 2px 2px; }
+        .progress-number { font-family: 'Playfair Display', Georgia, serif; font-size: 48px; font-weight: 500; color: var(--forest); line-height: 1; }
+        .progress-number span { color: var(--muted); font-size: 32px; }
+        .progress-label { font-size: 13px; color: var(--muted); margin-top: 8px; letter-spacing: 0.02em; }
+        .progress-bar { height: 3px; background: var(--blush); border-radius: 2px; margin-top: 20px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--forest), var(--gold)); border-radius: 2px; transition: width 0.4s ease; }
+        .reset-btn { margin-top: 16px; padding: 8px 16px; background: transparent; border: 1px solid var(--gold-light); border-radius: 4px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+        .reset-btn:hover { background: var(--blush); color: var(--forest); border-color: var(--gold); }
+        .section { margin-bottom: 36px; }
+        .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--gold-light); }
+        .section-title { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 500; color: var(--forest); }
+        .section-count { font-size: 12px; color: var(--gold); font-weight: 600; }
+        .section-note { font-size: 11px; color: var(--muted); margin-left: auto; font-style: italic; }
+        .card { background: var(--card); border-radius: 8px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; transition: box-shadow 0.2s; }
+        .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .card.done { opacity: 0.5; }
+        .card.done .card-name { text-decoration: line-through; text-decoration-color: var(--muted); }
+        .card-inner { display: flex; align-items: stretch; }
+        .card-check { width: 52px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-right: 1px solid rgba(0,0,0,0.05); flex-shrink: 0; transition: background 0.15s; }
+        .card-check:hover { background: var(--blush); }
+        .checkbox { width: 22px; height: 22px; border: 2px solid var(--gold-light); border-radius: 50%; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .card.done .checkbox { background: var(--forest); border-color: var(--forest); }
+        .card.done .checkbox::after { content: "\2713"; color: white; font-size: 12px; font-weight: 600; }
+        .card-content { flex: 1; padding: 16px 20px; min-width: 0; }
+        .card-name { font-size: 16px; font-weight: 600; color: var(--ink); margin-bottom: 4px; }
+        .card-company { font-size: 13px; color: var(--muted); }
+        .card-tags { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .tag { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 3px; letter-spacing: 0.03em; text-transform: uppercase; }
+        .tag-priority { background: var(--forest); color: white; }
+        .tag-fit { background: var(--blush); color: var(--forest); }
+        .tag-warn { background: #fef3c7; color: #92400e; }
+        .expand-hint { font-size: 10px; color: var(--gold); margin-top: 6px; opacity: 0.8; }
+        .card.expanded .expand-hint { display: none; }
+        .card-action { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 16px; gap: 6px; }
+        .card-reach { font-size: 11px; color: var(--muted); font-weight: 500; }
+        .action-btn { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; background: var(--forest); color: white; border-radius: 8px; text-decoration: none; transition: transform 0.15s, background 0.15s; }
+        .action-btn:hover { transform: scale(1.08); background: var(--gold); }
+        .action-btn:active { transform: scale(0.98); }
+        .action-btn svg { width: 20px; height: 20px; }
+        .action-btn.linkedin { background: #0077b5; }
+        .action-btn.linkedin:hover { background: #005885; }
+        .card-details { display: none; padding: 0 20px 16px 72px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--blush); }
+        .card.expanded .card-details { display: block; }
+        .card-details-inner { padding-top: 12px; }
+        .detail-row { display: flex; gap: 8px; margin-bottom: 6px; }
+        .detail-label { font-weight: 600; color: var(--forest); min-width: 60px; flex-shrink: 0; }
+        .detail-value { color: var(--ink); }
+        .detail-value a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
+        .detail-note { font-style: italic; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--gold-light); }
+        .footer-note { text-align: center; padding: 24px 0 0; font-size: 12px; color: var(--muted); border-top: 1px solid var(--gold-light); margin-top: 8px; }
+        .footer-note a { color: var(--forest); }
+        .template-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 2px solid var(--gold); padding: 16px 20px; z-index: 100; }
+        .template-bar-inner { max-width: 820px; margin: 0 auto; display: flex; gap: 12px; }
+        .template-btn { flex: 1; padding: 14px 16px; background: var(--cream); border: 1px solid var(--gold-light); border-radius: 6px; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 600; color: var(--forest); cursor: pointer; transition: all 0.15s; }
+        .template-btn:hover { background: var(--blush); border-color: var(--gold); }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(30, 58, 47, 0.6); backdrop-filter: blur(4px); z-index: 200; align-items: flex-end; justify-content: center; }
+        .modal-overlay.open { display: flex; }
+        .modal { background: var(--card); width: 100%; max-width: 820px; max-height: 85vh; border-radius: 16px 16px 0 0; overflow: hidden; animation: slideUp 0.25s ease; }
+        @keyframes slideUp { from { transform: translateY(100%); opacity: 0.8; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid var(--gold-light); }
+        .modal-title { font-family: 'Playfair Display', Georgia, serif; font-size: 18px; font-weight: 500; color: var(--forest); }
+        .modal-close { width: 36px; height: 36px; border: none; background: var(--cream); border-radius: 50%; font-size: 20px; color: var(--muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+        .modal-close:hover { background: var(--blush); }
+        .modal-body { padding: 24px; overflow-y: auto; max-height: 55vh; }
+        .template-text { font-size: 14px; line-height: 1.7; white-space: pre-wrap; background: var(--cream); padding: 20px; border-radius: 8px; border: 1px solid var(--gold-light); color: var(--ink); }
+        .modal-action { padding: 20px 24px; border-top: 1px solid var(--gold-light); }
+        .copy-btn { width: 100%; padding: 16px; background: var(--forest); color: white; border: none; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+        .copy-btn:hover { background: var(--gold); color: var(--ink); }
+        @media (max-width: 480px) { .container { padding: 16px 16px 120px; } .header h1 { font-size: 24px; } .progress-number { font-size: 40px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p class="hub-link"><a href="index.html">&larr; Partner report home</a></p>
+        <header class="header">
+            <div class="header-eyebrow">Partner Outreach</div>
+            <h1>Weightcontroltherapy.com</h1>
+            <div class="header-meta">Lisa Ortigara Crego &middot; <a href="profile.html">View Profile</a></div>
+        </header>
+        <div class="progress">
+            <div class="progress-number"><span id="doneCount">0</span><span>/</span><span id="totalCount">10</span></div>
+            <div class="progress-label">partners contacted</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+            <button class="reset-btn" type="button" onclick="resetProgress()">Reset Progress</button>
+        </div>
+        
+        <section class="section" data-section-key="good">
+            <div class="section-header">
+                <span class="section-title">Good Fit</span>
+                <span class="section-count">10</span>
+                <span class="section-note">Solid alignment &mdash; follow up as capacity allows</span>
+            </div>
+            
+            <div class="card" data-partner-id="0" data-section-key="good" data-match-score="57.1" data-partner-name="Brittany Williams">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Brittany Williams</div>
+                        <div class="card-company"> &middot; Provides holistic wellness coaching integrating fitness, mental health.</div>
+                        <div class="card-tags"><span class="tag tag-fit">Self Improvement</span><span class="tag tag-fit">Mental Health</span><span class="tag tag-fit">Wellness</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><a href="https://ae.linkedin.com/in/brittany-williams-b513a128" target="_blank" rel="noopener" class="action-btn linkedin" onclick="event.stopPropagation()" title="LinkedIn"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">Health-conscious individuals seeking holistic wellness, fitness coaching, mental health support, and natural lifestyle transformation. Offering: Specializes in fitness, health (traditional), lifestyle, mental health, natural health, self improvement solutions.</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Lisa Ortigara Crego offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://www.britanywilliams.com/" target="_blank" rel="noopener">https://www.britanywilliams.com/</a></span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://ae.linkedin.com/in/brittany-williams-b513a128" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Brittany Williams is a business professional, specializing in Fitness, Health (Traditional),Lifestyle, Mental Health, Natural Health, Self Improvement, serving Fitness, Health (Traditional),Lifestyle, Mental Health, Natural Health, Self Improvement.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="1" data-section-key="good" data-match-score="56.0" data-partner-name="Sharon Laflamme">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Sharon Laflamme</div>
+                        <div class="card-company">Creating Serenity, LLC &middot; Create serenity through integrated fitness, mental health, spirituality, and natural wellness coaching.</div>
+                        <div class="card-tags"><span class="tag tag-fit">Improvement</span><span class="tag tag-fit">Health</span><span class="tag tag-fit">Fitness</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><a href="mailto:sharon@creatingserenitynow.com" class="action-btn" onclick="event.stopPropagation()" title="Email Sharon Laflamme"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:sharon@creatingserenitynow.com">sharon@creatingserenitynow.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">Individuals seeking serenity through integrated fitness, mental health, natural wellness, and spiritual transformation programs. Offering: Health and wellness coaching for sustainable lifestyle transformation.</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Sharon Laflamme offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://www.creatingserenitynow.com/" target="_blank" rel="noopener">https://www.creatingserenitynow.com/</a></span></div>
+                        <div class="detail-note">Sharon Laflamme leads Creating Serenity, LLC. They specialize in Fitness, Lifestyle, Mental Health, Natural Health, Self Improvement, Spirituality.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="2" data-section-key="good" data-match-score="54.9" data-partner-name="Brooke Emery">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Brooke Emery</div>
+                        <div class="card-company">Link Lab Agency &middot; She is a creative business strategist with roots in advertising, publicity and film.</div>
+                        <div class="card-tags"><span class="tag tag-fit">10K List</span><span class="tag tag-fit">Business Strategy</span><span class="tag tag-fit">Joint Ventures</span><span class="tag tag-fit">Affiliate Marketing</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">10K</span></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">10K subscribers. She works with personal development speakers, health and wellness authors as well as conscious entrepreneurs. Offering: She is the Cofounder of Link Lab, a joint venture and affiliate management agency that highlights its client&#x27;s unique gifts and gets its message out to the masses.</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Lisa Ortigara Crego offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://www.ellieshefi.com/brooke-emery-on-embracing-a-do-good-have-fun-philosophy" target="_blank" rel="noopener">https://www.ellieshefi.com/brooke-emery-on-embracing-a-do-good-have-fun-philosophy</a></span></div>
+                        <div class="detail-note">Brooke Emery is the founder of Link Lab Agency, specializing in Fitness, Health (Traditional),Mental Health, Natural Health, Self Improvement, Spirituality, serving Fitness, Health (Traditional),Mental Health, Natural Health, Self Improvement, Spirituality.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="3" data-section-key="good" data-match-score="54.3" data-partner-name="Christopher Oseh">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Christopher Oseh</div>
+                        <div class="card-company">More Infodrvecoh.com &middot; Works as a certified health and wellness coach for a large-scale enterprise employee assistance program.</div>
+                        <div class="card-tags"><span class="tag tag-fit">2K List</span><span class="tag tag-fit">Self Improvement</span><span class="tag tag-fit">Mental Health</span><span class="tag tag-fit">Pr</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">2K</span><a href="mailto:christopher.oseh@greenshield.ca" class="action-btn" onclick="event.stopPropagation()" title="Email Christopher Oseh"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:christopher.oseh@greenshield.ca">christopher.oseh@greenshield.ca</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">2K subscribers. Nonprofit executives and large-scale philanthropic organizations seeking health, wellness, and mental health programs. Offering: Certified Health and Wellness Coach (E.A.P). Focuses on nonprofit organization management.</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Lisa Ortigara Crego offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 613-240-9648</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://ca.linkedin.com/in/physicianwellnesscoach" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Christopher Oseh is the founder of More Infodrvecoh.com, specializing in Certified Health and Wellness Coach (E.A.P), serving nonprofit organization management.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="4" data-section-key="good" data-match-score="53.2" data-partner-name="Greg Yuen">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Greg Yuen</div>
+                        <div class="card-company">Gregory E. M. Yuen M.D. Inc. &middot; Dr. Greg Yuen provides psychiatry services and teaches Taichi.</div>
+                        <div class="card-tags"><span class="tag tag-fit">Psychiatry</span><span class="tag tag-fit">Taichi</span><span class="tag tag-fit">Alternative Medicine</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><a href="mailto:gregyuen@cs.com" class="action-btn" onclick="event.stopPropagation()" title="Email Greg Yuen"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:gregyuen@cs.com">gregyuen@cs.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">Patients interested in a Buddhist or alternative medical approach. Offering: Coaching services in fitness, health (traditional), mental health, natural health, self improvement, service provider, spirituality</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Greg Yuen offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://gregyuenmd.com/" target="_blank" rel="noopener">https://gregyuenmd.com/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 808-284-7955</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/greg-yuen-29423120" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Greg Yuen serves as Health and Wellness Coach at Gregory E. M. Yuen M.D. Inc.. Specializing in medical practice.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="5" data-section-key="good" data-match-score="53.2" data-partner-name="Jadranka Bozja">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Jadranka Bozja</div>
+                        <div class="card-company">The Omega Place &middot; Provides holistic health services integrating traditional health, mental wellness, natural healing.</div>
+                        <div class="card-tags"><span class="tag tag-fit">Coaching</span><span class="tag tag-fit">Health</span><span class="tag tag-fit">Ip</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><a href="mailto:theomegaplace@gmail.com" class="action-btn" onclick="event.stopPropagation()" title="Email Jadranka Bozja"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:theomegaplace@gmail.com">theomegaplace@gmail.com</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">High-achieving individuals seeking holistic health solutions, spiritual growth, and comprehensive mental-physical wellness integration. Offering: Health (Traditional), Lifestyle, Mental Health, Natural Health, Self Improvement, Spirituality services and solutions</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Lisa Ortigara Crego offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 404-434-8757</span></div>
+                        <div class="detail-note">Jadranka Bozja is affiliated with The Omega Place. Specializing in Health (Traditional), Lifestyle, Mental Health, Natural Health, Self Improvement, Spirituality.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="6" data-section-key="good" data-match-score="53.1" data-partner-name="Jen Beck">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Jen Beck</div>
+                        <div class="card-company">Symmetry Corp. &middot; Delivers registered nutrition consulting and corporate wellness programs integrating physical and mental health.</div>
+                        <div class="card-tags"><span class="tag tag-fit">Consulting</span><span class="tag tag-fit">Health</span><span class="tag tag-fit">B2B</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><a href="http://www.linkedin.com/in/thejenbeck" target="_blank" rel="noopener" class="action-btn linkedin" onclick="event.stopPropagation()" title="LinkedIn"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">Corporate wellness programs and health-conscious employees seeking nutrition consulting and workplace wellness solutions. Offering: Consulting services in health (traditional), mental health, natural health, self improvement</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Lisa Ortigara Crego offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="http://www.symmetrydirect.com" target="_blank" rel="noopener">http://www.symmetrydirect.com</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 513-703-4699</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="http://www.linkedin.com/in/thejenbeck" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Jen Beck serves as Registered Nutrition Consultant at Symmetry Corp.. Specializing in health, wellness &amp; fitness.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="7" data-section-key="good" data-match-score="53.0" data-partner-name="Ryan sprague">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Ryan sprague</div>
+                        <div class="card-company">Highly Optimized &middot; Ryan Sprague is an innovative thinker in the cannabis space.</div>
+                        <div class="card-tags"><span class="tag tag-fit">20K List</span><span class="tag tag-fit">Cannabis</span><span class="tag tag-fit">Personal Development</span><span class="tag tag-fit">Transformation</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><span class="card-reach">20K</span><a href="https://www.linkedin.com/in/ryan-sprague-43267b12a" target="_blank" rel="noopener" class="action-btn linkedin" onclick="event.stopPropagation()" title="LinkedIn"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">20K subscribers. People interested in using cannabis in a more intentional and transformative way. Offering: Podcast appearances and cannabis education content</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Ryan sprague offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://www.thestoryengine.co/ryan-sprague/" target="_blank" rel="noopener">https://www.thestoryengine.co/ryan-sprague/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 508-958-1683</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://www.linkedin.com/in/ryan-sprague-43267b12a" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Founder of Highly Optimized, frequent podcast guest, cannabis lifestyle coach</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="8" data-section-key="good" data-match-score="51.8" data-partner-name="Chrissy Mifsud">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Chrissy Mifsud</div>
+                        <div class="card-company">Independent Epicure Ambassador &middot; Life coach for wild women leaders</div>
+                        <div class="card-tags"><span class="tag tag-fit">Life Coach</span><span class="tag tag-fit">Wild Women</span><span class="tag tag-fit">Women Entrepreneurs</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">Women entrepreneurs struggling with the emotional ups and downs of being a leader Offering: Specializes in fitness, health (traditional), natural health, self improvement solutions.</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Lisa Ortigara Crego offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://chrissybradysmith.com/wild-woman-entrepreneur/" target="_blank" rel="noopener">https://chrissybradysmith.com/wild-woman-entrepreneur/</a></span></div>
+                        <div class="detail-note">Chrissy Mifsud is the founder of Independent Epicure Ambassador, specializing in Fitness, Health (Traditional),Natural Health, Self Improvement, serving Fitness, Health (Traditional),Natural Health, Self Improvement.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card" data-partner-id="9" data-section-key="good" data-match-score="51.1" data-partner-name="Monty Ritchings">
+                <div class="card-inner" onclick="toggleExpand(this.parentElement)">
+                    <div class="card-check" onclick="event.stopPropagation(); toggleCard(this.closest('.card'))">
+                        <div class="checkbox"></div>
+                    </div>
+                    <div class="card-content">
+                        <div class="card-name">Monty Ritchings</div>
+                        <div class="card-company">Life Force Creative Inc &middot; Monty Ritchings is an author who writes about mind management, core beliefs, and working beyond the mundane world.</div>
+                        <div class="card-tags"><span class="tag tag-fit">Author</span><span class="tag tag-fit">Mind Management</span><span class="tag tag-fit">Core Beliefs</span></div>
+                        <div class="expand-hint">tap for details</div>
+                    </div>
+                    <div class="card-action"><a href="mailto:stereocool@live.ca" class="action-btn" onclick="event.stopPropagation()" title="Email Monty Ritchings"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></a></div>
+                </div>
+                <div class="card-details">
+                    <div class="card-details-inner">
+                        <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value"><a href="mailto:stereocool@live.ca">stereocool@live.ca</a></span></div><div class="detail-row"><span class="detail-label">Audience</span><span class="detail-value">People who want to learn how to create beliefs, how they become embedded in memory, and how to reframe them using visualization and other simple-to-use tools. Offering: Sales Development- Roof Restoration and replacement.</span></div><div class="detail-row"><span class="detail-label">Why fit</span><span class="detail-value">You need what Monty Ritchings offers. Strong business alignment. Very active recently. Attended same event(s)</span></div><div class="detail-row"><span class="detail-label">Website</span><span class="detail-value"><a href="https://selfdiscoverywisdom.com/monty-ritchings/" target="_blank" rel="noopener">https://selfdiscoverywisdom.com/monty-ritchings/</a></span></div><div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">+1 604-218-5993</span></div><div class="detail-row"><span class="detail-label">LinkedIn</span><span class="detail-value"><a href="https://ca.linkedin.com/in/monty-ritchings-0384351b" target="_blank" rel="noopener">View Profile</a></span></div>
+                        <div class="detail-note">Monty Ritchings leads Life Force Creative Inc, specializing in Sales Development- Roof Restoration and replacement, serving Fitness, Mental Health, Natural Health, Relationships, Self Improvement, Spirituality The business focuses on Fitness, Mental Health, Natural Health, Relationships.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <div class="footer-note">Report generated for Lisa Ortigara Crego.</div>
+    </div>
+    <div class="template-bar">
+        <div class="template-bar-inner">
+            <button class="template-btn" type="button" onclick="showTemplate('initial')">Copy Outreach Email</button>
+            <button class="template-btn" type="button" onclick="showTemplate('followup')">Copy Follow-up</button>
+        </div>
+    </div>
+    <div class="modal-overlay" id="modal" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div class="modal-title" id="modalTitle">Email Template</div>
+                <button class="modal-close" type="button" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body"><div class="template-text" id="modalContent"></div></div>
+            <div class="modal-action"><button class="copy-btn" type="button" id="copyBtn" onclick="copyAndClose()">Copy to Clipboard</button></div>
+        </div>
+    </div>
+    <script>
+        var templates = {"initial": {"text": "Hi [Partner Name],\n\nI came across your work and love what you're doing for [their audience]. I'm Lisa Ortigara Crego with Weightcontroltherapy.com, and I think our audiences could really benefit from knowing about each other.\n\nWould you be open to a quick call to explore some partnership ideas? Here's my calendar if you'd like to pick a time: [Insert booking link]\n\nBest,\nLisa Ortigara Crego", "title": "Initial Outreach"}, "followup": {"text": "Hi [Partner Name],\n\nJust following up on my earlier message. I'd love to connect and explore how we might support each other's communities.\n\nNo pressure at all \u2014 just thought there might be a great fit.\n\nWarmly,\nLisa Ortigara Crego", "title": "Follow-Up"}};
+        var STORAGE_KEY = 'report_outreach_lisa-ortigara-crego';
+        var activeTemplateId = null;
+        function toggleCard(card) { card.classList.toggle('done'); updateProgress(); saveState(); }
+        function toggleExpand(card) { card.classList.toggle('expanded'); }
+        function updateProgress() {
+            var total = document.querySelectorAll('.card').length;
+            var done = document.querySelectorAll('.card.done').length;
+            document.getElementById('doneCount').textContent = done;
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('progressFill').style.width = (total ? (done / total * 100) : 0) + '%';
+        }
+        function saveState() {
+            var state = [];
+            document.querySelectorAll('.card').forEach(function(card, i) { if (card.classList.contains('done')) state.push(i); });
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+        function loadState() {
+            var saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) { try { var state = JSON.parse(saved); var cards = document.querySelectorAll('.card'); state.forEach(function(i) { if (cards[i]) cards[i].classList.add('done'); }); } catch(e) {} }
+            updateProgress();
+        }
+        function resetProgress() {
+            if (confirm('Clear all progress? This cannot be undone.')) {
+                localStorage.removeItem(STORAGE_KEY);
+                document.querySelectorAll('.card.done').forEach(function(card) { card.classList.remove('done'); });
+                updateProgress();
+            }
+        }
+        function showTemplate(id) {
+            activeTemplateId = id;
+            var tmpl = templates[id]; if (!tmpl) return;
+            document.getElementById('modalTitle').textContent = tmpl.title || 'Email Template';
+            document.getElementById('modalContent').textContent = tmpl.text || '';
+            document.getElementById('modal').classList.add('open');
+        }
+        function closeModal() {
+            document.getElementById('modal').classList.remove('open');
+            var btn = document.getElementById('copyBtn'); btn.textContent = 'Copy to Clipboard'; btn.style.background = ''; btn.style.color = '';
+        }
+        function copyAndClose() {
+            var tmpl = templates[activeTemplateId]; if (!tmpl) return;
+            navigator.clipboard.writeText(tmpl.text || '').then(function() {
+                var btn = document.getElementById('copyBtn'); btn.textContent = 'Copied!'; btn.style.background = 'var(--gold)'; btn.style.color = 'var(--ink)';
+                setTimeout(function() { closeModal(); }, 800);
+            });
+        }
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+        loadState();
+    </script>
+</body>
+</html>

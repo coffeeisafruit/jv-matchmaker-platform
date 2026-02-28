@@ -852,6 +852,219 @@ def _qa_check(profile: dict, matches: list[dict]) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# Directory page — searchable team index of all profiles
+# ---------------------------------------------------------------------------
+
+BASE_URL = 'https://coffeeisafruit.github.io/jv-matchmaker-platform/'
+
+
+def generate_profiles_data(profiles: list[dict]) -> str:
+    """Generate a JS file with profile metadata for client-side search."""
+    entries = []
+    for p in profiles:
+        entries.append({
+            'name': p.get('name') or '',
+            'company': p.get('company') or '',
+            'niche': p.get('niche') or '',
+            'listSize': p.get('list_size') or 0,
+            'tags': _parse_tags(p.get('tags'))[:4],
+            'slug': _slug(p.get('name', '')),
+        })
+    return f'var PROFILES = {json.dumps(entries, ensure_ascii=False)};'
+
+
+def generate_directory() -> str:
+    """Generate the searchable team directory HTML page.
+
+    Uses DOM construction (createElement/textContent) instead of innerHTML
+    to avoid XSS vectors, even though data is from our own database.
+    """
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>JV Matchmaker &middot; Profile Directory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {{ --cream: #faf8f5; --ink: #1a1a1a; --forest: #1e3a2f; --gold: #c9a962; --gold-light: #e8d5a8; --muted: #8b8680; --blush: #f4e8e1; --card: #ffffff; }}
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{ font-family: 'DM Sans', -apple-system, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }}
+        .container {{ max-width: 960px; margin: 0 auto; padding: 24px 20px 80px; }}
+        .header {{ text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--gold-light); margin-bottom: 24px; }}
+        .header h1 {{ font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 500; color: var(--forest); }}
+        .header-meta {{ margin-top: 8px; font-size: 13px; color: var(--muted); }}
+        .search-bar {{ position: sticky; top: 0; z-index: 10; background: var(--cream); padding: 12px 0 16px; }}
+        .search-input {{ width: 100%; padding: 12px 16px; font-size: 15px; font-family: inherit; border: 1px solid var(--gold-light); border-radius: 8px; background: var(--card); outline: none; transition: border-color 0.2s; }}
+        .search-input:focus {{ border-color: var(--gold); }}
+        .stats {{ font-size: 13px; color: var(--muted); margin-top: 8px; }}
+        .profile-list {{ list-style: none; }}
+        .profile-row {{ background: var(--card); border-radius: 8px; padding: 14px 16px; margin-bottom: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; align-items: center; gap: 12px; transition: box-shadow 0.2s; }}
+        .profile-row:hover {{ box-shadow: 0 4px 12px rgba(0,0,0,0.08); }}
+        .profile-avatar {{ width: 40px; height: 40px; background: var(--forest); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 600; font-size: 14px; flex-shrink: 0; }}
+        .profile-info {{ flex: 1; min-width: 0; }}
+        .profile-name {{ font-weight: 600; font-size: 15px; color: var(--forest); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+        .profile-detail {{ font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }}
+        .profile-tags {{ display: flex; gap: 4px; flex-shrink: 0; }}
+        .tag {{ display: inline-block; padding: 2px 8px; font-size: 11px; border-radius: 4px; background: var(--blush); color: var(--ink); white-space: nowrap; }}
+        .profile-actions {{ display: flex; gap: 6px; flex-shrink: 0; }}
+        .btn {{ padding: 6px 12px; font-size: 12px; font-family: inherit; border: 1px solid var(--gold-light); border-radius: 6px; background: var(--card); color: var(--forest); cursor: pointer; text-decoration: none; white-space: nowrap; transition: background 0.15s; }}
+        .btn:hover {{ background: var(--blush); }}
+        .btn-copy {{ background: var(--forest); color: var(--gold); border-color: var(--forest); }}
+        .btn-copy:hover {{ opacity: 0.9; background: var(--forest); }}
+        .btn-copy.copied {{ background: var(--gold); color: var(--forest); }}
+        .empty {{ text-align: center; padding: 48px 20px; color: var(--muted); font-size: 15px; }}
+        @media (max-width: 640px) {{
+            .profile-tags {{ display: none; }}
+            .profile-row {{ flex-wrap: wrap; }}
+            .profile-actions {{ width: 100%; justify-content: flex-end; margin-top: 4px; }}
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Profile Directory</h1>
+            <div class="header-meta">Internal team tool &middot; Search and share profile links</div>
+        </header>
+        <div class="search-bar">
+            <input class="search-input" type="text" id="search" placeholder="Search by name, company, niche, or tag..." autocomplete="off">
+            <div class="stats"><span id="count">0</span> profiles</div>
+        </div>
+        <ul class="profile-list" id="list"></ul>
+        <div class="empty" id="empty" style="display:none;">No profiles match your search.</div>
+    </div>
+    <script src="profiles-data.js"></script>
+    <script>
+        var BASE = '{BASE_URL}';
+        var listEl = document.getElementById('list');
+        var countEl = document.getElementById('count');
+        var emptyEl = document.getElementById('empty');
+        var searchEl = document.getElementById('search');
+
+        function initials(name) {{
+            return name.split(' ').slice(0, 2).map(function(w) {{ return w[0] || ''; }}).join('').toUpperCase();
+        }}
+
+        function fmtSize(n) {{
+            if (!n) return '';
+            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+            if (n >= 1000) return Math.round(n / 1000) + 'K';
+            return String(n);
+        }}
+
+        function buildRow(p) {{
+            var li = document.createElement('li');
+            li.className = 'profile-row';
+
+            var avatar = document.createElement('div');
+            avatar.className = 'profile-avatar';
+            avatar.textContent = initials(p.name);
+
+            var info = document.createElement('div');
+            info.className = 'profile-info';
+            var nameEl = document.createElement('div');
+            nameEl.className = 'profile-name';
+            nameEl.textContent = p.name;
+            var detail = document.createElement('div');
+            detail.className = 'profile-detail';
+            var size = fmtSize(p.listSize);
+            detail.textContent = [p.company, p.niche, size ? size + ' list' : ''].filter(Boolean).join(' · ');
+            info.appendChild(nameEl);
+            info.appendChild(detail);
+
+            li.appendChild(avatar);
+            li.appendChild(info);
+
+            if (p.tags && p.tags.length) {{
+                var tagsDiv = document.createElement('div');
+                tagsDiv.className = 'profile-tags';
+                p.tags.slice(0, 3).forEach(function(t) {{
+                    var span = document.createElement('span');
+                    span.className = 'tag';
+                    span.textContent = t;
+                    tagsDiv.appendChild(span);
+                }});
+                li.appendChild(tagsDiv);
+            }}
+
+            var actions = document.createElement('div');
+            actions.className = 'profile-actions';
+
+            var reportLink = document.createElement('a');
+            reportLink.className = 'btn';
+            reportLink.href = p.slug + '/outreach.html';
+            reportLink.target = '_blank';
+            reportLink.textContent = 'Report';
+
+            var profileLink = document.createElement('a');
+            profileLink.className = 'btn';
+            profileLink.href = p.slug + '/profile.html';
+            profileLink.target = '_blank';
+            profileLink.textContent = 'Profile';
+
+            var copyBtn = document.createElement('button');
+            copyBtn.className = 'btn btn-copy';
+            copyBtn.textContent = 'Copy Link';
+            copyBtn.title = 'Copy shareable link';
+            copyBtn.addEventListener('click', function() {{
+                var url = BASE + p.slug + '/';
+                navigator.clipboard.writeText(url).then(function() {{
+                    copyBtn.textContent = 'Copied!';
+                    copyBtn.classList.add('copied');
+                    setTimeout(function() {{
+                        copyBtn.textContent = 'Copy Link';
+                        copyBtn.classList.remove('copied');
+                    }}, 1500);
+                }});
+            }});
+
+            actions.appendChild(reportLink);
+            actions.appendChild(profileLink);
+            actions.appendChild(copyBtn);
+            li.appendChild(actions);
+
+            return li;
+        }}
+
+        function render(profiles) {{
+            listEl.textContent = '';
+            if (profiles.length === 0) {{
+                emptyEl.style.display = 'block';
+            }} else {{
+                emptyEl.style.display = 'none';
+                var frag = document.createDocumentFragment();
+                profiles.forEach(function(p) {{ frag.appendChild(buildRow(p)); }});
+                listEl.appendChild(frag);
+            }}
+            countEl.textContent = profiles.length;
+        }}
+
+        searchEl.addEventListener('input', function() {{
+            var q = this.value.toLowerCase().trim();
+            if (!q) {{
+                render(PROFILES);
+                return;
+            }}
+            var terms = q.split(/\\s+/);
+            var filtered = PROFILES.filter(function(p) {{
+                var haystack = (p.name + ' ' + p.company + ' ' + p.niche + ' ' + p.tags.join(' ')).toLowerCase();
+                return terms.every(function(t) {{ return haystack.indexOf(t) !== -1; }});
+            }});
+            render(filtered);
+        }});
+
+        render(PROFILES);
+        searchEl.focus();
+    </script>
+</body>
+</html>"""
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -946,6 +1159,17 @@ def main():
                     for w in warnings:
                         print(f'      {w}')
                     fail_count += 1
+
+            # Generate searchable team directory
+            print(f'\nGenerating team directory...')
+            dir_path = output_base / 'index.html'
+            with open(dir_path, 'w') as f:
+                f.write(generate_directory())
+            data_path = output_base / 'profiles-data.js'
+            with open(data_path, 'w') as f:
+                f.write(generate_profiles_data(profiles))
+            print(f'  Directory: {dir_path}')
+            print(f'  Data file: {data_path} ({len(profiles)} profiles)')
 
             print(f'\n--- Batch complete ---')
             print(f'  Generated: {success_count}')
