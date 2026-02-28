@@ -162,7 +162,7 @@ def generate_index(profile: dict) -> str:
             <li class="nav-card">
                 <a href="outreach.html">
                     <div class="name">Partner Outreach</div>
-                    <div class="desc">ISMC-scored partners for JV outreach</div>
+                    <div class="desc">Top-ranked partners matched to your goals</div>
                 </a>
             </li>
             <li class="nav-card">
