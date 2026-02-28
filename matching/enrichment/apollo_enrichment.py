@@ -293,6 +293,81 @@ class ApolloEnrichmentService:
             logger.warning("Apollo bulk match failed: %s", e)
             return [{'error': str(e), '_profile_id': p.get('id')} for p in batch]
 
+    def search_people(
+        self,
+        title: str = "",
+        industry: str = "",
+        company_size: str = "",
+        location: str = "",
+        max_results: int = 25,
+    ) -> list[dict]:
+        """Search Apollo for people matching criteria.
+
+        Uses the Apollo /people/search endpoint for discovering
+        new prospects by title, industry, and company attributes.
+
+        Args:
+            title: Job title keywords (e.g. "health coach", "CEO")
+            industry: Industry filter
+            company_size: Company size range (e.g. "1-10", "11-50")
+            location: Location filter
+            max_results: Max results to return (Apollo caps at 100/page)
+
+        Returns:
+            List of prospect dicts with name, email, linkedin, company, title.
+        """
+        if not self.api_key:
+            logger.warning("Apollo API key not configured for people search")
+            return []
+
+        import httpx
+
+        payload = {
+            "api_key": self.api_key,
+            "per_page": min(max_results, 100),
+            "page": 1,
+        }
+
+        # Build person_titles filter
+        if title:
+            payload["person_titles"] = [t.strip() for t in title.split(",")]
+        if industry:
+            payload["person_industries"] = [industry]
+        if company_size:
+            payload["organization_num_employees_ranges"] = [company_size]
+        if location:
+            payload["person_locations"] = [location]
+
+        try:
+            resp = httpx.post(
+                "https://api.apollo.io/api/v1/mixed_people/search",
+                json=payload,
+                timeout=30,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        except Exception as exc:
+            logger.warning("Apollo people search failed: %s", exc)
+            return []
+
+        prospects = []
+        for person in data.get("people", [])[:max_results]:
+            org = person.get("organization", {}) or {}
+            prospects.append({
+                "name": person.get("name", ""),
+                "email": person.get("email", ""),
+                "linkedin": person.get("linkedin_url", ""),
+                "company": org.get("name", ""),
+                "title": person.get("title", ""),
+                "website": org.get("website_url", ""),
+                "industry": org.get("industry", ""),
+                "company_size": org.get("estimated_num_employees"),
+                "source_tool": "apollo",
+            })
+
+        logger.info("Apollo people search: %d results for title='%s'", len(prospects), title[:40])
+        return prospects
+
     def extract_all_fields(self, person: Dict, original_profile: Dict) -> Dict:
         """
         Extract ALL fields from Apollo person response, mapped by tier.

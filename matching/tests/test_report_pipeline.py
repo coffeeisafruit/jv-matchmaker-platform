@@ -300,15 +300,167 @@ class TestCommandHelpers:
 
 
 # =============================================================================
+# Unit tests: Template generation bug fixes
+# =============================================================================
+
+class TestProfileContextBugFixes:
+    """Tests for the 5 template generation bugs fixed in _build_client_profile."""
+
+    def setup_method(self):
+        self.cmd = Command()
+
+    # --- Bug 1: program_name should not be empty ---
+
+    def test_program_name_uses_company(self):
+        sp = make_sp(company='Acme Corp')
+        profile = self.cmd._build_client_profile(sp)
+        assert profile['program_name'] == 'Acme Corp'
+
+    def test_program_name_fallback_chain(self):
+        """When company is empty, _clean_company_name falls back to name.
+        The signature_programs fallback only triggers if both are empty."""
+        sp = make_sp(company='', name='', signature_programs='Growth Academy')
+        profile = self.cmd._build_client_profile(sp)
+        assert profile['program_name'] == 'Growth Academy'
+
+    def test_program_name_never_empty(self):
+        sp = make_sp(company='', name='Jane Doe', signature_programs='')
+        profile = self.cmd._build_client_profile(sp)
+        assert profile['program_name']  # Should never be empty
+
+    # --- Bug 2: target_audience should not be literal "Target Audience" ---
+
+    def test_target_audience_uses_audience_type(self):
+        sp = make_sp(audience_type='Non-technical investors')
+        profile = self.cmd._build_client_profile(sp)
+        assert profile['target_audience'] == 'Non-technical investors'
+
+    def test_target_audience_fallback_to_niche(self):
+        sp = make_sp(audience_type=None, niche='Health & Wellness')
+        profile = self.cmd._build_client_profile(sp)
+        assert profile['target_audience'] == 'Health & Wellness'
+
+    def test_target_audience_fallback_default(self):
+        sp = make_sp(audience_type=None, niche=None)
+        profile = self.cmd._build_client_profile(sp)
+        assert profile['target_audience'] == 'Entrepreneurs & Business Owners'
+
+    def test_target_audience_never_placeholder(self):
+        """Ensure we never get the old hardcoded 'Target Audience' placeholder."""
+        sp = make_sp(audience_type=None, niche=None)
+        profile = self.cmd._build_client_profile(sp)
+        assert profile['target_audience'] != 'Target Audience'
+
+    # --- Bug 3: seeking goals should not split on commas ---
+
+    def test_seeking_goals_does_not_split_on_commas(self):
+        sp = make_sp(seeking='Partners in health, wellness, and biz-op spaces.')
+        goals = self.cmd._build_seeking_goals(sp)
+        # Should NOT split "health, wellness, and biz-op" into fragments
+        assert len(goals) == 1
+        assert 'health, wellness' in goals[0]
+
+    def test_seeking_goals_splits_on_sentences(self):
+        sp = make_sp(seeking='Looking for JV partners. Also seeking podcast hosts.')
+        goals = self.cmd._build_seeking_goals(sp)
+        assert len(goals) == 2
+        assert 'JV partners' in goals[0]
+        assert 'podcast hosts' in goals[1]
+
+    def test_seeking_goals_splits_on_semicolons(self):
+        sp = make_sp(seeking='Email list partners; Podcast appearances; Mastermind invites')
+        goals = self.cmd._build_seeking_goals(sp)
+        assert len(goals) == 3
+
+    def test_seeking_goals_empty(self):
+        sp = make_sp(seeking='')
+        goals = self.cmd._build_seeking_goals(sp)
+        assert goals == []
+
+    def test_seeking_goals_none(self):
+        sp = make_sp(seeking=None)
+        goals = self.cmd._build_seeking_goals(sp)
+        assert goals == []
+
+    def test_seeking_goals_max_five(self):
+        sp = make_sp(seeking='One. Two. Three. Four. Five. Six. Seven.')
+        goals = self.cmd._build_seeking_goals(sp)
+        assert len(goals) <= 5
+
+    # --- Bug 4: no seeking_focus in context (removed) ---
+
+    def test_no_seeking_focus_in_profile(self):
+        """seeking_focus was removed — should not appear in the profile context."""
+        sp = make_sp()
+        profile = self.cmd._build_client_profile(sp)
+        assert 'seeking_focus' not in profile
+
+    # --- Bug 5: no double period in ideal_partner_intro ---
+
+    def test_no_double_period_in_ideal_partner_intro(self):
+        sp = make_sp(who_you_serve='entrepreneurs and small business owners.')
+        profile = self.cmd._build_client_profile(sp)
+        assert '..' not in profile['ideal_partner_intro']
+
+    def test_ideal_partner_intro_adds_period(self):
+        sp = make_sp(who_you_serve='entrepreneurs and small business owners')
+        profile = self.cmd._build_client_profile(sp)
+        assert profile['ideal_partner_intro'].endswith('.')
+
+    # --- New: multi-paragraph bio ---
+
+    def test_about_story_paragraphs_splits_bio(self):
+        sp = make_sp(bio='First paragraph.\n\nSecond paragraph.\n\nThird paragraph.')
+        profile = self.cmd._build_client_profile(sp)
+        assert len(profile['about_story_paragraphs']) == 3
+        assert profile['about_story_paragraphs'][0] == 'First paragraph.'
+        assert profile['about_story_paragraphs'][2] == 'Third paragraph.'
+
+    def test_about_story_paragraphs_single_paragraph(self):
+        sp = make_sp(bio='Just one paragraph with no double newlines.')
+        profile = self.cmd._build_client_profile(sp)
+        assert len(profile['about_story_paragraphs']) == 1
+
+    def test_about_story_paragraphs_empty_bio(self):
+        sp = make_sp(bio='', company='Test Co', name='Test Name')
+        profile = self.cmd._build_client_profile(sp)
+        # Falls back to generated bio, still should have paragraphs list
+        assert isinstance(profile['about_story_paragraphs'], list)
+        assert len(profile['about_story_paragraphs']) >= 1
+
+    # --- New: context keys for JV Brief sections ---
+
+    def test_profile_has_jv_brief_keys(self):
+        """Verify new template section keys exist in the profile context."""
+        sp = make_sp()
+        profile = self.cmd._build_client_profile(sp)
+        assert 'resource_links' in profile
+        assert 'partner_deliverables' in profile
+        assert 'why_converts' in profile
+        assert 'launch_stats' in profile
+        # Default values should be empty
+        assert profile['resource_links'] == []
+        assert profile['partner_deliverables'] == []
+        assert profile['why_converts'] == []
+        assert profile['launch_stats'] is None
+
+
+# =============================================================================
 # Unit tests: _build_why_fit_from_ismc
 # =============================================================================
 
 class TestBuildWhyFitFromISMC:
     def setup_method(self):
         self.cmd = Command()
+        self.client = make_sp(
+            name='Janet Test',
+            seeking='Growth partners',
+            who_you_serve='Small business owners',
+            niche='Business Growth',
+        )
 
     def test_with_high_intent_factors(self):
-        partner = make_sp(seeking='JV Launch Partners')
+        partner = make_sp(seeking='JV Launch Partners', list_size=0)
         breakdown = {
             'intent': {
                 'score': 8.0,
@@ -321,8 +473,8 @@ class TestBuildWhyFitFromISMC:
             'momentum': {'score': 5.0, 'factors': []},
             'context': {'score': 5.0, 'factors': []},
         }
-        result = self.cmd._build_why_fit_from_ismc(partner, breakdown)
-        assert 'JV Launch Partners' in result
+        result = self.cmd._build_why_fit_from_ismc(partner, breakdown, self.client)
+        assert 'JV track record' in result
 
     def test_with_high_synergy_factors(self):
         partner = make_sp(who_you_serve='Coaches and speakers', what_you_do='Marketing automation')
@@ -338,7 +490,7 @@ class TestBuildWhyFitFromISMC:
             'momentum': {'score': 5.0, 'factors': []},
             'context': {'score': 5.0, 'factors': []},
         }
-        result = self.cmd._build_why_fit_from_ismc(partner, breakdown)
+        result = self.cmd._build_why_fit_from_ismc(partner, breakdown, self.client)
         assert 'Coaches and speakers' in result
 
     def test_with_high_momentum_list_size(self):
@@ -354,20 +506,22 @@ class TestBuildWhyFitFromISMC:
             },
             'context': {'score': 5.0, 'factors': []},
         }
-        result = self.cmd._build_why_fit_from_ismc(partner, breakdown)
+        result = self.cmd._build_why_fit_from_ismc(partner, breakdown, self.client)
         assert '75,000' in result
         assert 'cross-promotion' in result
 
     def test_fallback_when_no_high_scores(self):
-        partner = make_sp(who_you_serve='Business owners', what_you_do='Consulting')
+        partner = make_sp(who_you_serve='Business owners', what_you_do='Consulting', list_size=0,
+                          niche='Business Coaching')
         breakdown = {
             'intent': {'score': 3.0, 'factors': [{'name': 'JV History', 'score': 3.0, 'weight': 0.3, 'detail': 'no history'}]},
             'synergy': {'score': 3.0, 'factors': [{'name': 'Audience Alignment', 'score': 3.0, 'weight': 0.3, 'detail': 'low overlap'}]},
             'momentum': {'score': 3.0, 'factors': []},
             'context': {'score': 3.0, 'factors': []},
         }
-        result = self.cmd._build_why_fit_from_ismc(partner, breakdown)
-        assert 'Business owners' in result
+        result = self.cmd._build_why_fit_from_ismc(partner, breakdown, self.client)
+        # Fallback path: both partner and client have niche → niche overlap text
+        assert 'Business Coaching' in result
 
 
 # =============================================================================

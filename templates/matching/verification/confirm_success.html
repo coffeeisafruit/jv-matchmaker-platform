@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Confirmed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #faf8f5;
+            --ink: #1a1a1a;
+            --forest: #1e3a2f;
+            --gold: #c9a962;
+            --gold-light: #e8d5a8;
+            --muted: #8b8680;
+            --blush: #f4e8e1;
+            --card: #ffffff;
+            --success-bg: #e8f5e9;
+            --success-fg: #1b5e20;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0 28px;
+            border-bottom: 1px solid var(--gold-light);
+            margin-bottom: 32px;
+        }
+
+        .header-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .header-icon.confirmed {
+            background: var(--success-bg);
+            color: var(--success-fg);
+        }
+
+        .header-icon.expired {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .header-icon.pending {
+            background: var(--blush);
+            color: var(--forest);
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--forest);
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .header-meta {
+            font-size: 14px;
+            color: var(--muted);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .status-card {
+            background: var(--card);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-card-header {
+            padding: 0.875rem 1.25rem;
+            border-bottom: 1px solid var(--gold-light);
+            background: var(--cream);
+        }
+
+        .status-card-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--forest);
+        }
+
+        .status-card-body {
+            padding: 1.25rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0.625rem 0;
+            border-bottom: 1px solid #f0ece8;
+            font-size: 0.875rem;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: var(--muted);
+            font-size: 0.8125rem;
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        .detail-value.confirmed {
+            color: var(--success-fg);
+        }
+
+        .detail-value.expired {
+            color: #e65100;
+        }
+
+        .success-banner {
+            background: var(--success-bg);
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            font-size: 0.875rem;
+            color: var(--success-fg);
+            line-height: 1.6;
+        }
+
+        .expired-banner {
+            background: #fff3e0;
+            border: 1px solid #ffe0b2;
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            font-size: 0.875rem;
+            color: #e65100;
+            line-height: 1.6;
+        }
+
+        .footer {
+            border-top: 1px solid var(--gold-light);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 16px 14px 60px; }
+            .header h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <header class="header">
+            {% if verification.status == 'confirmed' %}
+                <div class="header-icon confirmed">&#10003;</div>
+                <h1>Profile Confirmed</h1>
+                <div class="header-meta">
+                    Thank you, {{ profile.name }}! Your profile has been confirmed
+                    and your data is now protected from automated updates.
+                </div>
+            {% elif verification.status == 'expired' %}
+                <div class="header-icon expired">&#9888;</div>
+                <h1>Verification Expired</h1>
+                <div class="header-meta">
+                    This verification link has expired. Please contact the JV Matchmaker
+                    team if you need to update your profile.
+                </div>
+            {% else %}
+                <div class="header-icon pending">&#9202;</div>
+                <h1>Verification Pending</h1>
+                <div class="header-meta">
+                    Your profile verification is still pending.
+                    Please complete the form to confirm your information.
+                </div>
+            {% endif %}
+        </header>
+
+        {% if verification.status == 'confirmed' %}
+            <div class="success-banner">
+                Your confirmed data has been saved and will be used for your next
+                partner matching report. Fields you confirmed are now locked at the
+                highest priority level and will not be overwritten by AI enrichment.
+            </div>
+        {% elif verification.status == 'expired' %}
+            <div class="expired-banner">
+                This verification request is no longer active. A new verification
+                link will be included in your next monthly email.
+            </div>
+        {% endif %}
+
+        <div class="status-card">
+            <div class="status-card-header">
+                <span class="status-card-title">Verification Details</span>
+            </div>
+            <div class="status-card-body">
+                <div class="detail-row">
+                    <span class="detail-label">Name</span>
+                    <span class="detail-value">{{ profile.name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value {% if verification.status == 'confirmed' %}confirmed{% elif verification.status == 'expired' %}expired{% endif %}">
+                        {{ verification.get_status_display }}
+                    </span>
+                </div>
+                {% if verification.confirmed_at %}
+                <div class="detail-row">
+                    <span class="detail-label">Confirmed At</span>
+                    <span class="detail-value">{{ verification.confirmed_at|date:"F j, Y g:i A" }}</span>
+                </div>
+                {% endif %}
+                {% if changes_count > 0 %}
+                <div class="detail-row">
+                    <span class="detail-label">Fields Updated</span>
+                    <span class="detail-value">{{ changes_count }} field{{ changes_count|pluralize }}</span>
+                </div>
+                {% endif %}
+                <div class="detail-row">
+                    <span class="detail-label">Verification Period</span>
+                    <span class="detail-value">{{ verification.month|date:"F Y" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            JV Matchmaker &middot; Profile Verification
+        </div>
+    </div>
+</body>
+</html>

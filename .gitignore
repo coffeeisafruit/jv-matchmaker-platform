@@ -37,3 +37,25 @@ node_modules/
 *.pem
 *.key
 credentials.json
+
+# Enrichment pipeline artifacts
+*.csv
+!enriched_emails_template.csv
+enrichment_log.txt
+owl_enrichment.log
+firebase-debug.log
+
+# Generated reports and data
+exports/
+reports/
+validation_results/
+enrichment_batches/
+owl_enrichment_output/
+data_quality_report.*
+community_graph_data.js
+
+# HuggingFace cache
+Chelsea_clients/hf_cache/
+
+# Architecture diagram
+architecture_diagram.html

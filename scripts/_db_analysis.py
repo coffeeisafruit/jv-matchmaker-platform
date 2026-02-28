@@ -1,27 +1,18 @@
 #!/usr/bin/env python3
 """Analyze database completeness and enrichment gaps."""
-import os, sys, json, glob, hashlib
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-import django; django.setup()
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from dotenv import load_dotenv
-load_dotenv()
+import os, sys, json, glob
 
-CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                         'Chelsea_clients', 'research_cache')
+from _common import setup_django, cache_key, get_db_connection, CACHE_DIR
+setup_django()
 
-def cache_key(name):
-    return hashlib.md5(name.lower().encode()).hexdigest()[:12]
+import random
 
 # Load cache keys
 cache_keys = set()
 for fp in glob.glob(os.path.join(CACHE_DIR, '*.json')):
     cache_keys.add(os.path.basename(fp).replace('.json', ''))
 
-conn = psycopg2.connect(os.environ['DATABASE_URL'])
-cur = conn.cursor(cursor_factory=RealDictCursor)
+conn, cur = get_db_connection()
 
 # === SECTION 1: What do the 530 bare profiles have? ===
 bare_query = """
@@ -81,7 +72,6 @@ print(f"    No cache + name only: {no_cache_name_only}")
 
 # Sample
 print(f"\n  Sample bare profiles:")
-import random
 random.seed(42)
 sample = random.sample(bare, min(15, len(bare)))
 for p in sample:

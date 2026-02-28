@@ -1502,7 +1502,7 @@
   <h1><span>JV</span> Matchmaker Platform</h1>
   <div class="stats">
     <div><strong>5</strong> Django Apps</div>
-    <div><strong>3,577</strong> Profiles</div>
+    <div><strong id="header-profile-count">3,577</strong> Profiles</div>
     <div><strong>7</strong> API Integrations</div>
     <div><strong>613+</strong> Tests</div>
     <div><strong>54</strong> Launch Plays</div>
@@ -2237,11 +2237,62 @@
     <div class="pipeline-step">
       <div class="pipeline-line">
         <div class="pipeline-dot" style="background:var(--accent-blue)"></div>
-        <div class="pipeline-connector" style="background:transparent"></div>
+        <div class="pipeline-connector"></div>
       </div>
       <div class="pipeline-card">
-        <h4>Output <span class="cost-badge cost-free">COMPLETE</span></h4>
-        <p>Enriched profile stored in Supabase with full provenance. Fed into ISMC Matching Engine and Member Reports. Re-enrichment via <code>--refresh --stale-days N</code> respects source priority hierarchy.</p>
+        <h4>Supabase Write <span class="cost-badge cost-free">COMPLETE</span></h4>
+        <p>Enriched profile stored in Supabase with full provenance. <code>enrichment_metadata.field_meta</code> stamps every field with source + timestamp. Re-enrichment via <code>--refresh --stale-days N</code> respects source priority hierarchy.</p>
+      </div>
+    </div>
+
+    <!-- ===== POST-ENRICHMENT: FULL LIFECYCLE STAGES ===== -->
+
+    <div style="text-align:center;padding:16px 0 8px;max-width:800px;margin:0 auto;">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--text-dim);font-weight:600">Post-Enrichment Pipeline</div>
+      <div style="font-size:12px;color:var(--accent-blue);margin-top:4px">Enriched profiles flow into scoring, reports, and engagement tracking</div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-blue)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card" style="border-left:3px solid var(--accent-blue)">
+        <h4>Step 6: Embedding Generation <span class="cost-badge cost-free">LOCAL</span></h4>
+        <p><strong>manage.py backfill_embeddings</strong> &mdash; Generates <strong>bge-large-en-v1.5</strong> vectors (1024-dim) for 4 semantic fields: <code>seeking</code>, <code>offering</code>, <code>who_you_serve</code>, <code>what_you_do</code>. Stored in pgvector columns with IVFFlat indexes (cosine ops, 50 lists). Supports <code>--batch-size</code>, <code>--dry-run</code>, <code>--force</code>.</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-purple)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card" style="border-left:3px solid var(--accent-purple)">
+        <h4>Step 7: ISMC Match Scoring <span class="cost-badge cost-free">COMPUTE</span></h4>
+        <p><strong>manage.py rescore_matches</strong> &mdash; Scores every profile pair using the ISMC framework: <strong>Intent (45%)</strong>, <strong>Synergy (25%)</strong> via embedding cosine similarity, <strong>Momentum (20%)</strong>, <strong>Context (10%)</strong>. Computes directional scores (score_ab, score_ba) then <strong>weighted harmonic mean</strong>. Produces before/after impact report. PgBouncer-safe.</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-green)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card" style="border-left:3px solid var(--accent-green)">
+        <h4>Step 8: Member Report Generation <span class="cost-badge cost-free">AUTOMATED</span></h4>
+        <p><strong>manage.py generate_member_report</strong> &mdash; Fetches top 15 matches for a client, assigns to sections (<strong>Priority</strong> &ge;67 + email, <strong>This Week</strong> &ge;55, <strong>Low Priority</strong> LinkedIn-only, <strong>JV Programs</strong>). Generates unique access code. Creates <code>MemberReport</code> + <code>ReportPartner</code> snapshot records with outreach templates.</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-orange)"></div>
+        <div class="pipeline-connector" style="background:transparent"></div>
+      </div>
+      <div class="pipeline-card" style="border-left:3px solid var(--accent-orange)">
+        <h4>Step 9: Client Engagement &amp; Analytics <span class="cost-badge cost-free">TRACKING</span></h4>
+        <p>Client visits report via <strong>access code</strong> (no login). JavaScript tracks: page views, scroll depth, card expansions, email/LinkedIn clicks, template copies, time-to-first-action. Events stored as <code>OutreachEvent</code> records. <strong>manage.py compute_engagement_metrics</strong> aggregates into <code>EngagementSummary</code>. <strong>manage.py generate_analytics_insights</strong> detects idle reports, score calibration issues, and template friction.</p>
       </div>
     </div>
   </div>
@@ -2263,6 +2314,166 @@
       <h4 style="color:var(--accent-pink)">Re-enrichment</h4>
       <p>--refresh mode for stale field updates</p>
     </div>
+  </div>
+
+  <!-- ===== CASCADE DECISION FLOWCHART ===== -->
+  <div style="max-width:900px;margin:40px auto 0;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:6px;">Enrichment Cascade &mdash; Decision Logic</h3>
+      <p style="font-size:13px;color:var(--text-dim)">How the pipeline decides which source to use and when to escalate</p>
+    </div>
+    <svg viewBox="0 0 880 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+      <defs>
+        <marker id="fc-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="#4a4e68" />
+        </marker>
+        <marker id="fc-arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="#4ecb8d" />
+        </marker>
+        <marker id="fc-arrow-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="#f06b6b" />
+        </marker>
+        <marker id="fc-arrow-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="#f0a04b" />
+        </marker>
+      </defs>
+      <rect width="880" height="520" fill="var(--bg)" rx="12"/>
+
+      <!-- START: Profile with gaps -->
+      <rect x="340" y="10" width="200" height="40" rx="20" fill="rgba(91,138,245,0.12)" stroke="#5b8af5" stroke-width="1.2"/>
+      <text x="440" y="35" text-anchor="middle" fill="#5b8af5" font-size="12" font-weight="600">Profile with gaps?</text>
+
+      <!-- Arrow down -->
+      <line x1="440" y1="50" x2="440" y2="75" stroke="#4a4e68" stroke-width="1.5" marker-end="url(#fc-arrow)"/>
+
+      <!-- DECISION: Has website? -->
+      <polygon points="440,75 540,110 440,145 340,110" fill="rgba(78,200,203,0.08)" stroke="#4ec8cb" stroke-width="1.2"/>
+      <text x="440" y="114" text-anchor="middle" fill="#4ec8cb" font-size="11" font-weight="600">Has website?</text>
+
+      <!-- YES branch (left) -->
+      <line x1="340" y1="110" x2="200" y2="110" stroke="#4ecb8d" stroke-width="1.2" marker-end="url(#fc-arrow-green)"/>
+      <text x="270" y="103" text-anchor="middle" fill="#4ecb8d" font-size="10" font-weight="600">YES</text>
+
+      <!-- Exa.ai box -->
+      <rect x="60" y="90" width="140" height="40" rx="8" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="1"/>
+      <text x="130" y="107" text-anchor="middle" fill="#a87bf5" font-size="11" font-weight="600">Exa.ai Extract</text>
+      <text x="130" y="122" text-anchor="middle" fill="#8b90a8" font-size="9">Priority 50</text>
+
+      <!-- Arrow down from Exa -->
+      <line x1="130" y1="130" x2="130" y2="155" stroke="#4a4e68" stroke-width="1.2" marker-end="url(#fc-arrow)"/>
+
+      <!-- DECISION: Exa indexed? -->
+      <polygon points="130,155 210,185 130,215 50,185" fill="rgba(168,123,245,0.06)" stroke="#a87bf5" stroke-width="1"/>
+      <text x="130" y="189" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Indexed?</text>
+
+      <!-- YES from Exa → Verify -->
+      <line x1="50" y1="185" x2="20" y2="185" stroke="#4ecb8d" stroke-width="1" marker-end="url(#fc-arrow-green)"/>
+      <text x="35" y="178" text-anchor="middle" fill="#4ecb8d" font-size="9">YES</text>
+      <line x1="20" y1="185" x2="20" y2="370" stroke="#4ecb8d" stroke-width="1"/>
+      <line x1="20" y1="370" x2="300" y2="370" stroke="#4ecb8d" stroke-width="1" marker-end="url(#fc-arrow-green)"/>
+
+      <!-- NO from Exa → Crawl4AI -->
+      <line x1="130" y1="215" x2="130" y2="245" stroke="#f06b6b" stroke-width="1" marker-end="url(#fc-arrow-red)"/>
+      <text x="142" y="233" fill="#f06b6b" font-size="9">NO</text>
+
+      <!-- Crawl4AI + Claude -->
+      <rect x="55" y="245" width="150" height="40" rx="8" fill="rgba(78,200,203,0.1)" stroke="#4ec8cb" stroke-width="1"/>
+      <text x="130" y="262" text-anchor="middle" fill="#4ec8cb" font-size="11" font-weight="600">Crawl4AI + Claude</text>
+      <text x="130" y="277" text-anchor="middle" fill="#8b90a8" font-size="9">Priority 40 (fallback)</text>
+
+      <!-- Arrow from Crawl4AI → Verify -->
+      <line x1="130" y1="285" x2="130" y2="370" stroke="#4a4e68" stroke-width="1"/>
+      <line x1="130" y1="370" x2="300" y2="370" stroke="#4a4e68" stroke-width="1" marker-end="url(#fc-arrow)"/>
+
+      <!-- NO branch from "Has website?" (right) -->
+      <line x1="540" y1="110" x2="640" y2="110" stroke="#f06b6b" stroke-width="1.2" marker-end="url(#fc-arrow-red)"/>
+      <text x="590" y="103" text-anchor="middle" fill="#f06b6b" font-size="10" font-weight="600">NO</text>
+
+      <!-- Name-only search -->
+      <rect x="640" y="90" width="160" height="40" rx="8" fill="rgba(78,200,203,0.1)" stroke="#4ec8cb" stroke-width="1"/>
+      <text x="720" y="107" text-anchor="middle" fill="#4ec8cb" font-size="11" font-weight="600">Exa Discovery</text>
+      <text x="720" y="122" text-anchor="middle" fill="#8b90a8" font-size="9">Find website/LinkedIn</text>
+
+      <!-- Arrow down from discovery -->
+      <line x1="720" y1="130" x2="720" y2="165" stroke="#4a4e68" stroke-width="1.2" marker-end="url(#fc-arrow)"/>
+
+      <!-- DECISION: Email missing? -->
+      <polygon points="440,165 540,200 440,235 340,200" fill="rgba(240,160,75,0.08)" stroke="#f0a04b" stroke-width="1.2"/>
+      <text x="440" y="204" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="600">Email gaps?</text>
+
+      <!-- Connect discovery to Email check -->
+      <line x1="720" y1="165" x2="720" y2="200" stroke="#4a4e68" stroke-width="1"/>
+      <line x1="720" y1="200" x2="540" y2="200" stroke="#4a4e68" stroke-width="1" marker-end="url(#fc-arrow)"/>
+
+      <!-- YES: ContactScraper -->
+      <line x1="440" y1="235" x2="440" y2="265" stroke="#f0a04b" stroke-width="1.2" marker-end="url(#fc-arrow-orange)"/>
+      <text x="452" y="253" fill="#f0a04b" font-size="9">YES</text>
+
+      <rect x="360" y="265" width="160" height="40" rx="8" fill="rgba(240,160,75,0.1)" stroke="#f0a04b" stroke-width="1"/>
+      <text x="440" y="282" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="600">ContactScraper</text>
+      <text x="440" y="297" text-anchor="middle" fill="#8b90a8" font-size="9">Playwright email/phone</text>
+
+      <!-- Arrow down from ContactScraper -->
+      <line x1="440" y1="305" x2="440" y2="325" stroke="#4a4e68" stroke-width="1.2" marker-end="url(#fc-arrow)"/>
+
+      <!-- DECISION: Still missing? -->
+      <polygon points="440,325 530,352 440,379 350,352" fill="rgba(240,160,75,0.06)" stroke="#f0a04b" stroke-width="1"/>
+      <text x="440" y="356" text-anchor="middle" fill="#f0a04b" font-size="10" font-weight="500">Still gaps?</text>
+
+      <!-- YES: Apollo fallback -->
+      <line x1="530" y1="352" x2="620" y2="352" stroke="#f0a04b" stroke-width="1" marker-end="url(#fc-arrow-orange)"/>
+      <text x="575" y="345" fill="#f0a04b" font-size="9">YES</text>
+
+      <rect x="620" y="332" width="140" height="40" rx="8" fill="rgba(240,160,75,0.1)" stroke="#f0a04b" stroke-width="1"/>
+      <text x="690" y="349" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="600">Apollo.io API</text>
+      <text x="690" y="364" text-anchor="middle" fill="#8b90a8" font-size="9">Priority 30 &middot; $0.002</text>
+
+      <!-- Arrow from Apollo to Verify -->
+      <line x1="690" y1="372" x2="690" y2="410" stroke="#4a4e68" stroke-width="1"/>
+      <line x1="690" y1="410" x2="500" y2="410" stroke="#4a4e68" stroke-width="1" marker-end="url(#fc-arrow)"/>
+
+      <!-- NO from "Still gaps?" → Verify directly -->
+      <line x1="440" y1="379" x2="440" y2="400" stroke="#4ecb8d" stroke-width="1" marker-end="url(#fc-arrow-green)"/>
+      <text x="452" y="392" fill="#4ecb8d" font-size="9">NO</text>
+
+      <!-- NO from "Email gaps?" → Verify directly -->
+      <line x1="340" y1="200" x2="280" y2="200" stroke="#4ecb8d" stroke-width="1"/>
+      <text x="310" y="193" fill="#4ecb8d" font-size="9">NO</text>
+      <line x1="280" y1="200" x2="280" y2="370" stroke="#4ecb8d" stroke-width="1"/>
+      <line x1="280" y1="370" x2="300" y2="370" stroke="#4ecb8d" stroke-width="1"/>
+
+      <!-- ===== VERIFICATION GATE ===== -->
+      <rect x="300" y="400" width="280" height="110" rx="10" fill="rgba(168,123,245,0.06)" stroke="#a87bf5" stroke-width="1.5"/>
+      <text x="440" y="420" text-anchor="middle" fill="#a87bf5" font-size="13" font-weight="700">Verification Gate</text>
+
+      <!-- 3 layers -->
+      <rect x="315" y="430" width="115" height="24" rx="4" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
+      <text x="372" y="446" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="500">1. Deterministic</text>
+
+      <rect x="440" y="430" width="125" height="24" rx="4" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
+      <text x="502" y="446" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="500">2. Source Quotes</text>
+
+      <rect x="370" y="462" width="140" height="24" rx="4" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
+      <text x="440" y="478" text-anchor="middle" fill="#a87bf5" font-size="9" font-weight="500">3. AI Verification</text>
+
+      <!-- Three outcomes -->
+      <rect x="310" y="495" width="75" height="20" rx="4" fill="rgba(78,203,141,0.15)"/>
+      <text x="347" y="509" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="600">Verified</text>
+
+      <rect x="395" y="495" width="90" height="20" rx="4" fill="rgba(240,160,75,0.15)"/>
+      <text x="440" y="509" text-anchor="middle" fill="#f0a04b" font-size="9" font-weight="600">Unverified</text>
+
+      <rect x="495" y="495" width="90" height="20" rx="4" fill="rgba(240,107,107,0.15)"/>
+      <text x="540" y="509" text-anchor="middle" fill="#f06b6b" font-size="9" font-weight="600">Quarantined</text>
+
+      <!-- Source priority legend -->
+      <rect x="630" y="420" width="230" height="90" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
+      <text x="745" y="438" text-anchor="middle" fill="var(--text-dim)" font-size="10" font-weight="600" letter-spacing="0.5">SOURCE PRIORITY</text>
+      <text x="645" y="455" fill="#4ecb8d" font-size="9" font-weight="500">client_confirmed</text><text x="830" y="455" text-anchor="end" fill="#4ecb8d" font-size="9" font-weight="700">100</text>
+      <text x="645" y="469" fill="var(--text-dim)" font-size="9">client_ingest</text><text x="830" y="469" text-anchor="end" fill="var(--text-dim)" font-size="9" font-weight="600">90</text>
+      <text x="645" y="483" fill="var(--text-dim)" font-size="9">exa_research</text><text x="830" y="483" text-anchor="end" fill="var(--text-dim)" font-size="9" font-weight="600">50</text>
+      <text x="645" y="497" fill="var(--text-dim)" font-size="9">ai_research / apollo</text><text x="830" y="497" text-anchor="end" fill="var(--text-dim)" font-size="9" font-weight="600">40 / 30</text>
+    </svg>
   </div>
 </div>
 
@@ -2658,13 +2869,29 @@
     <!-- Hero -->
     <div class="dh-hero">
       <h2>Database Enrichment Health</h2>
-      <p>Live fill rates from Supabase &mdash; 3,577 profiles queried across all fields</p>
+      <p>Fill rates from Supabase &mdash; <span id="dh-live-status" style="font-size:11px;font-weight:600;">Loading live data...</span></p>
       <div class="dh-stat-row">
         <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-blue)">3,577</span><span class="dh-stat-label">Total Profiles</span></div>
         <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-green)">$84</span><span class="dh-stat-label">Enrichment Spend</span></div>
         <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-purple)">3,577</span><span class="dh-stat-label">Enriched (100%)</span></div>
         <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-orange)">10+</span><span class="dh-stat-label">Pipeline Runs</span></div>
         <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-cyan)">38</span><span class="dh-stat-label">Total Fields</span></div>
+      </div>
+    </div>
+
+    <!-- Pipeline Stage Funnel (populated by live API) -->
+    <div class="dh-group open" style="cursor:default">
+      <div class="dh-group-header" style="cursor:default">
+        <h4><div class="dh-dot" style="background:var(--accent-blue)"></div> Pipeline Stage Funnel</h4>
+      </div>
+      <div class="dh-group-body" style="display:block">
+        <div class="dh-stat-row" id="pipeline-funnel" style="justify-content:flex-start;gap:12px;flex-wrap:wrap">
+          <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-blue)">&#8230;</span><span class="dh-stat-label">Ingested</span></div>
+          <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-cyan)">&#8230;</span><span class="dh-stat-label">Enriched</span></div>
+          <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-purple)">&#8230;</span><span class="dh-stat-label">Embedded</span></div>
+          <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-green)">&#8230;</span><span class="dh-stat-label">Scored</span></div>
+          <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-orange)">&#8230;</span><span class="dh-stat-label">Reported</span></div>
+        </div>
       </div>
     </div>
 
@@ -3057,6 +3284,17 @@
       </div>
     </div>
 
+    <!-- ========== SOURCE DISTRIBUTION (populated by live API) ========== -->
+    <div class="dh-group" onclick="this.classList.toggle('open')">
+      <div class="dh-group-header">
+        <h4><div class="dh-dot" style="background:var(--accent-purple)"></div> Source Distribution <span class="dh-group-count">&mdash; field counts by enrichment source</span></h4>
+        <span class="dh-chevron">&#9654;</span>
+      </div>
+      <div class="dh-group-body" id="source-distribution">
+        <div style="padding:12px 0;color:var(--text-dim);font-size:12px">Loading from API...</div>
+      </div>
+    </div>
+
     <!-- ========== EXA PERFORMANCE ========== -->
     <div class="dh-phase-section" style="margin-bottom: 40px">
       <h3>Exa Research Performance</h3>
@@ -3160,6 +3398,147 @@ function switchTab(name) {
   event.target.classList.add('active');
   document.getElementById('view-' + name).classList.add('active');
   document.querySelectorAll('.detail-panel').forEach(d => d.classList.remove('open'));
+  if (name === 'datahealth') fetchLiveDataHealth();
+}
+
+// ===== LIVE DATA HEALTH FETCHING =====
+var dataHealthLoaded = false;
+
+function createBarRow(label, pct, count, color) {
+  var row = document.createElement('div');
+  row.className = 'dh-bar-row';
+
+  var nameSpan = document.createElement('span');
+  nameSpan.className = 'dh-field-name';
+  nameSpan.textContent = label;
+
+  var track = document.createElement('div');
+  track.className = 'dh-bar-track';
+  var fill = document.createElement('div');
+  fill.className = 'dh-bar-fill';
+  fill.style.width = pct + '%';
+  fill.style.background = 'var(' + color + ')';
+  track.appendChild(fill);
+
+  var pctSpan = document.createElement('span');
+  pctSpan.className = 'dh-bar-pct';
+  pctSpan.style.color = 'var(' + color + ')';
+  pctSpan.textContent = count.toLocaleString();
+
+  var delta = document.createElement('span');
+  delta.className = 'dh-bar-delta dh-delta-zero';
+  delta.textContent = 'fields';
+
+  row.appendChild(nameSpan);
+  row.appendChild(track);
+  row.appendChild(pctSpan);
+  row.appendChild(delta);
+  return row;
+}
+
+function createStatBox(value, label, color) {
+  var box = document.createElement('div');
+  box.className = 'dh-stat';
+  var val = document.createElement('span');
+  val.className = 'dh-stat-val';
+  val.style.color = 'var(' + color + ')';
+  val.textContent = value;
+  var lbl = document.createElement('span');
+  lbl.className = 'dh-stat-label';
+  lbl.textContent = label;
+  box.appendChild(val);
+  box.appendChild(lbl);
+  return box;
+}
+
+function fetchLiveDataHealth() {
+  if (dataHealthLoaded) return;
+  var apiUrl = '/matching/api/pipeline-stats/';
+  var statusEl = document.getElementById('dh-live-status');
+
+  fetch(apiUrl).then(function(r) {
+    if (!r.ok) throw new Error('API returned ' + r.status);
+    return r.json();
+  }).then(function(data) {
+    dataHealthLoaded = true;
+
+    // Update hero total and header count
+    var heroStats = document.querySelectorAll('.dh-hero .dh-stat-val');
+    if (heroStats.length > 0) heroStats[0].textContent = data.total_profiles.toLocaleString();
+    var headerCount = document.getElementById('header-profile-count');
+    if (headerCount) headerCount.textContent = data.total_profiles.toLocaleString();
+
+    // Update pipeline stage funnel
+    var funnelEl = document.getElementById('pipeline-funnel');
+    if (funnelEl && data.pipeline_stages) {
+      var stages = data.pipeline_stages;
+      while (funnelEl.firstChild) funnelEl.removeChild(funnelEl.firstChild);
+      var stageOrder = [
+        {key: 'ingested', label: 'Ingested', color: '--accent-blue'},
+        {key: 'enriched', label: 'Enriched', color: '--accent-cyan'},
+        {key: 'embedded', label: 'Embedded', color: '--accent-purple'},
+        {key: 'scored', label: 'Scored', color: '--accent-green'},
+        {key: 'reported', label: 'Reported', color: '--accent-orange'},
+      ];
+      stageOrder.forEach(function(s) {
+        var count = stages[s.key] || 0;
+        var pct = stages.ingested ? Math.round(count / stages.ingested * 100) : 0;
+        funnelEl.appendChild(createStatBox(count.toLocaleString(), s.label + ' (' + pct + '%)', s.color));
+      });
+    }
+
+    // Update field coverage bars
+    if (data.field_coverage) {
+      document.querySelectorAll('.dh-bar-row').forEach(function(row) {
+        var nameEl = row.querySelector('.dh-field-name');
+        if (!nameEl) return;
+        var fieldName = nameEl.textContent.trim();
+        var fc = data.field_coverage[fieldName];
+        if (!fc) return;
+
+        var fillEl = row.querySelector('.dh-bar-fill');
+        var pctEl = row.querySelector('.dh-bar-pct');
+        var deltaEl = row.querySelector('.dh-bar-delta');
+
+        if (fillEl) {
+          fillEl.style.width = fc.pct + '%';
+          fillEl.className = 'dh-bar-fill ' + (fc.pct >= 80 ? 'dh-fill-green' : fc.pct >= 30 ? 'dh-fill-orange' : 'dh-fill-red');
+        }
+        if (pctEl) {
+          pctEl.textContent = fc.pct + '%';
+          pctEl.style.color = fc.pct >= 80 ? 'var(--accent-green)' : fc.pct >= 30 ? 'var(--accent-orange)' : 'var(--accent-red)';
+        }
+        if (deltaEl) deltaEl.textContent = fc.count.toLocaleString();
+      });
+    }
+
+    // Update source distribution
+    var srcEl = document.getElementById('source-distribution');
+    if (srcEl && data.source_distribution && !data.source_distribution.error) {
+      while (srcEl.firstChild) srcEl.removeChild(srcEl.firstChild);
+      var maxCount = Math.max.apply(null, Object.values(data.source_distribution));
+      Object.entries(data.source_distribution).forEach(function(entry) {
+        var source = entry[0], count = entry[1];
+        var pct = maxCount ? Math.round(count / maxCount * 100) : 0;
+        var color = source === 'exa_research' ? '--accent-purple' :
+                    source === 'ai_research' ? '--accent-cyan' :
+                    source === 'apollo' ? '--accent-orange' :
+                    source.indexOf('client') >= 0 ? '--accent-green' : '--text-dim';
+        srcEl.appendChild(createBarRow(source, pct, count, color));
+      });
+    }
+
+    if (statusEl) {
+      statusEl.textContent = 'Live data loaded';
+      statusEl.style.color = 'var(--accent-green)';
+    }
+  }).catch(function(err) {
+    console.warn('Pipeline stats API not available:', err.message);
+    if (statusEl) {
+      statusEl.textContent = 'Using cached data (API unavailable)';
+      statusEl.style.color = 'var(--accent-orange)';
+    }
+  });
 }
 
 function toggleDetail(id) {

@@ -1,0 +1,125 @@
+# Prefect deployment configuration for JV Matchmaker Platform
+# See: https://docs.prefect.io/3.0/deploy/infrastructure-concepts/prefect-yaml
+#
+# Deploy all flows:
+#   prefect deploy --all
+#
+# Deploy a single flow:
+#   prefect deploy -n monthly-orchestrator
+#
+# Monthly cycle calendar:
+#   Week 1 Mon          : change-detection (profile freshness)
+#   Week 3 Mon          : client-verification (escalating emails Mon/Wed/Fri)
+#   Week 4 Mon          : monthly-processing (full pipeline)
+#   Week 4 Tue          : admin-notification (AI report + suggestions)
+#   1st of month        : monthly-orchestrator (top-level coordinator)
+#   1st of month (+2h)  : report-delivery (deliver reports to clients)
+
+name: jv-matchmaker
+
+deployments:
+  # -----------------------------------------------------------------------
+  # Top-level orchestrator -- runs on the 1st of each month at 6 AM ET.
+  # Determines which phase to run based on the calendar date.  When run
+  # on the 1st it dispatches to report_delivery_flow automatically, but
+  # this deployment also serves as a catch-all entry point that can be
+  # triggered manually for any phase.
+  # -----------------------------------------------------------------------
+  - name: monthly-orchestrator
+    entrypoint: matching/enrichment/flows/monthly_orchestrator.py:monthly_orchestrator_flow
+    schedule:
+      cron: "0 6 1 * *"
+      timezone: "America/New_York"
+    description: "Top-level monthly cycle coordinator (auto-detects phase from calendar)"
+    tags: ["monthly", "orchestrator"]
+    parameters:
+      phase: "auto"
+      dry_run: false
+
+  # -----------------------------------------------------------------------
+  # Week 1: Profile freshness / change detection
+  # Runs on the first Monday of each month at 2 AM ET.
+  # Cron: day 1-7 AND Monday ensures first-Monday-of-month semantics.
+  # -----------------------------------------------------------------------
+  - name: change-detection
+    entrypoint: matching/enrichment/flows/change_detection_flow.py:change_detection_flow
+    schedule:
+      cron: "0 2 1-7 * 1"
+      timezone: "America/New_York"
+    description: "Week 1: Profile freshness -- hash check, semantic triage, queue re-enrichment"
+    tags: ["monthly", "freshness", "change-detection"]
+    parameters:
+      tiers: "A,B,C"
+      limit: 0
+      skip_triage: false
+      dry_run: false
+
+  # -----------------------------------------------------------------------
+  # Week 3: Client verification emails (Monday only -- the orchestrator
+  # handles Wed/Fri via the monthly-orchestrator auto phase).
+  # Runs on the third Monday of each month at 9 AM ET.
+  # Cron: day 15-21 AND Monday ensures third-Monday semantics.
+  # -----------------------------------------------------------------------
+  - name: client-verification
+    entrypoint: matching/enrichment/flows/client_verification.py:client_verification_flow
+    schedule:
+      cron: "0 9 15-21 * 1"
+      timezone: "America/New_York"
+    description: "Week 3: Send client verification emails with escalating urgency"
+    tags: ["monthly", "verification", "email"]
+    parameters:
+      day_of_week: "monday"
+      dry_run: false
+
+  # -----------------------------------------------------------------------
+  # Week 4 Monday: Full processing pipeline
+  # Re-enrich stale profiles, apply verification updates, rescore matches,
+  # detect gaps, trigger acquisition, and regenerate reports.
+  # Cron: day 22-28 AND Monday ensures fourth-Monday semantics.
+  # -----------------------------------------------------------------------
+  - name: monthly-processing
+    entrypoint: matching/enrichment/flows/monthly_processing.py:monthly_processing_flow
+    schedule:
+      cron: "0 2 22-28 * 1"
+      timezone: "America/New_York"
+    description: "Week 4 Monday: Full processing pipeline (enrich, rescore, gap detect, acquire, generate)"
+    tags: ["monthly", "processing"]
+    parameters:
+      stale_days: 30
+      target_score: 70
+      target_count: 10
+      skip_acquisition: false
+      dry_run: false
+
+  # -----------------------------------------------------------------------
+  # Week 4 Tuesday: Admin notification and AI report
+  # Gathers Monday's processing results, verification status, and generates
+  # AI-powered suggestions.  Sends a digest email to the admin.
+  # Cron: day 22-28 AND Tuesday ensures fourth-Tuesday semantics.
+  # -----------------------------------------------------------------------
+  - name: admin-notification
+    entrypoint: matching/enrichment/flows/admin_notification.py:admin_notification_flow
+    schedule:
+      cron: "0 9 22-28 * 2"
+      timezone: "America/New_York"
+    description: "Week 4 Tuesday: Admin notification with AI analysis and suggestions"
+    tags: ["monthly", "admin", "notification"]
+    parameters:
+      dry_run: false
+
+  # -----------------------------------------------------------------------
+  # 1st of month: Report delivery
+  # Rotates access codes, generates AI-personalized intros, and delivers
+  # updated reports to all active clients.
+  # Runs at 8 AM ET -- two hours after the orchestrator so the orchestrator
+  # can finish any last-minute coordination first.
+  # -----------------------------------------------------------------------
+  - name: report-delivery
+    entrypoint: matching/enrichment/flows/report_delivery.py:report_delivery_flow
+    schedule:
+      cron: "0 8 1 * *"
+      timezone: "America/New_York"
+    description: "1st of month: Deliver updated reports with new access codes and AI intros"
+    tags: ["monthly", "delivery", "email"]
+    parameters:
+      dry_run: false

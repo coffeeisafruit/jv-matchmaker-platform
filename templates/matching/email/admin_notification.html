@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><title>Monthly Processing Report</title></head>
+<body style="font-family: Arial, sans-serif; max-width: 700px; margin: 0 auto; padding: 20px;">
+  <h2 style="color: #2c3e50;">Monthly Processing Summary</h2>
+  <p>Processing completed for <strong>{{ month }}</strong>.</p>
+
+  <h3>Overview</h3>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+    <tr style="background: #ecf0f1;">
+      <td style="padding: 8px; border: 1px solid #bdc3c7;"><strong>Clients processed</strong></td>
+      <td style="padding: 8px; border: 1px solid #bdc3c7;">{{ clients_processed }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; border: 1px solid #bdc3c7;"><strong>Profiles enriched</strong></td>
+      <td style="padding: 8px; border: 1px solid #bdc3c7;">{{ profiles_enriched }}</td>
+    </tr>
+    <tr style="background: #ecf0f1;">
+      <td style="padding: 8px; border: 1px solid #bdc3c7;"><strong>Prospects discovered</strong></td>
+      <td style="padding: 8px; border: 1px solid #bdc3c7;">{{ prospects_discovered }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; border: 1px solid #bdc3c7;"><strong>Total cost</strong></td>
+      <td style="padding: 8px; border: 1px solid #bdc3c7;">${{ total_cost }}</td>
+    </tr>
+  </table>
+
+  {% if alerts %}
+  <h3 style="color: #c0392b;">Alerts</h3>
+  <ul>
+    {% for alert in alerts %}
+    <li style="color: #c0392b;">{{ alert }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if suggestions %}
+  <h3>AI Suggestions</h3>
+  <ul>
+    {% for suggestion in suggestions %}
+    <li><strong>[{{ suggestion.priority }}]</strong> {{ suggestion.suggestion }}{% if suggestion.client_name %} <em>({{ suggestion.client_name }})</em>{% endif %}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if client_details %}
+  <h3>Per-Client Details</h3>
+  <table style="width: 100%; border-collapse: collapse;">
+    <tr style="background: #2c3e50; color: white;">
+      <th style="padding: 8px; text-align: left;">Client</th>
+      <th style="padding: 8px;">Matches 70+</th>
+      <th style="padding: 8px;">Gap</th>
+      <th style="padding: 8px;">Verified</th>
+    </tr>
+    {% for client in client_details %}
+    <tr style="{% if forloop.counter|divisibleby:2 %}background: #ecf0f1;{% endif %}">
+      <td style="padding: 8px; border: 1px solid #bdc3c7;">{{ client.name }}</td>
+      <td style="padding: 8px; border: 1px solid #bdc3c7; text-align: center;">{{ client.matches_above_70 }}</td>
+      <td style="padding: 8px; border: 1px solid #bdc3c7; text-align: center;">{% if client.gap_detected %}Yes{% else %}No{% endif %}</td>
+      <td style="padding: 8px; border: 1px solid #bdc3c7; text-align: center;">{% if client.verified %}Yes{% else %}No{% endif %}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+</body>
+</html>

@@ -8,6 +8,7 @@ from django.urls import path
 from django.views.generic import RedirectView
 
 from . import views
+from . import views_verification
 
 app_name = 'matching'
 
@@ -52,4 +53,21 @@ urlpatterns = [
 
     # Apollo.io webhook (receives async phone/email data)
     path('api/apollo/webhook/', views.ApolloWebhookView.as_view(), name='apollo-webhook'),
+
+    # Contact ingestion webhook
+    path('api/contacts/ingest/', views.ContactIngestionWebhookView.as_view(), name='contact-ingest-webhook'),
+
+    # Analytics dashboard (login required)
+    path('analytics/', views.AnalyticsDashboardView.as_view(), name='analytics-dashboard'),
+    path('analytics/report/<int:report_id>/', views.AnalyticsReportDetailView.as_view(), name='analytics-report-detail'),
+    path('analytics/insights/', views.AnalyticsInsightsView.as_view(), name='analytics-insights'),
+    path('analytics/insights/<int:insight_id>/dismiss/', views.AnalyticsInsightDismissView.as_view(), name='analytics-insight-dismiss'),
+
+    # Pipeline stats API (for architecture_diagram.html live data)
+    path('api/pipeline-stats/', views.PipelineStatsAPIView.as_view(), name='pipeline-stats-api'),
+
+    # Client profile verification (token-gated, no login required)
+    path('verify/<uuid:token>/', views_verification.ProfileVerificationView.as_view(), name='verification-form'),
+    path('verify/<uuid:token>/submit/', views_verification.ProfileVerificationSubmitView.as_view(), name='verification-submit'),
+    path('verify/<uuid:token>/done/', views_verification.VerificationStatusView.as_view(), name='verification-done'),
 ]

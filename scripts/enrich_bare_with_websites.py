@@ -9,24 +9,19 @@ Usage:
     python scripts/enrich_bare_with_websites.py --dry-run
     python scripts/enrich_bare_with_websites.py --concurrency 3
 """
-import os, sys, json, hashlib, argparse, time, logging, subprocess, re, tempfile, threading
+import os, sys, json, argparse, time, logging, subprocess, tempfile, threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-import django; django.setup()
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from dotenv import load_dotenv
-load_dotenv()
+from _common import (
+    setup_django, cache_key, get_db_connection, call_claude_cli,
+    save_to_research_cache, PROJECT_ROOT,
+)
+setup_django()
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = os.environ['DATABASE_URL']
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CACHE_DIR = os.path.join(PROJECT_ROOT, 'Chelsea_clients', 'research_cache')
 OWL_PYTHON = os.path.join(PROJECT_ROOT, 'owl_framework', '.venv', 'bin', 'python')
 
 EXTRACTION_PROMPT = """You are a business research assistant extracting FACTUAL profile data.
@@ -83,14 +78,9 @@ Return ONLY valid JSON, no markdown fences:
 IMPORTANT: Business accuracy matters - do NOT fabricate or assume."""
 
 
-def cache_key(name):
-    return hashlib.md5(name.lower().encode()).hexdigest()[:12]
-
-
 def get_bare_profiles_with_websites():
     """Get profiles that have zero key enrichment fields but have a website."""
-    conn = psycopg2.connect(DATABASE_URL)
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    conn, cur = get_db_connection()
     cur.execute("""
         SELECT id, name, email, company, website, linkedin
         FROM profiles
@@ -168,27 +158,7 @@ def extract_with_claude(name, company, website, research_text, model='haiku'):
         website=website,
         research=research_text[:15000]
     )
-    try:
-        result = subprocess.run(
-            ['claude', '--print', '--model', model, '-p', prompt],
-            capture_output=True, text=True, timeout=180 if model == 'opus' else 90
-        )
-        if result.returncode != 0:
-            return None
-
-        text = result.stdout.strip()
-        if text.startswith('```'):
-            lines = text.split('\n')
-            text = '\n'.join(lines[1:-1] if lines[-1].startswith('```') else lines[1:])
-        if not text.startswith('{'):
-            match = re.search(r'\{[\s\S]*\}', text)
-            if match:
-                text = match.group(0)
-
-        return json.loads(text)
-    except Exception as e:
-        logger.error(f"Claude extraction failed: {e}")
-        return None
+    return call_claude_cli(prompt, model=model, timeout=180 if model == 'opus' else 90)
 
 
 def enrich_profile(profile, model='haiku'):
@@ -254,8 +224,7 @@ def save_to_db(profile_id, name, data):
         'network_role', 'email', 'phone', 'booking_link', 'signature_programs'
     ]
 
-    conn = psycopg2.connect(DATABASE_URL)
-    cur = conn.cursor()
+    conn, cur = get_db_connection()
     now = datetime.now()
     updates = []
     values = []
@@ -290,31 +259,6 @@ def save_to_db(profile_id, name, data):
     return written
 
 
-def save_to_cache(name, data):
-    """Also save to research cache for record-keeping."""
-    key = cache_key(name)
-    cache_path = os.path.join(CACHE_DIR, f'{key}.json')
-
-    existing = {}
-    if os.path.exists(cache_path):
-        try:
-            with open(cache_path) as f:
-                existing = json.load(f)
-        except Exception:
-            pass
-
-    existing['name'] = name
-    existing['_phase2_enriched'] = True
-    existing['_phase2_date'] = datetime.now().isoformat()
-
-    for k, v in data.items():
-        if v and (isinstance(v, str) and v.strip() or isinstance(v, (list, int, float))):
-            existing[k] = v
-
-    with open(cache_path, 'w') as f:
-        json.dump(existing, f, indent=2)
-
-
 # ── Main ──────────────────────────────────────────────────────────────
 
 lock = threading.Lock()
@@ -327,7 +271,7 @@ def process_one(profile, model='haiku'):
         data = enrich_profile(profile, model)
         if data:
             written = save_to_db(profile['id'], name, data)
-            save_to_cache(name, data)
+            save_to_research_cache(name, data, '_phase2_enriched', overwrite=True)
             with lock:
                 stats['processed'] += 1
                 if written > 0:

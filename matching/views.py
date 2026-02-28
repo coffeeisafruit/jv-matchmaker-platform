@@ -2055,3 +2055,54 @@ class PipelineStatsAPIView(LoginRequiredMixin, View):
             'pipeline_stages': pipeline_stages,
             'source_distribution': source_distribution,
         })
+
+
+class ContactIngestionWebhookView(View):
+    """REST endpoint for ingesting new contacts via webhook/API.
+
+    POST /api/contacts/ingest/
+    Body: {"contacts": [...], "source": "api_webhook", "ingested_by": "..."}
+    """
+
+    def post(self, request, *args, **kwargs):
+        import json
+        from django.http import JsonResponse
+        from django.views.decorators.csrf import csrf_exempt
+
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+        contacts = data.get("contacts", [])
+        if not contacts:
+            return JsonResponse({"error": "No contacts provided"}, status=400)
+
+        source = data.get("source", "api_webhook")
+        ingested_by = data.get("ingested_by", "")
+
+        try:
+            from matching.enrichment.flows.new_contact_flow import new_contact_flow
+
+            result = new_contact_flow(
+                contacts=contacts,
+                source=source,
+                ingested_by=ingested_by,
+                source_file="",
+                skip_enrichment=False,
+                dry_run=False,
+            )
+
+            return JsonResponse({
+                "status": "ok",
+                "contacts_received": len(contacts),
+                "result": str(result),
+            })
+        except Exception as exc:
+            return JsonResponse({"error": str(exc)}, status=500)
+
+    def dispatch(self, request, *args, **kwargs):
+        # Skip CSRF for API endpoint
+        from django.utils.decorators import method_decorator
+        from django.views.decorators.csrf import csrf_exempt
+        return super().dispatch(request, *args, **kwargs)

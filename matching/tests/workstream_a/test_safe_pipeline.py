@@ -104,7 +104,7 @@ class TestEnrichProfileAsync:
         async def run():
             with patch.object(pipeline, 'try_website_scraping_async', new_callable=AsyncMock) as mock_web, \
                  patch.object(pipeline, 'try_linkedin_scraping_async', new_callable=AsyncMock) as mock_li:
-                mock_web.return_value = 'jane@janeco.com'
+                mock_web.return_value = {'email': 'jane@janeco.com', 'secondary_emails': [], 'phone': None, 'booking_link': None}
                 result = await pipeline.enrich_profile_async(profile, mock_session)
                 mock_li.assert_not_called()
                 return result
@@ -164,11 +164,21 @@ class TestEnrichProfileAsync:
 
 class TestTryWebsiteScrapingAsync:
     def test_extracts_email_matching_name(self, live_pipeline, mock_session):
-        html = '<html><body>Contact us at alice.walker@walkerco.com for inquiries.</body></html>'
+        """ContactScraper finds a name-matching email on the website."""
+        scraper_result = {
+            'email': 'alice.walker@walkerco.com',
+            'secondary_emails': [],
+            'phone': None,
+            'booking_link': None,
+        }
 
         async def run():
-            with patch.object(live_pipeline, 'fetch_url_async', new_callable=AsyncMock) as mock_fetch:
-                mock_fetch.return_value = html
+            mock_scraper = MagicMock()
+            mock_scraper.scrape_contact_info.return_value = scraper_result
+            with patch(
+                'matching.enrichment.contact_scraper.ContactScraper',
+                return_value=mock_scraper,
+            ):
                 result = await live_pipeline.try_website_scraping_async(
                     'https://walkerco.com', 'Alice Walker', mock_session
                 )
@@ -176,23 +186,33 @@ class TestTryWebsiteScrapingAsync:
 
         result = asyncio.run(run())
         assert result is not None
-        assert isinstance(result, str)
-        assert 'alice' in result.lower()
-        assert 'walker' in result.lower()
+        assert isinstance(result, dict)
+        assert 'alice' in result['email'].lower()
+        assert 'walker' in result['email'].lower()
 
     def test_filters_generic_emails(self, live_pipeline, mock_session):
-        html = '<html><body>Email us at noreply@martinco.com or support@martinco.com</body></html>'
+        """ContactScraper returns no personal email — only generic ones filtered out."""
+        scraper_result = {
+            'email': None,
+            'secondary_emails': [],
+            'phone': None,
+            'booking_link': None,
+        }
 
         async def run():
-            with patch.object(live_pipeline, 'fetch_url_async', new_callable=AsyncMock) as mock_fetch:
-                mock_fetch.return_value = html
+            mock_scraper = MagicMock()
+            mock_scraper.scrape_contact_info.return_value = scraper_result
+            with patch(
+                'matching.enrichment.contact_scraper.ContactScraper',
+                return_value=mock_scraper,
+            ):
                 result = await live_pipeline.try_website_scraping_async(
                     'https://martinco.com', 'Bob Martin', mock_session
                 )
                 return result
 
         result = asyncio.run(run())
-        # Generic emails should be filtered out; no name-matching email exists either
+        # No email, no secondary, no phone → should return None
         assert result is None
 
     def test_requires_name_match(self, live_pipeline, mock_session):

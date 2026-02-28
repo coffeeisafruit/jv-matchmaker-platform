@@ -1,47 +1,40 @@
 {
   "name": "David Riklan",
+  "email": "mark@jvdirectory.com",
   "company": "SelfGrowth.com",
-  "website": "https://www.linkedin.com/in/davidriklan",
+  "linkedin": "http://www.linkedin.com/in/davidriklan",
   "list_size": 295000,
   "seeking": "Partnerships with other JV\u2011minded professionals; cross\u2011promotion via email and social media; opportunities for interviews, speaking engagements, and affiliate relationships. Partnerships and connections to help members grow their businesses through networking and referrals.",
   "who_you_serve": "Entrepreneurs seeking JV opportunities",
   "what_you_do": "Promotes joint venture networking; invites to join the JV Directory; shares events Participates in joint venture director promotions; offers training about approaching joint venture partners Founder of SelfGrowth.com; participates in networking and events discussions",
   "offering": "Article Submission Sites, Audio Books, Business Coaching, Email List Building, Linkedin Marketing, Marketing Coach, Online Magazine, Podcast Host",
-  "niche": "online courses",
-  "service_provided": "podcast",
-  "business_size": "small_team",
+  "niche": "personal development",
+  "service_provided": "online resources, articles, events, forums, newsletters",
   "tags": [
-    "podcast",
-    "online courses",
-    "entrepreneurship",
-    "course creation"
+    "personal development",
+    "self-improvement",
+    "coaching",
+    "success skills",
+    "online resources"
   ],
-  "business_focus": "Promotes joint venture networking; invites to join the JV Directory; shares events Participates in joint venture director promotions; offers training about approaching joint venture partners Founder of SelfGrowth.com; participates in networking and events discussions (online courses)",
+  "business_focus": "Promotes joint venture networking; invites to join the JV Directory; shares events Participates in joint venture director promotions; offers training about approaching joint venture partners Founder of SelfGrowth.com; participates in networking and events discussions (personal development)",
   "audience_type": "Entrepreneurs seeking JV opportunities",
   "content_platforms": {
-    "youtube": "https://www.youtube.com/watch?v=zjQvtnQH038",
-    "apple_podcast": "https://podcasts.apple.com/ie/podcast/how-to-use-affirmations-to-improve-your-life-with/id1493029804?i=1000506502559"
+    "linkedin": "https://www.linkedin.com/in/davidriklan",
+    "facebook": "https://www.facebook.com/selfhelpguy/",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-selfgrowth-com-show/id1493029804",
+    "tiktok": "https://www.tiktok.com/discover/david-goggins-height-shrink?lang=en",
+    "youtube": "https://www.youtube.com/watch?v=unNjjAbrsRc"
   },
   "jv_history": [
     {
-      "partner_name": "How to Use Affirmations to Improve Your Life with Michele Blood and David Riklan",
-      "format": "endorsement",
-      "source_quote": "Do you use affirmations in your life? Have you experienced their power? To learn about the Magic of Affirmation Power, watch my powerful interview with Michele Blood.",
-      "source_url": "https://podcasts.apple.com/ie/podcast/how-to-use-affirmations-to-improve-your-life-with/id1493029804?i=1000506502559"
-    },
-    {
       "partner_name": "How to live Your Life With Zero Limits with Joe Vitale and David Riklan",
       "format": "endorsement",
-      "source_quote": "interview with Joe Vitale, globally famous author; marketing guru; movie, tv, and radio personality; ... Factor, Attract Money Now, Zero Lim",
+      "source_quote": "for my interview with Joe Vitale, globally famous author; marketing guru",
       "source_url": "https://podcasts.apple.com/my/podcast/how-to-live-your-life-with-zero-limits-with-joe/id1493029804?i=1000662494317"
-    },
-    {
-      "partner_name": "\u200eBusiness Reimagined with Danny Iny | The Mirasee Podcast on Apple Podcasts",
-      "format": "endorsement",
-      "source_quote": "Danny Iny, founder and CEO of ... Engagement from Scratch! Mirasee began as Firepole Marketing in 2011, and in just the last few years has grown to a ... Are you doomed to failure?\u00a0 Not at all! Today\u2019",
-      "source_url": "https://podcasts.apple.com/us/podcast/business-reimagined-with-danny-iny-the-mirasee-podcast/id999026590?mt=2"
     }
   ],
-  "audience_engagement_score": 0.55,
+  "audience_engagement_score": 0.65,
+  "website": "https://selfgrowth.com/david_riklan.html",
   "_cache_schema_version": 2
 }

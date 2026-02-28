@@ -1908,3 +1908,166 @@ class SupabaseMatchScoringService:
 
         score = (total / max_total) * 10 if max_total > 0 else 0
         return {'score': round(score, 2), 'factors': factors}
+
+    # =================================================================
+    # Lightweight pre-scoring for prospect acquisition flows
+    # =================================================================
+
+    # Redistributed weights (Momentum excluded):
+    # Intent 50%, Synergy 35%, Context 15%
+    LIGHTWEIGHT_WEIGHTS = {
+        'intent': 0.50,
+        'synergy': 0.35,
+        'context': 0.15,
+    }
+
+    def score_pair_lightweight(
+        self,
+        profile_a: SupabaseProfile,
+        profile_b: SupabaseProfile,
+    ) -> dict:
+        """Fast pre-scoring for partially-enriched prospect profiles.
+
+        Uses a simplified ISMC variant that skips Momentum entirely and
+        reduces each remaining dimension to the sub-factors most likely to
+        be populated during early acquisition:
+
+        - Intent (50%): booking_link + profile investment only
+        - Synergy (35%): offering-to-seeking text overlap only
+        - Context (15%): profile completeness only
+
+        Args:
+            profile_a: First SupabaseProfile (the "source" for score_ab).
+            profile_b: Second SupabaseProfile (the "source" for score_ba).
+
+        Returns:
+            dict with score_ab, score_ba, harmonic_mean (0-100), and
+            is_lightweight=True.
+        """
+        zero_result = {
+            'score_ab': 0,
+            'score_ba': 0,
+            'harmonic_mean': 0,
+            'is_lightweight': True,
+        }
+
+        # Early return when both profiles lack a name — not enough data
+        name_a = getattr(profile_a, 'name', None)
+        name_b = getattr(profile_b, 'name', None)
+        if not (name_a and str(name_a).strip()) and not (name_b and str(name_b).strip()):
+            return zero_result
+
+        score_ab = self._score_directional_lightweight(profile_a, profile_b)
+        score_ba = self._score_directional_lightweight(profile_b, profile_a)
+
+        # Harmonic mean of the two directional scores
+        epsilon = 1e-10
+        if score_ab > epsilon and score_ba > epsilon:
+            hm = 2 / (1 / max(score_ab, epsilon) + 1 / max(score_ba, epsilon))
+        else:
+            hm = 0.0
+
+        return {
+            'score_ab': round(score_ab, 2),
+            'score_ba': round(score_ba, 2),
+            'harmonic_mean': round(hm, 2),
+            'is_lightweight': True,
+        }
+
+    def _score_directional_lightweight(
+        self,
+        source: SupabaseProfile,
+        target: SupabaseProfile,
+    ) -> float:
+        """Compute a single directional lightweight score (0-100).
+
+        Mirrors the geometric-mean pattern of ``_score_directional`` but
+        only evaluates the simplified Intent, Synergy, and Context
+        dimensions.
+        """
+        intent = self._score_intent_lightweight(target)
+        synergy = self._score_synergy_lightweight(source, target)
+        context = self._score_context_lightweight(target)
+
+        components = [
+            (intent, self.LIGHTWEIGHT_WEIGHTS['intent']),
+            (synergy, self.LIGHTWEIGHT_WEIGHTS['synergy']),
+            (context, self.LIGHTWEIGHT_WEIGHTS['context']),
+        ]
+
+        # Weighted geometric mean (same formula as _score_directional)
+        epsilon = 1e-10
+        total_weight = sum(w for _, w in components)
+        if total_weight > 0:
+            log_sum = sum(
+                w * math.log(max(s, epsilon)) for s, w in components
+            )
+            final_0_10 = math.exp(log_sum / total_weight)
+        else:
+            final_0_10 = 0.0
+
+        return final_0_10 * 10  # Convert to 0-100
+
+    # --- Lightweight sub-scorers ---
+
+    def _score_intent_lightweight(self, target: SupabaseProfile) -> float:
+        """Simplified intent score (0-10): booking_link + profile investment.
+
+        Skips JV history and website presence to stay fast on partial data.
+        """
+        total = 0.0
+        max_total = 0.0
+
+        # Factor 1: Booking link (weight 3.5)
+        has_booking = bool(
+            getattr(target, 'booking_link', None)
+            and target.booking_link.strip()
+        )
+        booking_score = 8.0 if has_booking else 3.0
+        total += booking_score * 3.5
+        max_total += 10 * 3.5
+
+        # Factor 2: Profile investment (weight 3.0) — same field list
+        populated = 0
+        for field_name in self._INVESTMENT_FIELDS:
+            val = getattr(target, field_name, None)
+            if val is not None:
+                if isinstance(val, str) and val.strip():
+                    populated += 1
+                elif isinstance(val, list) and len(val) > 0:
+                    populated += 1
+        invest_score = (populated / len(self._INVESTMENT_FIELDS)) * 10
+        total += invest_score * 3.0
+        max_total += 10 * 3.0
+
+        return (total / max_total) * 10 if max_total > 0 else 0.0
+
+    def _score_synergy_lightweight(
+        self,
+        source: SupabaseProfile,
+        target: SupabaseProfile,
+    ) -> float:
+        """Simplified synergy score (0-10): offering-to-seeking text overlap.
+
+        Skips embeddings, role compatibility, and revenue tier to avoid
+        dependencies on enrichment data that may not yet exist.
+        """
+        return self._text_overlap_score(
+            source.seeking or '',
+            target.offering or target.what_you_do or '',
+        )
+
+    def _score_context_lightweight(self, target: SupabaseProfile) -> float:
+        """Simplified context score (0-10): profile completeness only.
+
+        Skips revenue-known, enrichment quality, and contact availability
+        since those depend on full enrichment.
+        """
+        completeness_fields = [
+            target.name, target.email, target.company, target.website,
+            target.linkedin, target.niche, target.what_you_do,
+            target.who_you_serve, target.seeking, target.offering,
+            target.booking_link, target.revenue_tier,
+        ]
+        filled = sum(1 for f in completeness_fields if f and str(f).strip())
+        return (filled / len(completeness_fields)) * 10

@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ report.member_name }} - Analytics Detail</title>
+    <style>
+        :root {
+            --cream: #FDF6E3;
+            --cream-dark: #F5EDDA;
+            --cream-border: #E8DCC8;
+            --forest: #2C5F2D;
+            --forest-light: #3A7D3C;
+            --forest-dark: #1E4620;
+            --forest-muted: #4A7C4B;
+            --gold: #D4A843;
+            --gold-light: #E8C96A;
+            --gold-dark: #B8912E;
+            --text-primary: #2D2A26;
+            --text-secondary: #6B6560;
+            --text-muted: #9B9590;
+            --white: #FFFFFF;
+            --red: #C0392B;
+            --red-light: #FADBD8;
+            --green: #2C5F2D;
+            --green-light: #D5F5D6;
+            --critical-bg: #FADBD8;
+            --critical-text: #922B21;
+            --warning-bg: #FEF5E7;
+            --warning-text: #7D6608;
+            --info-bg: #D6EAF8;
+            --info-text: #1B4F72;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--cream);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .top-bar {
+            background: var(--forest-dark);
+            color: var(--cream);
+            padding: 12px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-bar h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .top-bar h1 span {
+            font-weight: 400;
+            color: var(--gold-light);
+            font-size: 16px;
+            margin-left: 8px;
+        }
+
+        .top-bar nav a {
+            color: var(--gold-light);
+            text-decoration: none;
+            margin-left: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .top-bar nav a:hover {
+            color: var(--white);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--forest-dark);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gold);
+            margin-top: 32px;
+        }
+
+        .section-title:first-of-type {
+            margin-top: 0;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--cream-border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Session Timeline Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        table thead th {
+            background: var(--forest-dark);
+            color: var(--cream);
+            padding: 10px 14px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        table thead th:first-child {
+            border-radius: 6px 0 0 0;
+        }
+
+        table thead th:last-child {
+            border-radius: 0 6px 0 0;
+        }
+
+        table tbody tr {
+            border-bottom: 1px solid var(--cream-border);
+        }
+
+        table tbody tr:hover {
+            background: var(--cream);
+        }
+
+        table tbody td {
+            padding: 10px 14px;
+            color: var(--text-primary);
+        }
+
+        /* Engagement Funnel */
+        .funnel-chart {
+            padding: 20px 0;
+        }
+
+        .funnel-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+
+        .funnel-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .funnel-label {
+            width: 160px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            flex-shrink: 0;
+        }
+
+        .funnel-bar-track {
+            flex: 1;
+            height: 30px;
+            background: var(--cream);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .funnel-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--white);
+            min-width: 36px;
+        }
+
+        .funnel-bar-shown { background: var(--forest); }
+        .funnel-bar-expanded { background: var(--gold-dark); }
+        .funnel-bar-contacted { background: var(--red); }
+
+        .funnel-value {
+            width: 80px;
+            text-align: right;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
+
+        /* Partner Engagement Table */
+        .partner-table-wrap {
+            overflow-x: auto;
+        }
+
+        .check-icon {
+            color: var(--green);
+            font-weight: 700;
+        }
+
+        .dash-icon {
+            color: #CCC;
+        }
+
+        .sortable {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .sortable:hover {
+            text-decoration: underline;
+        }
+
+        .sort-arrow {
+            font-size: 10px;
+            margin-left: 4px;
+        }
+
+        /* Score Buckets */
+        .bucket-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .bucket-card {
+            background: var(--cream);
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .bucket-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--forest-dark);
+            margin-bottom: 8px;
+        }
+
+        .bucket-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--forest);
+        }
+
+        .bucket-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Template Effectiveness */
+        .template-stats {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .template-stat {
+            text-align: center;
+        }
+
+        .template-stat-val {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--forest);
+        }
+
+        .template-stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .template-arrow {
+            font-size: 24px;
+            color: var(--gold);
+        }
+
+        .template-rate {
+            background: var(--forest);
+            color: var(--white);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* Intervention Timeline */
+        .intervention-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--cream-border);
+        }
+
+        .intervention-item:last-child {
+            border-bottom: none;
+        }
+
+        .intervention-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            flex-shrink: 0;
+        }
+
+        .badge-positive { background: var(--green-light); color: var(--green); }
+        .badge-neutral { background: #EEE; color: #666; }
+        .badge-negative { background: var(--critical-bg); color: var(--critical-text); }
+        .badge-pending { background: var(--warning-bg); color: var(--warning-text); }
+
+        .intervention-content {
+            flex: 1;
+        }
+
+        .intervention-type {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .intervention-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .intervention-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        /* Insights */
+        .insight-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--cream-border);
+        }
+
+        .insight-item:last-child {
+            border-bottom: none;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .severity-critical { background: var(--critical-bg); color: var(--critical-text); }
+        .severity-warning { background: var(--warning-bg); color: var(--warning-text); }
+        .severity-info { background: var(--info-bg); color: var(--info-text); }
+
+        .insight-content { flex: 1; }
+
+        .insight-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .insight-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h1>{{ report.member_name }} <span>{{ report.company_name }}</span></h1>
+        <nav>
+            <a href="{% url 'matching:analytics-dashboard' %}">Back to Dashboard</a>
+            <a href="{% url 'matching:analytics-insights' %}">Insights</a>
+        </nav>
+    </div>
+
+    <div class="container">
+
+        <!-- Session Timeline -->
+        <h2 class="section-title">Session Timeline</h2>
+        <div class="card">
+            {% if sessions %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Session Started</th>
+                        <th>Events</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in sessions %}
+                    <tr>
+                        <td>{{ s.started_at|date:"M d, Y H:i" }}</td>
+                        <td>{{ s.event_count }}</td>
+                        <td>{{ s.duration }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No sessions recorded yet.</div>
+            {% endif %}
+        </div>
+
+        <!-- Engagement Funnel -->
+        <h2 class="section-title">Engagement Funnel</h2>
+        <div class="card">
+            <div class="funnel-chart">
+                {% if funnel.shown > 0 %}
+                <div class="funnel-row">
+                    <div class="funnel-label">Partners Shown</div>
+                    <div class="funnel-bar-track">
+                        <div class="funnel-bar-fill funnel-bar-shown" style="width: 100%;">{{ funnel.shown }}</div>
+                    </div>
+                    <div class="funnel-value">100%</div>
+                </div>
+                <div class="funnel-row">
+                    <div class="funnel-label">Expanded</div>
+                    <div class="funnel-bar-track">
+                        <div class="funnel-bar-fill funnel-bar-expanded" style="width: {{ funnel.expanded_pct }}%;">{{ funnel.expanded }}</div>
+                    </div>
+                    <div class="funnel-value">{{ funnel.expanded_pct }}%</div>
+                </div>
+                <div class="funnel-row">
+                    <div class="funnel-label">Contacted</div>
+                    <div class="funnel-bar-track">
+                        <div class="funnel-bar-fill funnel-bar-contacted" style="width: {{ funnel.contacted_pct }}%;">{{ funnel.contacted }}</div>
+                    </div>
+                    <div class="funnel-value">{{ funnel.contacted_pct }}%</div>
+                </div>
+                {% else %}
+                <div class="empty-state">No engagement data yet.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Partner Engagement Table -->
+        <h2 class="section-title">Partner Engagement</h2>
+        <div class="card">
+            {% if partner_rows %}
+            <div class="partner-table-wrap">
+                <table id="partner-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable" data-col="0">Partner <span class="sort-arrow"></span></th>
+                            <th>Section</th>
+                            <th class="sortable" data-col="2">Score <span class="sort-arrow"></span></th>
+                            <th class="sortable" data-col="3">Expands <span class="sort-arrow"></span></th>
+                            <th>Avg Dwell (s)</th>
+                            <th>Email</th>
+                            <th>LinkedIn</th>
+                            <th>Schedule</th>
+                            <th>Apply</th>
+                            <th>Checked</th>
+                            <th>First Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in partner_rows %}
+                        <tr>
+                            <td>{{ p.name }}</td>
+                            <td>{{ p.section }}</td>
+                            <td>{{ p.match_score|default_if_none:"--" }}</td>
+                            <td>{{ p.expand_count }}</td>
+                            <td>{{ p.avg_dwell_s }}</td>
+                            <td>{% if p.email_clicked %}<span class="check-icon">&#10003;</span>{% else %}<span class="dash-icon">&#8212;</span>{% endif %}</td>
+                            <td>{% if p.linkedin_clicked %}<span class="check-icon">&#10003;</span>{% else %}<span class="dash-icon">&#8212;</span>{% endif %}</td>
+                            <td>{% if p.schedule_clicked %}<span class="check-icon">&#10003;</span>{% else %}<span class="dash-icon">&#8212;</span>{% endif %}</td>
+                            <td>{% if p.apply_clicked %}<span class="check-icon">&#10003;</span>{% else %}<span class="dash-icon">&#8212;</span>{% endif %}</td>
+                            <td>{% if p.was_checked %}<span class="check-icon">&#10003;</span>{% else %}<span class="dash-icon">&#8212;</span>{% endif %}</td>
+                            <td>{{ p.first_action|default:"--" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">No partner engagement data.</div>
+            {% endif %}
+        </div>
+
+        <!-- Score vs Engagement -->
+        <h2 class="section-title">Score vs. Engagement</h2>
+        <div class="card">
+            {% if score_buckets %}
+            <div class="bucket-grid">
+                {% for bucket in score_buckets %}
+                <div class="bucket-card">
+                    <div class="bucket-label">{{ bucket.label }}</div>
+                    <div class="bucket-value">{{ bucket.contact_rate }}%</div>
+                    <div class="bucket-sub">{{ bucket.contacted }}/{{ bucket.total }} contacted</div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">Not enough data for score analysis.</div>
+            {% endif %}
+        </div>
+
+        <!-- Template Effectiveness -->
+        <h2 class="section-title">Template Effectiveness</h2>
+        <div class="card">
+            <div class="template-stats">
+                <div class="template-stat">
+                    <div class="template-stat-val">{{ template_stats.opens }}</div>
+                    <div class="template-stat-label">Opens</div>
+                </div>
+                <div class="template-arrow">&rarr;</div>
+                <div class="template-stat">
+                    <div class="template-stat-val">{{ template_stats.copies }}</div>
+                    <div class="template-stat-label">Copies</div>
+                </div>
+                <div class="template-arrow">&rarr;</div>
+                <div class="template-rate">{{ template_stats.copy_rate }}% conversion</div>
+            </div>
+        </div>
+
+        <!-- Intervention Timeline -->
+        <h2 class="section-title">Intervention Timeline</h2>
+        <div class="card">
+            {% if interventions %}
+                {% for iv in interventions %}
+                <div class="intervention-item">
+                    {% if iv.impact_assessment == 'positive' %}
+                        <span class="intervention-badge badge-positive">Positive</span>
+                    {% elif iv.impact_assessment == 'negative' %}
+                        <span class="intervention-badge badge-negative">Negative</span>
+                    {% elif iv.impact_assessment == 'neutral' %}
+                        <span class="intervention-badge badge-neutral">Neutral</span>
+                    {% else %}
+                        <span class="intervention-badge badge-pending">Pending</span>
+                    {% endif %}
+                    <div class="intervention-content">
+                        <div class="intervention-type">{{ iv.get_intervention_type_display }}</div>
+                        <div class="intervention-desc">{{ iv.description }}</div>
+                        {% if iv.impact_details %}
+                        <div class="intervention-desc" style="font-style: italic; margin-top: 4px;">{{ iv.impact_details }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="intervention-date">{{ iv.created_at|date:"M d, Y" }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">No interventions recorded.</div>
+            {% endif %}
+        </div>
+
+        <!-- Insights for this Report -->
+        <h2 class="section-title">Insights</h2>
+        <div class="card">
+            {% if insights %}
+                {% for ins in insights %}
+                <div class="insight-item">
+                    <span class="severity-badge severity-{{ ins.severity }}">{{ ins.severity }}</span>
+                    <div class="insight-content">
+                        <div class="insight-title">{{ ins.title }}</div>
+                        <div class="insight-desc">{{ ins.description }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="empty-state">No insights for this report.</div>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <script>
+    (function() {
+        var table = document.getElementById('partner-table');
+        if (!table) return;
+
+        var headers = table.querySelectorAll('th.sortable');
+        var tbody = table.querySelector('tbody');
+        var currentSort = { col: -1, asc: true };
+
+        headers.forEach(function(th) {
+            th.addEventListener('click', function() {
+                var col = parseInt(th.getAttribute('data-col'));
+                var asc = (currentSort.col === col) ? !currentSort.asc : true;
+                currentSort = { col: col, asc: asc };
+
+                // Clear all arrows
+                headers.forEach(function(h) {
+                    h.querySelector('.sort-arrow').textContent = '';
+                });
+                th.querySelector('.sort-arrow').textContent = asc ? ' \u25B2' : ' \u25BC';
+
+                var rows = Array.from(tbody.querySelectorAll('tr'));
+                rows.sort(function(a, b) {
+                    var aVal = a.children[col].textContent.trim();
+                    var bVal = b.children[col].textContent.trim();
+                    var aNum = parseFloat(aVal);
+                    var bNum = parseFloat(bVal);
+
+                    if (!isNaN(aNum) && !isNaN(bNum)) {
+                        return asc ? aNum - bNum : bNum - aNum;
+                    }
+                    return asc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+                });
+
+                rows.forEach(function(row) {
+                    tbody.appendChild(row);
+                });
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

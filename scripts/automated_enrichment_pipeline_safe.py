@@ -41,7 +41,10 @@ from psycopg2.pool import ThreadedConnectionPool
 from dotenv import load_dotenv
 from matching.enrichment import VerificationGate, GateStatus
 from matching.enrichment.ai_research import research_and_enrich_profile
-from matching.enrichment.deep_research import deep_research_profile
+try:
+    from matching.enrichment.deep_research import deep_research_profile
+except ImportError:
+    deep_research_profile = None  # Module archived; fallback handled at call site
 
 load_dotenv()
 
@@ -50,15 +53,7 @@ logger = logging.getLogger(__name__)
 # --- Re-enrichment: Source priority hierarchy (R2) ---
 # Higher priority sources can never be overwritten by lower ones.
 # Client-provided data is protected from AI overwrites.
-SOURCE_PRIORITY = {
-    'client_confirmed': 100,   # Client verified their own profile
-    'client_ingest': 90,       # Client submitted via ingest form
-    'manual_edit': 80,         # Admin manually corrected
-    'exa_research': 50,        # Exa.ai extraction (primary pipeline)
-    'ai_research': 40,         # crawl4ai + Claude fallback
-    'apollo': 30,              # Apollo email discovery
-    'unknown': 0,              # Legacy data — no provenance tracked
-}
+from matching.enrichment.constants import SOURCE_PRIORITY
 
 PIPELINE_VERSION = 1
 
@@ -1024,7 +1019,7 @@ class SafeEnrichmentPipeline:
                     return enriched
 
                 # Fallback for tiers 4-5 if Exa didn't find anything
-                if tier in (4, 5) and not was_researched:
+                if tier in (4, 5) and not was_researched and deep_research_profile is not None:
                     self._inc_stat('deep_research_attempted')
                     enriched, was_researched = deep_research_profile(
                         name=name,

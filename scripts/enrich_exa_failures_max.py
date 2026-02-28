@@ -18,7 +18,6 @@ import os
 import sys
 import json
 import glob
-import hashlib
 import argparse
 import time
 import logging
@@ -28,26 +27,16 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from typing import Dict, List, Optional, Tuple
 
-# Django setup
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-import django
-django.setup()
-
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from dotenv import load_dotenv
-
-load_dotenv()
+from _common import (
+    setup_django, cache_key, get_db_connection, extract_json_from_claude,
+    call_claude_cli, save_to_research_cache, CACHE_DIR, SKIP_DOMAINS,
+)
+setup_django()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 DATABASE_URL = os.environ['DATABASE_URL']
-CACHE_DIR = os.path.join(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-    'Chelsea_clients', 'research_cache'
-)
 
 # Max content to send to Claude (keep under token limits)
 MAX_CONTENT_CHARS = 15000
@@ -106,10 +95,6 @@ Return ONLY valid JSON, no markdown fences:
 IMPORTANT: Business accuracy matters - do NOT fabricate or assume."""
 
 
-def cache_key(name: str) -> str:
-    return hashlib.md5(name.lower().encode()).hexdigest()[:12]
-
-
 def get_exa_failed_profiles(limit: int) -> List[Dict]:
     """
     Find profiles that have a cache entry but Exa returned 'not indexed' or empty.
@@ -129,8 +114,7 @@ def get_exa_failed_profiles(limit: int) -> List[Dict]:
             continue
 
     # Get profiles from DB that have websites
-    conn = psycopg2.connect(DATABASE_URL)
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    conn, cur = get_db_connection()
     cur.execute("""
         SELECT id, name, email, company, website, linkedin,
                list_size, seeking, who_you_serve, what_you_do, offering
@@ -171,14 +155,7 @@ def get_exa_failed_profiles(limit: int) -> List[Dict]:
             continue
 
         # Skip booking links, linktree, social-only URLs
-        skip_patterns = [
-            'calendly.com', 'acuityscheduling.com', 'tidycal.com',
-            'oncehub.com', 'youcanbook.me', 'bookme.',
-            'linktr.ee', 'linktree.com',
-            'facebook.com', 'instagram.com', 'twitter.com',
-            'linkedin.com', 'tiktok.com',
-        ]
-        if any(pat in website.lower() for pat in skip_patterns):
+        if any(pat in website.lower() for pat in SKIP_DOMAINS):
             continue
 
         failures.append(dict(p))
@@ -254,9 +231,6 @@ def extract_with_haiku(name: str, website: str, content: str, max_retries: int =
     Mode 'api': OpenRouter Haiku (~$0.001/call, ~2-5s)
     Mode 'cli': Claude Max CLI (free, ~18-25s)
     """
-    import re
-    import subprocess
-
     prompt = EXTRACTION_PROMPT.format(
         name=name,
         website=website,
@@ -274,38 +248,20 @@ def extract_with_haiku(name: str, website: str, content: str, max_retries: int =
                     messages=[{"role": "user", "content": prompt}],
                 )
                 text = response.choices[0].message.content.strip()
+                parsed = extract_json_from_claude(text)
+                if parsed is not None:
+                    return parsed
+                raise json.JSONDecodeError("No JSON found in response", text[:100], 0)
             else:
-                result = subprocess.run(
-                    ['claude', '--print', '--model', 'haiku', '-p', prompt],
-                    capture_output=True,
-                    text=True,
-                    timeout=120,
-                )
-                if result.returncode != 0:
-                    logger.error(f"Claude CLI failed (attempt {attempt}): {result.stderr[:200]}")
-                    if attempt < max_retries:
-                        time.sleep(3)
-                        continue
-                    return None
-                text = result.stdout.strip()
+                parsed = call_claude_cli(prompt, model='haiku', timeout=120)
+                if parsed is not None:
+                    return parsed
+                # call_claude_cli logs its own errors
+                if attempt < max_retries:
+                    time.sleep(3)
+                    continue
+                return None
 
-            # Strip markdown fences if present
-            if text.startswith('```'):
-                lines = text.split('\n')
-                text = '\n'.join(lines[1:-1] if lines[-1].startswith('```') else lines[1:])
-
-            # Try to extract JSON from response if it has surrounding text
-            if not text.startswith('{'):
-                json_match = re.search(r'\{[\s\S]*\}', text)
-                if json_match:
-                    text = json_match.group(0)
-
-            return json.loads(text)
-
-        except subprocess.TimeoutExpired:
-            logger.error(f"Claude CLI timed out for {name} (attempt {attempt})")
-            if attempt < max_retries:
-                continue
         except json.JSONDecodeError as e:
             logger.debug(f"JSON parse failed for {name} (attempt {attempt}): {e}")
             if attempt < max_retries:
@@ -323,49 +279,6 @@ def extract_with_haiku(name: str, website: str, content: str, max_retries: int =
                 continue
 
     return None
-
-
-def save_to_cache(name: str, extracted: Dict, website: str) -> bool:
-    """Save extraction results to research cache."""
-    key = cache_key(name)
-    cache_path = os.path.join(CACHE_DIR, f'{key}.json')
-
-    # Load existing cache entry if present
-    existing = {}
-    if os.path.exists(cache_path):
-        try:
-            with open(cache_path) as f:
-                existing = json.load(f)
-        except Exception:
-            pass
-
-    # Merge: only fill fields that are empty in existing cache
-    merged = dict(existing)
-    merged['name'] = name
-
-    for field, value in extracted.items():
-        if field in ('confidence', 'source_quotes'):
-            continue
-        if value and str(value) not in ('', '[]', '{}', 'null', 'None'):
-            existing_val = merged.get(field)
-            if not existing_val or str(existing_val) in ('', '[]', '{}', 'None'):
-                merged[field] = value
-
-    # Ensure website is set
-    if not merged.get('website') and website:
-        merged['website'] = website
-
-    merged['_cache_schema_version'] = 2
-    merged['_crawl4ai_enriched'] = True
-    merged['_crawl4ai_timestamp'] = datetime.now().isoformat()
-
-    try:
-        with open(cache_path, 'w') as f:
-            json.dump(merged, f, indent=2, default=str)
-        return True
-    except Exception as e:
-        logger.error(f"Failed to save cache for {name}: {e}")
-        return False
 
 
 def process_single_profile(profile: Dict) -> Dict:
@@ -389,7 +302,9 @@ def process_single_profile(profile: Dict) -> Dict:
         return result
 
     # Step 3: Save to cache
-    if save_to_cache(name, extracted, website):
+    if website and not extracted.get('website'):
+        extracted['website'] = website
+    if save_to_research_cache(name, extracted, '_crawl4ai_enriched'):
         found_fields = [
             f for f in ['what_you_do', 'who_you_serve', 'niche', 'booking_link',
                         'phone', 'company', 'tags', 'service_provided']

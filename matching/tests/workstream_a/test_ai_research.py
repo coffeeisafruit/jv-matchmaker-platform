@@ -296,7 +296,8 @@ class TestResearchAndEnrichProfile:
         })
 
         with patch('matching.enrichment.ai_research.ProfileResearchCache') as MockCache, \
-             patch('matching.enrichment.ai_research.settings', create=True) as mock_settings:
+             patch('matching.enrichment.ai_research.settings', create=True) as mock_settings, \
+             patch('matching.enrichment.exa_research.exa_enrich_profile', side_effect=Exception('Exa unavailable')):
             mock_settings.OPENROUTER_API_KEY = 'or-fake'
             mock_settings.ANTHROPIC_API_KEY = ''
             instance = MockCache.return_value
@@ -330,7 +331,8 @@ class TestResearchAndEnrichProfile:
         })
 
         with patch('matching.enrichment.ai_research.ProfileResearchCache') as MockCache, \
-             patch('matching.enrichment.ai_research.settings', create=True) as mock_settings:
+             patch('matching.enrichment.ai_research.settings', create=True) as mock_settings, \
+             patch('matching.enrichment.exa_research.exa_enrich_profile', side_effect=Exception('Exa unavailable')):
             mock_settings.OPENROUTER_API_KEY = 'or-fake'
             mock_settings.ANTHROPIC_API_KEY = ''
             instance = MockCache.return_value

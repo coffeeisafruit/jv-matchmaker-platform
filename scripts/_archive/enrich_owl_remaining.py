@@ -19,36 +19,25 @@ import os
 import sys
 import json
 import glob
-import hashlib
 import argparse
 import time
 import logging
 import subprocess
 import tempfile
-import re
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from typing import Dict, List, Optional
 
-# Django setup
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-import django
-django.setup()
-
-import psycopg2
-from psycopg2.extras import RealDictCursor
-from dotenv import load_dotenv
-
-load_dotenv()
+from _common import (
+    setup_django, cache_key, get_db_connection, call_claude_cli,
+    save_to_research_cache, PROJECT_ROOT, CACHE_DIR, SKIP_DOMAINS,
+)
+setup_django()
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
-DATABASE_URL = os.environ['DATABASE_URL']
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CACHE_DIR = os.path.join(PROJECT_ROOT, 'Chelsea_clients', 'research_cache')
 OWL_DIR = os.path.join(PROJECT_ROOT, 'owl_framework')
 OWL_PYTHON = os.path.join(OWL_DIR, '.venv', 'bin', 'python')
 
@@ -117,10 +106,6 @@ Return ONLY valid JSON, no markdown fences:
 IMPORTANT: Business accuracy matters - do NOT fabricate or assume."""
 
 
-def cache_key(name: str) -> str:
-    return hashlib.md5(name.lower().encode()).hexdigest()[:12]
-
-
 def get_remaining_profiles(limit: int) -> List[Dict]:
     """Find profiles that crawl4ai also couldn't enrich."""
     cache_entries = {}
@@ -134,8 +119,7 @@ def get_remaining_profiles(limit: int) -> List[Dict]:
         except Exception:
             continue
 
-    conn = psycopg2.connect(DATABASE_URL)
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    conn, cur = get_db_connection()
     cur.execute("""
         SELECT id, name, email, company, website, linkedin
         FROM profiles
@@ -146,14 +130,6 @@ def get_remaining_profiles(limit: int) -> List[Dict]:
     profiles = cur.fetchall()
     cur.close()
     conn.close()
-
-    skip_patterns = [
-        'calendly.com', 'acuityscheduling.com', 'tidycal.com',
-        'oncehub.com', 'youcanbook.me', 'bookme.',
-        'linktr.ee', 'linktree.com',
-        'facebook.com', 'instagram.com', 'twitter.com',
-        'linkedin.com', 'tiktok.com',
-    ]
 
     remaining = []
     for p in profiles:
@@ -171,7 +147,7 @@ def get_remaining_profiles(limit: int) -> List[Dict]:
         website = (p.get('website') or '').strip()
         if not website or not website.startswith('http'):
             continue
-        if any(pat in website.lower() for pat in skip_patterns):
+        if any(pat in website.lower() for pat in SKIP_DOMAINS):
             continue
         remaining.append(dict(p))
         if len(remaining) >= limit:
@@ -262,83 +238,14 @@ def extract_with_claude_cli(name: str, company: str, website: str, research_text
     )
 
     for attempt in range(1, 3):
-        try:
-            result = subprocess.run(
-                ['claude', '--print', '--model', 'haiku', '-p', prompt],
-                capture_output=True, text=True, timeout=120,
-            )
-            if result.returncode != 0:
-                logger.warning(f"Claude CLI failed for {name} (attempt {attempt})")
-                if attempt < 2:
-                    time.sleep(3)
-                    continue
-                return None
-
-            text = result.stdout.strip()
-
-            # Strip markdown fences
-            if text.startswith('```'):
-                lines = text.split('\n')
-                text = '\n'.join(lines[1:-1] if lines[-1].startswith('```') else lines[1:])
-
-            # Extract JSON
-            if not text.startswith('{'):
-                json_match = re.search(r'\{[\s\S]*\}', text)
-                if json_match:
-                    text = json_match.group(0)
-
-            return json.loads(text)
-
-        except subprocess.TimeoutExpired:
-            logger.warning(f"Claude CLI timed out for {name} (attempt {attempt})")
-        except json.JSONDecodeError:
-            logger.warning(f"JSON parse failed for {name} (attempt {attempt})")
-            if attempt < 2:
-                time.sleep(2)
-        except Exception as e:
-            logger.error(f"Extract error for {name}: {e}")
+        result = call_claude_cli(prompt, model='haiku', timeout=120)
+        if result is not None:
+            return result
+        # call_claude_cli logs its own errors
+        if attempt < 2:
+            time.sleep(3)
 
     return None
-
-
-def save_to_cache(name: str, extracted: Dict, website: str) -> bool:
-    """Save extraction results to research cache."""
-    key = cache_key(name)
-    cache_path = os.path.join(CACHE_DIR, f'{key}.json')
-
-    existing = {}
-    if os.path.exists(cache_path):
-        try:
-            with open(cache_path) as f:
-                existing = json.load(f)
-        except Exception:
-            pass
-
-    merged = dict(existing)
-    merged['name'] = name
-
-    for field, value in extracted.items():
-        if field in ('confidence', 'source_quotes'):
-            continue
-        if value and str(value) not in ('', '[]', '{}', 'null', 'None'):
-            existing_val = merged.get(field)
-            if not existing_val or str(existing_val) in ('', '[]', '{}', 'None'):
-                merged[field] = value
-
-    if not merged.get('website') and website:
-        merged['website'] = website
-
-    merged['_cache_schema_version'] = 2
-    merged['_owl_enriched'] = True
-    merged['_owl_timestamp'] = datetime.now().isoformat()
-
-    try:
-        with open(cache_path, 'w') as f:
-            json.dump(merged, f, indent=2, default=str)
-        return True
-    except Exception as e:
-        logger.error(f"Failed to save cache for {name}: {e}")
-        return False
 
 
 def process_profile(profile: Dict) -> Dict:
@@ -445,7 +352,9 @@ def process_profile(profile: Dict) -> Dict:
         return result
 
     # Step 5: Save to cache
-    if save_to_cache(name, extracted, website):
+    if website and not extracted.get('website'):
+        extracted['website'] = website
+    if save_to_research_cache(name, extracted, '_owl_enriched'):
         found_fields = [
             f for f in ['what_you_do', 'who_you_serve', 'niche', 'booking_link',
                         'phone', 'email', 'company', 'tags', 'service_provided']

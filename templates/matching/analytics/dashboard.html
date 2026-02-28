@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Dashboard - JV Matchmaker</title>
+    <style>
+        :root {
+            --cream: #FDF6E3;
+            --cream-dark: #F5EDDA;
+            --cream-border: #E8DCC8;
+            --forest: #2C5F2D;
+            --forest-light: #3A7D3C;
+            --forest-dark: #1E4620;
+            --forest-muted: #4A7C4B;
+            --gold: #D4A843;
+            --gold-light: #E8C96A;
+            --gold-dark: #B8912E;
+            --text-primary: #2D2A26;
+            --text-secondary: #6B6560;
+            --text-muted: #9B9590;
+            --white: #FFFFFF;
+            --red: #C0392B;
+            --red-light: #FADBD8;
+            --yellow: #D4A843;
+            --yellow-light: #FEF5E7;
+            --green: #2C5F2D;
+            --green-light: #D5F5D6;
+            --critical-bg: #FADBD8;
+            --critical-text: #922B21;
+            --warning-bg: #FEF5E7;
+            --warning-text: #7D6608;
+            --info-bg: #D6EAF8;
+            --info-text: #1B4F72;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--cream);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .top-bar {
+            background: var(--forest-dark);
+            color: var(--cream);
+            padding: 12px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-bar h1 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .top-bar nav a {
+            color: var(--gold-light);
+            text-decoration: none;
+            margin-left: 24px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .top-bar nav a:hover {
+            color: var(--white);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--forest-dark);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--gold);
+        }
+
+        /* Report Cards Grid */
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .report-card {
+            background: var(--white);
+            border: 1px solid var(--cream-border);
+            border-radius: 8px;
+            padding: 20px;
+            transition: box-shadow 0.2s;
+        }
+
+        .report-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .report-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .report-card-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--forest-dark);
+        }
+
+        .report-card-company {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .last-visit-badge {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
+        .last-visit-green {
+            background: var(--green-light);
+            color: var(--green);
+        }
+
+        .last-visit-yellow {
+            background: var(--yellow-light);
+            color: var(--warning-text);
+        }
+
+        .last-visit-red {
+            background: var(--critical-bg);
+            color: var(--critical-text);
+        }
+
+        .last-visit-none {
+            background: #EEE;
+            color: #777;
+        }
+
+        .report-card-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 8px 4px;
+            background: var(--cream);
+            border-radius: 6px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--forest);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .report-card-link {
+            display: block;
+            text-align: center;
+            margin-top: 14px;
+            padding: 8px;
+            background: var(--forest);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .report-card-link:hover {
+            background: var(--forest-light);
+        }
+
+        /* Alerts Section */
+        .alerts-section {
+            margin-bottom: 40px;
+        }
+
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .alert-item {
+            background: var(--white);
+            border: 1px solid var(--cream-border);
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .alert-item-critical {
+            border-left: 4px solid var(--red);
+        }
+
+        .alert-item-warning {
+            border-left: 4px solid var(--gold);
+        }
+
+        .alert-item-info {
+            border-left: 4px solid #3498DB;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .severity-critical {
+            background: var(--critical-bg);
+            color: var(--critical-text);
+        }
+
+        .severity-warning {
+            background: var(--warning-bg);
+            color: var(--warning-text);
+        }
+
+        .severity-info {
+            background: var(--info-bg);
+            color: var(--info-text);
+        }
+
+        .alert-content {
+            flex: 1;
+        }
+
+        .alert-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .alert-description {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .alert-dismiss {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 4px 10px;
+            border: 1px solid var(--cream-border);
+            border-radius: 4px;
+            background: var(--cream);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .alert-dismiss:hover {
+            background: var(--cream-dark);
+        }
+
+        /* Global Funnel */
+        .funnel-section {
+            margin-bottom: 40px;
+        }
+
+        .funnel-chart {
+            background: var(--white);
+            border: 1px solid var(--cream-border);
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .funnel-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .funnel-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .funnel-label {
+            width: 160px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            flex-shrink: 0;
+        }
+
+        .funnel-bar-track {
+            flex: 1;
+            height: 32px;
+            background: var(--cream);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .funnel-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--white);
+            min-width: 40px;
+            transition: width 0.5s ease;
+        }
+
+        .funnel-bar-shown {
+            background: var(--forest);
+        }
+
+        .funnel-bar-expanded {
+            background: var(--gold-dark);
+        }
+
+        .funnel-bar-contacted {
+            background: var(--red);
+        }
+
+        .funnel-value {
+            width: 70px;
+            text-align: right;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 15px;
+            background: var(--white);
+            border-radius: 8px;
+            border: 1px solid var(--cream-border);
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <h1>Analytics Dashboard</h1>
+        <nav>
+            <a href="{% url 'matching:analytics-dashboard' %}">Dashboard</a>
+            <a href="{% url 'matching:analytics-insights' %}">Insights</a>
+        </nav>
+    </div>
+
+    <div class="container">
+
+        <!-- Report Cards -->
+        <h2 class="section-title">Active Reports</h2>
+        {% if report_stats %}
+        <div class="report-grid">
+            {% for rs in report_stats %}
+            <div class="report-card">
+                <div class="report-card-header">
+                    <div>
+                        <div class="report-card-name">{{ rs.report.member_name }}</div>
+                        <div class="report-card-company">{{ rs.report.company_name }}</div>
+                    </div>
+                    {% if rs.days_since_visit is not None %}
+                        {% if rs.days_since_visit < 3 %}
+                            <span class="last-visit-badge last-visit-green">{{ rs.days_since_visit }}d ago</span>
+                        {% elif rs.days_since_visit <= 7 %}
+                            <span class="last-visit-badge last-visit-yellow">{{ rs.days_since_visit }}d ago</span>
+                        {% else %}
+                            <span class="last-visit-badge last-visit-red">{{ rs.days_since_visit }}d ago</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="last-visit-badge last-visit-none">No visits</span>
+                    {% endif %}
+                </div>
+                <div class="report-card-stats">
+                    <div class="stat-box">
+                        <div class="stat-value">{{ rs.total_sessions }}</div>
+                        <div class="stat-label">Sessions</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">{{ rs.contacted }}/{{ rs.total_partners }}</div>
+                        <div class="stat-label">Contacted</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">{{ rs.template_copy_rate }}%</div>
+                        <div class="stat-label">Copy Rate</div>
+                    </div>
+                </div>
+                <a class="report-card-link" href="{% url 'matching:analytics-report-detail' rs.report.id %}">View Details</a>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">No active reports found.</div>
+        {% endif %}
+
+        <!-- Active Alerts -->
+        <div class="alerts-section">
+            <h2 class="section-title">Active Alerts</h2>
+            {% if alerts %}
+            <div class="alert-list">
+                {% for alert in alerts %}
+                <div class="alert-item alert-item-{{ alert.severity }}">
+                    <span class="severity-badge severity-{{ alert.severity }}">{{ alert.severity }}</span>
+                    <div class="alert-content">
+                        <div class="alert-title">{{ alert.title }}</div>
+                        <div class="alert-description">{{ alert.description }}</div>
+                    </div>
+                    <form method="post" action="{% url 'matching:analytics-insight-dismiss' alert.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="alert-dismiss">Dismiss</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state">No active alerts. All clear.</div>
+            {% endif %}
+        </div>
+
+        <!-- Global Funnel -->
+        <div class="funnel-section">
+            <h2 class="section-title">Global Engagement Funnel</h2>
+            <div class="funnel-chart">
+                {% if funnel.shown > 0 %}
+                <div class="funnel-row">
+                    <div class="funnel-label">Partners Shown</div>
+                    <div class="funnel-bar-track">
+                        <div class="funnel-bar-fill funnel-bar-shown" style="width: 100%;">
+                            {{ funnel.shown }}
+                        </div>
+                    </div>
+                    <div class="funnel-value">100%</div>
+                </div>
+                <div class="funnel-row">
+                    <div class="funnel-label">Expanded</div>
+                    <div class="funnel-bar-track">
+                        <div class="funnel-bar-fill funnel-bar-expanded" style="width: {{ funnel.expanded_pct }}%;">
+                            {{ funnel.expanded }}
+                        </div>
+                    </div>
+                    <div class="funnel-value">{{ funnel.expanded_pct }}%</div>
+                </div>
+                <div class="funnel-row">
+                    <div class="funnel-label">Contacted</div>
+                    <div class="funnel-bar-track">
+                        <div class="funnel-bar-fill funnel-bar-contacted" style="width: {{ funnel.contacted_pct }}%;">
+                            {{ funnel.contacted }}
+                        </div>
+                    </div>
+                    <div class="funnel-value">{{ funnel.contacted_pct }}%</div>
+                </div>
+                {% else %}
+                <div class="empty-state" style="border:none; padding: 20px;">No engagement data yet.</div>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

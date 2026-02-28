@@ -233,7 +233,7 @@ class ExaResearchService:
 
             else:
                 # === Strategy B: Name-only ===
-                discovered, cost = self._discover_profile(name, company)
+                discovered, cost = self._discover_profile(name, company, existing)
                 total_cost += cost
 
                 if discovered.get('website'):
@@ -407,16 +407,46 @@ class ExaResearchService:
         return profile, cost
 
     def _discover_profile(
-        self, name: str, company: Optional[str] = None
+        self, name: str, company: Optional[str] = None,
+        existing_data: Optional[Dict] = None,
     ) -> Tuple[Dict, float]:
         """
         For name-only profiles: search to discover their website and LinkedIn.
+
+        Uses any available context (niche, tags, what_you_do, bio) to
+        disambiguate common names.
+
         Returns: ({"website": url, "linkedin": url}, cost)
         """
+        existing = existing_data or {}
         query_parts = [name]
         if company and company not in ('More Info', 'None', ''):
             query_parts.append(company)
-        query_parts.extend(["coach", "author", "speaker", "entrepreneur"])
+
+        # Add disambiguation context from existing profile data
+        context_added = False
+        niche = (existing.get('niche') or '').strip()
+        if niche and niche.lower() not in ('unknown', 'n/a', 'none'):
+            query_parts.append(niche)
+            context_added = True
+
+        tags = existing.get('tags') or []
+        if isinstance(tags, list) and tags:
+            # Use up to 3 most specific tags for disambiguation
+            tag_text = " ".join(tags[:3])
+            query_parts.append(tag_text)
+            context_added = True
+
+        what_you_do = (existing.get('what_you_do') or '').strip()
+        if what_you_do and len(what_you_do) > 10 and not context_added:
+            # Use first ~50 chars of what_you_do as context if no niche/tags
+            query_parts.append(what_you_do[:50])
+            context_added = True
+
+        # Only fall back to generic role terms if no specific context
+        if not context_added:
+            query_parts.extend(["coach", "author", "speaker", "entrepreneur"])
+
         query = " ".join(query_parts)
 
         try:
@@ -557,7 +587,18 @@ class ExaResearchService:
         return url
 
     def _is_non_website_url(self, url: str) -> bool:
-        """Check if URL is a social/booking link rather than a real website."""
+        """Check if URL is a social/booking link, directory listing, or
+        third-party profile page rather than a real business website.
+
+        Catches:
+        - Social / scheduling platforms (calendly, linkedin, etc.)
+        - Directory listings with database IDs in the path
+        - URL-encoded fragments (%23 = '#' used by SPA directories)
+        - Member/profile pages on association or directory sites
+        """
+        lower = url.lower()
+
+        # --- Domain blocklist (social, booking, shorteners) ---
         non_website_domains = [
             'calendly.com', 'acuityscheduling.com', 'savvycal.com',
             'tidycal.com', 'hubspot.com/meetings', 'zcal.co',
@@ -565,7 +606,44 @@ class ExaResearchService:
             'tinyurl.com', 'bit.ly', 'youtube.com', 'twitter.com',
             'x.com', 'tiktok.com',
         ]
-        return any(d in url.lower() for d in non_website_domains)
+        if any(d in lower for d in non_website_domains):
+            return True
+
+        # --- URL-encoded fragments (%23 = '#') in path ---
+        # SPA directories encode '#' as %23 in server-side URLs.
+        # Example: ismeta.org/...%23!biz/id/5b66f587...
+        if '%23' in lower:
+            return True
+
+        # --- Directory / member-page path patterns ---
+        parsed = urlparse(url)
+        path = parsed.path.lower()
+
+        # Path segments that indicate a profile page on someone else's site
+        directory_path_signals = [
+            '/biz/id/', '/member/', '/members/', '/directory/',
+            '/profile/', '/profiles/', '/practitioners/',
+            '/therapists/', '/educators/', '/listing/',
+            '/find-a-', '/search/', '/people/',
+        ]
+        if any(signal in path for signal in directory_path_signals):
+            return True
+
+        # --- Machine-generated IDs in path ---
+        # MongoDB ObjectIDs (24 hex chars) or UUIDs in path segments
+        path_parts = [p for p in path.split('/') if p]
+        for part in path_parts:
+            # 24-char hex string (MongoDB ObjectID)
+            if re.match(r'^[0-9a-f]{24}$', part):
+                return True
+            # UUID pattern
+            if re.match(
+                r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$',
+                part,
+            ):
+                return True
+
+        return False
 
     def check_indexed(self, url: str) -> bool:
         """Quick check if Exa has a URL indexed (no content retrieval)."""
@@ -577,6 +655,289 @@ class ExaResearchService:
             return bool(result.results and result.results[0].text)
         except Exception:
             return False
+
+    # ------------------------------------------------------------------
+    # find-similar & Websets: prospect discovery methods
+    # ------------------------------------------------------------------
+
+    def find_similar_profiles(
+        self,
+        url: str,
+        num_results: int = 10,
+        exclude_domains: Optional[List[str]] = None,
+    ) -> List[Dict]:
+        """Find profiles similar to a known partner using Exa's find_similar.
+
+        Uses Exa's neural similarity search to discover websites that are
+        semantically close to *url*.  Useful for expanding a seed list of
+        known-good JV partners.
+
+        Args:
+            url: URL of a known-good partner (website or LinkedIn).
+            num_results: How many similar results to return.
+            exclude_domains: Domains to exclude from results.  Defaults to
+                the module-level SKIP_DOMAINS list (social, marketplace, etc.).
+
+        Returns:
+            List of dicts with keys: url, title, score, published_date.
+            Returns an empty list on error.
+        """
+        if not self.available:
+            logger.warning("Exa API key not configured, skipping find_similar")
+            return []
+
+        effective_excludes = exclude_domains if exclude_domains is not None else SKIP_DOMAINS
+
+        try:
+            result = self.client.find_similar(
+                url=url,
+                num_results=num_results,
+                exclude_domains=effective_excludes,
+            )
+        except Exception as e:
+            logger.warning(f"Exa find_similar failed for {url}: {e}")
+            return []
+
+        cost = result.cost_dollars.total if hasattr(result, 'cost_dollars') and result.cost_dollars else 0.0
+        logger.info(
+            f"Exa find_similar for {url}: {len(result.results)} results, "
+            f"${cost:.4f} cost"
+        )
+
+        profiles: List[Dict] = []
+        for r in result.results:
+            profiles.append({
+                "url": r.url,
+                "title": getattr(r, 'title', '') or '',
+                "score": getattr(r, 'score', None),
+                "published_date": getattr(r, 'published_date', None),
+            })
+
+        return profiles
+
+    def create_webset(
+        self,
+        query: str,
+        count: int = 25,
+        criteria: Optional[List[Dict]] = None,
+    ) -> Dict:
+        """Create an Exa Webset for continuous prospect monitoring.
+
+        Websets are Exa's asynchronous monitoring feature that continuously
+        discovers new pages matching a semantic query.  Results accumulate
+        over time and can be fetched via ``get_webset_results``.
+
+        Note: The Websets API may not be available in all exa_py versions.
+        If the API is missing this method returns an error dict instead of
+        raising.
+
+        Args:
+            query: Semantic search query
+                (e.g., "executive coaches offering JV partnerships").
+            count: Target number of results for the webset.
+            criteria: Optional enrichment / filtering criteria dicts to
+                attach to the webset.
+
+        Returns:
+            Dict with webset_id, status, and metadata on success.
+            Dict with 'error' key on failure.
+        """
+        if not self.available:
+            logger.warning("Exa API key not configured, skipping create_webset")
+            return {"error": "EXA_API_KEY not configured"}
+
+        try:
+            search_params: Dict = {"query": query, "count": count}
+            enrichments: List[Dict] = []
+            if criteria:
+                enrichments = [{"criteria": c} for c in criteria]
+
+            kwargs: Dict = {"search": search_params}
+            if enrichments:
+                kwargs["enrichments"] = enrichments
+
+            webset = self.client.create_webset(**kwargs)
+
+            webset_id = getattr(webset, 'id', None) or (webset.get('id') if isinstance(webset, dict) else None)
+            status = getattr(webset, 'status', None) or (webset.get('status') if isinstance(webset, dict) else 'unknown')
+
+            logger.info(
+                f"Exa Webset created: id={webset_id}, status={status}, "
+                f"query={query!r}"
+            )
+
+            return {
+                "webset_id": webset_id,
+                "status": status,
+                "query": query,
+                "count": count,
+                "raw": webset if isinstance(webset, dict) else str(webset),
+            }
+
+        except AttributeError:
+            msg = (
+                "Exa Websets API not available in installed exa_py version. "
+                "Upgrade exa_py or check Exa documentation for Websets support."
+            )
+            logger.warning(msg)
+            return {"error": msg}
+        except Exception as e:
+            logger.error(f"Exa create_webset failed: {e}", exc_info=True)
+            return {"error": str(e)}
+
+    def get_webset_results(self, webset_id: str) -> List[Dict]:
+        """Fetch results from an existing Exa Webset.
+
+        Args:
+            webset_id: The Webset ID returned by ``create_webset()``.
+
+        Returns:
+            List of result dicts with keys: url, title, summary.
+            Returns an empty list on error or if the API is unavailable.
+        """
+        if not self.available:
+            logger.warning("Exa API key not configured, skipping get_webset_results")
+            return []
+
+        try:
+            webset = self.client.get_webset(webset_id)
+        except AttributeError:
+            logger.warning(
+                "Exa Websets API not available in installed exa_py version. "
+                "Cannot fetch webset results."
+            )
+            return []
+        except Exception as e:
+            logger.error(f"Exa get_webset failed for {webset_id}: {e}", exc_info=True)
+            return []
+
+        # The webset object may expose results as .items, .results, or similar.
+        # Normalise into a flat list of dicts regardless of the SDK shape.
+        raw_items = (
+            getattr(webset, 'items', None)
+            or getattr(webset, 'results', None)
+            or (webset.get('items') if isinstance(webset, dict) else None)
+            or (webset.get('results') if isinstance(webset, dict) else None)
+            or []
+        )
+
+        results: List[Dict] = []
+        for item in raw_items:
+            if isinstance(item, dict):
+                results.append({
+                    "url": item.get("url", ""),
+                    "title": item.get("title", ""),
+                    "summary": item.get("summary", ""),
+                })
+            else:
+                results.append({
+                    "url": getattr(item, 'url', ''),
+                    "title": getattr(item, 'title', ''),
+                    "summary": getattr(item, 'summary', ''),
+                })
+
+        logger.info(
+            f"Exa Webset {webset_id}: fetched {len(results)} results"
+        )
+        return results
+
+    def discover_jv_prospects(
+        self,
+        niche: str,
+        seed_urls: Optional[List[str]] = None,
+        num_results: int = 20,
+    ) -> List[Dict]:
+        """Discover new JV prospects using semantic search and find-similar.
+
+        Combines two complementary discovery strategies:
+          1. **Semantic search** -- finds pages matching the niche query.
+          2. **find_similar** -- expands from each *seed_url* to discover
+             structurally similar sites.
+
+        Results are deduplicated by domain so the same site never appears
+        twice even if both strategies surface it.
+
+        Args:
+            niche: Business niche to search
+                (e.g., "life coaching", "B2B SaaS").
+            seed_urls: URLs of known-good partners to find similar ones.
+            num_results: Approximate total results desired.
+
+        Returns:
+            Deduplicated list of prospect dicts (keys: url, title, score,
+            published_date, source).
+        """
+        if not self.available:
+            logger.warning("Exa API key not configured, skipping discover_jv_prospects")
+            return []
+
+        seen_domains: set = set()
+        combined: List[Dict] = []
+
+        def _domain(url: str) -> str:
+            """Extract a normalised domain for dedup purposes."""
+            try:
+                netloc = urlparse(url).netloc.lower()
+                # Strip www. prefix for better dedup
+                if netloc.startswith('www.'):
+                    netloc = netloc[4:]
+                return netloc
+            except Exception:
+                return url
+
+        # --- 1. Semantic search ---
+        search_query = f"{niche} coach entrepreneur speaker partnership"
+        search_count = num_results // 2 if seed_urls else num_results
+        try:
+            search_result = self.client.search(
+                query=search_query,
+                num_results=search_count,
+                exclude_domains=SKIP_DOMAINS,
+            )
+            cost = (
+                search_result.cost_dollars.total
+                if hasattr(search_result, 'cost_dollars') and search_result.cost_dollars
+                else 0.0
+            )
+            logger.info(
+                f"Exa prospect search for {niche!r}: "
+                f"{len(search_result.results)} results, ${cost:.4f} cost"
+            )
+            for r in search_result.results:
+                dom = _domain(r.url)
+                if dom and dom not in seen_domains:
+                    seen_domains.add(dom)
+                    combined.append({
+                        "url": r.url,
+                        "title": getattr(r, 'title', '') or '',
+                        "score": getattr(r, 'score', None),
+                        "published_date": getattr(r, 'published_date', None),
+                        "source": "semantic_search",
+                    })
+        except Exception as e:
+            logger.warning(f"Exa prospect semantic search failed for {niche!r}: {e}")
+
+        # --- 2. find_similar from seed URLs ---
+        if seed_urls:
+            per_seed = max(1, (num_results - len(combined)) // len(seed_urls))
+            for seed_url in seed_urls:
+                similar = self.find_similar_profiles(
+                    url=seed_url,
+                    num_results=per_seed,
+                )
+                for item in similar:
+                    dom = _domain(item["url"])
+                    if dom and dom not in seen_domains:
+                        seen_domains.add(dom)
+                        item["source"] = f"similar_to:{seed_url}"
+                        combined.append(item)
+
+        logger.info(
+            f"Exa discover_jv_prospects for {niche!r}: "
+            f"{len(combined)} deduplicated prospects "
+            f"(seeds={len(seed_urls) if seed_urls else 0})"
+        )
+        return combined
 
 
 def exa_enrich_profile(

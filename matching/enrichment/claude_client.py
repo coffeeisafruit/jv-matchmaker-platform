@@ -13,14 +13,6 @@ import logging
 import os
 from typing import Dict, Optional
 
-from pydantic_ai import Agent
-
-from matching.enrichment.schemas import (
-    CoreProfileExtraction,
-    ExtendedSignalsExtraction,
-    AIVerificationResult,
-)
-
 from tenacity import (
     retry,
     retry_if_exception,
@@ -201,60 +193,195 @@ def get_pydantic_model():
         return None
 
 
-# --- Research agents ---
+def get_model_for_tier(tier: int = 3) -> str:
+    """Return the appropriate Claude model name based on profile tier.
 
-research_agent = Agent(
-    output_type=CoreProfileExtraction,
-    instructions=(
-        "You are a business research assistant extracting FACTUAL profile data. "
-        "Only extract information that is EXPLICITLY stated on the website. "
-        "DO NOT make assumptions or infer anything. If information is not clearly "
-        "stated, leave that field empty. Business accuracy matters — do NOT "
-        "fabricate or assume. Set confidence to 'high' only if you found clear, "
-        "explicit statements. Include source_quotes with 1-2 direct quotes."
-    ),
-)
+    Tier routing:
+        0-1: Haiku (fast, cheap — auto-fill and entry-level profiles)
+        2-3: Sonnet (default — standard enrichment)
+        4-5: Opus (premium — high-value profiles needing deeper reasoning)
 
-extended_signals_agent = Agent(
-    output_type=ExtendedSignalsExtraction,
-    instructions=(
-        "You are a business intelligence analyst extracting PARTNERSHIP and "
-        "REVENUE signals. Only extract information that is EXPLICITLY stated "
-        "or clearly demonstrated. Do NOT fabricate partnerships, prices, or "
-        "platform names. Revenue tier should be based on evidence, not "
-        "assumptions. For jv_history, only include partnerships you can cite "
-        "from the content."
-    ),
-)
+    Returns the model string suitable for the current API provider
+    (OpenRouter format or direct Anthropic format).
+    """
+    openrouter_key = ""
+    try:
+        from django.conf import settings
+        openrouter_key = getattr(settings, 'OPENROUTER_API_KEY', '') or os.environ.get('OPENROUTER_API_KEY', '')
+    except Exception:
+        openrouter_key = os.environ.get('OPENROUTER_API_KEY', '')
+
+    use_openrouter = bool(openrouter_key)
+
+    if tier <= 1:
+        return "anthropic/claude-haiku-3-5" if use_openrouter else "claude-3-5-haiku-20241022"
+    elif tier <= 3:
+        return "anthropic/claude-sonnet-4" if use_openrouter else "claude-sonnet-4-20250514"
+    else:
+        return "anthropic/claude-opus-4" if use_openrouter else "claude-opus-4-20250514"
 
 
-# --- Verification agents ---
+def get_pydantic_model_for_tier(tier: int = 3):
+    """Return a Pydantic AI model configured for the given profile tier.
 
-formatting_verifier = Agent(
-    output_type=AIVerificationResult,
-    instructions=(
-        "You are a content formatting quality checker. Evaluate text for: "
-        "complete sentences, clear structure, readability, appropriate length "
-        "(max 450 chars), and whether it describes benefits for both parties. "
-        "Score 0-100 based on formatting quality."
-    ),
-)
+    Uses get_model_for_tier() to select the model, then wraps it
+    in the appropriate Pydantic AI provider.
+    """
+    model_name = get_model_for_tier(tier)
 
-content_verifier = Agent(
-    output_type=AIVerificationResult,
-    instructions=(
-        "You are a content quality evaluator. Check text for: personalization, "
-        "use of actual data (not generic phrases), specific benefits mentioned, "
-        "and whether the content is compelling and accurate. Score 0-100."
-    ),
-)
+    openrouter_key = anthropic_key = ""
+    try:
+        from django.conf import settings
+        openrouter_key = getattr(settings, 'OPENROUTER_API_KEY', '') or os.environ.get('OPENROUTER_API_KEY', '')
+        anthropic_key = getattr(settings, 'ANTHROPIC_API_KEY', '') or os.environ.get('ANTHROPIC_API_KEY', '')
+    except Exception:
+        openrouter_key = os.environ.get('OPENROUTER_API_KEY', '')
+        anthropic_key = os.environ.get('ANTHROPIC_API_KEY', '')
 
-data_quality_verifier = Agent(
-    output_type=AIVerificationResult,
-    instructions=(
-        "You are a data quality checker for business profiles. Verify: email "
-        "format validity, website vs LinkedIn distinction, contact info quality, "
-        "no placeholder values, and that data is in the correct fields. "
-        "Score 0-100 based on data integrity."
-    ),
-)
+    if openrouter_key:
+        from pydantic_ai.providers.openai import OpenAIProvider
+        from pydantic_ai.models.openai import OpenAIModel
+        provider = OpenAIProvider(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=openrouter_key,
+        )
+        return OpenAIModel(model_name, provider=provider)
+    elif anthropic_key:
+        from pydantic_ai.models.anthropic import AnthropicModel
+        return AnthropicModel(model_name, api_key=anthropic_key)
+    else:
+        return None
+
+
+# --- Lazy-loaded Pydantic AI agents ---
+#
+# Agent instantiation is deferred so that ``from .claude_client import ClaudeClient``
+# works even when pydantic-ai is not installed (e.g. in test environments that only
+# need the raw HTTP client).
+
+_research_agent = None
+_extended_signals_agent = None
+_formatting_verifier = None
+_content_verifier = None
+_data_quality_verifier = None
+
+
+def _get_agent_class():
+    """Import and return pydantic_ai.Agent (raises ImportError if missing)."""
+    from pydantic_ai import Agent
+    return Agent
+
+
+def _get_schemas():
+    """Import output schemas for agents."""
+    from matching.enrichment.schemas import (
+        CoreProfileExtraction,
+        ExtendedSignalsExtraction,
+        AIVerificationResult,
+    )
+    return CoreProfileExtraction, ExtendedSignalsExtraction, AIVerificationResult
+
+
+def _make_research_agent():
+    Agent = _get_agent_class()
+    CoreProfileExtraction, _, _ = _get_schemas()
+    return Agent(
+        output_type=CoreProfileExtraction,
+        instructions=(
+            "You are a business research assistant extracting FACTUAL profile data. "
+            "Only extract information that is EXPLICITLY stated on the website. "
+            "DO NOT make assumptions or infer anything. If information is not clearly "
+            "stated, leave that field empty. Business accuracy matters — do NOT "
+            "fabricate or assume. Set confidence to 'high' only if you found clear, "
+            "explicit statements. Include source_quotes with 1-2 direct quotes."
+        ),
+    )
+
+
+def _make_extended_signals_agent():
+    Agent = _get_agent_class()
+    _, ExtendedSignalsExtraction, _ = _get_schemas()
+    return Agent(
+        output_type=ExtendedSignalsExtraction,
+        instructions=(
+            "You are a business intelligence analyst extracting PARTNERSHIP and "
+            "REVENUE signals. Only extract information that is EXPLICITLY stated "
+            "or clearly demonstrated. Do NOT fabricate partnerships, prices, or "
+            "platform names. Revenue tier should be based on evidence, not "
+            "assumptions. For jv_history, only include partnerships you can cite "
+            "from the content."
+        ),
+    )
+
+
+def _make_formatting_verifier():
+    Agent = _get_agent_class()
+    _, _, AIVerificationResult = _get_schemas()
+    return Agent(
+        output_type=AIVerificationResult,
+        instructions=(
+            "You are a content formatting quality checker. Evaluate text for: "
+            "complete sentences, clear structure, readability, appropriate length "
+            "(max 450 chars), and whether it describes benefits for both parties. "
+            "Score 0-100 based on formatting quality."
+        ),
+    )
+
+
+def _make_content_verifier():
+    Agent = _get_agent_class()
+    _, _, AIVerificationResult = _get_schemas()
+    return Agent(
+        output_type=AIVerificationResult,
+        instructions=(
+            "You are a content quality evaluator. Check text for: personalization, "
+            "use of actual data (not generic phrases), specific benefits mentioned, "
+            "and whether the content is compelling and accurate. Score 0-100."
+        ),
+    )
+
+
+def _make_data_quality_verifier():
+    Agent = _get_agent_class()
+    _, _, AIVerificationResult = _get_schemas()
+    return Agent(
+        output_type=AIVerificationResult,
+        instructions=(
+            "You are a data quality checker for business profiles. Verify: email "
+            "format validity, website vs LinkedIn distinction, contact info quality, "
+            "no placeholder values, and that data is in the correct fields. "
+            "Score 0-100 based on data integrity."
+        ),
+    )
+
+
+def __getattr__(name: str):
+    """Module-level __getattr__ for lazy agent instantiation.
+
+    Allows ``from .claude_client import research_agent`` to work without
+    importing pydantic_ai at module load time.
+    """
+    global _research_agent, _extended_signals_agent
+    global _formatting_verifier, _content_verifier, _data_quality_verifier
+
+    if name == "research_agent":
+        if _research_agent is None:
+            _research_agent = _make_research_agent()
+        return _research_agent
+    if name == "extended_signals_agent":
+        if _extended_signals_agent is None:
+            _extended_signals_agent = _make_extended_signals_agent()
+        return _extended_signals_agent
+    if name == "formatting_verifier":
+        if _formatting_verifier is None:
+            _formatting_verifier = _make_formatting_verifier()
+        return _formatting_verifier
+    if name == "content_verifier":
+        if _content_verifier is None:
+            _content_verifier = _make_content_verifier()
+        return _content_verifier
+    if name == "data_quality_verifier":
+        if _data_quality_verifier is None:
+            _data_quality_verifier = _make_data_quality_verifier()
+        return _data_quality_verifier
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

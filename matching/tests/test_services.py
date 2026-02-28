@@ -813,9 +813,9 @@ class TestTierDetermination:
         assert tier == 'hand_picked'
 
     def test_tier_strong_by_score(self):
-        """score=70 → 'strong'."""
+        """score=60 → 'strong' (above 55 threshold, below 67 hand_picked)."""
         analyzer = self._make_analyzer()
-        tier = analyzer._determine_tier(score=70, insight_count=1)
+        tier = analyzer._determine_tier(score=60, insight_count=1)
         assert tier == 'strong'
 
     def test_tier_strong_by_insights(self):
@@ -903,8 +903,9 @@ class TestAnalyzeBatch:
         )
 
         # Create matches that produce different tiers
+        # Thresholds: hand_picked >= 67, strong >= 55, wildcard < 55
         match_wildcard = make_mock_supabase_match(harmonic_mean=40.0, match_reason='Low match')
-        match_strong = make_mock_supabase_match(harmonic_mean=70.0, match_reason='Good match')
+        match_strong = make_mock_supabase_match(harmonic_mean=60.0, match_reason='Good match')
         match_hand_picked = make_mock_supabase_match(harmonic_mean=90.0, match_reason='Excellent match')
 
         partners = [partner_wildcard, partner_strong, partner_hand_picked]

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirm Your Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #faf8f5;
+            --ink: #1a1a1a;
+            --forest: #1e3a2f;
+            --gold: #c9a962;
+            --gold-light: #e8d5a8;
+            --muted: #8b8680;
+            --blush: #f4e8e1;
+            --card: #ffffff;
+            --error: #c0392b;
+            --success-bg: #e8f5e9;
+            --success-fg: #1b5e20;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 24px 20px 80px;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 24px 0 28px;
+            border-bottom: 1px solid var(--gold-light);
+            margin-bottom: 32px;
+        }
+
+        .header-eyebrow {
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .header h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--forest);
+            letter-spacing: -0.02em;
+        }
+
+        .header-meta {
+            margin-top: 10px;
+            font-size: 14px;
+            color: var(--muted);
+            max-width: 440px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Info banner */
+        .info-banner {
+            background: var(--blush);
+            border: 1px solid var(--gold-light);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 24px;
+            font-size: 0.875rem;
+            color: var(--forest);
+            line-height: 1.6;
+        }
+
+        /* Sections */
+        .section {
+            background: var(--card);
+            border-radius: 8px;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .section-header {
+            padding: 0.875rem 1.25rem;
+            border-bottom: 1px solid var(--gold-light);
+            background: var(--cream);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--forest);
+        }
+
+        .section-body {
+            padding: 1.25rem;
+        }
+
+        /* Form groups */
+        .field-group {
+            margin-bottom: 1.25rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid #f0ece8;
+        }
+
+        .field-group:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .field-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .field-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        .confirm-toggle {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--forest);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .confirm-toggle input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--forest);
+            cursor: pointer;
+        }
+
+        .field-input,
+        .field-textarea {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid #d4d0cb;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.875rem;
+            background: #fff;
+            color: var(--ink);
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .field-input:focus,
+        .field-textarea:focus {
+            outline: none;
+            border-color: var(--forest);
+            box-shadow: 0 0 0 2px rgba(30, 58, 47, 0.12);
+        }
+
+        .field-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* Buttons */
+        .btn-submit {
+            display: block;
+            width: 100%;
+            padding: 0.875rem;
+            background: var(--forest);
+            color: var(--gold);
+            border: none;
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            letter-spacing: 0.02em;
+            transition: opacity 0.2s;
+            margin-top: 8px;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .btn-confirm-all {
+            display: inline-block;
+            padding: 0.5rem 1.25rem;
+            background: transparent;
+            color: var(--forest);
+            border: 1px solid var(--forest);
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-confirm-all:hover {
+            background: var(--forest);
+            color: var(--gold);
+        }
+
+        .actions-row {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        /* Footer */
+        .footer {
+            border-top: 1px solid var(--gold-light);
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-top: 2rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .container { padding: 16px 14px 60px; }
+            .header h1 { font-size: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <header class="header">
+            <div class="header-eyebrow">Profile Verification</div>
+            <h1>{{ profile.name }}</h1>
+            <div class="header-meta">
+                Please review your profile information below.
+                Confirm each field or make corrections, then submit.
+            </div>
+        </header>
+
+        <div class="info-banner">
+            Your profile data is used to find the best JV partner matches for you.
+            Keeping it accurate ensures you receive the most relevant recommendations.
+            Fields you confirm will be protected from automated updates.
+        </div>
+
+        <form method="post" action="{% url 'matching:verification-submit' token=token %}" novalidate>
+            {% csrf_token %}
+
+            <div class="actions-row">
+                <button type="button" class="btn-confirm-all" onclick="toggleAllCheckboxes(true)">
+                    Confirm All Fields
+                </button>
+            </div>
+
+            <!-- Identity Fields -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">Identity</span>
+                </div>
+                <div class="section-body">
+                    {% for field in fields %}
+                        {% if field.name == 'name' or field.name == 'company' or field.name == 'email' %}
+                        <div class="field-group">
+                            <div class="field-top">
+                                <label class="field-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                                <label class="confirm-toggle">
+                                    <input type="checkbox" name="confirm_{{ field.name }}" checked>
+                                    Confirm
+                                </label>
+                            </div>
+                            {% if field.is_textarea %}
+                                <textarea id="id_{{ field.name }}" name="{{ field.name }}" class="field-textarea" rows="3">{{ field.value }}</textarea>
+                            {% else %}
+                                <input id="id_{{ field.name }}" name="{{ field.name }}" type="text" class="field-input" value="{{ field.value }}">
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Online Presence -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">Online Presence</span>
+                </div>
+                <div class="section-body">
+                    {% for field in fields %}
+                        {% if field.name == 'website' or field.name == 'linkedin' %}
+                        <div class="field-group">
+                            <div class="field-top">
+                                <label class="field-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                                <label class="confirm-toggle">
+                                    <input type="checkbox" name="confirm_{{ field.name }}" checked>
+                                    Confirm
+                                </label>
+                            </div>
+                            <input id="id_{{ field.name }}" name="{{ field.name }}" type="text" class="field-input" value="{{ field.value }}">
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Business Profile -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">Business Profile</span>
+                </div>
+                <div class="section-body">
+                    {% for field in fields %}
+                        {% if field.name == 'what_you_do' or field.name == 'who_you_serve' or field.name == 'seeking' or field.name == 'offering' or field.name == 'niche' %}
+                        <div class="field-group">
+                            <div class="field-top">
+                                <label class="field-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                                <label class="confirm-toggle">
+                                    <input type="checkbox" name="confirm_{{ field.name }}" checked>
+                                    Confirm
+                                </label>
+                            </div>
+                            {% if field.is_textarea %}
+                                <textarea id="id_{{ field.name }}" name="{{ field.name }}" class="field-textarea" rows="3">{{ field.value }}</textarea>
+                            {% else %}
+                                <input id="id_{{ field.name }}" name="{{ field.name }}" type="text" class="field-input" value="{{ field.value }}">
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- About You -->
+            <div class="section">
+                <div class="section-header">
+                    <span class="section-title">About You</span>
+                </div>
+                <div class="section-body">
+                    {% for field in fields %}
+                        {% if field.name == 'signature_programs' or field.name == 'bio' %}
+                        <div class="field-group">
+                            <div class="field-top">
+                                <label class="field-label" for="id_{{ field.name }}">{{ field.label }}</label>
+                                <label class="confirm-toggle">
+                                    <input type="checkbox" name="confirm_{{ field.name }}" checked>
+                                    Confirm
+                                </label>
+                            </div>
+                            {% if field.is_textarea %}
+                                <textarea id="id_{{ field.name }}" name="{{ field.name }}" class="field-textarea" rows="4">{{ field.value }}</textarea>
+                            {% else %}
+                                <input id="id_{{ field.name }}" name="{{ field.name }}" type="text" class="field-input" value="{{ field.value }}">
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit">Confirm My Profile</button>
+        </form>
+
+        <div class="footer">
+            JV Matchmaker &middot; Profile Verification
+        </div>
+    </div>
+
+    <script>
+        function toggleAllCheckboxes(checked) {
+            var boxes = document.querySelectorAll('input[type="checkbox"][name^="confirm_"]');
+            for (var i = 0; i < boxes.length; i++) {
+                boxes[i].checked = checked;
+            }
+        }
+    </script>
+</body>
+</html>
