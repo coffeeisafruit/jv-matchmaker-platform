@@ -1503,9 +1503,12 @@
   <div class="stats">
     <div><strong>5</strong> Django Apps</div>
     <div><strong id="header-profile-count">3,577</strong> Profiles</div>
-    <div><strong>7</strong> API Integrations</div>
+    <div><strong>8</strong> API Integrations</div>
     <div><strong>613+</strong> Tests</div>
     <div><strong>54</strong> Launch Plays</div>
+    <div><strong>10</strong> Prefect Flows</div>
+    <div><strong>46</strong> Prefect Tasks</div>
+    <div><strong>25</strong> Commands</div>
   </div>
 </div>
 
@@ -1519,6 +1522,7 @@
   <button class="tab" onclick="switchTab('integrations')">Integrations</button>
   <button class="tab" onclick="switchTab('community')">Community</button>
   <button class="tab" onclick="switchTab('datahealth')">Data Health</button>
+  <button class="tab" onclick="switchTab('prefect')">Prefect</button>
 </div>
 
 <div class="content">
@@ -1551,12 +1555,13 @@
         <div class="how-number" style="background:rgba(78,200,203,0.12);color:var(--accent-cyan)">2</div>
         <div class="how-step-content">
           <h3 style="color:var(--accent-cyan)">AI Researches Every Partner</h3>
-          <p>Our AI automatically visits each partner's website, LinkedIn, and other sources to learn about their business — who they serve, what they offer, their audience size, and whether they're actively looking for partnerships.</p>
+          <p>Our AI automatically visits each partner's website, LinkedIn, and other sources to learn about their business — who they serve, what they offer, their audience size, and whether they're actively looking for partnerships. Every extracted field passes through a <strong>4-layer quality pipeline</strong> to ensure accuracy.</p>
           <div class="how-detail-chips">
             <span class="how-chip" style="background:rgba(78,200,203,0.1);color:var(--accent-cyan)">Scans websites</span>
             <span class="how-chip" style="background:rgba(78,200,203,0.1);color:var(--accent-cyan)">Checks LinkedIn</span>
             <span class="how-chip" style="background:rgba(78,200,203,0.1);color:var(--accent-cyan)">Verifies contact info</span>
             <span class="how-chip" style="background:rgba(78,200,203,0.1);color:var(--accent-cyan)">Cross-checks sources</span>
+            <span class="how-chip" style="background:rgba(78,200,203,0.1);color:var(--accent-cyan)">4-layer data validation</span>
           </div>
         </div>
       </div>
@@ -1802,6 +1807,14 @@
     <rect x="440" y="593" width="180" height="28" rx="5" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
     <text x="530" y="612" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Verification Gate (5 agents)</text>
 
+    <!-- TextSanitizer (4-layer QA) -->
+    <rect x="640" y="593" width="120" height="28" rx="5" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="700" y="612" text-anchor="middle" fill="#4ecb8d" font-size="10" font-weight="500">TextSanitizer (QA)</text>
+
+    <!-- Prefect Orchestration bar -->
+    <rect x="210" y="635" width="570" height="22" rx="4" fill="rgba(240,160,75,0.05)" stroke="#f0a04b" stroke-width="0.8" stroke-dasharray="3,2"/>
+    <text x="495" y="650" text-anchor="middle" fill="#f0a04b" font-size="9" font-weight="500">Prefect Orchestration &mdash; 27 flows, monthly orchestrator, retry subflows, cost tracking</text>
+
     <!-- Arrows from paid to verification -->
     <line x1="318" y1="577" x2="330" y2="593" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
     <line x1="503" y1="577" x2="530" y2="593" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
@@ -1927,6 +1940,9 @@
         <span class="model-tag">ConfidenceScorer</span>
         <span class="model-tag">ContactScraper</span>
         <span class="model-tag">SourcePriority</span>
+        <span class="model-tag">TextSanitizer</span>
+        <span class="model-tag">Pydantic Schemas (15)</span>
+        <span class="model-tag">4 AI Agents</span>
       </div>
     </div>
   </div>
@@ -1970,7 +1986,7 @@
       <h4>Models</h4>
       <table class="detail-table">
         <tr><td>SupabaseProfile</td><td>Unmanaged model mapped to Supabase. 3,577 JV partner profiles with enrichment_metadata JSONB for field-level provenance tracking</td></tr>
-        <tr><td>SupabaseMatch</td><td>Pre-computed matches with bi-directional scoring (score_ab, score_ba), trust levels (platinum/gold/bronze)</td></tr>
+        <tr><td>SupabaseMatch</td><td>Pre-computed matches with bi-directional scoring (score_ab, score_ba), trust levels (platinum/gold/bronze). Composite DB index on (profile_id, -harmonic_mean) for fast top-N queries. match_reason field persists human-readable partnership insights</td></tr>
         <tr><td>MemberReport</td><td>Code-gated report with access_code, company branding, linked SupabaseProfile, client_profile JSON snapshot, partner list</td></tr>
         <tr><td>ReportPartner</td><td>Ranked partner in a report with match score (0-100), outreach template, display order</td></tr>
         <tr><td>Profile</td><td>User's custom enrichment profiles with JSON enrichment data, collaboration history</td></tr>
@@ -1988,6 +2004,8 @@
         <tr><td>generate_member_report</td><td>Management command: scores all partners via ISMC, assigns sections/badges, generates access-code-gated report</td></tr>
         <tr><td>backfill_embeddings</td><td>Management command: generates bge-large-en-v1.5 (1024-dim) embeddings for seeking, offering, who_you_serve, what_you_do. Supports --batch-size, --dry-run, --force</td></tr>
         <tr><td>rescore_matches</td><td>Management command: re-scores all SupabaseMatch records using ISMC engine with embeddings. Produces before/after production impact report. PgBouncer-safe</td></tr>
+        <tr><td>Match Reason Generator</td><td>5-layer signal system: (1) Audience overlap analysis, (2) Offering-seeking alignment, (3) Collaboration format recognition, (4) Scale context matching, (5) Niche fit scoring. Reasons persist to DB via match_reason field</td></tr>
+        <tr><td>audit_profiles</td><td>Management command: data quality scan using TextSanitizer. Found and fixed 327 profiles (28 template bios, 195 generic companies, 106 offering syntax). Supports --fix, --dry-run</td></tr>
         <tr><td>PartnershipAnalyzer</td><td>Analyzes partnerships using Supabase matches, ICP, and Transformation data</td></tr>
         <tr><td>ReportAccessMixin</td><td>Session-based access control for code-gated reports (no Django login required)</td></tr>
       </table>
@@ -2104,6 +2122,9 @@
         <tr><td>ConfidenceScorer</td><td>Source-based scoring with exponential age decay. Cross-validation boost (+0.20 if sources agree)</td></tr>
         <tr><td>ProfileMerger</td><td>Merges data from multiple sources with conflict resolution and smart array/JSONB merge</td></tr>
         <tr><td>ClaudeVerificationService</td><td>5 specialized verification agents: encoding, formatting, content, capitalization, truncation</td></tr>
+        <tr><td>TextSanitizer</td><td>Field-level data quality validation. clean_list_field() fixes comma/semicolon syntax. validate_company() blocks 30+ generic business descriptors. validate_bio() catches offering-as-role and template bio errors. validate_match_reason() strips keyword arrays and score references</td></tr>
+        <tr><td>Pydantic AI Schemas</td><td>15 structured output schemas (schemas.py). Groups: CoreProfileExtraction, ExtendedSignalsExtraction, VerificationResult, EnrichedMatch, ProspectQualification, DiscoveryResult, MatchGap. Replaces manual JSON parsing</td></tr>
+        <tr><td>Pydantic AI Agents</td><td>4 agents in matching/enrichment/agents/: DiscoveryAgent, ReportIntroAgent, AdminAnalysisAgent, plus research agent. Use pydantic_ai with typed output schemas</td></tr>
       </table>
     </div>
     <div class="detail-section">
@@ -2139,12 +2160,48 @@
         <tr><td>Age decay</td><td>email: 90 days, seeking: 30 days, linkedin: 180 days</td></tr>
       </table>
     </div>
+    <div class="detail-section">
+      <h4>Data Quality Audit</h4>
+      <table class="detail-table">
+        <tr><td>audit_profiles</td><td>Management command: scans all profiles for template bios (28 found), generic companies (195 found), offering syntax issues (106 found). Supports --fix for auto-correction and --dry-run for preview</td></tr>
+        <tr><td>4-Layer Defense</td><td>Layer 1: TextSanitizer field validation. Layer 2: AI research parse gates. Layer 3: ISMC scorer generates human-readable match reasons. Layer 4: Pre-render QA in generate_partner_page.py</td></tr>
+      </table>
+    </div>
+  <!-- ========== WIRING GAPS ========== -->
+  <div style="margin-top:24px;background:rgba(240,160,75,0.04);border:1px solid rgba(240,160,75,0.2);border-radius:12px;padding:20px 24px;">
+    <h3 style="font-size:16px;font-weight:700;margin-bottom:12px;color:#f0a04b">Wiring Gaps &mdash; Admin Registration</h3>
+    <p style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:14px">
+      11 Django models exist but are <strong>not registered in admin.py</strong>. Admins cannot view, filter, or manage this data through the Django admin interface.
+    </p>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+      <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">Profile</span>
+      <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">Match</span>
+      <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">MatchFeedback</span>
+      <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">SavedCandidate</span>
+      <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">PartnerRecommendation</span>
+      <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">MatchLearningSignal</span>
+      <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">ClientVerification</span>
+      <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">MonthlyProcessingResult</span>
+      <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">SearchCostLog</span>
+      <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">SupabaseProfile</span>
+      <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">SupabaseMatch</span>
+    </div>
+    <p style="font-size:11px;color:var(--text-dim)">
+      <span style="color:#f06b6b">Red</span> = managed models that should be registered &middot;
+      <span style="color:#f0a04b">Orange</span> = unmanaged (Supabase) models that could have read-only admin views
+    </p>
+  </div>
   </div>
 </div>
 
 <!-- ===== PIPELINE VIEW ===== -->
 <div id="view-pipeline" class="view">
   <div class="pipeline">
+
+    <div style="background:rgba(240,160,75,0.06);border:1px solid rgba(240,160,75,0.2);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-size:12px;color:var(--text-dim)">
+      <strong style="color:var(--accent-orange)">Prefect Orchestration</strong> &mdash; 27 flows coordinate this pipeline: monthly orchestrator, change detection, gap detection, retry subflows with exponential backoff, cost tracking, cross-client scoring, report delivery, and admin notifications.
+    </div>
+
     <div class="pipeline-step">
       <div class="pipeline-line">
         <div class="pipeline-dot" style="background:var(--accent-cyan)"></div>
@@ -2220,6 +2277,20 @@
         <h4>Verification Gate & Confidence Scoring</h4>
         <p><strong>Verification Gate</strong>: Blocks low-quality data from entering the database. <strong>5 Verification Agents</strong>: Encoding, Formatting, Content, Capitalization, Truncation.<br/>
         <strong>ConfidenceScorer</strong>: Source-based base score (manual: 1.0, apollo_verified: 0.95, website: 0.70) with exponential age decay and cross-validation boost (+0.20).</p>
+      </div>
+    </div>
+
+    <div class="pipeline-step">
+      <div class="pipeline-line">
+        <div class="pipeline-dot" style="background:var(--accent-green)"></div>
+        <div class="pipeline-connector"></div>
+      </div>
+      <div class="pipeline-card">
+        <h4>TextSanitizer &mdash; 4-Layer QA <span class="cost-badge cost-free">VALIDATION</span></h4>
+        <p><strong>Layer 1</strong>: TextSanitizer field validation &mdash; <code>validate_company()</code> blocks 30+ generic business descriptors, <code>validate_bio()</code> catches offering-as-role and template bios, <code>clean_list_field()</code> fixes comma/semicolon syntax, <code>validate_match_reason()</code> strips keyword arrays and score references.<br/>
+        <strong>Layer 2</strong>: AI research parse gates &mdash; source quote requirements in ai_research.py prevent hallucinated extractions.<br/>
+        <strong>Layer 3</strong>: ISMC scorer generates human-readable match reasons via 5-layer signal analysis.<br/>
+        <strong>Layer 4</strong>: Pre-render QA check in generate_partner_page.py before any client-facing output.</p>
       </div>
     </div>
 
@@ -2322,7 +2393,7 @@
       <h3 style="font-size:18px;font-weight:700;margin-bottom:6px;">Enrichment Cascade &mdash; Decision Logic</h3>
       <p style="font-size:13px;color:var(--text-dim)">How the pipeline decides which source to use and when to escalate</p>
     </div>
-    <svg viewBox="0 0 880 520" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+    <svg viewBox="0 0 880 540" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
       <defs>
         <marker id="fc-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
           <path d="M0,0 L8,3 L0,6" fill="#4a4e68" />
@@ -2337,7 +2408,7 @@
           <path d="M0,0 L8,3 L0,6" fill="#f0a04b" />
         </marker>
       </defs>
-      <rect width="880" height="520" fill="var(--bg)" rx="12"/>
+      <rect width="880" height="540" fill="var(--bg)" rx="12"/>
 
       <!-- START: Profile with gaps -->
       <rect x="340" y="10" width="200" height="40" rx="20" fill="rgba(91,138,245,0.12)" stroke="#5b8af5" stroke-width="1.2"/>
@@ -2443,7 +2514,7 @@
       <line x1="280" y1="370" x2="300" y2="370" stroke="#4ecb8d" stroke-width="1"/>
 
       <!-- ===== VERIFICATION GATE ===== -->
-      <rect x="300" y="400" width="280" height="110" rx="10" fill="rgba(168,123,245,0.06)" stroke="#a87bf5" stroke-width="1.5"/>
+      <rect x="300" y="400" width="280" height="135" rx="10" fill="rgba(168,123,245,0.06)" stroke="#a87bf5" stroke-width="1.5"/>
       <text x="440" y="420" text-anchor="middle" fill="#a87bf5" font-size="13" font-weight="700">Verification Gate</text>
 
       <!-- 3 layers -->
@@ -2456,15 +2527,17 @@
       <rect x="370" y="462" width="140" height="24" rx="4" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
       <text x="440" y="478" text-anchor="middle" fill="#a87bf5" font-size="9" font-weight="500">3. AI Verification</text>
 
+      <rect x="320" y="490" width="240" height="24" rx="4" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
+      <text x="440" y="506" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="500">4. TextSanitizer (field validation)</text>
       <!-- Three outcomes -->
-      <rect x="310" y="495" width="75" height="20" rx="4" fill="rgba(78,203,141,0.15)"/>
-      <text x="347" y="509" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="600">Verified</text>
+      <rect x="310" y="520" width="75" height="20" rx="4" fill="rgba(78,203,141,0.15)"/>
+      <text x="347" y="534" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="600">Verified</text>
 
-      <rect x="395" y="495" width="90" height="20" rx="4" fill="rgba(240,160,75,0.15)"/>
-      <text x="440" y="509" text-anchor="middle" fill="#f0a04b" font-size="9" font-weight="600">Unverified</text>
+      <rect x="395" y="520" width="90" height="20" rx="4" fill="rgba(240,160,75,0.15)"/>
+      <text x="440" y="534" text-anchor="middle" fill="#f0a04b" font-size="9" font-weight="600">Unverified</text>
 
-      <rect x="495" y="495" width="90" height="20" rx="4" fill="rgba(240,107,107,0.15)"/>
-      <text x="540" y="509" text-anchor="middle" fill="#f06b6b" font-size="9" font-weight="600">Quarantined</text>
+      <rect x="495" y="520" width="90" height="20" rx="4" fill="rgba(240,107,107,0.15)"/>
+      <text x="540" y="534" text-anchor="middle" fill="#f06b6b" font-size="9" font-weight="600">Quarantined</text>
 
       <!-- Source priority legend -->
       <rect x="630" y="420" width="230" height="90" rx="8" fill="var(--surface)" stroke="var(--border)" stroke-width="1"/>
@@ -2575,6 +2648,72 @@
         <strong>29,863</strong> matches rescored. Mean: 27.2 &rarr; 57.5 (+30.3). Std dev: 16.1 &rarr; 5.7.<br/>
         Upgraded: <strong>25,776 (86.3%)</strong> | Downgraded: 2,126 (7.1%) | Rescued: <strong>8,991</strong><br/>
         Semantic (embedding): 58,796 evaluations | Word overlap fallback: 930
+      </div>
+    </div>
+
+    <div class="formula-box" style="margin-top:16px;border-left:3px solid var(--accent-orange)">
+      <h4>Match Reason System (5-Layer Signal Analysis)</h4>
+      <div class="formula-note" style="text-align:left">
+        Human-readable match reasons replace keyword arrays. Generated in <code>_generate_match_reason()</code> and persisted to the <code>match_reason</code> DB field.<br/><br/>
+        <strong>Layer 1: Audience Overlap</strong> &mdash; Extracts shared keywords from <code>who_you_serve</code> fields, filtering stop words and partner name tokens. Detects audience bridges for cross-promotion.<br/>
+        <strong>Layer 2: Offering&harr;Seeking Alignment</strong> &mdash; Cross-matches seeking keywords against offering items. Identifies direct partnership value alignment.<br/>
+        <strong>Layer 3: Collaboration Format</strong> &mdash; Recognizes concrete next steps from content_platforms (podcast guest swaps, co-hosted webinars, joint programs, email list swaps).<br/>
+        <strong>Layer 4: Scale Context</strong> &mdash; List-size-aware suggestions. Combined audience metrics for co-promotion recommendations when both partners have 5K+ lists.<br/>
+        <strong>Layer 5: Niche Fit</strong> &mdash; Niche alignment scoring with blocklist filtering. Only adds niche context when richer signals are absent.<br/><br/>
+        All output runs through <code>TextSanitizer.validate_match_reason()</code> to strip keyword arrays, warning emojis, and score references.
+      </div>
+    </div>
+    <!-- ========== SCORING OPPORTUNITIES ========== -->
+    <div style="margin-top:32px">
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:6px;color:#f0a04b">Scoring Opportunities &mdash; Extracted but Unused Data</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px">Fields already in the database that could improve match accuracy if wired into ISMC components.</p>
+    </div>
+
+    <div class="formula-box" style="text-align:left;border-left:3px solid #5b8af5">
+      <h4>Intent (45%) &mdash; Missing Signals</h4>
+      <div class="formula-note">
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Network centrality</strong> &mdash; pagerank, degree, betweenness computed for 1,558 profiles but completely unused in scoring<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Social media reach</strong> &mdash; facebook, instagram, youtube, twitter fields extracted but not factored into partnership intent<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Booking link</strong> &mdash; indicates openness to partnerships; available but only displayed, not scored<br/><br/>
+        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>Seeking field</strong> &mdash; checked for boolean presence only; content depth not analyzed<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Recommendation pressure</strong> &mdash; recommendation_pressure_30d computed but not used as intent signal
+      </div>
+    </div>
+
+    <div class="formula-box" style="text-align:left;border-left:3px solid #4ecb8d;margin-top:12px">
+      <h4>Synergy (25%) &mdash; Missing Signals</h4>
+      <div class="formula-note">
+        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>Content platform diversity</strong> &mdash; podcast, YouTube, newsletter extracted at 100% fill but not compared between partners<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Niche specificity</strong> &mdash; niche at 85.5% fill but no granularity scoring for sub-niche alignment<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Offering-to-seeking match</strong> &mdash; semantic match of what one offers vs what the other seeks; only done in match reasons, not ISMC<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Audience engagement</strong> &mdash; audience_engagement_score at 39.2% fill, extracted but not used
+      </div>
+    </div>
+
+    <div class="formula-box" style="text-align:left;border-left:3px solid #f0a04b;margin-top:12px">
+      <h4>Momentum (20%) &mdash; Missing Signals</h4>
+      <div class="formula-note">
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Last active date</strong> &mdash; not currently tracked; no recency signal for profile activity<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Publication frequency</strong> &mdash; content_platforms extracted but publication recency not assessed<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>View/contact rates</strong> &mdash; PartnerRecommendation tracks was_viewed and was_contacted but data not fed back<br/><br/>
+        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>JV history</strong> &mdash; checked for boolean presence only; partner overlap and recency not analyzed
+      </div>
+    </div>
+
+    <div class="formula-box" style="text-align:left;border-left:3px solid #a87bf5;margin-top:12px">
+      <h4>Context (10%) &mdash; Missing Signals</h4>
+      <div class="formula-note">
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Profile confidence</strong> &mdash; 100% fill, AI-computed quality score but not used as scoring factor<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Explanation source</strong> &mdash; provenance metadata (llm_verified, llm_partial, template_fallback) ignored<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Verification status</strong> &mdash; ClientVerification records not factored into data confidence
+      </div>
+    </div>
+
+    <div class="formula-box" style="text-align:left;border-left:3px solid #f06b6b;margin-top:12px">
+      <h4>System-Wide Gaps</h4>
+      <div class="formula-note">
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NO FEEDBACK LOOP</span> <strong>MatchLearningSignal</strong> &mdash; B5 signals collected (feedback_tier2, contact_made, view_pattern, outreach_used) but no model retraining. Designed for batch analysis at 200+ outcomes.<br/><br/>
+        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>JV history depth</strong> &mdash; only boolean presence checked; could analyze partner overlap, format preferences, and recency for better recommendations
       </div>
     </div>
   </div>
@@ -2760,6 +2899,19 @@
 
     <div class="db-section" onclick="this.classList.toggle('open')">
       <div class="db-section-header">
+        <h4><div class="db-dot" style="background:var(--accent-orange)"></div> Social Media <span class="db-field-count">&mdash; 4 dedicated columns</span></h4>
+        <span class="db-chevron">&#9654;</span>
+      </div>
+      <div class="db-section-body">
+        <div class="db-row"><span class="db-row-name">facebook</span><span class="db-row-desc">Facebook profile or page URL</span></div>
+        <div class="db-row"><span class="db-row-name">instagram</span><span class="db-row-desc">Instagram handle or profile URL</span></div>
+        <div class="db-row"><span class="db-row-name">youtube</span><span class="db-row-desc">YouTube channel URL</span></div>
+        <div class="db-row"><span class="db-row-name">twitter</span><span class="db-row-desc">Twitter/X handle or profile URL</span></div>
+      </div>
+    </div>
+
+    <div class="db-section" onclick="this.classList.toggle('open')">
+      <div class="db-section-header">
         <h4><div class="db-dot" style="background:var(--accent-purple)"></div> Embedding Vectors <span class="db-field-count">— 6 fields + 2 indexes</span></h4>
         <span class="db-chevron">&#9654;</span>
       </div>
@@ -2856,6 +3008,12 @@
         <span class="db-rel-arrow">&#8594;</span>
         <span class="db-rel-table" style="color:var(--accent-cyan)">MatchLearningSignal</span>
         <span class="db-rel-desc">B5 learning signals for batch analysis at 200+ outcomes</span>
+      </div>
+      <div class="db-rel-row">
+        <span class="db-rel-table" style="color:var(--accent-purple)">SupabaseMatch</span>
+        <span class="db-rel-arrow">&#9654;</span>
+        <span class="db-rel-table" style="color:var(--text-dim)">Composite Index</span>
+        <span class="db-rel-desc">idx_match_profile_score: (profile_id, -harmonic_mean) for fast top-N match retrieval per profile</span>
       </div>
     </div>
 
@@ -3307,6 +3465,58 @@
       </div>
     </div>
 
+    <!-- ========== DATA QUALITY AUDIT ========== -->
+    <div class="dh-phase-section" style="margin-top:24px">
+      <h3>Data Quality Audit Results</h3>
+      <p style="font-size:12px;color:var(--text-dim);margin-bottom:12px">Management command: <code>python manage.py audit_profiles</code> with <code>--fix</code>, <code>--dry-run</code>, <code>--profile-id</code> options</p>
+
+      <div class="dh-stat-row" style="justify-content:flex-start;margin-bottom:16px">
+        <div class="dh-stat"><span class="dh-stat-val" style="color:#f0a04b">327</span><span class="dh-stat-label">Profiles Fixed</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:#f06b6b">9.1%</span><span class="dh-stat-label">Defect Rate</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:#f0a04b">195</span><span class="dh-stat-label">Generic Companies</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:#a87bf5">106</span><span class="dh-stat-label">Offering Syntax</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:#4ec8cb">28</span><span class="dh-stat-label">Template Bios</span></div>
+      </div>
+
+      <table class="dh-table">
+        <thead>
+          <tr><th>Issue Type</th><th>Count</th><th>% of Fixes</th><th>Fix Method</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Generic companies cleared</td><td>195</td><td>59.6%</td><td><code>validate_company()</code> &mdash; blocks 30+ generic business descriptors</td></tr>
+          <tr><td>Offering syntax fixed</td><td>106</td><td>32.4%</td><td><code>clean_list_field()</code> &mdash; normalizes comma/semicolon formatting</td></tr>
+          <tr><td>Template bios cleared</td><td>28</td><td>8.6%</td><td><code>validate_bio()</code> &mdash; catches &ldquo;They specialize in...&rdquo; patterns</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ========== 4-LAYER DEFENSE ========== -->
+    <div style="margin-top:24px;margin-bottom:20px">
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:12px">4-Layer Quality Defense System</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #4ecb8d;border-radius:8px;padding:14px">
+          <div style="font-size:20px;font-weight:800;color:#4ecb8d;margin-bottom:4px">1</div>
+          <h4 style="font-size:12px;font-weight:700;margin-bottom:6px">TextSanitizer</h4>
+          <p style="font-size:11px;color:var(--text-dim);line-height:1.5">Field validation: <code>validate_company()</code>, <code>validate_bio()</code>, <code>clean_list_field()</code>, <code>validate_match_reason()</code></p>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #a87bf5;border-radius:8px;padding:14px">
+          <div style="font-size:20px;font-weight:800;color:#a87bf5;margin-bottom:4px">2</div>
+          <h4 style="font-size:12px;font-weight:700;margin-bottom:6px">AI Parse Gates</h4>
+          <p style="font-size:11px;color:var(--text-dim);line-height:1.5">Source quote requirements in <code>ai_research.py</code> prevent hallucinated extractions from reaching the database</p>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #5b8af5;border-radius:8px;padding:14px">
+          <div style="font-size:20px;font-weight:800;color:#5b8af5;margin-bottom:4px">3</div>
+          <h4 style="font-size:12px;font-weight:700;margin-bottom:6px">ISMC Match Reasons</h4>
+          <p style="font-size:11px;color:var(--text-dim);line-height:1.5">5-layer signal analysis generates human-readable partnership reasons, not keyword dumps or score references</p>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #f0a04b;border-radius:8px;padding:14px">
+          <div style="font-size:20px;font-weight:800;color:#f0a04b;margin-bottom:4px">4</div>
+          <h4 style="font-size:12px;font-weight:700;margin-bottom:6px">Pre-Render QA</h4>
+          <p style="font-size:11px;color:var(--text-dim);line-height:1.5">Final <code>_qa_check()</code> in <code>generate_partner_page.py</code> flags errors before any client-facing output</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -3374,6 +3584,45 @@
     </div>
   </div>
 
+  <!-- Unconnected Explainer -->
+  <div style="margin:16px 0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 22px;">
+    <h4 style="font-size:14px;font-weight:700;margin-bottom:10px;color:#f0a04b">Why 1,689 Profiles Are Unconnected (47.2%)</h4>
+    <p style="font-size:12px;color:var(--text-dim);line-height:1.6;margin-bottom:14px">
+      Profiles need a <strong>harmonic_mean score &ge; 50.0</strong> with at least one other profile to appear in the community graph. Five data gaps are the primary blockers:
+    </p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px">
+      <div class="dh-stat" style="padding:10px 14px">
+        <span class="dh-stat-val" style="color:#f06b6b;font-size:18px">521</span>
+        <span class="dh-stat-label">Missing &ldquo;What You Do&rdquo;</span>
+      </div>
+      <div class="dh-stat" style="padding:10px 14px">
+        <span class="dh-stat-val" style="color:#f06b6b;font-size:18px">517</span>
+        <span class="dh-stat-label">Missing Niche</span>
+      </div>
+      <div class="dh-stat" style="padding:10px 14px">
+        <span class="dh-stat-val" style="color:#f06b6b;font-size:18px">517</span>
+        <span class="dh-stat-label">Missing &ldquo;Who You Serve&rdquo;</span>
+      </div>
+      <div class="dh-stat" style="padding:10px 14px">
+        <span class="dh-stat-val" style="color:#f06b6b;font-size:18px">517</span>
+        <span class="dh-stat-label">Missing &ldquo;Seeking&rdquo;</span>
+      </div>
+      <div class="dh-stat" style="padding:10px 14px">
+        <span class="dh-stat-val" style="color:#f0a04b;font-size:18px">78%</span>
+        <span class="dh-stat-label">Avg Confidence (vs 85%)</span>
+      </div>
+    </div>
+    <div class="formula-box" style="margin-top:0;padding:14px 18px;text-align:left">
+      <h4 style="margin-bottom:8px">Score Tier Thresholds</h4>
+      <div class="formula-note" style="margin-top:0">
+        <strong style="color:#4ecb8d">&ge; 67</strong>: &ldquo;Hand Picked&rdquo; (top 5%) &mdash; no weak dimensions, geometric mean enforced<br/>
+        <strong style="color:#5b8af5">&ge; 55</strong>: &ldquo;Strong&rdquo; &mdash; above mean (~57.5), solid signal across all ISMC components<br/>
+        <strong style="color:#f0a04b">&ge; 50</strong>: Included &mdash; meets minimum threshold but lower quality matches<br/>
+        <strong style="color:#f06b6b">&lt; 50</strong>: Excluded &mdash; insufficient enrichment data for meaningful match scoring
+      </div>
+    </div>
+  </div>
+
   <div class="community-toggles">
     <button id="toggle-leaderboard">Top 10 Leaderboard</button>
     <button id="toggle-unconnected">Unconnected Breakdown</button>
@@ -3382,6 +3631,351 @@
   <div class="community-leaderboard" id="community-leaderboard"></div>
   <div class="community-unconnected" id="community-unconnected"></div>
 
+</div>
+
+
+<div id="view-prefect" class="view">
+  <div class="db-container" style="max-width:960px">
+    <div class="db-hero">
+      <h2>Prefect Orchestration</h2>
+      <p>Calendar-driven automation that coordinates the entire platform lifecycle &mdash; enrichment, verification, scoring, acquisition, and reporting.</p>
+      <span class="db-count">10 Flows &middot; 46 Tasks &middot; 6 Deployments</span>
+    </div>
+
+    <!-- ── Monthly Cycle Calendar ── -->
+    <svg viewBox="0 0 900 200" style="width:100%;margin:24px 0" xmlns="http://www.w3.org/2000/svg">
+      <rect x="0" y="0" width="900" height="200" rx="8" fill="var(--bg)"/>
+      <!-- timeline bar -->
+      <rect x="40" y="28" width="820" height="8" rx="4" fill="var(--border)"/>
+      <text x="40" y="20" font-size="10" fill="#8b90a8" font-family="sans-serif">Day 1</text>
+      <text x="820" y="20" font-size="10" fill="#8b90a8" font-family="sans-serif" text-anchor="end">Day 28+</text>
+
+      <!-- Day 1 – Report Delivery -->
+      <circle cx="60" cy="32" r="7" fill="#f0a04b"/>
+      <line x1="60" y1="42" x2="60" y2="70" stroke="#f0a04b" stroke-dasharray="4 3" stroke-width="1.5"/>
+      <rect x="2" y="74" width="116" height="38" rx="6" fill="rgba(240,160,75,0.08)" stroke="#f0a04b" stroke-width="1"/>
+      <text x="60" y="88" font-size="9" fill="#f0a04b" font-weight="600" text-anchor="middle" font-family="sans-serif">Report Delivery</text>
+      <text x="60" y="102" font-size="8" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">Access code rotation,</text>
+      <text x="60" y="111" font-size="8" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">AI-personalized intros</text>
+
+      <!-- Week 1 Monday – Change Detection -->
+      <circle cx="210" cy="32" r="7" fill="#4ec8cb"/>
+      <line x1="210" y1="42" x2="210" y2="70" stroke="#4ec8cb" stroke-dasharray="4 3" stroke-width="1.5"/>
+      <rect x="148" y="74" width="124" height="38" rx="6" fill="rgba(78,200,203,0.08)" stroke="#4ec8cb" stroke-width="1"/>
+      <text x="210" y="88" font-size="9" fill="#4ec8cb" font-weight="600" text-anchor="middle" font-family="sans-serif">Change Detection</text>
+      <text x="210" y="102" font-size="8" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">SHA-256 hash check +</text>
+      <text x="210" y="111" font-size="8" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">Claude semantic triage</text>
+
+      <!-- Week 3 M/W/F – Client Verification -->
+      <circle cx="460" cy="32" r="7" fill="#a87bf5"/>
+      <circle cx="490" cy="32" r="5" fill="#a87bf5"/>
+      <circle cx="520" cy="32" r="5" fill="#a87bf5"/>
+      <line x1="490" y1="42" x2="490" y2="70" stroke="#a87bf5" stroke-dasharray="4 3" stroke-width="1.5"/>
+      <rect x="425" y="74" width="130" height="38" rx="6" fill="rgba(168,123,245,0.08)" stroke="#a87bf5" stroke-width="1"/>
+      <text x="490" y="88" font-size="9" fill="#a87bf5" font-weight="600" text-anchor="middle" font-family="sans-serif">Client Verification</text>
+      <text x="490" y="102" font-size="8" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">Mon/Wed/Fri</text>
+      <text x="490" y="111" font-size="8" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">escalation emails</text>
+
+      <!-- Week 4 Monday – Heavy Processing -->
+      <circle cx="680" cy="32" r="7" fill="#5b8af5"/>
+      <line x1="680" y1="42" x2="680" y2="70" stroke="#5b8af5" stroke-dasharray="4 3" stroke-width="1.5"/>
+      <rect x="612" y="74" width="136" height="38" rx="6" fill="rgba(91,138,245,0.08)" stroke="#5b8af5" stroke-width="1"/>
+      <text x="680" y="88" font-size="9" fill="#5b8af5" font-weight="600" text-anchor="middle" font-family="sans-serif">Heavy Processing</text>
+      <text x="680" y="102" font-size="8" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">Re-enrich, rescore,</text>
+      <text x="680" y="111" font-size="8" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">gap detect, acquire</text>
+
+      <!-- Week 4 Tuesday – Admin Notification -->
+      <circle cx="750" cy="32" r="7" fill="#e87bb5"/>
+      <line x1="750" y1="42" x2="750" y2="130" stroke="#e87bb5" stroke-dasharray="4 3" stroke-width="1.5"/>
+      <rect x="690" y="134" width="120" height="38" rx="6" fill="rgba(232,123,181,0.08)" stroke="#e87bb5" stroke-width="1"/>
+      <text x="750" y="148" font-size="9" fill="#e87bb5" font-weight="600" text-anchor="middle" font-family="sans-serif">Admin Notification</text>
+      <text x="750" y="162" font-size="8" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">AI-generated digest</text>
+      <text x="750" y="171" font-size="8" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">for admin</text>
+
+      <!-- footer -->
+      <text x="450" y="192" font-size="10" fill="#8b90a8" text-anchor="middle" font-family="sans-serif">All schedules use America/New_York timezone · Orchestrated by prefect.yaml</text>
+    </svg>
+
+    <!-- ── Flow Dependency Tree ── -->
+    <svg viewBox="0 0 900 280" style="width:100%;margin:24px 0" xmlns="http://www.w3.org/2000/svg">
+      <defs><marker id="pf-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6" fill="#4a4e68"/></marker></defs>
+      <rect x="0" y="0" width="900" height="280" rx="8" fill="var(--bg)"/>
+
+      <!-- Level 0: orchestrator -->
+      <rect x="340" y="10" width="220" height="36" rx="8" fill="rgba(240,160,75,0.15)" stroke="#f0a04b" stroke-width="1.5"/>
+      <text x="450" y="33" font-size="12" fill="#f0a04b" font-weight="600" text-anchor="middle" font-family="sans-serif">monthly-orchestrator</text>
+
+      <!-- Level 1 boxes -->
+      <rect x="20" y="90" width="140" height="32" rx="6" fill="rgba(240,160,75,0.10)" stroke="#f0a04b" stroke-width="1"/>
+      <text x="90" y="111" font-size="10" fill="#f0a04b" font-weight="600" text-anchor="middle" font-family="sans-serif">report-delivery</text>
+
+      <rect x="190" y="90" width="140" height="32" rx="6" fill="rgba(78,200,203,0.10)" stroke="#4ec8cb" stroke-width="1"/>
+      <text x="260" y="111" font-size="10" fill="#4ec8cb" font-weight="600" text-anchor="middle" font-family="sans-serif">change-detection</text>
+
+      <rect x="370" y="90" width="160" height="32" rx="6" fill="rgba(168,123,245,0.10)" stroke="#a87bf5" stroke-width="1"/>
+      <text x="450" y="111" font-size="10" fill="#a87bf5" font-weight="600" text-anchor="middle" font-family="sans-serif">client-verification</text>
+
+      <rect x="570" y="90" width="160" height="32" rx="6" fill="rgba(91,138,245,0.10)" stroke="#5b8af5" stroke-width="1"/>
+      <text x="650" y="111" font-size="10" fill="#5b8af5" font-weight="600" text-anchor="middle" font-family="sans-serif">monthly-processing</text>
+
+      <rect x="760" y="90" width="130" height="32" rx="6" fill="rgba(232,123,181,0.10)" stroke="#e87bb5" stroke-width="1"/>
+      <text x="825" y="111" font-size="10" fill="#e87bb5" font-weight="600" text-anchor="middle" font-family="sans-serif">admin-notification</text>
+
+      <!-- Level 0 → Level 1 arrows -->
+      <line x1="400" y1="46" x2="90" y2="88" stroke="#4a4e68" stroke-width="1.2" marker-end="url(#pf-arrow)"/>
+      <line x1="420" y1="46" x2="260" y2="88" stroke="#4a4e68" stroke-width="1.2" marker-end="url(#pf-arrow)"/>
+      <line x1="450" y1="46" x2="450" y2="88" stroke="#4a4e68" stroke-width="1.2" marker-end="url(#pf-arrow)"/>
+      <line x1="480" y1="46" x2="650" y2="88" stroke="#4a4e68" stroke-width="1.2" marker-end="url(#pf-arrow)"/>
+      <line x1="500" y1="46" x2="825" y2="88" stroke="#4a4e68" stroke-width="1.2" marker-end="url(#pf-arrow)"/>
+
+      <!-- Level 2 boxes -->
+      <rect x="440" y="195" width="150" height="32" rx="6" fill="rgba(78,200,203,0.10)" stroke="#4ec8cb" stroke-width="1"/>
+      <text x="515" y="216" font-size="10" fill="#4ec8cb" font-weight="600" text-anchor="middle" font-family="sans-serif">enrichment-pipeline</text>
+
+      <rect x="610" y="195" width="130" height="32" rx="6" fill="rgba(91,138,245,0.10)" stroke="#5b8af5" stroke-width="1"/>
+      <text x="675" y="216" font-size="10" fill="#5b8af5" font-weight="600" text-anchor="middle" font-family="sans-serif">acquisition-flow</text>
+
+      <rect x="760" y="195" width="130" height="32" rx="6" fill="rgba(240,107,107,0.10)" stroke="#f06b6b" stroke-width="1"/>
+      <text x="825" y="216" font-size="10" fill="#f06b6b" font-weight="600" text-anchor="middle" font-family="sans-serif">retry-quarantined</text>
+
+      <rect x="290" y="195" width="130" height="32" rx="6" fill="rgba(78,203,141,0.10)" stroke="#4ecb8d" stroke-width="1"/>
+      <text x="355" y="216" font-size="10" fill="#4ecb8d" font-weight="600" text-anchor="middle" font-family="sans-serif">new-contact-flow</text>
+
+      <!-- Level 1 → Level 2 dashed arrows from monthly-processing -->
+      <line x1="620" y1="122" x2="515" y2="193" stroke="#4a4e68" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#pf-arrow)"/>
+      <line x1="650" y1="122" x2="675" y2="193" stroke="#4a4e68" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#pf-arrow)"/>
+      <line x1="680" y1="122" x2="825" y2="193" stroke="#4a4e68" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#pf-arrow)"/>
+      <line x1="610" y1="122" x2="355" y2="193" stroke="#4a4e68" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#pf-arrow)"/>
+
+      <!-- legend -->
+      <line x1="30" y1="260" x2="60" y2="260" stroke="#4a4e68" stroke-width="1.2" marker-end="url(#pf-arrow)"/>
+      <text x="68" y="264" font-size="10" fill="#8b90a8" font-family="sans-serif">direct call</text>
+      <line x1="160" y1="260" x2="190" y2="260" stroke="#4a4e68" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#pf-arrow)"/>
+      <text x="198" y="264" font-size="10" fill="#8b90a8" font-family="sans-serif">cascaded sub-flow</text>
+    </svg>
+
+    <!-- ── Flow Inventory Table ── -->
+    <div class="dh-phase-section">
+      <h3>Flow Inventory</h3>
+      <table class="dh-table">
+        <thead><tr><th>Flow</th><th>Purpose</th><th>Trigger</th><th>Timeout</th><th>Key Pattern</th></tr></thead>
+        <tbody>
+          <tr><td style="color:#f0a04b;font-weight:600">monthly-orchestrator</td><td>Top-level coordinator</td><td><code>0 6 1 * *</code></td><td>&mdash;</td><td>Calendar phase dispatch</td></tr>
+          <tr><td style="color:#4ec8cb">change-detection</td><td>Profile freshness check</td><td>Week 1 Monday</td><td>1h</td><td>Hash + semantic triage</td></tr>
+          <tr><td style="color:#a87bf5">client-verification</td><td>Client profile verification</td><td>Week 3 M/W/F</td><td>&mdash;</td><td>Email escalation cadence</td></tr>
+          <tr><td style="color:#5b8af5">monthly-processing</td><td>Heavy compute cycle</td><td>Week 4 Monday</td><td><strong>2h</strong></td><td>Re-enrich &rarr; rescore &rarr; gap detect &rarr; acquire</td></tr>
+          <tr><td style="color:#e87bb5">admin-notification</td><td>AI admin digest</td><td>Week 4 Tuesday</td><td>&mdash;</td><td>Claude summary generation</td></tr>
+          <tr><td style="color:#f0a04b">report-delivery</td><td>Member report delivery</td><td>1st of month</td><td>&mdash;</td><td>Access code rotation + AI intros</td></tr>
+          <tr><td style="color:#4ec8cb">enrichment-pipeline</td><td>Core data enrichment</td><td>Called by processing</td><td>1h</td><td>select &rarr; email &rarr; research &rarr; validate &rarr; write</td></tr>
+          <tr><td style="color:#5b8af5">acquisition-flow</td><td>New prospect discovery</td><td>Called by processing</td><td>30m</td><td>discover &rarr; prescore &rarr; ingest &rarr; enrich</td></tr>
+          <tr><td style="color:#f06b6b">retry-quarantined</td><td>Error recovery</td><td>Called by processing</td><td>&mdash;</td><td>Adaptive retry strategies</td></tr>
+          <tr><td style="color:#4ecb8d">new-contact-flow</td><td>CSV/API contact ingest</td><td>On demand</td><td>1h</td><td>ingest &rarr; enrich &rarr; cross-client score</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Task Inventory ── -->
+    <div class="dh-phase-section" style="margin-top:24px">
+      <h3>Task Inventory (46 Tasks)</h3>
+      <p style="font-size:11px;color:var(--text-dim);margin-bottom:12px">Retry badges: <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: N / delay</span> &mdash; green = retriable, no badge = no retries.</p>
+
+      <!-- enrichment-pipeline -->
+      <div class="dh-group" onclick="this.classList.toggle('open')">
+        <div class="dh-group-header">
+          <h4><div class="dh-dot" style="background:#4ec8cb"></div> enrichment-pipeline <span class="dh-group-count">&mdash; 7 tasks</span></h4>
+          <span class="dh-chevron">&#9654;</span>
+        </div>
+        <div class="dh-group-body">
+          <table class="detail-table">
+            <tr><td>select_profiles</td><td>Tier-based profile selection for enrichment batch <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 5s</span></td></tr>
+            <tr><td>discover_email</td><td>Website + LinkedIn email scraping <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 10s</span></td></tr>
+            <tr><td>apollo_bulk_enrich</td><td>Apollo API cascade for missing emails <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 30s</span></td></tr>
+            <tr><td>ai_research_profile</td><td>AI-powered research extraction <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 3 / [2,8,30]s exponential</span></td></tr>
+            <tr><td>validate_batch</td><td>Verification gate (L1 deterministic + optional L3 AI)</td></tr>
+            <tr><td>write_quarantine</td><td>Persist failed profiles to JSONL</td></tr>
+            <tr><td>consolidate_to_db</td><td>Batch DB write with SAVEPOINT fallback <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 10s</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- acquisition-flow -->
+      <div class="dh-group" onclick="this.classList.toggle('open')">
+        <div class="dh-group-header">
+          <h4><div class="dh-dot" style="background:#5b8af5"></div> acquisition-flow <span class="dh-group-count">&mdash; 5 tasks</span></h4>
+          <span class="dh-chevron">&#9654;</span>
+        </div>
+        <div class="dh-group-body">
+          <table class="detail-table">
+            <tr><td>detect_match_gaps</td><td>Gap analysis per client <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 5s</span></td></tr>
+            <tr><td>discover_prospects</td><td>Exa websets + find-similar <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 30s</span></td></tr>
+            <tr><td>prescore_prospects</td><td>Lightweight ISMC pre-scoring</td></tr>
+            <tr><td>ingest_prospects</td><td>Save to DB with dedup <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 10s</span></td></tr>
+            <tr><td>enrichment_flow</td><td>Enrich high-scorers (cascaded call)</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- change-detection -->
+      <div class="dh-group" onclick="this.classList.toggle('open')">
+        <div class="dh-group-header">
+          <h4><div class="dh-dot" style="background:#4ec8cb"></div> change-detection <span class="dh-group-count">&mdash; 4 tasks</span></h4>
+          <span class="dh-chevron">&#9654;</span>
+        </div>
+        <div class="dh-group-body">
+          <table class="detail-table">
+            <tr><td>check_hashes_batch</td><td>SHA-256 hash comparison (FREE) <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 5s</span></td></tr>
+            <tr><td>triage_batch</td><td>Claude semantic triage (~$0.008/profile) <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 10s</span></td></tr>
+            <tr><td>_update_hash_metadata</td><td>Update enrichment_metadata hashes</td></tr>
+            <tr><td>_queue_for_enrichment</td><td>Queue material changes for re-enrichment</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- monthly-processing -->
+      <div class="dh-group" onclick="this.classList.toggle('open')">
+        <div class="dh-group-header">
+          <h4><div class="dh-dot" style="background:#5b8af5"></div> monthly-processing <span class="dh-group-count">&mdash; 6 tasks</span></h4>
+          <span class="dh-chevron">&#9654;</span>
+        </div>
+        <div class="dh-group-body">
+          <table class="detail-table">
+            <tr><td>re_enrich_stale_profiles</td><td>Refresh profiles older than N days <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 30s</span></td></tr>
+            <tr><td>apply_verification_updates</td><td>Apply client profile changes <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 5s</span></td></tr>
+            <tr><td>rescore_all_matches</td><td>Run rescore_matches management command <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 30s + 1h timeout</span></td></tr>
+            <tr><td>run_gap_detection</td><td>Gap analysis for all active clients <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 10s</span></td></tr>
+            <tr><td>trigger_acquisition</td><td>Acquisition per client with gaps <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 30s</span></td></tr>
+            <tr><td>generate_all_reports</td><td>Regenerate all active MemberReports <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 10s</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- client-verification -->
+      <div class="dh-group" onclick="this.classList.toggle('open')">
+        <div class="dh-group-header">
+          <h4><div class="dh-dot" style="background:#a87bf5"></div> client-verification <span class="dh-group-count">&mdash; 3 tasks</span></h4>
+          <span class="dh-chevron">&#9654;</span>
+        </div>
+        <div class="dh-group-body">
+          <table class="detail-table">
+            <tr><td>get_active_clients</td><td>Fetch clients with active reports <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 5s</span></td></tr>
+            <tr><td>send_verification_email</td><td>Templated email via EmailService <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 10s</span></td></tr>
+            <tr><td>_update_verification_tracking</td><td>Persist status to JSONB</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- admin-notification -->
+      <div class="dh-group" onclick="this.classList.toggle('open')">
+        <div class="dh-group-header">
+          <h4><div class="dh-dot" style="background:#e87bb5"></div> admin-notification <span class="dh-group-count">&mdash; 4 tasks</span></h4>
+          <span class="dh-chevron">&#9654;</span>
+        </div>
+        <div class="dh-group-body">
+          <table class="detail-table">
+            <tr><td>gather_processing_results</td><td>Per-client match counts/scores <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 5s</span></td></tr>
+            <tr><td>gather_verification_summary</td><td>Email verification statuses <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 5s</span></td></tr>
+            <tr><td>generate_ai_suggestions</td><td>Claude-powered actionable suggestions <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 10s + 60s timeout</span></td></tr>
+            <tr><td>send_admin_email</td><td>Comprehensive admin digest <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 10s</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- report-delivery -->
+      <div class="dh-group" onclick="this.classList.toggle('open')">
+        <div class="dh-group-header">
+          <h4><div class="dh-dot" style="background:#f0a04b"></div> report-delivery <span class="dh-group-count">&mdash; 5 tasks</span></h4>
+          <span class="dh-chevron">&#9654;</span>
+        </div>
+        <div class="dh-group-body">
+          <table class="detail-table">
+            <tr><td>get_active_reports</td><td>Fetch all active MemberReports</td></tr>
+            <tr><td>generate_access_code</td><td>Random 6-char code</td></tr>
+            <tr><td>rotate_access_code</td><td>Update access code in DB <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 5s</span></td></tr>
+            <tr><td>generate_report_intro</td><td>Claude-powered personalized intro <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 1 / 10s + 30s timeout</span></td></tr>
+            <tr><td>send_delivery_email</td><td>Send report + intro email <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 10s</span></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- retry-quarantined -->
+      <div class="dh-group" onclick="this.classList.toggle('open')">
+        <div class="dh-group-header">
+          <h4><div class="dh-dot" style="background:#f06b6b"></div> retry-quarantined <span class="dh-group-count">&mdash; 4 tasks</span></h4>
+          <span class="dh-chevron">&#9654;</span>
+        </div>
+        <div class="dh-group-body">
+          <table class="detail-table">
+            <tr><td>load_quarantine_file</td><td>Read JSONL quarantine file</td></tr>
+            <tr><td>classify_failures</td><td>Categorize errors, select retry strategy</td></tr>
+            <tr><td>rebuild_profile_for_retry</td><td>Reconstruct profile dict</td></tr>
+            <tr><td>re-attempt</td><td>Research + validate with adapted params</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- new-contact-flow -->
+      <div class="dh-group" onclick="this.classList.toggle('open')">
+        <div class="dh-group-header">
+          <h4><div class="dh-dot" style="background:#4ecb8d"></div> new-contact-flow <span class="dh-group-count">&mdash; 3 tasks</span></h4>
+          <span class="dh-chevron">&#9654;</span>
+        </div>
+        <div class="dh-group-body">
+          <table class="detail-table">
+            <tr><td>ingest_contacts</td><td>CSV/API import with dedup <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 10s</span></td></tr>
+            <tr><td>score_against_all_clients</td><td>Cross-client ISMC scoring</td></tr>
+            <tr><td>flag_reports_for_update</td><td>Mark reports needing refresh</td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- cost-tracking -->
+      <div class="dh-group" onclick="this.classList.toggle('open')">
+        <div class="dh-group-header">
+          <h4><div class="dh-dot" style="background:#4ecb8d"></div> cost-tracking <span class="dh-group-count">&mdash; 4 tasks</span></h4>
+          <span class="dh-chevron">&#9654;</span>
+        </div>
+        <div class="dh-group-body">
+          <table class="detail-table">
+            <tr><td>log_search_cost</td><td>Log single query cost to JSONL</td></tr>
+            <tr><td>log_search_costs_batch</td><td>Batch cost logging</td></tr>
+            <tr><td>generate_monthly_cost_report</td><td>Aggregate + recommend</td></tr>
+            <tr><td>get_cost_summary</td><td>Recent period snapshot</td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Key Orchestration Patterns ── -->
+    <div class="formula-box" style="text-align:left;border-left:3px solid #f0a04b">
+      <h4>Key Orchestration Patterns</h4>
+      <div class="formula-note">
+        <strong>Calendar-Driven Phases</strong> &mdash; monthly-orchestrator auto-detects phase from <code>date.today()</code> using ISO week calculations. Falls back to no-op on unscheduled dates.<br/><br/>
+        <strong>Hierarchical Task Mapping</strong> &mdash; Parent flows use <code>.map()</code> to fan out parallel work across profile batches, with configurable <code>concurrency</code> parameter.<br/><br/>
+        <strong>Batch Execution with SAVEPOINT</strong> &mdash; DB writes run inside SAVEPOINTs. If one profile fails, the batch continues. Failed profiles are quarantined for retry.<br/><br/>
+        <strong>Cost Attribution per Profile</strong> &mdash; Every API call logs tool, cost, and profile_id to <code>costs_YYYY-MM.jsonl</code>. Monthly reports aggregate per-tool spending and cost-per-useful-result.<br/><br/>
+        <strong>Source Priority Protection</strong> &mdash; <code>_should_write_field()</code> enforces priority hierarchy: client_confirmed (100) &gt; client_ingest (90) &gt; manual_edit (80) &gt; exa_research (50) &gt; ai_research (40) &gt; apollo (30). Higher-priority data is immutable.<br/><br/>
+        <strong>Dry-Run Threading</strong> &mdash; All flows and tasks accept <code>dry_run: bool</code>. When enabled, full logging runs but no DB writes or external API calls occur.
+      </div>
+    </div>
+
+    <!-- ── Deployment Schedule ── -->
+    <div class="dh-phase-section" style="margin-top:24px">
+      <h3>Deployment Schedule (prefect.yaml)</h3>
+      <table class="dh-table">
+        <thead><tr><th>Deployment</th><th>Entrypoint</th><th>Cron</th><th>Timezone</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">monthly-orchestrator</td><td><code>monthly_orchestrator.py:monthly_orchestrator_flow</code></td><td><code>0 6 1 * *</code></td><td>America/New_York</td></tr>
+          <tr><td style="font-weight:600">change-detection</td><td><code>change_detection_flow.py:change_detection_flow</code></td><td><code>0 2 1-7 * 1</code></td><td>America/New_York</td></tr>
+          <tr><td style="font-weight:600">client-verification</td><td><code>client_verification.py:client_verification_flow</code></td><td><code>0 9 15-21 * 1</code></td><td>America/New_York</td></tr>
+          <tr><td style="font-weight:600">monthly-processing</td><td><code>monthly_processing.py:monthly_processing_flow</code></td><td><code>0 2 22-28 * 1</code></td><td>America/New_York</td></tr>
+          <tr><td style="font-weight:600">admin-notification</td><td><code>admin_notification.py:admin_notification_flow</code></td><td><code>0 9 22-28 * 2</code></td><td>America/New_York</td></tr>
+          <tr><td style="font-weight:600">report-delivery</td><td><code>report_delivery.py:report_delivery_flow</code></td><td><code>0 8 1 * *</code></td><td>America/New_York</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:11px;color:var(--text-dim);margin-top:8px">Deploy with: <code>python manage.py deploy_flows</code> &middot; Validate: <code>--dry-run</code> &middot; List: <code>--list</code></p>
+    </div>
+
+  </div>
 </div>
 
 </div><!-- end .content -->
@@ -3451,6 +4045,24 @@ function createStatBox(value, label, color) {
   return box;
 }
 
+function renderSourceDistribution(distData) {
+  var srcEl = document.getElementById('source-distribution');
+  if (!srcEl || !distData || distData.error) return;
+  while (srcEl.firstChild) srcEl.removeChild(srcEl.firstChild);
+  var maxCount = Math.max.apply(null, Object.values(distData));
+  Object.entries(distData).forEach(function(entry) {
+    var source = entry[0], count = entry[1];
+    var pct = maxCount ? Math.round(count / maxCount * 100) : 0;
+    var color = source === 'exa_pipeline' ? '--accent-purple' :
+                source === 'exa_research' ? '--accent-purple' :
+                source === 'ai_research' ? '--accent-cyan' :
+                source === 'ai_inference' ? '--accent-cyan' :
+                source === 'apollo' ? '--accent-orange' :
+                source.indexOf('client') >= 0 ? '--accent-green' : '--text-dim';
+    srcEl.appendChild(createBarRow(source, pct, count, color));
+  });
+}
+
 function fetchLiveDataHealth() {
   if (dataHealthLoaded) return;
   var apiUrl = '/matching/api/pipeline-stats/';
@@ -3513,20 +4125,7 @@ function fetchLiveDataHealth() {
     }
 
     // Update source distribution
-    var srcEl = document.getElementById('source-distribution');
-    if (srcEl && data.source_distribution && !data.source_distribution.error) {
-      while (srcEl.firstChild) srcEl.removeChild(srcEl.firstChild);
-      var maxCount = Math.max.apply(null, Object.values(data.source_distribution));
-      Object.entries(data.source_distribution).forEach(function(entry) {
-        var source = entry[0], count = entry[1];
-        var pct = maxCount ? Math.round(count / maxCount * 100) : 0;
-        var color = source === 'exa_research' ? '--accent-purple' :
-                    source === 'ai_research' ? '--accent-cyan' :
-                    source === 'apollo' ? '--accent-orange' :
-                    source.indexOf('client') >= 0 ? '--accent-green' : '--text-dim';
-        srcEl.appendChild(createBarRow(source, pct, count, color));
-      });
-    }
+    renderSourceDistribution(data.source_distribution);
 
     if (statusEl) {
       statusEl.textContent = 'Live data loaded';
@@ -3534,6 +4133,18 @@ function fetchLiveDataHealth() {
     }
   }).catch(function(err) {
     console.warn('Pipeline stats API not available:', err.message);
+    // Render cached source distribution data when API is unavailable
+    renderSourceDistribution({
+      exa_pipeline: 22467,
+      ai_research: 13721,
+      apollo: 5250,
+      ai_inference: 2698,
+      website_scrape: 471,
+      exa_research: 53,
+      client_ingest: 9,
+      web_discovery: 8,
+      client_confirmed: 1
+    });
     if (statusEl) {
       statusEl.textContent = 'Using cached data (API unavailable)';
       statusEl.style.color = 'var(--accent-orange)';
