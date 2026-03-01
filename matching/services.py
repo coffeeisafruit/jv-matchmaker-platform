@@ -1259,6 +1259,146 @@ class ScoreValidator:
         return issues
 
 
+class ProfileEnrichmentFilter:
+    """Pre-scoring enrichment filter for individual profiles.
+
+    Assesses whether a profile has enough data for meaningful matching,
+    flags enrichment candidates, and filters out truly empty profiles
+    before they enter the O(n×m) pair generation loop.
+    """
+
+    # Primary fields required for scoring (at least one must be meaningful)
+    KEY_FIELDS = ('seeking', 'offering', 'who_you_serve')
+    MIN_TEXT_LENGTH = 10
+
+    # Secondary fields that indicate enrichment potential
+    ENRICHABLE_FIELDS = (
+        'what_you_do', 'bio', 'website', 'linkedin', 'niche',
+        'business_focus', 'signature_programs', 'current_projects',
+    )
+
+    @classmethod
+    def assess_profile(cls, profile) -> dict:
+        """Assess a single profile's scoring eligibility.
+
+        Returns:
+            dict with 'status' ('eligible', 'enrichment_candidate', 'ineligible'),
+            'name', 'id', 'populated_key_fields', 'populated_enrichable_fields'.
+        """
+        result = {
+            'id': str(profile.id),
+            'name': getattr(profile, 'name', '') or '',
+            'populated_key_fields': [],
+            'populated_enrichable_fields': [],
+        }
+
+        # Check primary key fields
+        for field in cls.KEY_FIELDS:
+            val = getattr(profile, field, None)
+            if val and isinstance(val, str) and len(val.strip()) >= cls.MIN_TEXT_LENGTH:
+                result['populated_key_fields'].append(field)
+
+        if result['populated_key_fields']:
+            result['status'] = 'eligible'
+            return result
+
+        # No key fields — check enrichable fields
+        for field in cls.ENRICHABLE_FIELDS:
+            val = getattr(profile, field, None)
+            if val:
+                if isinstance(val, str) and val.strip():
+                    result['populated_enrichable_fields'].append(field)
+                elif isinstance(val, (list, dict)) and val:
+                    result['populated_enrichable_fields'].append(field)
+
+        if result['populated_enrichable_fields']:
+            result['status'] = 'enrichment_candidate'
+        else:
+            result['status'] = 'ineligible'
+
+        return result
+
+    @classmethod
+    def filter_scoreable_profiles(cls, profiles):
+        """Partition profiles into eligible, enrichment candidates, and ineligible.
+
+        Returns:
+            (eligible_list, candidate_list, ineligible_list) — each is a list
+            of (profile, assessment_dict) tuples, except eligible_list which
+            contains just the profile objects (ready for scoring).
+        """
+        eligible = []
+        candidates = []
+        ineligible = []
+
+        for profile in profiles:
+            assessment = cls.assess_profile(profile)
+            if assessment['status'] == 'eligible':
+                eligible.append(profile)
+            elif assessment['status'] == 'enrichment_candidate':
+                candidates.append((profile, assessment))
+            else:
+                ineligible.append((profile, assessment))
+
+        return eligible, candidates, ineligible
+
+    @classmethod
+    def generate_diagnostic_report(cls, profiles, match_model=None) -> str:
+        """Generate a markdown diagnostic report of profile scoring eligibility.
+
+        Args:
+            profiles: Iterable of SupabaseProfile objects.
+            match_model: Optional SupabaseMatch model class for garbage match counting.
+        """
+        eligible, candidates, ineligible = cls.filter_scoreable_profiles(profiles)
+
+        lines = [
+            '# Enrichment Filter Diagnostic Report',
+            '',
+            '## Summary',
+            '',
+            f'- **Total profiles checked:** {len(eligible) + len(candidates) + len(ineligible)}',
+            f'- **Eligible (have key text):** {len(eligible)}',
+            f'- **Enrichment candidates (have secondary data):** {len(candidates)}',
+            f'- **Ineligible (truly empty):** {len(ineligible)}',
+            '',
+        ]
+
+        # Garbage match estimate
+        ineligible_ids = {a['id'] for _, a in ineligible}
+        if match_model and ineligible_ids:
+            from django.db.models import Q
+            garbage_q = Q(profile_id__in=ineligible_ids) | Q(suggested_profile_id__in=ineligible_ids)
+            garbage_count = match_model.objects.filter(garbage_q).count()
+            lines.append(f'- **Garbage matches involving ineligible profiles:** {garbage_count}')
+            lines.append('')
+
+        # Enrichment candidates detail
+        if candidates:
+            lines.append('## Enrichment Candidates')
+            lines.append('')
+            lines.append('These profiles lack seeking/offering/who_you_serve but have other data:')
+            lines.append('')
+            lines.append('| Name | Populated Fields |')
+            lines.append('|------|-----------------|')
+            for _, assessment in candidates:
+                fields = ', '.join(assessment['populated_enrichable_fields'])
+                lines.append(f'| {assessment["name"]} | {fields} |')
+            lines.append('')
+
+        # Ineligible detail
+        if ineligible:
+            lines.append('## Ineligible Profiles')
+            lines.append('')
+            lines.append('These profiles have no usable text data at all:')
+            lines.append('')
+            for _, assessment in ineligible:
+                lines.append(f'- {assessment["name"]} (`{assessment["id"][:8]}...`)')
+            lines.append('')
+
+        return '\n'.join(lines)
+
+
 class SupabaseMatchScoringService:
     """
     Scores a pair of SupabaseProfiles using the ISMC framework.
@@ -1294,7 +1434,7 @@ class SupabaseMatchScoringService:
     # Derived from validation data: synonym mean=0.75, random noise mean=0.53.
     EMBEDDING_SCORE_THRESHOLDS = [
         (0.75, 10.0),  # Strong semantic match (synonym-level)
-        (0.65,  8.0),  # Good match, well above noise floor
+        (0.64,  8.0),  # Good match, well above noise floor
         (0.60,  6.0),  # Possible match, threshold zone
         (0.53,  4.5),  # At random-pair mean, weak signal
     ]
@@ -1783,7 +1923,7 @@ class SupabaseMatchScoringService:
         else:
             jv_score = 4.0  # No data ≠ no history
         factors.append({'name': 'JV History', 'score': jv_score, 'weight': 4,
-                        'detail': f'{jv_count} past partnerships'})
+                        'detail': f'{jv_count} past partnerships', 'method': 'threshold_count'})
         total += jv_score * 4
         max_total += 10 * 4
 
@@ -1791,7 +1931,7 @@ class SupabaseMatchScoringService:
         has_booking = bool(target.booking_link and target.booking_link.strip())
         booking_score = 8.0 if has_booking else 3.0
         factors.append({'name': 'Booking Link', 'score': booking_score, 'weight': 3.5,
-                        'detail': 'Ready for meetings' if has_booking else 'No booking link'})
+                        'detail': 'Ready for meetings' if has_booking else 'No booking link', 'method': 'binary_present'})
         total += booking_score * 3.5
         max_total += 10 * 3.5
 
@@ -1806,7 +1946,7 @@ class SupabaseMatchScoringService:
                     populated += 1
         invest_score = (populated / len(self._INVESTMENT_FIELDS)) * 10
         factors.append({'name': 'Profile Investment', 'score': round(invest_score, 1), 'weight': 3,
-                        'detail': f'{populated}/{len(self._INVESTMENT_FIELDS)} fields populated'})
+                        'detail': f'{populated}/{len(self._INVESTMENT_FIELDS)} fields populated', 'method': 'ratio_populated'})
         total += invest_score * 3
         max_total += 10 * 3
 
@@ -1814,7 +1954,7 @@ class SupabaseMatchScoringService:
         has_website = bool(target.website and target.website.strip())
         website_score = 7.0 if has_website else 2.0
         factors.append({'name': 'Website', 'score': website_score, 'weight': 2.5,
-                        'detail': 'Website available' if has_website else 'No website'})
+                        'detail': 'Website available' if has_website else 'No website', 'method': 'binary_present'})
         total += website_score * 2.5
         max_total += 10 * 2.5
 
@@ -1824,7 +1964,7 @@ class SupabaseMatchScoringService:
         if status in _BONUS_STATUSES:
             status_score = _BONUS_STATUSES[status]
             factors.append({'name': 'Membership Status', 'score': status_score, 'weight': 2.0,
-                            'detail': f'Status: {status}'})
+                            'detail': f'Status: {status}', 'method': 'lookup_table'})
             total += status_score * 2.0
             max_total += 10 * 2.0
 
@@ -1842,7 +1982,7 @@ class SupabaseMatchScoringService:
             else:
                 maint_score = 3.0
             factors.append({'name': 'Profile Maintenance', 'score': maint_score, 'weight': 1.5,
-                            'detail': f'Profile updated {days_since_update}d ago'})
+                            'detail': f'Profile updated {days_since_update}d ago', 'method': 'threshold_days'})
             total += maint_score * 1.5
             max_total += 10 * 1.5
 
@@ -1855,7 +1995,7 @@ class SupabaseMatchScoringService:
                 success_rate = positive / total_outcomes
                 track_score = min(10.0, success_rate * 12)
                 factors.append({'name': 'Outcome Track Record', 'score': round(track_score, 1), 'weight': 3.0,
-                                'detail': f'{positive}/{total_outcomes} positive ({success_rate:.0%})'})
+                                'detail': f'{positive}/{total_outcomes} positive ({success_rate:.0%})', 'method': 'ratio_positive'})
                 total += track_score * 3.0
                 max_total += 10 * 3.0
 
@@ -1927,7 +2067,7 @@ class SupabaseMatchScoringService:
         role_b = self._normalize_role(target.network_role)
         compat_score = self._role_compat_score(role_a, role_b)
         factors.append({'name': 'Role Compatibility', 'score': compat_score, 'weight': 2.5,
-                        'detail': f'{role_a or "?"} ↔ {role_b or "?"}'})
+                        'detail': f'{role_a or "?"} ↔ {role_b or "?"}', 'method': 'lookup_table'})
         total += compat_score * 2.5
         max_total += 10 * 2.5
 
@@ -1943,7 +2083,7 @@ class SupabaseMatchScoringService:
         if has_rev_data:
             rev_score = self._revenue_tier_compat(src_rev, tgt_rev)
             factors.append({'name': 'Revenue Tier', 'score': rev_score, 'weight': 2.0,
-                            'detail': f'{src_rev} ↔ {tgt_rev}'})
+                            'detail': f'{src_rev} ↔ {tgt_rev}', 'method': 'lookup_table'})
             total += rev_score * 2.0
             max_total += 10 * 2.0
 
@@ -1951,7 +2091,7 @@ class SupabaseMatchScoringService:
         platform_score, shared_platforms = self._platform_overlap(source, target)
         if shared_platforms:
             factors.append({'name': 'Platform Overlap', 'score': platform_score, 'weight': 2.0,
-                            'detail': f'Shared: {", ".join(shared_platforms)}'})
+                            'detail': f'Shared: {", ".join(shared_platforms)}', 'method': 'count_shared'})
             total += platform_score * 2.0
             max_total += 10 * 2.0
 
@@ -1961,7 +2101,7 @@ class SupabaseMatchScoringService:
         if src_net is not None and tgt_net is not None:
             combined = (src_net + tgt_net) / 2
             factors.append({'name': 'Network Influence', 'score': round(combined, 1), 'weight': 2.0,
-                            'detail': 'Both well-connected (composite network avg)'})
+                            'detail': 'Both well-connected (composite network avg)', 'method': 'composite_network'})
             total += combined * 2.0
             max_total += 10 * 2.0
 
@@ -1980,7 +2120,7 @@ class SupabaseMatchScoringService:
             else:
                 scale_score = 4.0
             factors.append({'name': 'Business Scale', 'score': scale_score, 'weight': 1.5,
-                            'detail': f'{source.business_size} ↔ {target.business_size}'})
+                            'detail': f'{source.business_size} ↔ {target.business_size}', 'method': 'lookup_table'})
             total += scale_score * 1.5
             max_total += 10 * 1.5
 
@@ -2121,7 +2261,7 @@ class SupabaseMatchScoringService:
         if engagement is not None:
             eng_score = min(10.0, engagement * 10)
             factors.append({'name': 'Audience Engagement', 'score': round(eng_score, 1), 'weight': 3,
-                            'detail': f'Engagement: {engagement:.2f}'})
+                            'detail': f'Engagement: {engagement:.2f}', 'method': 'threshold_score'})
             total += eng_score * 3
             max_total += 10 * 3
 
@@ -2139,7 +2279,7 @@ class SupabaseMatchScoringService:
             else:
                 reach_score = 4.0
             factors.append({'name': 'Social Reach', 'score': reach_score, 'weight': 2,
-                            'detail': f'{reach:,} followers'})
+                            'detail': f'{reach:,} followers', 'method': 'threshold_tiers'})
             total += reach_score * 2
             max_total += 10 * 2
 
@@ -2148,7 +2288,7 @@ class SupabaseMatchScoringService:
         if has_projects:
             proj_score = 8.0
             factors.append({'name': 'Active Projects', 'score': proj_score, 'weight': 2.5,
-                            'detail': 'Active projects noted'})
+                            'detail': 'Active projects noted', 'method': 'binary_text'})
             total += proj_score * 2.5
             max_total += 10 * 2.5
 
@@ -2166,7 +2306,7 @@ class SupabaseMatchScoringService:
             else:
                 list_score = 4.0
             factors.append({'name': 'List Size', 'score': list_score, 'weight': 2.5,
-                            'detail': f'{list_size:,}'})
+                            'detail': f'{list_size:,}', 'method': 'threshold_tiers'})
             total += list_score * 2.5
             max_total += 10 * 2.5
 
@@ -2186,7 +2326,7 @@ class SupabaseMatchScoringService:
             else:
                 active_score = 2.0
             factors.append({'name': 'Activity Recency', 'score': active_score, 'weight': 2.0,
-                            'detail': f'Last active {days_since}d ago'})
+                            'detail': f'Last active {days_since}d ago', 'method': 'threshold_days'})
             total += active_score * 2.0
             max_total += 10 * 2.0
 
@@ -2215,7 +2355,7 @@ class SupabaseMatchScoringService:
         filled = sum(1 for f in completeness_fields if f and str(f).strip())
         completeness_score = (filled / len(completeness_fields)) * 10
         factors.append({'name': 'Profile Completeness', 'score': round(completeness_score, 1), 'weight': 3,
-                        'detail': f'{filled}/{len(completeness_fields)} key fields'})
+                        'detail': f'{filled}/{len(completeness_fields)} key fields', 'method': 'ratio_filled'})
         total += completeness_score * 3
         max_total += 10 * 3
 
@@ -2223,7 +2363,7 @@ class SupabaseMatchScoringService:
         has_rev = bool(target.revenue_tier and target.revenue_tier != 'unknown')
         rev_score = 8.0 if has_rev else 3.0
         factors.append({'name': 'Revenue Known', 'score': rev_score, 'weight': 2,
-                        'detail': target.revenue_tier or 'Unknown'})
+                        'detail': target.revenue_tier or 'Unknown', 'method': 'binary_known'})
         total += rev_score * 2
         max_total += 10 * 2
 
@@ -2236,7 +2376,7 @@ class SupabaseMatchScoringService:
         enriched = sum(1 for f in enrichment_fields if f)
         enrich_score = min(10.0, (enriched / len(enrichment_fields)) * 10)
         factors.append({'name': 'Enrichment Quality', 'score': round(enrich_score, 1), 'weight': 2.5,
-                        'detail': f'{enriched}/{len(enrichment_fields)} enrichment fields'})
+                        'detail': f'{enriched}/{len(enrichment_fields)} enrichment fields', 'method': 'ratio_enriched'})
         total += enrich_score * 2.5
         max_total += 10 * 2.5
 
@@ -2253,7 +2393,7 @@ class SupabaseMatchScoringService:
         else:
             contact_score = 2.0
         factors.append({'name': 'Contact Available', 'score': contact_score, 'weight': 2.5,
-                        'detail': 'Email' if has_email else ('LinkedIn' if has_linkedin else 'Limited')})
+                        'detail': 'Email' if has_email else ('LinkedIn' if has_linkedin else 'Limited'), 'method': 'tiered_contact'})
         total += contact_score * 2.5
         max_total += 10 * 2.5
 
@@ -2262,7 +2402,7 @@ class SupabaseMatchScoringService:
         if isinstance(confidence, (int, float)):
             conf_score = min(10.0, confidence * 10)
             factors.append({'name': 'Enrichment Confidence', 'score': round(conf_score, 1), 'weight': 2.0,
-                            'detail': f'AI confidence: {confidence:.2f}'})
+                            'detail': f'AI confidence: {confidence:.2f}', 'method': 'threshold_confidence'})
             total += conf_score * 2.0
             max_total += 10 * 2.0
 
@@ -2278,7 +2418,7 @@ class SupabaseMatchScoringService:
             else:
                 fresh_score = 3.0
             factors.append({'name': 'Recommendation Freshness', 'score': fresh_score, 'weight': 1.5,
-                            'detail': f'Recommended {pressure}x in 30d'})
+                            'detail': f'Recommended {pressure}x in 30d', 'method': 'threshold_inverse'})
             total += fresh_score * 1.5
             max_total += 10 * 1.5
 

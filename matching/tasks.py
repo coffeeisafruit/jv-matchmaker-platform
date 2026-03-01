@@ -184,6 +184,14 @@ def regenerate_member_report(report_id: int):
         .exclude(id=client_sp.id)
     )
 
+    # Pre-scoring enrichment filter: skip profiles with no usable text
+    from matching.services import ProfileEnrichmentFilter
+    candidates, _candidates_flagged, _ineligible = ProfileEnrichmentFilter.filter_scoreable_profiles(candidates)
+    if _ineligible:
+        logger.info(
+            f"Enrichment filter: excluded {len(_ineligible)} ineligible profiles from report {report_id}"
+        )
+
     scored = []
     for p in candidates:
         if not p.name or p.name.count(',') >= 2 or len(p.name.strip().split()) < 2:

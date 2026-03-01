@@ -1006,7 +1006,7 @@ def _outreach_assign_section(sp: SupabaseProfile, score: float) -> tuple:
     """Assign outreach section using tier thresholds.
 
     Returns (section_key, section_label, section_note).
-    Uses tier-aligned thresholds: hand_picked (>=67), strong (>=55), wildcard (<55).
+    Uses tier-aligned thresholds: hand_picked (>=64), strong (>=55), wildcard (<55).
     """
     has_email = bool(sp.email)
     has_linkedin = bool(_outreach_extract_linkedin(sp))
@@ -1015,7 +1015,7 @@ def _outreach_assign_section(sp: SupabaseProfile, score: float) -> tuple:
     if sp.booking_link and sp.seeking and 'jv' in (sp.seeking or '').lower():
         return 'jv_programs', 'JV Programs', 'Apply directly via their partner page'
 
-    if score >= 67 and has_email:
+    if score >= 64 and has_email:
         return 'priority', 'Priority Contacts', 'Hand-picked matches — reach out this week'
 
     if score >= 55 and has_email:
@@ -1031,7 +1031,7 @@ def _outreach_assign_section(sp: SupabaseProfile, score: float) -> tuple:
 
 
 def _outreach_assign_badge(sp: SupabaseProfile, score: float) -> str:
-    if score >= 67:
+    if score >= 64:
         return 'Hand-Picked'
     if sp.seeking and 'jv' in (sp.seeking or '').lower():
         return 'Active JV'
@@ -1043,7 +1043,7 @@ def _outreach_assign_badge(sp: SupabaseProfile, score: float) -> str:
 
 
 def _outreach_assign_badge_style(score: float) -> str:
-    if score >= 67:
+    if score >= 64:
         return 'priority'
     return 'fit'
 
@@ -1072,7 +1072,7 @@ def _outreach_build_tags(sp: SupabaseProfile, score: float) -> list:
 
     if sp.seeking and 'jv' in (sp.seeking or '').lower():
         tags.append({'label': 'Active JV', 'style': 'priority'})
-    if score >= 67:
+    if score >= 64:
         tags.append({'label': 'Hand-Picked', 'style': 'priority'})
 
     if (sp.list_size or 0) >= 50000:
@@ -1143,7 +1143,7 @@ def _outreach_assign_section_from_dict(pd: dict) -> tuple:
 
     if is_jv_program:
         return 'jv_programs', 'JV Programs', 'Apply directly via their partner page'
-    if score >= 67 and has_email:
+    if score >= 64 and has_email:
         return 'priority', 'Priority Contacts', 'Hand-picked matches — reach out this week'
     if score >= 55 and has_email:
         return 'this_week', 'This Week', 'Strong matches — email available'

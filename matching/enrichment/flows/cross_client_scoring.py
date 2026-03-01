@@ -165,6 +165,25 @@ def score_against_all_clients(
         logger.warning("No prospect profiles found for IDs; skipping scoring.")
         return []
 
+    # Pre-scoring enrichment filter: remove profiles with no usable text
+    from matching.services import ProfileEnrichmentFilter
+    eligible_prospects, candidates, ineligible = ProfileEnrichmentFilter.filter_scoreable_profiles(prospects)
+    if candidates:
+        logger.info(
+            "Enrichment filter: %d candidates flagged for future enrichment",
+            len(candidates),
+        )
+    if ineligible:
+        logger.info(
+            "Enrichment filter: %d ineligible profiles excluded (no scoreable text)",
+            len(ineligible),
+        )
+    prospects = eligible_prospects
+
+    if not prospects:
+        logger.warning("No eligible prospects after enrichment filter; skipping scoring.")
+        return []
+
     logger.info(
         "Scoring %d prospects against %d active clients (%d pairs)",
         len(prospects),

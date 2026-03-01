@@ -45,11 +45,16 @@ class Command(BaseCommand):
             '--force', action='store_true',
             help='Re-embed profiles that already have embeddings',
         )
+        parser.add_argument(
+            '--profile-ids', nargs='+',
+            help='Specific profile UUIDs to backfill (overrides default query)',
+        )
 
     def handle(self, *args, **options):
         batch_size = options['batch_size']
         dry_run = options['dry_run']
         force = options['force']
+        target_ids = options.get('profile_ids')
 
         start_time = time.time()
 
@@ -62,7 +67,10 @@ class Command(BaseCommand):
 
         # Load profile IDs upfront to avoid holding a long-lived cursor
         # (Supabase PgBouncer kills idle cursors after ~20 min)
-        if force:
+        if target_ids:
+            profile_ids = target_ids
+            self.stdout.write(f'Targeting {len(profile_ids)} specific profile(s)')
+        elif force:
             profile_ids = list(SupabaseProfile.objects.values_list('id', flat=True))
         else:
             profile_ids = list(
