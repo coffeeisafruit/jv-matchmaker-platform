@@ -21,6 +21,13 @@ from tenacity import (
     before_sleep_log,
 )
 
+from matching.enrichment.cost_guard import (
+    get_cost_guard,
+    get_circuit_breaker,
+    BudgetExceededError,
+    CircuitOpenError,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -89,6 +96,13 @@ class ClaudeClient:
             return None
 
         try:
+            get_circuit_breaker().check("openrouter")
+            get_cost_guard().check_budget("claude_ai", estimated_cost=0.015)
+        except (BudgetExceededError, CircuitOpenError) as e:
+            logger.error(f"API call blocked: {e}")
+            raise
+
+        try:
             return self._call_api(prompt)
         except ImportError as e:
             logger.warning(f"Required package not installed: {e}")
@@ -106,35 +120,43 @@ class ClaudeClient:
     )
     def _call_api(self, prompt: str) -> str:
         """Execute API call with tenacity retry on transient errors."""
-        if self.use_openrouter:
-            import openai
+        try:
+            if self.use_openrouter:
+                import openai
 
-            client = openai.OpenAI(
-                base_url="https://openrouter.ai/api/v1",
-                api_key=self.api_key,
-            )
+                client = openai.OpenAI(
+                    base_url="https://openrouter.ai/api/v1",
+                    api_key=self.api_key,
+                )
 
-            response = client.chat.completions.create(
-                model=self.model,
-                max_tokens=self.max_tokens,
-                temperature=0,
-                messages=[{"role": "user", "content": prompt}]
-            )
+                response = client.chat.completions.create(
+                    model=self.model,
+                    max_tokens=self.max_tokens,
+                    temperature=0,
+                    messages=[{"role": "user", "content": prompt}]
+                )
 
-            return response.choices[0].message.content
-        else:
-            import anthropic
+                result = response.choices[0].message.content
+            else:
+                import anthropic
 
-            client = anthropic.Anthropic(api_key=self.api_key)
+                client = anthropic.Anthropic(api_key=self.api_key)
 
-            message = client.messages.create(
-                model=self.model,
-                max_tokens=self.max_tokens,
-                temperature=0,
-                messages=[{"role": "user", "content": prompt}]
-            )
+                message = client.messages.create(
+                    model=self.model,
+                    max_tokens=self.max_tokens,
+                    temperature=0,
+                    messages=[{"role": "user", "content": prompt}]
+                )
 
-            return message.content[0].text
+                result = message.content[0].text
+
+            get_circuit_breaker().record_success("openrouter")
+            return result
+        except Exception as e:
+            if _is_retryable(e):
+                get_circuit_breaker().record_failure("openrouter")
+            raise
 
     @staticmethod
     def parse_json(response: str) -> Optional[Dict]:

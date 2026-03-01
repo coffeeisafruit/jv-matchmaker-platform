@@ -40,6 +40,7 @@ from psycopg2.extras import RealDictCursor, execute_batch
 from psycopg2.pool import ThreadedConnectionPool
 from dotenv import load_dotenv
 from matching.enrichment import VerificationGate, GateStatus
+from matching.enrichment.ingest_validator import IngestValidator
 from matching.enrichment.ai_research import research_and_enrich_profile
 try:
     from matching.enrichment.deep_research import deep_research_profile
@@ -54,6 +55,8 @@ logger = logging.getLogger(__name__)
 # Higher priority sources can never be overwritten by lower ones.
 # Client-provided data is protected from AI overwrites.
 from matching.enrichment.constants import SOURCE_PRIORITY
+from matching.enrichment.verification_dashboard import VerificationDashboard
+from matching.enrichment.retry_queue import enqueue as retry_enqueue
 
 PIPELINE_VERSION = 1
 
@@ -76,8 +79,14 @@ class SafeEnrichmentPipeline:
         # Thread-safe stats lock (H3) — protects stats dict in ThreadPoolExecutor
         self._stats_lock = threading.Lock()
 
+        # Verification dashboard — aggregates pipeline health metrics
+        self.dashboard = VerificationDashboard()
+
         # Verification gate (Layer 1 only — no AI, no raw_content in this pipeline)
         self.gate = VerificationGate(enable_ai_verification=False)
+
+        # Ingest validator (Step 1 checkpoint — catches invalid data at the boundary)
+        self.ingest_validator = IngestValidator()
 
         # Refresh mode state (R3) — set by run() when --refresh is used
         self.refresh_mode = False
@@ -103,6 +112,10 @@ class SafeEnrichmentPipeline:
             'deep_research_attempted': 0,
             'deep_research_success': 0,
             'extended_signals_found': 0,
+            # Embedding regeneration tracking
+            'embeddings_regenerated': 0,
+            'embeddings_failed': 0,
+            'ingest_rejected': 0,
         }
 
     def _ensure_pool(self):
@@ -635,6 +648,21 @@ class SafeEnrichmentPipeline:
         Enrich single profile - VERIFIED ONLY.
         Returns: (profile, email, method)
         """
+        # Step 1 checkpoint: Validate profile data before pipeline entry
+        ingest_verdict = self.ingest_validator.validate(profile)
+        if not ingest_verdict.valid:
+            logger.warning(
+                f"Ingest rejected profile '{profile.get('name', '?')}' "
+                f"(id={profile.get('id', '?')}): {'; '.join(ingest_verdict.issues)}"
+            )
+            self._inc_stat('ingest_rejected')
+            return profile, None, None
+        if ingest_verdict.issues:
+            logger.info(
+                f"Ingest warnings for '{profile.get('name', '?')}': "
+                f"{'; '.join(ingest_verdict.issues)}"
+            )
+
         name = profile['name']
         website = profile.get('website')
         linkedin = profile.get('linkedin')
@@ -1468,6 +1496,167 @@ class SafeEnrichmentPipeline:
                 results=results,
             )
 
+        # Save verification dashboard
+        self.dashboard.set_totals(
+            total_profiles=self.stats.get('total', 0),
+            embeddings_regenerated=self.stats.get('embeddings_regenerated', 0),
+        )
+        dashboard_path = self.dashboard.save()
+        summary = self.dashboard.summary()
+        print(f"\nVerification dashboard saved: {dashboard_path}")
+        print(f"  Passed: {summary['total_passed']}, Failed: {summary['total_failed']}")
+
+    def _regenerate_embeddings_for_batch(self, results, profile_updates):
+        """Regenerate embeddings for profiles whose text fields changed."""
+        if self.dry_run:
+            return
+
+        try:
+            from lib.enrichment.hf_client import HFClient
+            from lib.enrichment.embeddings import ProfileEmbeddingService, EMBEDDING_FIELDS
+
+            hf_client = HFClient()
+            emb_service = ProfileEmbeddingService(hf_client)
+        except Exception as e:
+            logger.warning(f"Could not initialize embedding service: {e}")
+            return
+
+        EMBED_FIELDS = {'seeking', 'offering', 'who_you_serve', 'what_you_do'}
+        profiles_needing_embeddings = []
+
+        for result in results:
+            profile_id = result.get('profile_id')
+            if not profile_id:
+                continue
+            # Check if any embedding-relevant field has data
+            has_embed_data = any(
+                result.get(f) and isinstance(result.get(f), str) and len(result.get(f, '').strip()) >= 5
+                for f in EMBED_FIELDS
+            )
+            if has_embed_data:
+                profiles_needing_embeddings.append(result)
+
+        if not profiles_needing_embeddings:
+            return
+
+        logger.info(f"Regenerating embeddings for {len(profiles_needing_embeddings)} profiles...")
+        succeeded = 0
+        failed = 0
+
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            try:
+                for result in profiles_needing_embeddings:
+                    profile_id = result['profile_id']
+                    profile_dict = {
+                        'id': str(profile_id),
+                        'name': result.get('name', ''),
+                        'seeking': result.get('seeking', ''),
+                        'offering': result.get('offering', ''),
+                        'who_you_serve': result.get('who_you_serve', ''),
+                        'what_you_do': result.get('what_you_do', ''),
+                    }
+
+                    try:
+                        embeddings = emb_service.embed_profile(profile_dict)
+                        if not embeddings:
+                            # No text long enough to embed - null out stale embeddings
+                            cursor.execute(
+                                "UPDATE profiles SET embedding_seeking = NULL, embedding_offering = NULL, "
+                                "embedding_who_you_serve = NULL, embedding_what_you_do = NULL, "
+                                "embeddings_updated_at = NULL WHERE id = %s",
+                                [str(profile_id)]
+                            )
+                            continue
+
+                        set_clauses = []
+                        params = []
+                        for field_name, vector in embeddings.items():
+                            pgvector_str = f'[{",".join(str(v) for v in vector)}]'
+                            set_clauses.append(f'{field_name} = %s::vector')
+                            params.append(pgvector_str)
+
+                        set_clauses.append('embeddings_model = %s')
+                        params.append('BAAI/bge-large-en-v1.5')
+                        set_clauses.append('embeddings_updated_at = %s')
+                        params.append(datetime.now())
+                        params.append(str(profile_id))
+
+                        sql_str = f"UPDATE profiles SET {', '.join(set_clauses)} WHERE id = %s"
+                        cursor.execute(sql_str, params)
+                        succeeded += 1
+
+                    except Exception as e:
+                        failed += 1
+                        logger.warning(f"Embedding failed for {result.get('name', profile_id)}: {e}")
+                        retry_enqueue(profile_id, "embedding_failed", str(e), context={"name": result.get("name", "")})
+                        # Safety: null out stale embeddings so scorer uses word-overlap on fresh text
+                        try:
+                            cursor.execute(
+                                "UPDATE profiles SET embedding_seeking = NULL, embedding_offering = NULL, "
+                                "embedding_who_you_serve = NULL, embedding_what_you_do = NULL, "
+                                "embeddings_updated_at = NULL WHERE id = %s",
+                                [str(profile_id)]
+                            )
+                        except Exception:
+                            pass
+
+                conn.commit()
+            finally:
+                cursor.close()
+
+        logger.info(f"Embedding regeneration: {succeeded} succeeded, {failed} failed")
+        with self._stats_lock:
+            self.stats['embeddings_regenerated'] = succeeded
+            self.stats['embeddings_failed'] = failed
+
+    def _verify_score_freshness(self, profile_ids: list):
+        """Spot-check that match scores reflect post-enrichment data."""
+        if self.dry_run or not profile_ids:
+            return
+
+        try:
+            from matching.models import SupabaseProfile, SupabaseMatch
+            from django.db.models import Q
+
+            sample_ids = profile_ids[:5]
+            stale_count = 0
+
+            for pid in sample_ids:
+                try:
+                    profile = SupabaseProfile.objects.get(id=pid)
+                    matches = SupabaseMatch.objects.filter(
+                        Q(profile_id=pid) | Q(suggested_profile_id=pid)
+                    ).order_by('-harmonic_mean')[:3]
+
+                    for match in matches:
+                        if (hasattr(match, 'updated_at') and match.updated_at
+                                and profile.last_enriched_at
+                                and match.updated_at < profile.last_enriched_at):
+                            stale_count += 1
+                except Exception:
+                    pass
+
+            if stale_count > 0:
+                logger.warning(
+                    f"Score freshness check: {stale_count} stale scores found "
+                    f"(scored before enrichment) in sample of {len(sample_ids)} profiles"
+                )
+                # Auto-trigger recalculation for stale scores
+                try:
+                    from matching.tasks import bulk_recalculate_matches
+                    stale_ids = [str(pid) for pid in sample_ids]  # All sampled — recalc is cheap
+                    logger.info(f"Auto-triggering recalculation for {len(stale_ids)} profiles with stale scores")
+                    bulk_recalculate_matches(stale_ids)
+                except Exception as recalc_err:
+                    logger.error(f"Auto-recalculation failed: {recalc_err}")
+                    for pid in sample_ids:
+                        retry_enqueue(str(pid), "score_stale", f"Stale scores detected, auto-recalc failed: {recalc_err}")
+            else:
+                logger.info(f"Score freshness check: all scores fresh ({len(sample_ids)} profiles sampled)")
+        except Exception as e:
+            logger.warning(f"Score freshness check failed: {e}")
+
     async def consolidate_to_supabase_batch(self, results: List[Dict]):
         """
         Batch consolidate to Supabase with verification gate.
@@ -1870,6 +2059,8 @@ class SafeEnrichmentPipeline:
                     except Exception as e:
                         logger.error(f"Email batch update failed: {e}")
                         cursor.execute("ROLLBACK TO SAVEPOINT email_batch")
+                        for eu in email_updates:
+                            retry_enqueue(str(eu[-1]), "email_write_failed", str(e))
 
                 # Profile field updates — grouped batch execution
                 failed_updates = 0
@@ -1903,12 +2094,46 @@ class SafeEnrichmentPipeline:
                                     cursor.execute(f"ROLLBACK TO SAVEPOINT fallback_{group_idx}_{j}")
                                 except Exception:
                                     pass
+                                # p[-1] is the profile_id (last param in the update query)
+                                retry_enqueue(str(p[-1]), "db_write_failed", str(e2))
                 if failed_updates:
                     logger.warning(f"  {failed_updates}/{len(profile_updates)} profile updates failed")
 
                 conn.commit()
             finally:
                 cursor.close()
+
+        # --- Regenerate embeddings for enriched profiles ---
+        self._regenerate_embeddings_for_batch(results, profile_updates)
+
+        if self.stats.get('embeddings_failed', 0) > 0:
+            from config.alerting import send_alert
+            send_alert(
+                "warning",
+                f"Embedding failures: {self.stats['embeddings_failed']} profiles",
+                f"Batch had {self.stats['embeddings_failed']} embedding failures. Check retry queue.",
+            )
+
+        # --- Trigger match recalculation for enriched profiles ---
+        if not self.dry_run and profile_updates:
+            enriched_ids = []
+            for result in results:
+                pid = result.get('profile_id')
+                if pid:
+                    enriched_ids.append(str(pid))
+            if enriched_ids:
+                try:
+                    from matching.tasks import bulk_recalculate_matches
+                    logger.info(f"Triggering match recalculation for {len(enriched_ids)} profiles...")
+                    bulk_recalculate_matches(enriched_ids)
+                    logger.info("Match recalculation complete")
+                except Exception as e:
+                    logger.warning(f"Match recalculation failed (non-fatal): {e}")
+                    for eid in enriched_ids:
+                        retry_enqueue(eid, "match_recalc_failed", str(e))
+
+                # Verify scores reflect post-enrichment data
+                self._verify_score_freshness(enriched_ids)
 
         # Write quarantined profiles to JSONL for later retry
         if quarantined_records and not self.dry_run:

@@ -27,6 +27,55 @@ import requests
 
 logger = logging.getLogger(__name__)
 
+
+class ApolloResponseValidator:
+    """Validate Apollo API responses against existing profile data."""
+
+    @staticmethod
+    def validate(apollo_data: dict, profile: dict) -> tuple[bool, list[str]]:
+        """
+        Cross-check Apollo response against existing profile.
+        Returns (is_valid, issues).
+        """
+        issues = []
+
+        # Name similarity check
+        apollo_name = (apollo_data.get('name') or apollo_data.get('first_name', '') + ' ' + apollo_data.get('last_name', '')).strip()
+        profile_name = (profile.get('name') or '').strip()
+
+        if apollo_name and profile_name:
+            # Simple check: do any name parts match?
+            apollo_parts = set(apollo_name.lower().split())
+            profile_parts = set(profile_name.lower().split())
+            overlap = apollo_parts & profile_parts
+            if not overlap and len(apollo_parts) > 0 and len(profile_parts) > 0:
+                issues.append(f"Name mismatch: Apollo='{apollo_name}' vs Profile='{profile_name}'")
+
+        # Domain consistency check
+        apollo_email = (apollo_data.get('email') or '').strip()
+        profile_website = (profile.get('website') or '').strip()
+
+        if apollo_email and profile_website and '@' in apollo_email:
+            email_domain = apollo_email.split('@')[1].lower()
+            try:
+                website_domain = urlparse(profile_website if profile_website.startswith('http') else 'https://' + profile_website).netloc.replace('www.', '').lower()
+            except Exception:
+                website_domain = ''
+
+            # Allow if domains share a root (e.g., company.com vs mail.company.com)
+            if website_domain and email_domain:
+                if (email_domain not in website_domain and
+                    website_domain not in email_domain and
+                    email_domain.split('.')[-2:] != website_domain.split('.')[-2:]):
+                    # Common providers are OK (gmail, outlook, yahoo)
+                    common_providers = {'gmail.com', 'outlook.com', 'yahoo.com', 'hotmail.com', 'icloud.com', 'aol.com', 'protonmail.com'}
+                    if email_domain not in common_providers:
+                        issues.append(f"Domain mismatch: email={email_domain} vs website={website_domain}")
+
+        is_valid = not any("Name mismatch" in i for i in issues)  # Name mismatch is critical
+        return is_valid, issues
+
+
 # Apollo source priority (matches pipeline's SOURCE_PRIORITY)
 APOLLO_SOURCE = 'apollo'
 APOLLO_PRIORITY = 30
@@ -225,6 +274,21 @@ class ApolloEnrichmentService:
             if not person:
                 return {'error': 'no_match', '_profile_id': profile.get('id')}
 
+            # Identity cross-check: validate Apollo match against profile
+            is_valid, validation_issues = ApolloResponseValidator.validate(person, profile)
+            if validation_issues:
+                logger.warning(
+                    "Apollo identity cross-check for %s: %s",
+                    profile.get('name', ''), validation_issues,
+                )
+            if not is_valid:
+                logger.warning(
+                    "Apollo identity mismatch — skipping enrichment for %s",
+                    profile.get('name', ''),
+                )
+                return {'error': 'identity_mismatch', '_profile_id': profile.get('id'),
+                        '_validation_issues': validation_issues}
+
             return self.extract_all_fields(person, profile)
 
         except requests.exceptions.RequestException as e:
@@ -281,6 +345,21 @@ class ApolloEnrichmentService:
             for i, profile in enumerate(batch):
                 person = matches[i] if i < len(matches) else None
                 if person:
+                    # Identity cross-check before extracting fields
+                    is_valid, validation_issues = ApolloResponseValidator.validate(person, profile)
+                    if validation_issues:
+                        logger.warning(
+                            "Apollo identity cross-check (batch) for %s: %s",
+                            profile.get('name', ''), validation_issues,
+                        )
+                    if not is_valid:
+                        logger.warning(
+                            "Apollo identity mismatch (batch) — skipping enrichment for %s",
+                            profile.get('name', ''),
+                        )
+                        results.append({'error': 'identity_mismatch', '_profile_id': profile.get('id'),
+                                        '_validation_issues': validation_issues})
+                        continue
                     result = self.extract_all_fields(person, profile)
                     result['_credits_consumed'] = 1
                     results.append(result)

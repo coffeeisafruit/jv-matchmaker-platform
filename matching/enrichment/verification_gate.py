@@ -183,6 +183,31 @@ class DeterministicChecker:
                 issues=issues,
             )
 
+        # MX record check (free, catches ~40% of bad emails)
+        domain = email.split('@')[1]
+        try:
+            import dns.resolver
+            try:
+                answers = dns.resolver.resolve(domain, 'MX')
+                if not answers:
+                    return FieldVerdict(
+                        field_name='email',
+                        status=FieldStatus.FAILED,
+                        original_value=email,
+                        issues=[f'No MX records for {domain}'],
+                    )
+            except (dns.resolver.NXDOMAIN, dns.resolver.NoAnswer, dns.resolver.NoNameservers):
+                return FieldVerdict(
+                    field_name='email',
+                    status=FieldStatus.FAILED,
+                    original_value=email,
+                    issues=[f'No MX records for {domain}'],
+                )
+            except dns.resolver.Timeout:
+                pass  # Don't fail on timeout
+        except ImportError:
+            pass  # dnspython not installed, skip
+
         # Check suspicious patterns
         is_suspicious = any(p.search(email) for p in self.SUSPICIOUS_EMAIL_PATTERNS)
         if is_suspicious:

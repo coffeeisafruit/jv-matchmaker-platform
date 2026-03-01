@@ -34,6 +34,17 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 CLAY_WEBHOOK_SECRET = os.environ.get("CLAY_WEBHOOK_SECRET", "")
 
+# Email configuration for report delivery
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND", "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() == "true"
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "reports@jvmatches.com")
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -54,6 +65,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "config.middleware.CorrelationIdMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -209,3 +221,49 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
     "CSRF_TRUSTED_ORIGINS",
     "https://*.ondigitalocean.app"
 ).split(",")
+
+# ---------------------------------------------------------------------------
+# Logging — structured JSON in production, plain text in development
+# ---------------------------------------------------------------------------
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "json": {
+            "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+            "fmt": "%(asctime)s %(levelname)s %(name)s %(message)s",
+            "rename_fields": {
+                "asctime": "timestamp",
+                "levelname": "level",
+                "name": "logger",
+            },
+        },
+        "plain": {
+            "format": "%(asctime)s %(levelname)-8s [%(name)s] %(message)s",
+        },
+    },
+    "filters": {
+        "correlation_id": {
+            "()": "config.logging_filters.CorrelationIdFilter",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "plain" if DEBUG else "json",
+            "filters": ["correlation_id"],
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "DEBUG" if DEBUG else "INFO",
+    },
+    "loggers": {
+        "django.request": {"level": "WARNING"},
+        "matching": {"level": "INFO"},
+        "matching.enrichment": {"level": "INFO"},
+    },
+}
+
+# System checks for required configuration
+import config.checks  # noqa: F401

@@ -17,6 +17,13 @@ pydantic>=2.0.0
 # Claude Agent SDK (uses Claude Code Max subscription)
 claude-agent-sdk>=0.1.0
 
+# Logging
+python-json-logger>=2.0.0
+
+# Contact Verification
+dnspython>=2.4.0
+phonenumbers>=8.13.0
+
 # Production
 gunicorn>=21.0.0
 whitenoise>=6.6.0

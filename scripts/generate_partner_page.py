@@ -30,6 +30,83 @@ from psycopg2.extras import RealDictCursor
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from matching.enrichment.text_sanitizer import TextSanitizer
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+# ---------------------------------------------------------------------------
+# Report Readiness Gate (Step 10)
+# ---------------------------------------------------------------------------
+
+class ReportReadinessGate:
+    """Pre-generation completeness and freshness checks."""
+
+    @staticmethod
+    def check_profile(profile: dict) -> tuple[bool, list[str]]:
+        """Check if profile is ready for report generation.
+        Returns (is_ready, issues).
+        """
+        issues = []
+
+        # Hard requirement: must have a name
+        name = profile.get('name', '').strip()
+        if not name:
+            return False, ["No name"]
+
+        # Recommended fields
+        recommended = ['what_you_do', 'who_you_serve', 'email']
+        missing = [f for f in recommended if not (profile.get(f) or '').strip()]
+        if missing:
+            issues.append(f"Missing recommended fields: {', '.join(missing)}")
+
+        return True, issues
+
+    @staticmethod
+    def check_matches(matches: list) -> tuple[bool, list[str]]:
+        """Check if matches are sufficient for a useful report."""
+        issues = []
+
+        if not matches:
+            return False, ["No matches available"]
+
+        # Check that at least one match has contact info
+        contactable = 0
+        for m in matches:
+            has_contact = bool(
+                (m.get('email') or '').strip() or
+                (m.get('linkedin') or '').strip() or
+                (m.get('website') or '').strip()
+            )
+            if has_contact:
+                contactable += 1
+
+        if contactable == 0:
+            return False, ["No contactable matches (need at least email, LinkedIn, or website)"]
+
+        if contactable < len(matches) * 0.5:
+            issues.append(f"Only {contactable}/{len(matches)} matches have contact info")
+
+        return True, issues
+
+
+def _log_generation(profile_id, name, match_count, warnings, output_dir):
+    """Append generation record to audit log."""
+    audit_file = os.path.join(output_dir, 'generation_audit.jsonl')
+    record = {
+        'profile_id': str(profile_id) if profile_id else '',
+        'name': name,
+        'match_count': match_count,
+        'warnings': warnings,
+        'generated_at': datetime.now().isoformat(),
+    }
+    try:
+        with open(audit_file, 'a') as f:
+            f.write(json.dumps(record) + '\n')
+    except Exception:
+        pass  # Non-critical
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -1139,8 +1216,20 @@ def main():
             success_count = 0
             warn_count = 0
             fail_count = 0
+            skip_count = 0
             for profile in profiles:
                 name = profile['name']
+
+                # Readiness gate: skip profiles that aren't ready
+                ready, gate_issues = ReportReadinessGate.check_profile(profile)
+                if not ready:
+                    logger.warning(f"Skipping {profile.get('name', 'unknown')}: {gate_issues}")
+                    print(f'  - {name} (skipped: {"; ".join(gate_issues)})')
+                    skip_count += 1
+                    continue
+                if gate_issues:
+                    logger.info(f"Report for {profile.get('name')}: {gate_issues}")
+
                 ok, warnings = _generate_for_profile(
                     conn, profile, args.top, output_base, args.strict)
                 if ok and not warnings:
@@ -1158,6 +1247,17 @@ def main():
                         print(f'      {w}')
                     fail_count += 1
 
+                # Audit trail: log every generation attempt
+                if ok:
+                    matches = fetch_matches(conn, str(profile['id']), top=args.top)
+                    _log_generation(
+                        profile_id=profile.get('id'),
+                        name=name,
+                        match_count=len(matches),
+                        warnings=warnings + gate_issues,
+                        output_dir=str(output_base),
+                    )
+
             # Generate searchable team directory
             print(f'\nGenerating team directory...')
             dir_path = output_base / 'index.html'
@@ -1174,11 +1274,21 @@ def main():
             if warn_count:
                 print(f'  With warnings: {warn_count}')
             if fail_count:
-                print(f'  Failed/skipped: {fail_count}')
+                print(f'  Failed: {fail_count}')
+            if skip_count:
+                print(f'  Skipped (readiness gate): {skip_count}')
             print(f'  Output: {output_base}/')
         else:
             # Single profile mode
             profile = fetch_profile(conn, name=args.name, profile_id=args.profile_id)
+
+            # Readiness gate check
+            ready, gate_issues = ReportReadinessGate.check_profile(profile)
+            if not ready:
+                sys.exit(f'Profile not ready for report: {"; ".join(gate_issues)}')
+            if gate_issues:
+                print(f'  Note: {"; ".join(gate_issues)}')
+
             ok, warnings = _generate_for_profile(
                 conn, profile, args.top, output_base, args.strict)
 
@@ -1201,6 +1311,16 @@ def main():
             print(f'    - outreach.html')
             print(f'    - profile.html')
             print(f'  Open in browser: file://{os.path.abspath(output_dir / "index.html")}')
+
+            # Audit trail
+            if ok:
+                _log_generation(
+                    profile_id=profile.get('id'),
+                    name=profile['name'],
+                    match_count=len(matches),
+                    warnings=warnings + gate_issues,
+                    output_dir=str(output_base),
+                )
     finally:
         conn.close()
 

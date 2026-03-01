@@ -10,9 +10,15 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from core.views_health import HealthCheckView, ReadinessCheckView
+
 urlpatterns = [
     # Admin
     path("admin/", admin.site.urls),
+
+    # Health checks
+    path('health/', HealthCheckView.as_view(), name='health'),
+    path('health/ready/', ReadinessCheckView.as_view(), name='health-ready'),
 
     # Core app (authentication, dashboard, home)
     path("", include("core.urls")),

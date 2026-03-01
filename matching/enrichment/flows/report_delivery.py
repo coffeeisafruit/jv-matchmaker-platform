@@ -321,13 +321,13 @@ def send_delivery_email(
         return True
 
     try:
-        from outreach.email_service import EmailService
-
-        email_svc = EmailService()
-        email_svc.send_email(
-            to=client["member_email"],
+        from django.core.mail import send_mail
+        send_mail(
             subject=subject,
-            body=body,
+            message=body,
+            from_email=None,  # Uses DEFAULT_FROM_EMAIL from settings
+            recipient_list=[client["member_email"]],
+            fail_silently=False,
         )
         logger.info("Delivered report to %s", client["member_email"])
         return True

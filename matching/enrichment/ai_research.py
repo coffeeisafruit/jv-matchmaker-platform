@@ -25,6 +25,89 @@ from matching.enrichment.text_sanitizer import TextSanitizer
 logger = logging.getLogger(__name__)
 
 
+class ContentQualityChecker:
+    """Pre-AI-call content quality gate. Skips parked domains and thin content."""
+
+    PARKED_SIGNALS = [
+        'domain for sale', 'buy this domain', 'this domain is parked',
+        'parked by', 'domain parking', 'this page is under construction',
+        'coming soon', 'website coming soon',
+    ]
+    MIN_CONTENT_LENGTH = 200
+
+    @classmethod
+    def check(cls, content: str, url: str = '') -> tuple[bool, str]:
+        """Returns (should_proceed, reason). False = skip AI call."""
+        if not content or not content.strip():
+            return False, "empty content"
+
+        text = content.strip().lower()
+
+        if len(text) < cls.MIN_CONTENT_LENGTH:
+            return False, f"thin content ({len(text)} chars < {cls.MIN_CONTENT_LENGTH})"
+
+        for signal in cls.PARKED_SIGNALS:
+            if signal in text[:500]:  # Only check first 500 chars
+                return False, f"parked domain signal: '{signal}'"
+
+        # Check for error pages
+        error_signals = ['404 not found', '403 forbidden', 'page not found', 'access denied']
+        for signal in error_signals:
+            if signal in text[:300]:
+                return False, f"error page signal: '{signal}'"
+
+        return True, "ok"
+
+
+class ExtractionValidator:
+    """Post-AI-extraction field-level validation."""
+
+    FIELD_MAX_LENGTHS = {
+        'niche': 100,
+        'company': 150,
+        'phone': 30,
+        'business_size': 30,
+        'audience_type': 80,
+        'business_focus': 150,
+    }
+    MAX_TAGS = 10
+    MAX_LIST_SIZE = 50_000_000  # 50M is reasonable max for an email list
+
+    @classmethod
+    def validate(cls, extracted: dict) -> list[str]:
+        """Validate extracted fields. Returns list of issues (empty = all good)."""
+        issues = []
+
+        # Field length checks
+        for field, max_len in cls.FIELD_MAX_LENGTHS.items():
+            value = extracted.get(field)
+            if value and isinstance(value, str) and len(value) > max_len:
+                extracted[field] = value[:max_len]
+                issues.append(f"{field} truncated from {len(value)} to {max_len} chars")
+
+        # Tags count check
+        tags = extracted.get('tags')
+        if tags and isinstance(tags, list) and len(tags) > cls.MAX_TAGS:
+            extracted['tags'] = tags[:cls.MAX_TAGS]
+            issues.append(f"tags truncated from {len(tags)} to {cls.MAX_TAGS}")
+
+        # List size reasonableness
+        list_size = extracted.get('list_size')
+        if list_size is not None:
+            try:
+                ls = int(list_size)
+                if ls > cls.MAX_LIST_SIZE:
+                    extracted['list_size'] = None
+                    issues.append(f"list_size {ls} exceeds max {cls.MAX_LIST_SIZE}, removed")
+                elif ls < 0:
+                    extracted['list_size'] = None
+                    issues.append(f"list_size {ls} is negative, removed")
+            except (ValueError, TypeError):
+                pass
+
+        return issues
+
+
 # ---------------------------------------------------------------------------
 # Social media regex patterns (deterministic, no AI needed)
 # ---------------------------------------------------------------------------
@@ -579,6 +662,12 @@ class ProfileResearchService:
         cache_key = name.lower().strip()
         self._content_cache[cache_key] = content
 
+        # Content quality gate: skip AI calls for parked/thin/error pages
+        proceed, quality_reason = ContentQualityChecker.check(content, website)
+        if not proceed:
+            logger.warning(f"Content quality gate BLOCKED {name} ({website}): {quality_reason}")
+            return {}
+
         # Step 2: Extract social media links (free, deterministic)
         social_links = extract_social_links(external_urls)
         logger.info(f"  Social links for {name}: {social_links}")
@@ -878,6 +967,11 @@ IMPORTANT:
         data = self._parse_json_response(response)
         if not data:
             return result
+
+        # Post-extraction field-level validation
+        validation_issues = ExtractionValidator.validate(data)
+        if validation_issues:
+            logger.info(f"ExtractionValidator issues for {name}: {validation_issues}")
 
         confidence = data.get('confidence', 'low')
         source_quotes = data.get('source_quotes', [])
