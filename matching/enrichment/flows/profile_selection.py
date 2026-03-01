@@ -152,8 +152,11 @@ def select_profiles(
     refresh_mode: bool = False,
     stale_days: int = 30,
     profile_ids: list[str] | None = None,
+    priority_ids: list[str] | None = None,
 ) -> list[dict]:
     """Select profiles for the enrichment pipeline.
+
+    If priority_ids provided, process those first before tier-based selection.
 
     Parameters
     ----------
@@ -172,6 +175,11 @@ def select_profiles(
     profile_ids:
         Explicit list of profile IDs to fetch (e.g. for acquisition-triggered
         enrichment).  When provided, all other filters are ignored.
+    priority_ids:
+        Optional list of profile IDs to process first (e.g. low-confidence
+        or stale profiles flagged for priority re-enrichment).  These are
+        included up to *limit*, then remaining slots are filled with the
+        standard tier-based selection.
 
     Returns
     -------
@@ -210,12 +218,62 @@ def select_profiles(
             logger.info("Fetched %d profiles by explicit IDs", len(profiles))
             return profiles
 
+        # ---- Priority IDs first, then fill with tier-based selection -----
+        profiles: list[dict] = []
+        seen_ids: set[Any] = set()
+
+        if priority_ids:
+            # Fetch priority profiles first (up to limit)
+            ids_to_fetch = priority_ids[:limit]
+            logger.info(
+                "Fetching %d priority profiles (from %d flagged)",
+                len(ids_to_fetch),
+                len(priority_ids),
+            )
+            cursor.execute(
+                f"""
+                SELECT {_SELECT_COLUMNS}
+                FROM profiles
+                WHERE id = ANY(%s)
+                """,
+                (ids_to_fetch,),
+            )
+            for row in cursor.fetchall():
+                profile = dict(row)
+                pid = profile["id"]
+                if pid in seen_ids:
+                    continue
+                seen_ids.add(pid)
+                # Assign tier heuristic
+                if profile.get("website"):
+                    profile["_tier"] = 1
+                elif profile.get("linkedin"):
+                    profile["_tier"] = 4
+                else:
+                    profile["_tier"] = 5
+                profile["_priority"] = True
+                profiles.append(profile)
+
+            logger.info(
+                "Loaded %d priority profiles; %d slots remaining",
+                len(profiles),
+                max(0, limit - len(profiles)),
+            )
+
+            # If priority profiles fill the limit, return immediately
+            if len(profiles) >= limit:
+                logger.info(
+                    "Priority profiles filled all %d slots", limit
+                )
+                return profiles[:limit]
+
         # ---- Refresh mode (stale re-enrichment) -------------------------
         if refresh_mode:
             logger.info(
                 "Refresh mode: selecting stale profiles (>%d days)",
                 stale_days,
             )
+            remaining = limit - len(profiles)
             cursor.execute(
                 f"""
                 SELECT {_SELECT_COLUMNS}
@@ -226,11 +284,14 @@ def select_profiles(
                 ORDER BY list_size DESC NULLS LAST
                 LIMIT %s
                 """,
-                (stale_days, limit),
+                (stale_days, remaining),
             )
-            profiles = []
             for row in cursor.fetchall():
                 profile = dict(row)
+                pid = profile["id"]
+                if pid in seen_ids:
+                    continue
+                seen_ids.add(pid)
                 if profile.get("website"):
                     profile["_tier"] = 1
                 elif profile.get("linkedin"):
@@ -243,14 +304,15 @@ def select_profiles(
                 if len(profiles) >= limit:
                     break
             logger.info(
-                "Refresh mode selected %d stale profiles", len(profiles)
+                "Refresh mode selected %d total profiles (%d priority + %d stale)",
+                len(profiles),
+                len([p for p in profiles if p.get("_priority")]),
+                len([p for p in profiles if not p.get("_priority")]),
             )
             return profiles
 
         # ---- Tiered selection (default) ----------------------------------
         tier_queries = _build_tier_queries()
-        profiles = []
-        seen_ids: set[Any] = set()
 
         for tier, query in tier_queries:
             if tier_filter and tier not in tier_filter:
@@ -274,9 +336,14 @@ def select_profiles(
 
         # Log tier breakdown
         tier_counts: dict[int, int] = {}
+        priority_count = 0
         for p in profiles:
+            if p.get("_priority"):
+                priority_count += 1
             t = p.get("_tier", 0)
             tier_counts[t] = tier_counts.get(t, 0) + 1
+        if priority_count:
+            logger.info("Priority profiles: %d", priority_count)
         for t in sorted(tier_counts):
             logger.info("Tier %d: %d profiles", t, tier_counts[t])
         logger.info("Total selected: %d profiles", len(profiles))

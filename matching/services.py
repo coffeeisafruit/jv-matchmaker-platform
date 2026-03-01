@@ -9,6 +9,7 @@ integrates ICP and Transformation data with pre-computed SupabaseMatch data.
 """
 
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Optional, List, Dict, Any
 import json
 import logging
@@ -1219,6 +1220,45 @@ class PartnershipAnalyzer:
 # =============================================================================
 
 
+class ScoreValidator:
+    """Pre-scoring and post-scoring validation."""
+
+    SCORING_FIELDS = ('seeking', 'offering', 'who_you_serve', 'what_you_do')
+    MIN_FIELDS_FOR_SCORING = 2
+
+    @classmethod
+    def check_scoring_eligibility(cls, profile_a, profile_b) -> tuple[bool, str]:
+        """Check if a pair has enough data for meaningful scoring."""
+        def count_fields(profile):
+            return sum(
+                1 for f in cls.SCORING_FIELDS
+                if getattr(profile, f, None) and len(str(getattr(profile, f, '')).strip()) >= 5
+            )
+
+        a_count = count_fields(profile_a)
+        b_count = count_fields(profile_b)
+
+        if a_count < cls.MIN_FIELDS_FOR_SCORING and b_count < cls.MIN_FIELDS_FOR_SCORING:
+            return False, f"Insufficient data: {profile_a.name} has {a_count} fields, {profile_b.name} has {b_count} fields (need {cls.MIN_FIELDS_FOR_SCORING} each)"
+
+        return True, "ok"
+
+    @classmethod
+    def validate_scores(cls, score_ab: float, score_ba: float, harmonic: float) -> list[str]:
+        """Post-scoring sanity checks."""
+        issues = []
+
+        for name, val in [('score_ab', score_ab), ('score_ba', score_ba), ('harmonic_mean', harmonic)]:
+            if val is None:
+                continue
+            if math.isnan(val) or math.isinf(val):
+                issues.append(f"{name} is {val}")
+            elif val < 0 or val > 100:
+                issues.append(f"{name} out of bounds: {val}")
+
+        return issues
+
+
 class SupabaseMatchScoringService:
     """
     Scores a pair of SupabaseProfiles using the ISMC framework.
@@ -1451,7 +1491,8 @@ class SupabaseMatchScoringService:
     def score_pair(
         self,
         profile_a: SupabaseProfile,
-        profile_b: SupabaseProfile
+        profile_b: SupabaseProfile,
+        outcome_data=None
     ) -> dict:
         """
         Score a pair of profiles directionally.
@@ -1460,8 +1501,17 @@ class SupabaseMatchScoringService:
             dict with score_ab, score_ba, harmonic_mean (all 0-100 scale),
             plus component breakdowns for each direction.
         """
-        score_ab, breakdown_ab = self._score_directional(profile_a, profile_b)
-        score_ba, breakdown_ba = self._score_directional(profile_b, profile_a)
+        # Pre-scoring eligibility check
+        eligible, reason = ScoreValidator.check_scoring_eligibility(profile_a, profile_b)
+        if not eligible:
+            logger.debug(f"Pair ineligible for scoring: {reason}")
+            return {
+                'score_ab': 0, 'score_ba': 0, 'harmonic_mean': 0,
+                'match_reason': '', 'ineligible': True, 'ineligible_reason': reason,
+            }
+
+        score_ab, breakdown_ab = self._score_directional(profile_a, profile_b, outcome_data=outcome_data)
+        score_ba, breakdown_ba = self._score_directional(profile_b, profile_a, outcome_data=outcome_data)
 
         # Harmonic mean of the two directional scores
         epsilon = 1e-10
@@ -1469,6 +1519,11 @@ class SupabaseMatchScoringService:
             hm = 2 / (1 / max(score_ab, epsilon) + 1 / max(score_ba, epsilon))
         else:
             hm = 0.0
+
+        # Post-scoring sanity validation
+        score_issues = ScoreValidator.validate_scores(score_ab, score_ba, hm)
+        if score_issues:
+            logger.warning(f"Score validation issues for {profile_a.name} <-> {profile_b.name}: {score_issues}")
 
         match_reason = self._generate_match_reason(
             profile_a, profile_b, breakdown_ab, breakdown_ba, hm
@@ -1654,14 +1709,15 @@ class SupabaseMatchScoringService:
     def _score_directional(
         self,
         source: SupabaseProfile,
-        target: SupabaseProfile
+        target: SupabaseProfile,
+        outcome_data=None
     ) -> tuple[float, dict]:
         """
         Score how valuable target is as a partner for source.
 
         Returns (score_0_to_100, breakdown_dict).
         """
-        intent = self._score_intent(target)
+        intent = self._score_intent(target, outcome_data=outcome_data)
         synergy = self._score_synergy(source, target)
         momentum = self._score_momentum(target)
         context = self._score_context(target)
@@ -1711,7 +1767,7 @@ class SupabaseMatchScoringService:
         'linkedin', 'audience_type', 'network_role',
     ]
 
-    def _score_intent(self, target: SupabaseProfile) -> dict:
+    def _score_intent(self, target: SupabaseProfile, outcome_data=None) -> dict:
         """Score partnership readiness signals for target profile."""
         factors = []
         total = 0.0
@@ -1761,6 +1817,47 @@ class SupabaseMatchScoringService:
                         'detail': 'Website available' if has_website else 'No website'})
         total += website_score * 2.5
         max_total += 10 * 2.5
+
+        # Factor 5: Membership status (weight 2.0, bonus-only)
+        status = (target.status or '').strip()
+        _BONUS_STATUSES = {'Qualified': 9.0, 'Member': 8.0, 'Non Member Resource': 6.5}
+        if status in _BONUS_STATUSES:
+            status_score = _BONUS_STATUSES[status]
+            factors.append({'name': 'Membership Status', 'score': status_score, 'weight': 2.0,
+                            'detail': f'Status: {status}'})
+            total += status_score * 2.0
+            max_total += 10 * 2.0
+
+        # Factor 6: Profile maintenance (weight 1.5, null-aware)
+        profile_updated = target.profile_updated_at
+        if isinstance(profile_updated, datetime):
+            from django.utils import timezone as tz
+            days_since_update = (tz.now() - profile_updated).days
+            if days_since_update <= 30:
+                maint_score = 9.0
+            elif days_since_update <= 90:
+                maint_score = 7.0
+            elif days_since_update <= 180:
+                maint_score = 5.0
+            else:
+                maint_score = 3.0
+            factors.append({'name': 'Profile Maintenance', 'score': maint_score, 'weight': 1.5,
+                            'detail': f'Profile updated {days_since_update}d ago'})
+            total += maint_score * 1.5
+            max_total += 10 * 1.5
+
+        # Factor 7: Outcome track record (weight 3.0, null-aware, needs ≥3 outcomes)
+        if outcome_data:
+            outcomes = outcome_data.get(str(target.id), {})
+            total_outcomes = sum(outcomes.values())
+            if total_outcomes >= 3:
+                positive = outcomes.get('connected_promising', 0)
+                success_rate = positive / total_outcomes
+                track_score = min(10.0, success_rate * 12)
+                factors.append({'name': 'Outcome Track Record', 'score': round(track_score, 1), 'weight': 3.0,
+                                'detail': f'{positive}/{total_outcomes} positive ({success_rate:.0%})'})
+                total += track_score * 3.0
+                max_total += 10 * 3.0
 
         score = (total / max_total) * 10 if max_total > 0 else 0
         return {'score': round(score, 2), 'factors': factors}
@@ -1849,6 +1946,43 @@ class SupabaseMatchScoringService:
                             'detail': f'{src_rev} ↔ {tgt_rev}'})
             total += rev_score * 2.0
             max_total += 10 * 2.0
+
+        # Factor 5: Content platform overlap (weight 2.0, null-aware)
+        platform_score, shared_platforms = self._platform_overlap(source, target)
+        if shared_platforms:
+            factors.append({'name': 'Platform Overlap', 'score': platform_score, 'weight': 2.0,
+                            'detail': f'Shared: {", ".join(shared_platforms)}'})
+            total += platform_score * 2.0
+            max_total += 10 * 2.0
+
+        # Factor 6: Network influence (weight 2.0, null-aware, bilateral)
+        src_net = self._network_influence_score(source)
+        tgt_net = self._network_influence_score(target)
+        if src_net is not None and tgt_net is not None:
+            combined = (src_net + tgt_net) / 2
+            factors.append({'name': 'Network Influence', 'score': round(combined, 1), 'weight': 2.0,
+                            'detail': 'Both well-connected (composite network avg)'})
+            total += combined * 2.0
+            max_total += 10 * 2.0
+
+        # Factor 7: Business scale compatibility (weight 1.5, null-aware, bilateral)
+        _SIZE_ORDER = {'small': 1, 'medium': 2, 'large': 3}
+        src_bs = source.business_size if isinstance(source.business_size, str) else ''
+        tgt_bs = target.business_size if isinstance(target.business_size, str) else ''
+        src_size = _SIZE_ORDER.get(src_bs.lower().strip())
+        tgt_size = _SIZE_ORDER.get(tgt_bs.lower().strip())
+        if src_size is not None and tgt_size is not None:
+            gap = abs(src_size - tgt_size)
+            if gap == 0:
+                scale_score = 9.0
+            elif gap == 1:
+                scale_score = 7.0
+            else:
+                scale_score = 4.0
+            factors.append({'name': 'Business Scale', 'score': scale_score, 'weight': 1.5,
+                            'detail': f'{source.business_size} ↔ {target.business_size}'})
+            total += scale_score * 1.5
+            max_total += 10 * 1.5
 
         score = (total / max_total) * 10 if max_total > 0 else 0
         return {'score': round(score, 2), 'factors': factors}
@@ -1946,6 +2080,29 @@ class SupabaseMatchScoringService:
         else:
             return 3.0, shared
 
+    def _network_influence_score(self, profile) -> float | None:
+        """Composite network score from 3 centrality metrics. Returns None if no data."""
+        scores = []
+        pr = profile.pagerank_score
+        if isinstance(pr, (int, float)) and pr > 0:
+            if pr >= 0.005:
+                scores.extend([10.0, 10.0])
+            elif pr >= 0.002:
+                scores.extend([8.0, 8.0])
+            elif pr >= 0.001:
+                scores.extend([6.5, 6.5])
+            elif pr >= 0.0005:
+                scores.extend([5.0, 5.0])
+            else:
+                scores.extend([4.0, 4.0])
+        dc = profile.degree_centrality
+        if isinstance(dc, (int, float)) and dc > 0:
+            scores.append(min(10.0, dc * 100))
+        bc = profile.betweenness_centrality
+        if isinstance(bc, (int, float)) and bc > 0:
+            scores.append(min(10.0, bc * 200))
+        return sum(scores) / len(scores) if scores else None
+
     # ----- Momentum (20%) — How active/engaged is this partner? -----
 
     def _score_momentum(self, target: SupabaseProfile) -> dict:
@@ -2013,6 +2170,26 @@ class SupabaseMatchScoringService:
             total += list_score * 2.5
             max_total += 10 * 2.5
 
+        # Factor 5: Activity recency (weight 2.0, null-aware)
+        last_active = target.last_active_at
+        if isinstance(last_active, datetime):
+            from django.utils import timezone as tz
+            days_since = (tz.now() - last_active).days
+            if days_since <= 7:
+                active_score = 10.0
+            elif days_since <= 30:
+                active_score = 8.0
+            elif days_since <= 90:
+                active_score = 6.0
+            elif days_since <= 180:
+                active_score = 4.0
+            else:
+                active_score = 2.0
+            factors.append({'name': 'Activity Recency', 'score': active_score, 'weight': 2.0,
+                            'detail': f'Last active {days_since}d ago'})
+            total += active_score * 2.0
+            max_total += 10 * 2.0
+
         # All fields null → return None score so caller skips this dimension
         if max_total == 0:
             return {'score': None, 'factors': [], 'detail': 'No momentum data available'}
@@ -2079,6 +2256,31 @@ class SupabaseMatchScoringService:
                         'detail': 'Email' if has_email else ('LinkedIn' if has_linkedin else 'Limited')})
         total += contact_score * 2.5
         max_total += 10 * 2.5
+
+        # Factor 5: Enrichment confidence (weight 2.0, null-aware)
+        confidence = target.profile_confidence
+        if isinstance(confidence, (int, float)):
+            conf_score = min(10.0, confidence * 10)
+            factors.append({'name': 'Enrichment Confidence', 'score': round(conf_score, 1), 'weight': 2.0,
+                            'detail': f'AI confidence: {confidence:.2f}'})
+            total += conf_score * 2.0
+            max_total += 10 * 2.0
+
+        # Factor 6: Recommendation freshness (weight 1.5, null-aware — inverse scoring)
+        pressure = target.recommendation_pressure_30d
+        if isinstance(pressure, int):
+            if pressure == 0:
+                fresh_score = 9.0
+            elif pressure <= 3:
+                fresh_score = 7.0
+            elif pressure <= 10:
+                fresh_score = 5.0
+            else:
+                fresh_score = 3.0
+            factors.append({'name': 'Recommendation Freshness', 'score': fresh_score, 'weight': 1.5,
+                            'detail': f'Recommended {pressure}x in 30d'})
+            total += fresh_score * 1.5
+            max_total += 10 * 1.5
 
         score = (total / max_total) * 10 if max_total > 0 else 0
         return {'score': round(score, 2), 'factors': factors}

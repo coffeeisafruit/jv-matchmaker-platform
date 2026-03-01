@@ -90,6 +90,18 @@ class Command(BaseCommand):
         }
         self.stdout.write(f'Loaded {len(profiles)} profiles into memory')
 
+        # Pre-aggregate outcome track record from MatchLearningSignal
+        from matching.models import MatchLearningSignal
+        from django.db.models import Count
+        raw_outcomes = MatchLearningSignal.objects.values(
+            'match__partner_id', 'outcome'
+        ).annotate(count=Count('id'))
+        outcome_agg = {}
+        for row in raw_outcomes:
+            pid = str(row['match__partner_id'])
+            outcome_agg.setdefault(pid, {})[row['outcome']] = row['count']
+        self.stdout.write(f'Pre-aggregated outcomes for {len(outcome_agg)} partners')
+
         connection.close()
 
         if snapshot_only:
@@ -144,7 +156,7 @@ class Command(BaseCommand):
                     continue
 
                 try:
-                    result = scorer.score_pair(profile_a, profile_b)
+                    result = scorer.score_pair(profile_a, profile_b, outcome_data=outcome_agg)
 
                     after_scores.append({
                         'match_id': str(m.id),

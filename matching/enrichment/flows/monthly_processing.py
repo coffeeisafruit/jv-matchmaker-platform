@@ -2,12 +2,13 @@
 Week 4 Monday processing flow -- Prefect @flow.
 
 Runs the full monthly processing pipeline:
-  1. Re-enrich stale profiles via enrichment_flow(refresh_mode=True)
-  2. Apply any client profile updates from verification
-  3. Rescore all matches (rescore_matches management command)
-  4. Gap detection for each client
-  5. Trigger acquisition pipeline for clients with gaps
-  6. Generate/regenerate reports for all clients
+  1. Flag low-confidence and stale profiles for priority re-enrichment
+  2. Re-enrich priority profiles first, then stale profiles via enrichment_flow
+  3. Apply any client profile updates from verification
+  4. Rescore all matches (rescore_matches management command)
+  5. Gap detection for each client
+  6. Trigger acquisition pipeline for clients with gaps
+  7. Generate/regenerate reports for all clients
 
 This is the heaviest compute step in the monthly cycle and has a 2-hour
 timeout to accommodate large batches.
@@ -44,6 +45,8 @@ from prefect import flow, task, get_run_logger
 class MonthlyProcessingResult:
     """Results from the Week 4 Monday processing run."""
 
+    priority_profiles_flagged: int = 0
+    priority_profiles_enriched: int = 0
     clients_processed: int = 0
     profiles_re_enriched: int = 0
     matches_rescored: int = 0
@@ -67,23 +70,136 @@ def _get_db_connection() -> psycopg2.extensions.connection:
 # Tasks
 # ---------------------------------------------------------------------------
 
+@task(name="flag-low-confidence-profiles", retries=1, retry_delay_seconds=10)
+def flag_low_confidence_profiles(
+    confidence_threshold: float = 0.5,
+    stale_days: int = 29,
+    dry_run: bool = False,
+) -> dict[str, Any]:
+    """Identify profiles needing priority re-enrichment.
+
+    Queries the database for profiles with:
+      - ``profile_confidence`` below *confidence_threshold*, OR
+      - ``last_enriched_at`` older than *stale_days*
+
+    Returns a deduplicated list of profile IDs sorted by confidence (lowest
+    first) so the enrichment flow can prioritise them.
+
+    Returns
+    -------
+    dict with: low_confidence_count, stale_count, total_flagged, profile_ids.
+    """
+    logger = get_run_logger()
+    conn = _get_db_connection()
+
+    try:
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+
+        # Low-confidence profiles
+        cur.execute(
+            """
+            SELECT id::text
+            FROM profiles
+            WHERE profile_confidence IS NOT NULL
+              AND profile_confidence < %s
+            ORDER BY profile_confidence ASC
+            """,
+            (confidence_threshold,),
+        )
+        low_conf_ids = [row["id"] for row in cur.fetchall()]
+
+        # Stale profiles (last_enriched_at older than stale_days)
+        cur.execute(
+            """
+            SELECT id::text
+            FROM profiles
+            WHERE last_enriched_at IS NOT NULL
+              AND last_enriched_at < NOW() - INTERVAL '%s days'
+            ORDER BY last_enriched_at ASC
+            """,
+            (stale_days,),
+        )
+        stale_ids = [row["id"] for row in cur.fetchall()]
+
+        # Combine and deduplicate, preserving low-confidence-first order
+        seen: set[str] = set()
+        combined_ids: list[str] = []
+        for pid in low_conf_ids + stale_ids:
+            if pid not in seen:
+                seen.add(pid)
+                combined_ids.append(pid)
+
+        logger.info(
+            "Low-confidence flagging: %d low-conf, %d stale, %d combined (deduped)",
+            len(low_conf_ids),
+            len(stale_ids),
+            len(combined_ids),
+        )
+
+        if dry_run:
+            logger.info(
+                "[DRY RUN] Would flag %d profiles for priority re-enrichment",
+                len(combined_ids),
+            )
+
+        return {
+            "low_confidence_count": len(low_conf_ids),
+            "stale_count": len(stale_ids),
+            "total_flagged": len(combined_ids),
+            "profile_ids": combined_ids,
+        }
+    finally:
+        conn.close()
+
+
 @task(name="re-enrich-stale-profiles", retries=1, retry_delay_seconds=30)
 def re_enrich_stale_profiles(
     stale_days: int = 30,
+    priority_ids: list[str] | None = None,
     dry_run: bool = False,
 ) -> dict[str, Any]:
     """Re-enrich profiles whose data is older than *stale_days*.
+
+    When *priority_ids* is provided, those profiles are enriched first
+    (via ``profile_ids`` parameter on the enrichment flow), before
+    falling back to the standard refresh-mode selection.
 
     Delegates to the existing ``enrichment_flow`` in refresh mode.
 
     Returns
     -------
-    dict with: profiles_selected, profiles_written, total_cost.
+    dict with: profiles_selected, profiles_written, total_cost,
+    priority_profiles_enriched.
     """
     logger = get_run_logger()
 
     from matching.enrichment.flows.enrichment_flow import enrichment_flow
 
+    priority_written = 0
+    priority_cost = 0.0
+
+    # Phase A: Enrich priority (low-confidence / stale) profiles first
+    if priority_ids:
+        logger.info(
+            "Re-enriching %d priority profiles (low-confidence/stale) before "
+            "standard refresh (dry_run=%s)",
+            len(priority_ids),
+            dry_run,
+        )
+        priority_result = enrichment_flow(
+            limit=len(priority_ids),
+            profile_ids=priority_ids,
+            dry_run=dry_run,
+        )
+        priority_written = priority_result.profiles_written
+        priority_cost = priority_result.total_cost
+        logger.info(
+            "Priority re-enrichment complete: %d written, cost=$%.2f",
+            priority_written,
+            priority_cost,
+        )
+
+    # Phase B: Standard stale-profile refresh
     logger.info(
         "Re-enriching stale profiles (stale_days=%d, dry_run=%s)",
         stale_days,
@@ -101,7 +217,8 @@ def re_enrich_stale_profiles(
     summary = {
         "profiles_selected": result.profiles_selected,
         "profiles_written": result.profiles_written,
-        "total_cost": result.total_cost,
+        "total_cost": result.total_cost + priority_cost,
+        "priority_profiles_enriched": priority_written,
     }
     logger.info("Re-enrichment complete: %s", summary)
     return summary
@@ -377,7 +494,7 @@ def generate_all_reports(dry_run: bool = False) -> dict[str, Any]:
 
 @flow(
     name="monthly-processing",
-    description="Week 4 Mon: Re-enrich stale -> rescore -> gap detect -> acquire -> generate reports",
+    description="Week 4 Mon: Flag priority -> re-enrich -> rescore -> gap detect -> acquire -> generate reports",
     retries=0,
     timeout_seconds=7200,  # 2 hours
 )
@@ -391,12 +508,13 @@ def monthly_processing_flow(
     """Full Week 4 Monday processing pipeline.
 
     Steps:
-      1. Re-enrich stale profiles (>stale_days old) via enrichment_flow(refresh_mode=True)
-      2. Apply any client profile updates from verification
-      3. Rescore all matches (call rescore_matches management command)
-      4. Gap detection for each client
-      5. Trigger acquisition pipeline for clients with gaps (if not skip_acquisition)
-      6. Generate/regenerate reports for all clients
+      1. Flag low-confidence and stale profiles for priority re-enrichment
+      2. Re-enrich flagged priority profiles, then stale profiles (>stale_days old)
+      3. Apply any client profile updates from verification
+      4. Rescore all matches (call rescore_matches management command)
+      5. Gap detection for each client
+      6. Trigger acquisition pipeline for clients with gaps (if not skip_acquisition)
+      7. Generate/regenerate reports for all clients
 
     Parameters
     ----------
@@ -425,22 +543,41 @@ def monthly_processing_flow(
         stale_days, target_score, target_count, skip_acquisition, dry_run,
     )
 
-    # Step 1: Re-enrich stale profiles
-    logger.info("Step 1/6: Re-enriching stale profiles")
+    # Step 1: Flag low-confidence and stale profiles for priority re-enrichment
+    logger.info("Step 1/7: Flagging low-confidence and stale profiles")
+    flag_result = flag_low_confidence_profiles(
+        confidence_threshold=0.5,
+        stale_days=29,
+        dry_run=dry_run,
+    )
+    priority_ids = flag_result.get("profile_ids", [])
+    result.priority_profiles_flagged = flag_result.get("total_flagged", 0)
+    logger.info(
+        "Flagged %d profiles for priority re-enrichment "
+        "(%d low-confidence, %d stale)",
+        flag_result.get("total_flagged", 0),
+        flag_result.get("low_confidence_count", 0),
+        flag_result.get("stale_count", 0),
+    )
+
+    # Step 2: Re-enrich priority profiles first, then stale profiles
+    logger.info("Step 2/7: Re-enriching profiles (priority + stale)")
     enrich_result = re_enrich_stale_profiles(
         stale_days=stale_days,
+        priority_ids=priority_ids if priority_ids else None,
         dry_run=dry_run,
     )
     result.profiles_re_enriched = enrich_result.get("profiles_written", 0)
+    result.priority_profiles_enriched = enrich_result.get("priority_profiles_enriched", 0)
     result.total_cost += enrich_result.get("total_cost", 0.0)
 
-    # Step 2: Apply verification updates
-    logger.info("Step 2/6: Applying verification updates")
+    # Step 3: Apply verification updates
+    logger.info("Step 3/7: Applying verification updates")
     verify_result = apply_verification_updates()
     result.clients_processed = verify_result.get("clients_updated", 0)
 
-    # Step 3: Rescore all matches
-    logger.info("Step 3/6: Rescoring all matches")
+    # Step 4: Rescore all matches
+    logger.info("Step 4/7: Rescoring all matches")
     rescore_result = rescore_all_matches(dry_run=dry_run)
     if rescore_result.get("return_code", 1) == 0:
         # Parse match count from output if possible
@@ -449,33 +586,36 @@ def monthly_processing_flow(
     else:
         logger.warning("Rescore command returned non-zero; continuing anyway")
 
-    # Step 4: Gap detection
-    logger.info("Step 4/6: Running gap detection")
+    # Step 5: Gap detection
+    logger.info("Step 5/7: Running gap detection")
     gaps = run_gap_detection(
         target_score=target_score,
         target_count=target_count,
     )
     result.gaps_detected = sum(1 for g in gaps if g.get("has_gap"))
 
-    # Step 5: Acquisition (optional)
+    # Step 6: Acquisition (optional)
     if skip_acquisition:
-        logger.info("Step 5/6: Acquisition SKIPPED (skip_acquisition=True)")
+        logger.info("Step 6/7: Acquisition SKIPPED (skip_acquisition=True)")
     else:
-        logger.info("Step 5/6: Triggering acquisition for clients with gaps")
+        logger.info("Step 6/7: Triggering acquisition for clients with gaps")
         acq_result = trigger_acquisition(gaps=gaps, dry_run=dry_run)
         result.acquisitions_triggered = acq_result.get("clients_triggered", 0)
         result.total_cost += acq_result.get("total_cost", 0.0)
 
-    # Step 6: Generate reports
-    logger.info("Step 6/6: Generating/regenerating reports")
+    # Step 7: Generate reports
+    logger.info("Step 7/7: Generating/regenerating reports")
     report_result = generate_all_reports(dry_run=dry_run)
     result.reports_generated = report_result.get("regenerated", 0)
 
     elapsed = time.time() - start_time
     logger.info(
         "Monthly processing complete in %.1fs: "
-        "re-enriched=%d, rescored=%d, gaps=%d, acquisitions=%d, reports=%d, cost=$%.2f",
+        "priority_flagged=%d, priority_enriched=%d, re-enriched=%d, "
+        "rescored=%d, gaps=%d, acquisitions=%d, reports=%d, cost=$%.2f",
         elapsed,
+        result.priority_profiles_flagged,
+        result.priority_profiles_enriched,
         result.profiles_re_enriched,
         result.matches_rescored,
         result.gaps_detected,

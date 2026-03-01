@@ -300,7 +300,7 @@ class ConfidenceScorer:
         total_weight = 0.0
 
         for field, metadata in enrichment_metadata.items():
-            if 'confidence' not in metadata:
+            if not isinstance(metadata, dict) or 'confidence' not in metadata:
                 continue
 
             weight = field_weights.get(field, 0.5)

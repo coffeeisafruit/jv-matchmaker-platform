@@ -1,8 +1,12 @@
 from django.contrib import admin
 from django.utils import timezone
 from .models import (
+    SupabaseProfile, SupabaseMatch,
+    Profile, Match, MatchFeedback, SavedCandidate,
+    PartnerRecommendation, MatchLearningSignal,
     MemberReport, ReportPartner, OutreachEvent,
     EngagementSummary, AnalyticsInsight, AnalyticsIntervention,
+    ClientVerification, MonthlyProcessingResult, SearchCostLog,
 )
 
 
@@ -162,3 +166,131 @@ class AnalyticsInterventionAdmin(admin.ModelAdmin):
                 pass
         self.message_user(request, f'Verified {verified} interventions.')
     run_verification.short_description = 'Run verification now'
+
+
+# =============================================================================
+# DIRECTORY & MATCHING ADMIN
+# =============================================================================
+
+@admin.register(SupabaseProfile)
+class SupabaseProfileAdmin(admin.ModelAdmin):
+    list_display = ['name', 'company', 'email', 'status', 'revenue_tier',
+                    'pagerank_score', 'profile_confidence', 'last_active_at']
+    list_filter = ['status', 'revenue_tier']
+    search_fields = ['name', 'company', 'email', 'niche']
+    readonly_fields = [
+        'id', 'pagerank_score', 'degree_centrality', 'betweenness_centrality',
+        'network_role', 'centrality_updated_at', 'profile_confidence',
+        'recommendation_pressure_30d', 'pressure_updated_at',
+        'audience_engagement_score', 'social_reach', 'created_at', 'updated_at',
+        'last_enriched_at', 'embeddings_updated_at',
+    ]
+
+
+@admin.register(SupabaseMatch)
+class SupabaseMatchAdmin(admin.ModelAdmin):
+    list_display = ['profile_id', 'suggested_profile_id', 'harmonic_mean',
+                    'trust_level', 'status', 'suggested_at']
+    list_filter = ['trust_level', 'status']
+    search_fields = ['profile_id', 'suggested_profile_id']
+    readonly_fields = [
+        'id', 'match_score', 'score_ab', 'score_ba', 'harmonic_mean',
+        'scale_symmetry_score', 'match_context', 'match_reason',
+    ]
+
+
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ['name', 'company', 'email', 'industry', 'source', 'created_at']
+    list_filter = ['source', 'industry']
+    search_fields = ['name', 'company', 'email']
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(Match)
+class MatchAdmin(admin.ModelAdmin):
+    list_display = ['user', 'profile', 'final_score', 'intent_score',
+                    'synergy_score', 'momentum_score', 'context_score', 'status']
+    list_filter = ['status']
+    search_fields = ['user__email', 'profile__name']
+    readonly_fields = ['final_score', 'score_breakdown', 'created_at']
+
+
+@admin.register(MatchFeedback)
+class MatchFeedbackAdmin(admin.ModelAdmin):
+    list_display = ['match', 'rating', 'outcome', 'created_at']
+    list_filter = ['rating', 'outcome']
+    readonly_fields = ['created_at']
+
+
+@admin.register(SavedCandidate)
+class SavedCandidateAdmin(admin.ModelAdmin):
+    list_display = ['name', 'company', 'niche', 'list_size', 'user', 'created_at']
+    search_fields = ['name', 'company', 'niche']
+    readonly_fields = ['created_at', 'updated_at']
+
+
+@admin.register(PartnerRecommendation)
+class PartnerRecommendationAdmin(admin.ModelAdmin):
+    list_display = ['partner', 'user', 'context', 'was_viewed', 'was_contacted',
+                    'feedback_outcome', 'recommended_at']
+    list_filter = ['context', 'was_viewed', 'was_contacted', 'feedback_outcome']
+    search_fields = ['partner__name', 'user__email']
+    readonly_fields = [
+        'recommended_at', 'viewed_at', 'contacted_at', 'time_to_first_action',
+        'feedback_recorded_at',
+    ]
+
+
+@admin.register(MatchLearningSignal)
+class MatchLearningSignalAdmin(admin.ModelAdmin):
+    list_display = ['signal_type', 'outcome', 'match_score',
+                    'explanation_source', 'created_at']
+    list_filter = ['signal_type', 'outcome', 'explanation_source']
+    readonly_fields = [
+        'match', 'signal_type', 'outcome', 'outcome_timestamp', 'match_score',
+        'explanation_source', 'reciprocity_balance', 'confidence_at_generation',
+        'signal_details', 'created_at',
+    ]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(ClientVerification)
+class ClientVerificationAdmin(admin.ModelAdmin):
+    list_display = ['client', 'month', 'status', 'sent_at', 'confirmed_at',
+                    'reminder_count']
+    list_filter = ['status', 'month']
+    search_fields = ['client__name', 'client__email']
+    readonly_fields = ['verification_token', 'sent_at', 'opened_at', 'confirmed_at']
+
+
+@admin.register(MonthlyProcessingResult)
+class MonthlyProcessingResultAdmin(admin.ModelAdmin):
+    list_display = ['client', 'month', 'profiles_enriched', 'profiles_rescored',
+                    'matches_above_70', 'gap_detected', 'processing_cost', 'completed_at']
+    list_filter = ['month', 'gap_detected', 'report_regenerated']
+    search_fields = ['client__name']
+    readonly_fields = ['completed_at']
+
+
+@admin.register(SearchCostLog)
+class SearchCostLogAdmin(admin.ModelAdmin):
+    list_display = ['tool', 'cost_usd', 'results_returned', 'results_useful',
+                    'context', 'created_at']
+    list_filter = ['tool']
+    search_fields = ['query', 'context', 'profile_id']
+    readonly_fields = [
+        'tool', 'query', 'cost_usd', 'results_returned', 'results_useful',
+        'context', 'profile_id', 'created_at',
+    ]
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False

@@ -36,6 +36,7 @@ from prefect import task, get_run_logger
 # overwritten by lower ones.  Client-provided data is protected from AI
 # overwrites.
 from matching.enrichment.constants import SOURCE_PRIORITY
+from matching.enrichment.retry_queue import enqueue as retry_enqueue
 
 PIPELINE_VERSION: int = 1
 
@@ -126,6 +127,94 @@ def _parse_meta(raw: Any) -> dict:
         except (json.JSONDecodeError, TypeError):
             pass
     return {}
+
+
+def _regenerate_embeddings_batch(results: list[dict], database_url: str) -> dict:
+    """Regenerate embeddings for profiles whose text fields were updated."""
+    EMBED_FIELDS = {'seeking', 'offering', 'who_you_serve', 'what_you_do'}
+    logger = get_run_logger()
+
+    profiles_to_embed = []
+    for result in results:
+        profile_id = result.get('profile_id')
+        if not profile_id:
+            continue
+        has_embed_data = any(
+            result.get(f) and isinstance(result.get(f), str) and len(result.get(f, '').strip()) >= 5
+            for f in EMBED_FIELDS
+        )
+        if has_embed_data:
+            profiles_to_embed.append(result)
+
+    if not profiles_to_embed:
+        return {'embedded': 0, 'failed': 0}
+
+    try:
+        from lib.enrichment.hf_client import HFClient
+        from lib.enrichment.embeddings import ProfileEmbeddingService
+        hf_client = HFClient()
+        emb_service = ProfileEmbeddingService(hf_client)
+    except Exception as e:
+        logger.warning(f"Could not initialize embedding service: {e}")
+        return {'embedded': 0, 'failed': 0, 'error': str(e)}
+
+    succeeded = 0
+    failed = 0
+    conn = psycopg2.connect(database_url)
+    try:
+        cursor = conn.cursor()
+        for result in profiles_to_embed:
+            profile_id = str(result['profile_id'])
+            profile_dict = {
+                'id': profile_id,
+                'name': result.get('name', ''),
+                'seeking': result.get('seeking', ''),
+                'offering': result.get('offering', ''),
+                'who_you_serve': result.get('who_you_serve', ''),
+                'what_you_do': result.get('what_you_do', ''),
+            }
+            try:
+                embeddings = emb_service.embed_profile(profile_dict)
+                if not embeddings:
+                    cursor.execute(
+                        "UPDATE profiles SET embedding_seeking = NULL, embedding_offering = NULL, "
+                        "embedding_who_you_serve = NULL, embedding_what_you_do = NULL, "
+                        "embeddings_updated_at = NULL WHERE id = %s", [profile_id]
+                    )
+                    continue
+
+                set_clauses = []
+                params = []
+                for field_name, vector in embeddings.items():
+                    pgvector_str = f'[{",".join(str(v) for v in vector)}]'
+                    set_clauses.append(f'{field_name} = %s::vector')
+                    params.append(pgvector_str)
+                set_clauses.append('embeddings_model = %s')
+                params.append('BAAI/bge-large-en-v1.5')
+                set_clauses.append('embeddings_updated_at = %s')
+                params.append(datetime.now())
+                params.append(profile_id)
+                cursor.execute(f"UPDATE profiles SET {', '.join(set_clauses)} WHERE id = %s", params)
+                succeeded += 1
+            except Exception as e:
+                failed += 1
+                logger.warning(f"Embedding failed for {result.get('name', profile_id)}: {e}")
+                retry_enqueue(profile_id, "embedding_failed", str(e), context={"name": result.get("name", "")})
+                try:
+                    cursor.execute(
+                        "UPDATE profiles SET embedding_seeking = NULL, embedding_offering = NULL, "
+                        "embedding_who_you_serve = NULL, embedding_what_you_do = NULL, "
+                        "embeddings_updated_at = NULL WHERE id = %s", [profile_id]
+                    )
+                except Exception:
+                    pass
+        conn.commit()
+        cursor.close()
+    finally:
+        conn.close()
+
+    logger.info(f"Embedding regeneration: {succeeded} succeeded, {failed} failed")
+    return {'embedded': succeeded, 'failed': failed}
 
 
 # ---------------------------------------------------------------------------
@@ -238,7 +327,6 @@ def consolidate_to_db(
             email_updates.append((
                 email,
                 json.dumps(email_metadata),
-                confidence,
                 enriched_at,
                 datetime.now(),
                 profile_id,
@@ -557,6 +645,21 @@ def consolidate_to_db(
                                 'pipeline_version': PIPELINE_VERSION,
                             }
 
+            # -- Per-field confidence scores (Phase 1B) ----------------------
+            # Compute a confidence value for every field written in this
+            # enrichment pass, using the same source and enriched_at that
+            # field_meta records.  The results are stored at the top level
+            # of enrichment_metadata keyed by field name, matching the
+            # format expected by ConfidenceScorer.calculate_profile_confidence().
+            for f in fields_written:
+                f_source = field_meta_update.get(f, {}).get('source', enrichment_source)
+                field_conf = scorer.calculate_confidence(f, f_source, enriched_at)
+                meta_payload[f] = {
+                    'confidence': field_conf,
+                    'source': f_source,
+                    'enriched_at': enriched_at.isoformat(),
+                }
+
             # Merge enrichment_metadata JSONB (append, never clobber).
             set_parts.append(sql.SQL(
                 "enrichment_metadata = COALESCE(enrichment_metadata, '{}'::jsonb) || %s::jsonb"
@@ -579,6 +682,7 @@ def consolidate_to_db(
         )
 
     failed_updates = 0
+    confidence_updates_count = 0
     conn = psycopg2.connect(database_url)
     try:
         cursor = conn.cursor()
@@ -595,7 +699,6 @@ def consolidate_to_db(
                                 '{email}',
                                 %s::jsonb
                             ),
-                            profile_confidence = %s,
                             last_enriched_at = %s,
                             updated_at = %s
                         WHERE id = %s
@@ -607,6 +710,8 @@ def consolidate_to_db(
                 except Exception as exc:
                     logger.error("Email batch update failed: %s", exc)
                     cursor.execute("ROLLBACK TO SAVEPOINT email_batch")
+                    for eu in email_updates:
+                        retry_enqueue(str(eu[-1]), "email_write_failed", str(exc))
                     failed_updates += len(email_updates)
 
             # ---- Profile field updates -- grouped batch execution -------
@@ -652,12 +757,101 @@ def consolidate_to_db(
                                 cursor.execute(f"ROLLBACK TO SAVEPOINT {fb_sp}")
                             except Exception:
                                 pass
+                            retry_enqueue(str(p[-1]), "db_write_failed", str(exc2))
+
+            # ---- Full profile confidence (weighted average of all fields) ---
+            # Now that both email and profile-field updates have been
+            # written (including per-field confidences in enrichment_metadata),
+            # read the merged enrichment_metadata back from the DB and
+            # compute a weighted-average profile_confidence from ALL fields.
+            enriched_ids = [
+                str(r['profile_id'])
+                for r in results
+                if r.get('profile_id')
+            ]
+
+            profile_conf_updates: list[tuple] = []
+            if enriched_ids:
+                # Fetch current enrichment_metadata for every enriched profile.
+                cursor.execute(
+                    "SELECT id, enrichment_metadata "
+                    "FROM profiles WHERE id = ANY(%s)",
+                    [enriched_ids],
+                )
+                rows = cursor.fetchall()
+                for row in rows:
+                    pid = row[0]
+                    raw_meta = row[1]
+                    meta = _parse_meta(raw_meta)
+                    if meta:
+                        full_conf = scorer.calculate_profile_confidence(meta)
+                        if full_conf > 0:
+                            profile_conf_updates.append((full_conf, str(pid)))
+
+            if profile_conf_updates:
+                cursor.execute("SAVEPOINT profile_conf_batch")
+                try:
+                    execute_batch(cursor, """
+                        UPDATE profiles
+                        SET profile_confidence = %s,
+                            updated_at = NOW()
+                        WHERE id = %s
+                    """, profile_conf_updates)
+                    cursor.execute("RELEASE SAVEPOINT profile_conf_batch")
+                    confidence_updates_count = len(profile_conf_updates)
+                    logger.info(
+                        "Updated full profile_confidence for %d profiles",
+                        confidence_updates_count,
+                    )
+                except Exception as exc:
+                    logger.error("Full profile_confidence batch failed: %s", exc)
+                    cursor.execute("ROLLBACK TO SAVEPOINT profile_conf_batch")
+                    for conf_update in profile_conf_updates:
+                        retry_enqueue(str(conf_update[1]), "confidence_calc_failed", str(exc))
 
             conn.commit()
         finally:
             cursor.close()
     finally:
         conn.close()
+
+    # ------------------------------------------------------------------
+    # Regenerate embeddings for profiles with updated text fields
+    # ------------------------------------------------------------------
+    embed_stats = {'embedded': 0, 'failed': 0}
+    if profile_updates:
+        try:
+            embed_stats = _regenerate_embeddings_batch(results, database_url)
+        except Exception as e:
+            logger.warning(f"Embedding regeneration failed (non-fatal): {e}")
+            from config.alerting import send_alert
+            send_alert("warning", "Batch embedding regeneration failed", str(e))
+            for result in results:
+                pid = result.get('profile_id')
+                if pid:
+                    retry_enqueue(str(pid), "embedding_failed", f"Batch failure: {e}")
+
+    # ------------------------------------------------------------------
+    # Trigger match recalculation for enriched profiles
+    # ------------------------------------------------------------------
+    if profile_updates:
+        enriched_ids = []
+        for result in results:
+            pid = result.get('profile_id')
+            if pid:
+                enriched_ids.append(str(pid))
+        if enriched_ids:
+            try:
+                from matching.tasks import bulk_recalculate_matches
+                logger.info(f"Triggering match recalculation for {len(enriched_ids)} profiles...")
+                bulk_recalculate_matches(enriched_ids)
+                logger.info("Match recalculation complete")
+            except Exception as e:
+                logger.warning(f"Match recalculation failed (non-fatal): {e}")
+                from config.alerting import send_alert
+                send_alert("warning", f"Match recalculation failed for {len(enriched_ids)} profiles", str(e))
+                for eid in enriched_ids:
+                    retry_enqueue(eid, "match_recalc_failed", str(e))
 
     # ------------------------------------------------------------------
     # Stats
@@ -667,14 +861,20 @@ def consolidate_to_db(
         'profiles_updated': len(profile_updates) - failed_updates,
         'failed': failed_updates,
         'skipped_empty': skipped_empty,
+        'embeddings_regenerated': embed_stats.get('embedded', 0),
+        'embeddings_failed': embed_stats.get('failed', 0),
+        'confidence_scores_updated': confidence_updates_count,
     }
 
     logger.info(
-        "Consolidation complete: %d emails, %d profiles updated, %d failed, %d skipped",
+        "Consolidation complete: %d emails, %d profiles updated, %d failed, %d skipped, "
+        "%d embeddings regenerated, %d confidence scores updated",
         stats['emails_written'],
         stats['profiles_updated'],
         stats['failed'],
         stats['skipped_empty'],
+        stats['embeddings_regenerated'],
+        stats['confidence_scores_updated'],
     )
 
     return stats
