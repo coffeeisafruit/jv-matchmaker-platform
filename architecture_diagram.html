@@ -562,6 +562,60 @@
     border-radius: 3px;
   }
 
+  /* ===== ZONE FILTER BAR ===== */
+  .zone-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 0 20px;
+    flex-wrap: wrap;
+  }
+  .zone-filter-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-right: 4px;
+  }
+  .zone-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1.5px solid;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+  }
+  .zone-btn {
+    cursor: default;
+    pointer-events: none;
+  }
+  .zone-btn[data-zone="all"] { border-color: var(--text-dim); color: var(--text-dim); }
+  .zone-btn[data-zone="all"].active { background: var(--text-dim); color: var(--bg); }
+  .zone-btn[data-zone="apps"] { border-color: var(--accent-blue); color: var(--accent-blue); }
+  .zone-btn[data-zone="apps"].active { background: var(--accent-blue); color: var(--bg); }
+  .zone-btn[data-zone="pipeline"] { border-color: var(--accent-cyan); color: var(--accent-cyan); }
+  .zone-btn[data-zone="pipeline"].active { background: var(--accent-cyan); color: var(--bg); }
+  .zone-btn[data-zone="services"] { border-color: #8b90a8; color: #8b90a8; }
+  .zone-btn[data-zone="services"].active { background: #8b90a8; color: var(--bg); }
+  .zone-btn[data-zone="sourcing"] { border-color: var(--accent-green); color: var(--accent-green); }
+  .zone-btn[data-zone="sourcing"].active { background: var(--accent-green); color: var(--bg); }
+
+  /* SVG zone filtering transitions */
+  .arch-svg g[data-zone] {
+    transition: opacity 0.4s ease;
+  }
+  .arch-svg.zone-filtered g[data-zone] {
+    opacity: 0.08;
+  }
+  .arch-svg.zone-filtered g[data-zone].zone-active {
+    opacity: 1;
+  }
+
   /* ===== DATABASE VIEW ===== */
   .db-container {
     max-width: 780px;
@@ -1494,6 +1548,67 @@
     border-color: var(--accent-blue);
     color: var(--accent-blue);
   }
+
+  /* ===== FAQ ===== */
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .faq-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .faq-item[open] {
+    border-color: rgba(91,138,245,0.3);
+  }
+  .faq-q {
+    padding: 18px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: color 0.2s;
+  }
+  .faq-q::-webkit-details-marker { display: none; }
+  .faq-q::after {
+    content: '+';
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--text-dim);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    margin-left: 16px;
+  }
+  .faq-item[open] .faq-q::after {
+    content: '\2212';
+    color: var(--accent-blue);
+  }
+  .faq-q:hover { color: var(--accent-blue); }
+  .faq-a {
+    padding: 0 24px 20px;
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.7;
+  }
+  .faq-a p { margin-bottom: 10px; }
+  .faq-a ol, .faq-a ul {
+    margin: 8px 0 12px 20px;
+  }
+  .faq-a li { margin-bottom: 6px; }
+  .faq-a code {
+    background: var(--surface2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+  }
+  .faq-a strong { color: var(--text); }
 </style>
 </head>
 <body>
@@ -1523,6 +1638,7 @@
   <button class="tab" onclick="switchTab('community')">Community</button>
   <button class="tab" onclick="switchTab('datahealth')">Data Health</button>
   <button class="tab" onclick="switchTab('prefect')">Prefect</button>
+  <button class="tab" onclick="switchTab('faq')">FAQ</button>
 </div>
 
 <div class="content">
@@ -1645,219 +1761,369 @@
 
 <!-- ===== OVERVIEW (fixed SVG) ===== -->
 <div id="view-overview" class="view">
-  <div class="legend">
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-blue)"></div> Core (Auth & Dashboard)</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-purple)"></div> Matching Engine</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-cyan)"></div> Enrichment Pipeline</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-green)"></div> Positioning & ICP</div>
+  <div class="zone-filter-bar">
+    <span class="zone-filter-label">Viewing:</span>
+    <span class="zone-btn active" data-zone="all">All Zones</span>
+    <span class="zone-btn" data-zone="apps">User-Facing Apps</span>
+    <span class="zone-btn" data-zone="pipeline">Data Pipeline</span>
+    <span class="zone-btn" data-zone="services">External Services</span>
+    <span class="zone-btn" data-zone="sourcing">Autonomous Sourcing</span>
+  </div>
+  <div class="legend" style="margin-bottom:12px;padding:8px 16px;font-size:11px;opacity:0.7;">
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-blue)"></div> Apps</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-cyan)"></div> Pipeline</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-green)"></div> Intelligence</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-purple)"></div> Matching/AI</div>
     <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-orange)"></div> Outreach</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-pink)"></div> Playbook</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:#555"></div> External Service</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--accent-pink)"></div> Reports</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#555"></div> External</div>
   </div>
 
-  <svg class="arch-svg" viewBox="0 0 1100 870" xmlns="http://www.w3.org/2000/svg">
+  <svg class="arch-svg" viewBox="0 0 1100 1280" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
         <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#1a1d27" stroke-width="0.5"/>
       </pattern>
-      <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-        <path d="M0,0 L8,3 L0,6" fill="#4a4e68" />
+      <!-- Unified arrow markers -->
+      <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <path d="M0,0 L10,3.5 L0,7" fill="#3d4260" />
       </marker>
-      <marker id="arrow-cyan" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-        <path d="M0,0 L8,3 L0,6" fill="#4ec8cb" />
+      <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <path d="M0,0 L10,3.5 L0,7" fill="#5b8af5" />
       </marker>
-      <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-        <path d="M0,0 L8,3 L0,6" fill="#4ecb8d" />
+      <marker id="arrow-cyan" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <path d="M0,0 L10,3.5 L0,7" fill="#4ec8cb" />
       </marker>
-      <marker id="arrow-purple" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-        <path d="M0,0 L8,3 L0,6" fill="#a87bf5" />
+      <marker id="arrow-green" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <path d="M0,0 L10,3.5 L0,7" fill="#4ecb8d" />
       </marker>
-      <marker id="arrow-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
-        <path d="M0,0 L8,3 L0,6" fill="#f0a04b" />
+      <marker id="arrow-purple" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <path d="M0,0 L10,3.5 L0,7" fill="#a87bf5" />
       </marker>
+      <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <path d="M0,0 L10,3.5 L0,7" fill="#f0a04b" />
+      </marker>
+      <!-- Step number circle -->
+      <filter id="glow-blue" x="-50%" y="-50%" width="200%" height="200%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
     </defs>
-    <rect width="1100" height="870" fill="var(--bg)"/>
-    <rect width="1100" height="870" fill="url(#grid)"/>
+    <rect width="1100" height="1280" fill="var(--bg)"/>
+    <rect width="1100" height="1280" fill="url(#grid)"/>
 
-    <!-- ===== USER LAYER ===== -->
-    <text x="550" y="28" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">USER LAYER</text>
-    <rect x="400" y="40" width="300" height="48" rx="10" fill="#1a1d27" stroke="#5b8af5" stroke-width="1.5"/>
-    <text x="550" y="61" text-anchor="middle" fill="#5b8af5" font-size="13" font-weight="700">Django Frontend</text>
-    <text x="550" y="78" text-anchor="middle" fill="#8b90a8" font-size="10">HTMX + Alpine.js + Tailwind</text>
+    <!-- ╔══════════════════════════════════════════════════════════════╗ -->
+    <!-- ║  ZONE GROUPS — wrapped in <g> for interactive filtering      ║ -->
+    <!-- ╚══════════════════════════════════════════════════════════════╝ -->
 
-    <!-- Arrow down from frontend -->
-    <line x1="550" y1="88" x2="550" y2="120" stroke="#4a4e68" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <g data-zone="apps">
+    <!-- Zone 1: User-Facing Apps -->
+    <rect x="20" y="4" width="1060" height="370" rx="14" fill="#161d35" stroke="rgba(91,138,245,0.55)" stroke-width="2"/>
+    <rect x="21" y="5" width="1058" height="6" rx="3" fill="#5b8af5" opacity="0.7"/>
+    <text x="40" y="26" fill="#5b8af5" font-size="13" font-weight="700" letter-spacing="3">USER-FACING APPS</text>
 
-    <!-- ===== CORE APP ===== -->
-    <rect x="420" y="120" width="260" height="48" rx="10" fill="rgba(91,138,245,0.08)" stroke="#5b8af5" stroke-width="1.2"/>
-    <text x="550" y="147" text-anchor="middle" fill="#5b8af5" font-size="13" font-weight="700">Core App</text>
-    <text x="550" y="161" text-anchor="middle" fill="#8b90a8" font-size="9">Authentication, Users, Dashboard, Tier Management</text>
+    <!-- Django Frontend -->
+    <rect x="380" y="36" width="340" height="52" rx="10" fill="rgba(91,138,245,0.06)" stroke="#5b8af5" stroke-width="1.5"/>
+    <text x="550" y="58" text-anchor="middle" fill="#5b8af5" font-size="14" font-weight="700">Django Frontend</text>
+    <text x="550" y="76" text-anchor="middle" fill="#8b90a8" font-size="10">HTMX + Alpine.js + Tailwind</text>
 
-    <!-- Arrows from Core to three apps -->
-    <line x1="460" y1="168" x2="220" y2="220" stroke="#4a4e68" stroke-width="1" marker-end="url(#arrow)"/>
-    <line x1="550" y1="168" x2="550" y2="220" stroke="#4a4e68" stroke-width="1.5" marker-end="url(#arrow)"/>
-    <line x1="640" y1="168" x2="880" y2="220" stroke="#4a4e68" stroke-width="1" marker-end="url(#arrow)"/>
+    <!-- Arrow down -->
+    <line x1="550" y1="88" x2="550" y2="108" stroke="#3d4260" stroke-width="1.5" marker-end="url(#arrow)"/>
 
-    <!-- ===== POSITIONING APP ===== -->
-    <rect x="80" y="220" width="260" height="90" rx="10" fill="rgba(78,203,141,0.06)" stroke="#4ecb8d" stroke-width="1.2"/>
-    <text x="210" y="248" text-anchor="middle" fill="#4ecb8d" font-size="14" font-weight="700">Positioning</text>
-    <text x="210" y="268" text-anchor="middle" fill="#8b90a8" font-size="10">ICP Definition</text>
-    <text x="210" y="284" text-anchor="middle" fill="#8b90a8" font-size="10">Transformation Analysis</text>
-    <text x="210" y="300" text-anchor="middle" fill="#8b90a8" font-size="10">Lead Magnet Concepts</text>
+    <!-- Core App -->
+    <rect x="400" y="108" width="300" height="42" rx="8" fill="rgba(91,138,245,0.04)" stroke="#5b8af5" stroke-width="1"/>
+    <text x="550" y="130" text-anchor="middle" fill="#5b8af5" font-size="12" font-weight="600">Core App</text>
+    <text x="550" y="143" text-anchor="middle" fill="#8b90a8" font-size="9">Auth &middot; Users &middot; Tiers &middot; Dashboard</text>
 
-    <!-- ===== MATCHING APP ===== -->
-    <rect x="400" y="220" width="300" height="110" rx="10" fill="rgba(168,123,245,0.06)" stroke="#a87bf5" stroke-width="1.2"/>
-    <text x="550" y="248" text-anchor="middle" fill="#a87bf5" font-size="14" font-weight="700">Matching Engine</text>
-    <text x="550" y="270" text-anchor="middle" fill="#8b90a8" font-size="10">ISMC Scoring: Intent 45% | Synergy 25% (embedding-based)</text>
-    <text x="550" y="286" text-anchor="middle" fill="#8b90a8" font-size="10">Momentum 20% | Context 10%</text>
-    <text x="550" y="306" text-anchor="middle" fill="#8b90a8" font-size="10">3,577 Profiles  |  Weighted Harmonic Mean</text>
-    <text x="550" y="322" text-anchor="middle" fill="#8b90a8" font-size="10">Member Reports & Access-Code Delivery</text>
+    <!-- Three branches down from Core -->
+    <line x1="460" y1="150" x2="210" y2="190" stroke="#3d4260" stroke-width="1" marker-end="url(#arrow)"/>
+    <line x1="550" y1="150" x2="550" y2="190" stroke="#3d4260" stroke-width="1.5" marker-end="url(#arrow)"/>
+    <line x1="640" y1="150" x2="890" y2="190" stroke="#3d4260" stroke-width="1" marker-end="url(#arrow)"/>
 
-    <!-- ===== OUTREACH APP ===== -->
-    <rect x="760" y="220" width="260" height="90" rx="10" fill="rgba(240,160,75,0.06)" stroke="#f0a04b" stroke-width="1.2"/>
-    <text x="890" y="248" text-anchor="middle" fill="#f0a04b" font-size="14" font-weight="700">Outreach</text>
-    <text x="890" y="268" text-anchor="middle" fill="#8b90a8" font-size="10">PVP Generation</text>
-    <text x="890" y="284" text-anchor="middle" fill="#8b90a8" font-size="10">Email Campaigns (Gmail/Outlook)</text>
-    <text x="890" y="300" text-anchor="middle" fill="#8b90a8" font-size="10">Multi-Step Sequences</text>
+    <!-- Positioning -->
+    <rect x="80" y="190" width="260" height="80" rx="10" fill="rgba(78,203,141,0.05)" stroke="#4ecb8d" stroke-width="1"/>
+    <text x="210" y="215" text-anchor="middle" fill="#4ecb8d" font-size="13" font-weight="700">Positioning</text>
+    <text x="210" y="234" text-anchor="middle" fill="#8b90a8" font-size="10">ICP Definition</text>
+    <text x="210" y="250" text-anchor="middle" fill="#8b90a8" font-size="10">Transformation Analysis</text>
+    <text x="210" y="262" text-anchor="middle" fill="#8b90a8" font-size="9">Lead Magnet Concepts</text>
 
-    <!-- Positioning feeds into Matching -->
-    <line x1="340" y1="265" x2="400" y2="265" stroke="#4ecb8d" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrow-green)"/>
-    <text x="370" y="258" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="500">ICP</text>
+    <!-- Matching Engine (center, largest) -->
+    <rect x="390" y="190" width="320" height="100" rx="10" fill="rgba(168,123,245,0.06)" stroke="#a87bf5" stroke-width="1.2"/>
+    <text x="550" y="215" text-anchor="middle" fill="#a87bf5" font-size="14" font-weight="700">Matching Engine</text>
+    <text x="550" y="234" text-anchor="middle" fill="#8b90a8" font-size="10">ISMC: Intent 45% | Synergy 25% | Momentum 20% | Context 10%</text>
+    <text x="550" y="252" text-anchor="middle" fill="#8b90a8" font-size="10">3,577 Profiles &middot; Embedding-based &middot; Harmonic Mean</text>
+    <text x="550" y="270" text-anchor="middle" fill="#8b90a8" font-size="10">Member Reports &middot; Access-Code Delivery</text>
+    <text x="550" y="284" text-anchor="middle" fill="#a87bf5" font-size="9" font-weight="500">Provenance-stamped data protection</text>
 
-    <!-- Matching feeds into Outreach -->
-    <line x1="700" y1="265" x2="760" y2="265" stroke="#a87bf5" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrow-purple)"/>
-    <text x="730" y="258" text-anchor="middle" fill="#a87bf5" font-size="9" font-weight="500">matches</text>
+    <!-- Outreach -->
+    <rect x="760" y="190" width="260" height="80" rx="10" fill="rgba(240,160,75,0.05)" stroke="#f0a04b" stroke-width="1"/>
+    <text x="890" y="215" text-anchor="middle" fill="#f0a04b" font-size="13" font-weight="700">Outreach</text>
+    <text x="890" y="234" text-anchor="middle" fill="#8b90a8" font-size="10">PVP Generation</text>
+    <text x="890" y="250" text-anchor="middle" fill="#8b90a8" font-size="10">Email Campaigns (Gmail/Outlook)</text>
+    <text x="890" y="262" text-anchor="middle" fill="#8b90a8" font-size="9">Multi-Step Sequences</text>
 
-    <!-- ===== PLAYBOOK APP ===== -->
-    <rect x="810" y="340" width="210" height="70" rx="10" fill="rgba(232,123,181,0.06)" stroke="#e87bb5" stroke-width="1.2"/>
-    <text x="915" y="368" text-anchor="middle" fill="#e87bb5" font-size="14" font-weight="700">Playbook</text>
-    <text x="915" y="388" text-anchor="middle" fill="#8b90a8" font-size="10">54-Step Launch Framework</text>
-    <text x="915" y="402" text-anchor="middle" fill="#8b90a8" font-size="10">Small / Medium / Large plans</text>
+    <!-- Positioning → Matching -->
+    <line x1="340" y1="230" x2="390" y2="230" stroke="#4ecb8d" stroke-width="1.2" marker-end="url(#arrow-green)"/>
+    <text x="365" y="224" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="500">ICP</text>
 
-    <!-- Outreach feeds playbook -->
-    <line x1="915" y1="310" x2="915" y2="340" stroke="#f0a04b" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arrow-orange)"/>
+    <!-- Matching → Outreach -->
+    <line x1="710" y1="230" x2="760" y2="230" stroke="#a87bf5" stroke-width="1.2" marker-end="url(#arrow-purple)"/>
+    <text x="735" y="224" text-anchor="middle" fill="#a87bf5" font-size="9" font-weight="500">matches</text>
 
-    <!-- ===== MEMBER REPORTS ===== -->
-    <rect x="80" y="345" width="230" height="50" rx="10" fill="rgba(78,203,141,0.06)" stroke="#4ecb8d" stroke-width="1.2"/>
-    <text x="195" y="367" text-anchor="middle" fill="#4ecb8d" font-size="13" font-weight="700">Member Reports</text>
-    <text x="195" y="383" text-anchor="middle" fill="#8b90a8" font-size="9">Code-gated | Live Profile Edit | Provenance</text>
+    <!-- Playbook (below Outreach) -->
+    <rect x="810" y="300" width="210" height="56" rx="10" fill="rgba(232,123,181,0.05)" stroke="#e87bb5" stroke-width="1"/>
+    <text x="915" y="322" text-anchor="middle" fill="#e87bb5" font-size="13" font-weight="700">Playbook</text>
+    <text x="915" y="340" text-anchor="middle" fill="#8b90a8" font-size="10">54-Step Launch Framework</text>
+    <text x="915" y="352" text-anchor="middle" fill="#8b90a8" font-size="9">Small / Medium / Large</text>
 
-    <!-- Matching feeds reports -->
-    <line x1="450" y1="330" x2="310" y2="355" stroke="#4ecb8d" stroke-width="1" stroke-dasharray="5,3" marker-end="url(#arrow-green)"/>
-    <text x="370" y="338" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="500">reports</text>
+    <!-- Outreach → Playbook -->
+    <line x1="915" y1="270" x2="915" y2="300" stroke="#f0a04b" stroke-width="1" marker-end="url(#arrow-orange)"/>
 
-    <!-- Arrow from enrichment up to matching (right side, clean path) -->
-    <path d="M 770 430 L 770 280 L 700 280" fill="none" stroke="#4ec8cb" stroke-width="1.5" marker-end="url(#arrow-cyan)" stroke-dasharray="5,3"/>
-    <rect x="720" y="370" width="106" height="18" rx="4" fill="var(--bg)"/>
-    <text x="773" y="383" text-anchor="middle" fill="#4ec8cb" font-size="9" font-weight="500">enriched profiles</text>
+    <!-- Member Reports (below Positioning) -->
+    <rect x="80" y="300" width="230" height="46" rx="10" fill="rgba(78,203,141,0.05)" stroke="#4ecb8d" stroke-width="1"/>
+    <text x="195" y="320" text-anchor="middle" fill="#4ecb8d" font-size="12" font-weight="600">Member Reports</text>
+    <text x="195" y="336" text-anchor="middle" fill="#8b90a8" font-size="9">Code-gated &middot; Live Edit &middot; Provenance</text>
 
-    <!-- CSV Import (input to pipeline, left side) -->
-    <rect x="80" y="410" width="110" height="40" rx="6" fill="#1a1d27" stroke="#555" stroke-width="1"/>
-    <text x="135" y="426" text-anchor="middle" fill="#8b90a8" font-size="10" font-weight="500">CSV Import</text>
-    <text x="135" y="440" text-anchor="middle" fill="#555" font-size="8">or Supabase pull</text>
-    <line x1="190" y1="430" x2="220" y2="460" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <!-- Matching → Reports -->
+    <line x1="450" y1="290" x2="310" y2="310" stroke="#4ecb8d" stroke-width="1" marker-end="url(#arrow-green)"/>
+    <text x="370" y="296" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="500">reports</text>
 
-    <!-- ===== ENRICHMENT PIPELINE section label ===== -->
-    <text x="530" y="420" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">ENRICHMENT PIPELINE</text>
 
-    <!-- Pipeline box -->
-    <rect x="210" y="430" width="570" height="200" rx="12" fill="rgba(78,200,203,0.03)" stroke="#4ec8cb" stroke-width="1.2" stroke-dasharray="6,4"/>
+    </g><!-- end zone: apps -->
 
-    <!-- Free steps row -->
-    <rect x="230" y="450" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
-    <text x="305" y="471" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">1. Website Scrape</text>
-    <text x="305" y="487" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
+    <g data-zone="pipeline">
+    <!-- Zone 2: Data Pipeline -->
+    <rect x="20" y="382" width="1060" height="270" rx="14" fill="#0f2228" stroke="rgba(78,200,203,0.55)" stroke-width="2"/>
+    <rect x="21" y="383" width="1058" height="6" rx="3" fill="#4ec8cb" opacity="0.7"/>
+    <text x="40" y="404" fill="#4ec8cb" font-size="13" font-weight="700" letter-spacing="3">DATA PIPELINE</text>
 
-    <rect x="400" y="450" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
-    <text x="475" y="471" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">2. LinkedIn</text>
-    <text x="475" y="487" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
+    <!-- CSV Import -->
+    <rect x="70" y="408" width="120" height="36" rx="6" fill="#1a1d27" stroke="#555" stroke-width="1"/>
+    <text x="130" y="424" text-anchor="middle" fill="#8b90a8" font-size="10" font-weight="500">CSV Import</text>
+    <text x="130" y="437" text-anchor="middle" fill="#555" font-size="8">or Supabase pull</text>
+    <line x1="190" y1="426" x2="228" y2="452" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
 
-    <rect x="570" y="450" width="150" height="48" rx="6" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
-    <text x="645" y="471" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">3. Email Domain</text>
-    <text x="645" y="487" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
+    <!-- Enrichment Pipeline container -->
+    <rect x="220" y="405" width="580" height="230" rx="12" fill="rgba(78,200,203,0.025)" stroke="#4ec8cb" stroke-width="1.2" stroke-dasharray="6,4"/>
+    <text x="510" y="422" text-anchor="middle" fill="#4ec8cb" font-size="10" font-weight="600" letter-spacing="2">ENRICHMENT PIPELINE</text>
 
-    <!-- Arrows between free steps -->
-    <line x1="380" y1="474" x2="400" y2="474" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
-    <line x1="550" y1="474" x2="570" y2="474" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <!-- Step 1: Free sources row -->
+    <rect x="240" y="438" width="160" height="44" rx="6" fill="rgba(78,203,141,0.08)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="320" y="457" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">Website Scrape</text>
+    <text x="320" y="472" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
 
-    <!-- "if gaps remain" label -->
-    <text x="475" y="517" text-anchor="middle" fill="#4ec8cb" font-size="9" font-style="italic">if gaps remain, escalate to paid sources</text>
+    <line x1="400" y1="460" x2="420" y2="460" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
 
-    <!-- Paid steps row -->
-    <rect x="240" y="529" width="155" height="48" rx="6" fill="rgba(240,160,75,0.1)" stroke="#f0a04b" stroke-width="0.8"/>
-    <text x="318" y="550" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="600">4. Apollo.io API</text>
-    <text x="318" y="566" text-anchor="middle" fill="#8b90a8" font-size="9">PAID  ~$0.002/search</text>
+    <rect x="420" y="438" width="160" height="44" rx="6" fill="rgba(78,203,141,0.08)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="500" y="457" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">LinkedIn Lookup</text>
+    <text x="500" y="472" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
 
-    <rect x="415" y="529" width="175" height="48" rx="6" fill="rgba(240,107,107,0.1)" stroke="#f06b6b" stroke-width="0.8"/>
-    <text x="503" y="550" text-anchor="middle" fill="#f06b6b" font-size="11" font-weight="600">5. OWL Deep Research</text>
-    <text x="503" y="566" text-anchor="middle" fill="#8b90a8" font-size="9">HIGH-PRIORITY ONLY</text>
+    <line x1="580" y1="460" x2="600" y2="460" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
 
-    <rect x="610" y="529" width="150" height="48" rx="6" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
-    <text x="685" y="550" text-anchor="middle" fill="#a87bf5" font-size="11" font-weight="600">Exa.ai Research</text>
-    <text x="685" y="566" text-anchor="middle" fill="#8b90a8" font-size="9">Neural Search · Priority 50</text>
+    <rect x="600" y="438" width="160" height="44" rx="6" fill="rgba(78,203,141,0.08)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="680" y="457" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">Email Domain</text>
+    <text x="680" y="472" text-anchor="middle" fill="#8b90a8" font-size="9">FREE</text>
 
-    <!-- Down arrows from free to paid -->
-    <path d="M 318 498 L 318 529" fill="none" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
-    <path d="M 503 498 L 503 529" fill="none" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <!-- "if gaps remain" -->
+    <text x="510" y="502" text-anchor="middle" fill="#4ec8cb" font-size="9" font-style="italic">if gaps remain, escalate to paid</text>
 
-    <!-- Verification row -->
-    <rect x="240" y="593" width="180" height="28" rx="5" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
-    <text x="330" y="612" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Confidence Scorer + Provenance</text>
+    <!-- Step 2: Paid sources row -->
+    <rect x="248" y="515" width="155" height="44" rx="6" fill="rgba(240,160,75,0.08)" stroke="#f0a04b" stroke-width="0.8"/>
+    <text x="325" y="534" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="600">Apollo.io API</text>
+    <text x="325" y="549" text-anchor="middle" fill="#8b90a8" font-size="9">~$0.002/search</text>
 
-    <rect x="440" y="593" width="180" height="28" rx="5" fill="rgba(168,123,245,0.1)" stroke="#a87bf5" stroke-width="0.8"/>
-    <text x="530" y="612" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Verification Gate (5 agents)</text>
+    <rect x="420" y="515" width="175" height="44" rx="6" fill="rgba(240,107,107,0.08)" stroke="#f06b6b" stroke-width="0.8"/>
+    <text x="508" y="534" text-anchor="middle" fill="#f06b6b" font-size="11" font-weight="600">OWL Deep Research</text>
+    <text x="508" y="549" text-anchor="middle" fill="#8b90a8" font-size="9">HIGH-PRIORITY ONLY</text>
 
-    <!-- TextSanitizer (4-layer QA) -->
-    <rect x="640" y="593" width="120" height="28" rx="5" fill="rgba(78,203,141,0.1)" stroke="#4ecb8d" stroke-width="0.8"/>
-    <text x="700" y="612" text-anchor="middle" fill="#4ecb8d" font-size="10" font-weight="500">TextSanitizer (QA)</text>
+    <rect x="612" y="515" width="165" height="44" rx="6" fill="rgba(168,123,245,0.08)" stroke="#a87bf5" stroke-width="0.8"/>
+    <text x="694" y="534" text-anchor="middle" fill="#a87bf5" font-size="11" font-weight="600">Exa.ai Research</text>
+    <text x="694" y="549" text-anchor="middle" fill="#8b90a8" font-size="9">Neural Search</text>
 
-    <!-- Prefect Orchestration bar -->
-    <rect x="210" y="635" width="570" height="22" rx="4" fill="rgba(240,160,75,0.05)" stroke="#f0a04b" stroke-width="0.8" stroke-dasharray="3,2"/>
-    <text x="495" y="650" text-anchor="middle" fill="#f0a04b" font-size="9" font-weight="500">Prefect Orchestration &mdash; 27 flows, monthly orchestrator, retry subflows, cost tracking</text>
+    <!-- Down arrows free→paid -->
+    <path d="M 325 482 L 325 515" fill="none" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <path d="M 508 482 L 508 515" fill="none" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
 
-    <!-- Arrows from paid to verification -->
-    <line x1="318" y1="577" x2="330" y2="593" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
-    <line x1="503" y1="577" x2="530" y2="593" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <!-- Step 3: Verification row -->
+    <rect x="248" y="575" width="180" height="26" rx="5" fill="rgba(168,123,245,0.08)" stroke="#a87bf5" stroke-width="0.8"/>
+    <text x="338" y="592" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Confidence + Provenance</text>
 
-    <!-- ===== DATA LAYER ===== -->
-    <text x="550" y="670" text-anchor="middle" fill="#555" font-size="11" font-weight="600" letter-spacing="3">DATA & EXTERNAL SERVICES</text>
+    <rect x="445" y="575" width="180" height="26" rx="5" fill="rgba(168,123,245,0.08)" stroke="#a87bf5" stroke-width="0.8"/>
+    <text x="535" y="592" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="500">Verification (5 agents)</text>
 
-    <!-- Supabase -->
-    <rect x="60" y="690" width="180" height="54" rx="8" fill="#1a1d27" stroke="#4ecb8d" stroke-width="1"/>
-    <text x="150" y="714" text-anchor="middle" fill="#4ecb8d" font-size="12" font-weight="600">Supabase PostgreSQL</text>
-    <text x="150" y="732" text-anchor="middle" fill="#8b90a8" font-size="9">3,577 profiles, matches</text>
+    <rect x="642" y="575" width="135" height="26" rx="5" fill="rgba(78,203,141,0.08)" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="710" y="592" text-anchor="middle" fill="#4ecb8d" font-size="10" font-weight="500">TextSanitizer (QA)</text>
 
-    <!-- Claude/OpenRouter -->
-    <rect x="270" y="690" width="180" height="54" rx="8" fill="#1a1d27" stroke="#a87bf5" stroke-width="1"/>
-    <text x="360" y="714" text-anchor="middle" fill="#a87bf5" font-size="12" font-weight="600">Claude Sonnet</text>
-    <text x="360" y="732" text-anchor="middle" fill="#8b90a8" font-size="9">via OpenRouter / Anthropic</text>
+    <!-- Arrows paid→verification -->
+    <line x1="325" y1="559" x2="338" y2="575" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
+    <line x1="508" y1="559" x2="535" y2="575" stroke="#4ec8cb" stroke-width="1" marker-end="url(#arrow-cyan)"/>
 
-    <!-- Apollo -->
-    <rect x="480" y="690" width="140" height="54" rx="8" fill="#1a1d27" stroke="#f0a04b" stroke-width="1"/>
-    <text x="550" y="714" text-anchor="middle" fill="#f0a04b" font-size="12" font-weight="600">Apollo.io</text>
-    <text x="550" y="732" text-anchor="middle" fill="#8b90a8" font-size="9">Email enrichment</text>
+    <!-- Prefect bar -->
+    <rect x="220" y="613" width="580" height="22" rx="4" fill="rgba(240,160,75,0.04)" stroke="#f0a04b" stroke-width="0.6" stroke-dasharray="3,2"/>
+    <text x="510" y="628" text-anchor="middle" fill="#f0a04b" font-size="9" font-weight="500">Prefect Orchestration &mdash; 27 flows &middot; monthly cycle &middot; retry &middot; cost tracking</text>
 
-    <!-- Tavily + DDG -->
-    <rect x="650" y="690" width="140" height="54" rx="8" fill="#1a1d27" stroke="#4ec8cb" stroke-width="1"/>
-    <text x="720" y="714" text-anchor="middle" fill="#4ec8cb" font-size="12" font-weight="600">Tavily + DDG</text>
-    <text x="720" y="732" text-anchor="middle" fill="#8b90a8" font-size="9">Web search</text>
+    <!-- Enrichment → Matching (right side path going up) -->
+    <path d="M 790 500 L 790 250 L 710 250" fill="none" stroke="#4ec8cb" stroke-width="1.5" marker-end="url(#arrow-cyan)" stroke-dasharray="5,3"/>
+    <rect x="745" y="370" width="100" height="16" rx="4" fill="var(--bg)"/>
+    <text x="795" y="381" text-anchor="middle" fill="#4ec8cb" font-size="9" font-weight="500">enriched profiles</text>
 
-    <!-- Gmail/Outlook -->
-    <rect x="820" y="690" width="160" height="54" rx="8" fill="#1a1d27" stroke="#f0a04b" stroke-width="1"/>
-    <text x="900" y="714" text-anchor="middle" fill="#f0a04b" font-size="12" font-weight="600">Gmail / Outlook</text>
-    <text x="900" y="732" text-anchor="middle" fill="#8b90a8" font-size="9">OAuth email sending</text>
 
-    <!-- Connection lines from services up (subtle) -->
-    <line x1="150" y1="690" x2="330" y2="621" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <line x1="360" y1="690" x2="400" y2="621" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <line x1="550" y1="690" x2="318" y2="577" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <line x1="720" y1="690" x2="530" y2="621" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
-    <line x1="900" y1="690" x2="890" y2="310" stroke="#2d3148" stroke-width="0.8" stroke-dasharray="3,3"/>
+    </g><!-- end zone: pipeline -->
 
-    <!-- Scale callout -->
-    <rect x="700" y="790" width="300" height="50" rx="10" fill="rgba(240,160,75,0.06)" stroke="#f0a04b" stroke-width="0.8" stroke-dasharray="4,3"/>
-    <text x="850" y="812" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="500">Scale trigger: >500 profiles/month</text>
-    <text x="850" y="830" text-anchor="middle" fill="#8b90a8" font-size="9">Vast.ai GPU rental — $0.75/hr — 90% cost reduction</text>
+    <g data-zone="services">
+    <!-- Zone 3: External Services -->
+    <rect x="20" y="658" width="1060" height="88" rx="14" fill="#1a1b24" stroke="rgba(139,144,168,0.45)" stroke-width="2"/>
+    <rect x="21" y="659" width="1058" height="6" rx="3" fill="#8b90a8" opacity="0.5"/>
+    <text x="40" y="678" fill="#8b90a8" font-size="13" font-weight="700" letter-spacing="3">EXTERNAL SERVICES</text>
+
+    <!-- Services row — evenly spaced -->
+    <rect x="50" y="682" width="170" height="48" rx="8" fill="#1a1d27" stroke="#4ecb8d" stroke-width="0.8"/>
+    <text x="135" y="703" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">Supabase PostgreSQL</text>
+    <text x="135" y="720" text-anchor="middle" fill="#8b90a8" font-size="9">3,577 profiles</text>
+
+    <rect x="240" y="682" width="170" height="48" rx="8" fill="#1a1d27" stroke="#a87bf5" stroke-width="0.8"/>
+    <text x="325" y="703" text-anchor="middle" fill="#a87bf5" font-size="11" font-weight="600">Claude Sonnet</text>
+    <text x="325" y="720" text-anchor="middle" fill="#8b90a8" font-size="9">OpenRouter / Anthropic</text>
+
+    <rect x="430" y="682" width="140" height="48" rx="8" fill="#1a1d27" stroke="#f0a04b" stroke-width="0.8"/>
+    <text x="500" y="703" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="600">Apollo.io</text>
+    <text x="500" y="720" text-anchor="middle" fill="#8b90a8" font-size="9">Email enrichment</text>
+
+    <rect x="590" y="682" width="140" height="48" rx="8" fill="#1a1d27" stroke="#4ec8cb" stroke-width="0.8"/>
+    <text x="660" y="703" text-anchor="middle" fill="#4ec8cb" font-size="11" font-weight="600">Tavily + DDG</text>
+    <text x="660" y="720" text-anchor="middle" fill="#8b90a8" font-size="9">Web search</text>
+
+    <rect x="750" y="682" width="170" height="48" rx="8" fill="#1a1d27" stroke="#f0a04b" stroke-width="0.8"/>
+    <text x="835" y="703" text-anchor="middle" fill="#f0a04b" font-size="11" font-weight="600">Gmail / Outlook</text>
+    <text x="835" y="720" text-anchor="middle" fill="#8b90a8" font-size="9">OAuth email sending</text>
+
+    <!-- Subtle connection lines from services up -->
+    <line x1="135" y1="682" x2="338" y2="601" stroke="#1e2133" stroke-width="0.6" stroke-dasharray="3,3"/>
+    <line x1="325" y1="682" x2="400" y2="601" stroke="#1e2133" stroke-width="0.6" stroke-dasharray="3,3"/>
+    <line x1="500" y1="682" x2="325" y2="559" stroke="#1e2133" stroke-width="0.6" stroke-dasharray="3,3"/>
+    <line x1="660" y1="682" x2="535" y2="601" stroke="#1e2133" stroke-width="0.6" stroke-dasharray="3,3"/>
+    <line x1="835" y1="682" x2="890" y2="270" stroke="#1e2133" stroke-width="0.6" stroke-dasharray="3,3"/>
+
+
+    </g><!-- end zone: services -->
+
+    <g data-zone="sourcing">
+    <!-- Zone 4: Autonomous Sourcing Loop -->
+    <rect x="20" y="754" width="1060" height="420" rx="14" fill="#0f221a" stroke="rgba(78,203,141,0.55)" stroke-width="2"/>
+    <rect x="21" y="755" width="1058" height="6" rx="3" fill="#4ecb8d" opacity="0.7"/>
+    <text x="40" y="776" fill="#4ecb8d" font-size="13" font-weight="700" letter-spacing="3">AUTONOMOUS SOURCING LOOP</text>
+
+    <!-- ── STEP A: Analyze ── -->
+    <text x="110" y="802" fill="#4ecb8d" font-size="9" font-weight="700" letter-spacing="1.5" opacity="0.6">ANALYZE</text>
+
+    <!-- Market Intelligence -->
+    <rect x="70" y="812" width="200" height="60" rx="8" fill="rgba(78,203,141,0.06)" stroke="#4ecb8d" stroke-width="1.2"/>
+    <circle cx="88" cy="832" r="10" fill="#4ecb8d" opacity="0.15"/>
+    <text x="88" y="836" text-anchor="middle" fill="#4ecb8d" font-size="10" font-weight="700">1</text>
+    <text x="180" y="836" text-anchor="middle" fill="#4ecb8d" font-size="12" font-weight="700">Market Intelligence</text>
+    <text x="170" y="855" text-anchor="middle" fill="#8b90a8" font-size="8">Niche normalization &middot; supply-demand gaps</text>
+
+    <!-- Arrow: Market Intelligence → Gap Scoring -->
+    <line x1="270" y1="842" x2="310" y2="842" stroke="#4ecb8d" stroke-width="1.5" marker-end="url(#arrow-green)"/>
+
+    <!-- Gap Scoring -->
+    <rect x="310" y="812" width="200" height="60" rx="8" fill="rgba(78,200,203,0.06)" stroke="#4ec8cb" stroke-width="1.2"/>
+    <circle cx="328" cy="832" r="10" fill="#4ec8cb" opacity="0.15"/>
+    <text x="328" y="836" text-anchor="middle" fill="#4ec8cb" font-size="10" font-weight="700">2</text>
+    <text x="420" y="836" text-anchor="middle" fill="#4ec8cb" font-size="12" font-weight="700">Gap Scoring</text>
+    <text x="410" y="855" text-anchor="middle" fill="#8b90a8" font-size="8">Score scrapers against uncovered gaps</text>
+
+    <!-- Arrow: Gap Scoring → Scraper Selection -->
+    <line x1="510" y1="842" x2="550" y2="842" stroke="#4ec8cb" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+
+    <!-- Scraper Selection (decision node) -->
+    <rect x="550" y="808" width="230" height="68" rx="8" fill="rgba(168,130,255,0.06)" stroke="#a87bf5" stroke-width="1.2"/>
+    <circle cx="568" cy="832" r="10" fill="#a87bf5" opacity="0.15"/>
+    <text x="568" y="836" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="700">3</text>
+    <text x="675" y="832" text-anchor="middle" fill="#a87bf5" font-size="12" font-weight="700">Scraper Selection</text>
+    <text x="665" y="849" text-anchor="middle" fill="#8b90a8" font-size="8">3-tier: Existing (35+) &rarr; AI-gen &rarr; Template</text>
+    <text x="665" y="864" text-anchor="middle" fill="#a87bf5" font-size="8" font-weight="500">picks best scrapers to fill gaps</text>
+
+    <!-- Enrichment Pipeline → Market Intelligence (data feed) -->
+    <path d="M 300 635 L 170 812" fill="none" stroke="#4ecb8d" stroke-width="1.2" stroke-dasharray="5,3" marker-end="url(#arrow-green)"/>
+    <rect x="205" y="715" width="68" height="15" rx="3" fill="var(--bg)"/>
+    <text x="239" y="725" text-anchor="middle" fill="#4ecb8d" font-size="8" font-weight="500">enriched data</text>
+
+    <!-- Scale trigger -->
+    <rect x="820" y="812" width="210" height="42" rx="8" fill="rgba(240,160,75,0.03)" stroke="#f0a04b" stroke-width="0.5" stroke-dasharray="4,3"/>
+    <text x="925" y="830" text-anchor="middle" fill="#f0a04b" font-size="9" font-weight="500">Scale: &gt;500/month</text>
+    <text x="925" y="844" text-anchor="middle" fill="#8b90a8" font-size="8">Vast.ai &mdash; $0.75/hr &mdash; 90% savings</text>
+
+    <!-- ── STEP B: Execute ── -->
+    <text x="110" y="908" fill="#4ec8cb" font-size="9" font-weight="700" letter-spacing="1.5" opacity="0.6">EXECUTE</text>
+
+    <!-- Two paths from Scraper Selection -->
+
+    <!-- PATH A: Existing scrapers (LEFT) — L-shaped route to Run Scrapers -->
+    <path d="M 600 876 L 600 898 L 260 898 L 260 920" fill="none" stroke="#4ec8cb" stroke-width="1.5" marker-end="url(#arrow-cyan)"/>
+    <rect x="370" y="889" width="120" height="16" rx="4" fill="var(--bg)"/>
+    <text x="430" y="900" text-anchor="middle" fill="#4ec8cb" font-size="9" font-weight="600">existing scrapers</text>
+
+    <!-- PATH B: Uncovered gaps (RIGHT) — straight down to AI Generator -->
+    <path d="M 720 876 L 720 920" fill="none" stroke="#a87bf5" stroke-width="1.5" marker-end="url(#arrow-purple)"/>
+    <rect x="730" y="888" width="100" height="16" rx="4" fill="var(--bg)"/>
+    <text x="780" y="900" text-anchor="middle" fill="#a87bf5" font-size="9" font-weight="600">uncovered gaps</text>
+
+    <!-- Run Scrapers -->
+    <rect x="110" y="920" width="300" height="56" rx="8" fill="rgba(78,200,203,0.06)" stroke="#4ec8cb" stroke-width="1.2"/>
+    <circle cx="132" cy="942" r="10" fill="#4ec8cb" opacity="0.15"/>
+    <text x="132" y="946" text-anchor="middle" fill="#4ec8cb" font-size="10" font-weight="700">4</text>
+    <text x="275" y="942" text-anchor="middle" fill="#4ec8cb" font-size="12" font-weight="700">Run Scrapers</text>
+    <text x="275" y="960" text-anchor="middle" fill="#8b90a8" font-size="9">Collect contacts &rarr; enrichment pipeline</text>
+
+    <!-- AI Scraper Generator -->
+    <rect x="570" y="920" width="300" height="60" rx="8" fill="rgba(168,130,255,0.04)" stroke="#a87bf5" stroke-width="0.8" stroke-dasharray="4,3"/>
+    <circle cx="592" cy="942" r="10" fill="#a87bf5" opacity="0.12"/>
+    <text x="592" y="946" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="700">5</text>
+    <text x="735" y="940" text-anchor="middle" fill="#a87bf5" font-size="11" font-weight="600">AI Scraper Generator</text>
+    <text x="720" y="956" text-anchor="middle" fill="#8b90a8" font-size="8">Fetch site &rarr; Claude &rarr; Generate &rarr; Validate &rarr; Smoke test</text>
+    <text x="720" y="970" text-anchor="middle" fill="#8b90a8" font-size="8">21 curated potential sources</text>
+
+    <!-- AI Generator → Run Scrapers (horizontal, labeled) -->
+    <path d="M 570 955 L 410 955" fill="none" stroke="#a87bf5" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-purple)"/>
+    <rect x="450" y="947" width="85" height="16" rx="4" fill="var(--bg)"/>
+    <text x="492" y="958" text-anchor="middle" fill="#a87bf5" font-size="9" font-weight="500">new scrapers</text>
+
+    <!-- ── FEEDBACK LOOP ── -->
+    <!-- Run Scrapers → back up to Enrichment Pipeline (left edge) -->
+    <path d="M 110 948 L 42 948 L 42 560 L 150 545" fill="none" stroke="#4ec8cb" stroke-width="1.8" stroke-dasharray="6,3" marker-end="url(#arrow-cyan)"/>
+    <rect x="22" y="755" width="42" height="20" rx="5" fill="var(--bg)" stroke="#4ec8cb" stroke-width="0.5"/>
+    <text x="43" y="768" text-anchor="middle" fill="#4ec8cb" font-size="8" font-weight="700">&#x21BB; loop</text>
+
+    <!-- ── STEP C: Report ── -->
+    <text x="110" y="1016" fill="#e87bb5" font-size="9" font-weight="700" letter-spacing="1.5" opacity="0.6">REPORT</text>
+
+    <!-- Admin Notification -->
+    <rect x="70" y="1026" width="420" height="40" rx="8" fill="rgba(232,123,181,0.04)" stroke="#e87bb5" stroke-width="0.8"/>
+    <circle cx="92" cy="1046" r="10" fill="#e87bb5" opacity="0.12"/>
+    <text x="92" y="1050" text-anchor="middle" fill="#e87bb5" font-size="10" font-weight="700">6</text>
+    <text x="300" y="1042" text-anchor="middle" fill="#e87bb5" font-size="11" font-weight="600">Admin Notification</text>
+    <text x="300" y="1058" text-anchor="middle" fill="#8b90a8" font-size="8">AI digest &middot; gap report &middot; sourcing actions &middot; market opportunities</text>
+
+    <!-- Market Intelligence → Admin Notification -->
+    <path d="M 170 872 L 170 1026" fill="none" stroke="#4ecb8d" stroke-width="0.8" stroke-dasharray="5,3" marker-end="url(#arrow-green)"/>
+    <rect x="142" y="993" width="56" height="14" rx="3" fill="var(--bg)"/>
+    <text x="170" y="1003" text-anchor="middle" fill="#4ecb8d" font-size="7" font-weight="500">reporting</text>
+
+    <!-- Shadow Scoring -->
+    <rect x="570" y="1026" width="300" height="40" rx="8" fill="rgba(168,130,255,0.03)" stroke="#a87bf5" stroke-width="0.6" stroke-dasharray="4,3"/>
+    <circle cx="592" cy="1046" r="10" fill="#a87bf5" opacity="0.1"/>
+    <text x="592" y="1050" text-anchor="middle" fill="#a87bf5" font-size="10" font-weight="700">7</text>
+    <text x="735" y="1042" text-anchor="middle" fill="#a87bf5" font-size="11" font-weight="600">Shadow Scoring A/B Framework</text>
+    <text x="720" y="1058" text-anchor="middle" fill="#8b90a8" font-size="8">Dual scoring &middot; outcome metrics &middot; feedback gated</text>
+
+    <!-- Shadow Scoring → Matching (connection up) -->
+    <path d="M 870 1026 L 870 960 L 950 960 L 950 280 L 710 280" fill="none" stroke="#a87bf5" stroke-width="0.6" stroke-dasharray="4,3" marker-end="url(#arrow-purple)"/>
+    <rect x="910" y="610" width="80" height="14" rx="3" fill="var(--bg)"/>
+    <text x="950" y="620" text-anchor="middle" fill="#a87bf5" font-size="7" font-weight="400">A/B results</text>
+
+    </g><!-- end zone: sourcing -->
+
   </svg>
 </div>
 
@@ -3978,11 +4244,304 @@
   </div>
 </div>
 
+<!-- ===== FAQ ===== -->
+<div id="view-faq" class="view">
+  <div style="max-width:900px;margin:0 auto">
+    <h2 style="font-size:28px;font-weight:800;margin-bottom:8px;letter-spacing:-0.5px">Frequently Asked <span style="color:var(--accent-blue)">Questions</span></h2>
+    <p style="color:var(--text-dim);margin-bottom:32px;font-size:15px;line-height:1.6">Common questions about how the JV Matchmaker Platform works, keeps data fresh, and scales.</p>
+
+    <div class="faq-list">
+
+      <details class="faq-item">
+        <summary class="faq-q">How does the platform keep 1M+ contacts accurate over time?</summary>
+        <div class="faq-a">
+          <p>The platform runs <strong>automated monthly refresh cycles</strong> orchestrated by Prefect. Every month, a calendar-driven orchestrator dispatches five phases:</p>
+          <ol>
+            <li><strong>Week 1</strong> &mdash; Change detection scans all profiles for data drift using content hashes</li>
+            <li><strong>Week 3</strong> &mdash; Client verification emails confirm key profile fields with signed-up members</li>
+            <li><strong>Week 4</strong> &mdash; Full re-enrichment pipeline flags stale (&gt;29 days) and low-confidence (&lt;0.5) profiles, re-researches them via AI, and rescores all matches</li>
+            <li><strong>Week 4 Tue</strong> &mdash; Admin notification delivers an AI-generated digest of changes</li>
+            <li><strong>1st of month</strong> &mdash; Fresh reports with new access codes are delivered to members</li>
+          </ol>
+          <p>Each field has its own <strong>exponential confidence decay rate</strong> &mdash; fast-changing fields like &ldquo;seeking&rdquo; decay in 30 days, while stable fields like &ldquo;name&rdquo; decay over 365 days. This means the system surgically identifies <em>which fields</em> are stale, not just which profiles.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Are signed-up members prioritized for data freshness?</summary>
+        <div class="faq-a">
+          <p><strong>Yes.</strong> The re-enrichment queue sorts members first. When the monthly processing flow flags profiles for refresh, it uses a two-level sort:</p>
+          <ol>
+            <li><strong>Member status</strong> &mdash; Profiles with <code>status = 'Member'</code> are placed at the front of the queue</li>
+            <li><strong>Confidence score</strong> &mdash; Within each group, lowest-confidence profiles are enriched first</li>
+          </ol>
+          <p>This ensures that paying members always get freshened data before prospects or non-member resources, even when the system is processing thousands of stale profiles.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">What does the enrichment cost for 3,500 active members?</summary>
+        <div class="faq-a">
+          <p>At the current scale of ~3,500 active member profiles, monthly enrichment costs are <strong>low</strong> because:</p>
+          <ul>
+            <li>Only profiles whose confidence has decayed below threshold are re-enriched &mdash; not all 3,500 every cycle</li>
+            <li>The 29-day stale window means roughly 1/4 of profiles need refresh per month</li>
+            <li>AI research uses Claude via OpenRouter at competitive per-token pricing</li>
+            <li>Each run tracks cost via <code>MonthlyProcessingResult.total_cost</code></li>
+          </ul>
+          <p>At full scale (800K+ contacts), costs are <strong>TBD</strong>. The <code>v2.0/docs/planning/VAST_AI_INTEGRATION.md</code> plan outlines a path to 90%+ cost reduction using self-hosted open-source models on Vast.ai when monthly AI costs exceed $150.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">How does the ISMC scoring system work?</summary>
+        <div class="faq-a">
+          <p>ISMC stands for <strong>Ideal Strategic Match Criteria</strong>. It evaluates JV partner compatibility across 25 weighted factors grouped into categories:</p>
+          <ul>
+            <li><strong>Audience alignment</strong> &mdash; list size, niche overlap, audience engagement</li>
+            <li><strong>Business fit</strong> &mdash; revenue tier, offering complementarity, what they do</li>
+            <li><strong>Partnership readiness</strong> &mdash; JV history, content platforms, seeking/offering match</li>
+            <li><strong>Strategic value</strong> &mdash; network centrality, brand authority, growth trajectory</li>
+          </ul>
+          <p>Each factor is scored 0&ndash;100, then weighted and aggregated. Matches scoring above the tier threshold (currently 64) are surfaced in member reports. The scoring engine runs after every enrichment cycle to keep recommendations current.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Where does the partner data come from?</summary>
+        <div class="faq-a">
+          <p>The platform combines <strong>35+ automated scrapers</strong> with AI enrichment:</p>
+          <ul>
+            <li><strong>Public registries</strong> &mdash; BBB (5.4M businesses), Clutch (373K agencies), IRS business leagues (128K), SAM.gov awards</li>
+            <li><strong>Review platforms</strong> &mdash; Trustpilot (200K+ with real emails/phones), G2, Capterra</li>
+            <li><strong>Government APIs</strong> &mdash; USAspending (18.2M recipients), FDIC, EPA ECHO, FDA, Grants.gov, SEC EDGAR</li>
+            <li><strong>Tech ecosystems</strong> &mdash; Shopify Partners, HubSpot Partners, Salesforce AppExchange, AWS Marketplace</li>
+            <li><strong>VC portfolios</strong> &mdash; Y Combinator, a16z, Sequoia, Techstars, and more</li>
+          </ul>
+          <p>After collection, contacts go through merge/dedup (reducing 908K raw to 828K unique), then AI enrichment adds business context, validates data, and computes confidence scores.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">How does the source priority system prevent bad data from overwriting good data?</summary>
+        <div class="faq-a">
+          <p>Every data field carries a <strong>source tag and priority level</strong>:</p>
+          <table style="width:100%;margin:12px 0;font-size:13px;border-collapse:collapse">
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>client_confirmed</strong></td><td style="padding:6px">Priority 100</td><td style="padding:6px;color:var(--text-dim)">Member verified their own data</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>client_ingest</strong></td><td style="padding:6px">Priority 90</td><td style="padding:6px;color:var(--text-dim)">Data from member sign-up form</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>manual_edit</strong></td><td style="padding:6px">Priority 80</td><td style="padding:6px;color:var(--text-dim)">Admin manual correction</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>exa_research</strong></td><td style="padding:6px">Priority 50</td><td style="padding:6px;color:var(--text-dim)">Exa web search results</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>ai_research</strong></td><td style="padding:6px">Priority 40</td><td style="padding:6px;color:var(--text-dim)">Claude AI extraction</td></tr>
+            <tr><td style="padding:6px 12px"><strong>apollo</strong></td><td style="padding:6px">Priority 30</td><td style="padding:6px;color:var(--text-dim)">Apollo.io enrichment</td></tr>
+          </table>
+          <p>During re-enrichment, a lower-priority source <strong>cannot overwrite</strong> a higher-priority value. This means if a member confirmed their email, no scraper or AI process can replace it.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">What happens when retirements, closures, or business changes occur?</summary>
+        <div class="faq-a">
+          <p>Multiple mechanisms catch these changes:</p>
+          <ul>
+            <li><strong>Content hash detection</strong> (Week 1) &mdash; compares current profile data against stored hashes to flag any drift</li>
+            <li><strong>Confidence decay</strong> &mdash; unverified data naturally loses confidence over time, triggering re-research</li>
+            <li><strong>AI re-enrichment</strong> (Week 4) &mdash; when a profile is re-researched, the AI pipeline checks the company&rsquo;s current website, LinkedIn, and public records. If a business is closed, the research will surface that</li>
+            <li><strong>Client verification</strong> (Week 3) &mdash; signed-up members receive verification emails to confirm or update their own data</li>
+            <li><strong>Inactive exclusion</strong> &mdash; profiles marked <code>status='Inactive'</code> are excluded from enrichment queues and match recommendations</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">How is the monthly cycle orchestrated?</summary>
+        <div class="faq-a">
+          <p>The platform uses <strong>Prefect 3.x</strong> for workflow orchestration with 5 scheduled deployments defined in <code>prefect.yaml</code>:</p>
+          <table style="width:100%;margin:12px 0;font-size:13px;border-collapse:collapse">
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px;font-weight:600">1st of month, 6 AM</td><td style="padding:6px">Monthly Orchestrator auto-detects which phase to run</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px;font-weight:600">Week 1 Monday, 2 AM</td><td style="padding:6px">Change detection &mdash; profile freshness check</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px;font-weight:600">Week 3 Mon/Wed/Fri, 9 AM</td><td style="padding:6px">Client verification &mdash; escalating confirmation emails</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px;font-weight:600">Week 4 Monday, 2 AM</td><td style="padding:6px">Full processing &mdash; re-enrich, rescore, gap detect, acquire, generate reports</td></tr>
+            <tr><td style="padding:6px 12px;font-weight:600">Week 4 Tuesday, 9 AM</td><td style="padding:6px">Admin notification &mdash; AI digest with suggestions</td></tr>
+          </table>
+          <p>All schedules are in <strong>Eastern Time</strong>. The orchestrator can also be triggered manually with phase overrides via CLI.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">Can the system scale to enrich all 800K+ contacts?</summary>
+        <div class="faq-a">
+          <p>The current architecture is designed for the ~3,500 active member profiles. For full-scale enrichment of all 800K+ contacts:</p>
+          <ul>
+            <li><strong>Tiered selection</strong> ensures the highest-value profiles are enriched first (members &rarr; high list-size prospects &rarr; others)</li>
+            <li><strong>Cost trigger</strong> &mdash; when monthly AI costs exceed $150 or volume exceeds 500 profiles/month, the platform can switch to self-hosted models via Vast.ai for 90%+ cost reduction</li>
+            <li><strong>Batch processing</strong> &mdash; the enrichment flow processes profiles in configurable batch sizes with rate limiting</li>
+            <li><strong>Gap-driven sourcing</strong> &mdash; rather than enriching everything, the system identifies which client gaps need new partners and targets sourcing accordingly</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">What anti-hallucination measures are in place for AI-enriched data?</summary>
+        <div class="faq-a">
+          <p>Multiple layers prevent AI hallucination:</p>
+          <ul>
+            <li><strong>Source citations required</strong> &mdash; every AI-extracted data point must include its source URL or reference</li>
+            <li><strong>Cross-validation</strong> &mdash; data confirmed by 2+ independent sources gets a confidence boost (+0.10 for 2 sources, +0.20 for 3+)</li>
+            <li><strong>AI verification step</strong> &mdash; a separate verification task checks AI research output against the original source material</li>
+            <li><strong>Source-based confidence</strong> &mdash; AI inference starts at 0.50 base confidence vs. 0.95 for Apollo-verified data</li>
+            <li><strong>Human override</strong> &mdash; client-confirmed and manual-edit data always takes priority over any AI source</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">What is the standard client profile template?</summary>
+        <div class="faq-a">
+          <p>Every client profile must meet a <strong>production standard</strong> before going live. The gold standard reference is the Next Level DeFi profile. Required sections:</p>
+          <ul>
+            <li><strong>Client Card</strong> &mdash; Real person name (2+ words), company, title</li>
+            <li><strong>The Offer</strong> &mdash; Program name (not just the person's name), program focus (not generic "Business Growth"), target audience (specific), network reach (real number)</li>
+            <li><strong>About Section</strong> &mdash; Minimum 2 sentences of real bio content, not auto-generated placeholders</li>
+            <li><strong>Credentials</strong> &mdash; At least 2 items, no truncated text</li>
+            <li><strong>Seeking Goals</strong> &mdash; At least 1 JV partnership goal</li>
+            <li><strong>Contact Info</strong> &mdash; Email or booking link must exist</li>
+          </ul>
+          <p>Recommended sections that improve the production score:</p>
+          <ul>
+            <li><strong>Partnership Metrics</strong> &mdash; Commission %, EPC, value/lead, refund rate</li>
+            <li><strong>Pricing Tiers</strong> &mdash; 2-3 tiers with descriptions</li>
+            <li><strong>Key Positioning Message</strong> &mdash; Headline + 3 supporting points</li>
+            <li><strong>What Partners Receive</strong> &mdash; 3+ deliverables</li>
+            <li><strong>Why This Converts</strong> &mdash; 2+ data-backed conversion reasons</li>
+            <li><strong>Proven Results</strong> &mdash; At least 1 case study with metrics</li>
+            <li><strong>Partner FAQs</strong> &mdash; 3+ Q&amp;A pairs</li>
+            <li><strong>Resources &amp; Proof</strong> &mdash; 2+ links (website, testimonials, replays)</li>
+            <li><strong>Ideal Partner Profile</strong> &mdash; 3+ partner archetypes</li>
+          </ul>
+          <p>Profiles scoring <strong>&ge; 80/100</strong> are automatically published to production. Profiles below 80 remain in draft and can be auto-filled using AI (<code>python manage.py validate_profile_standard --fix</code>).</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">What is the standard partner card format?</summary>
+        <div class="faq-a">
+          <p>Every partner card on the outreach page must meet quality standards based on the Eli Natoli reference card. Each outreach page requires <strong>exactly 10 partner contacts</strong>.</p>
+          <p><strong>Required per card:</strong></p>
+          <ul>
+            <li><strong>Name</strong> &mdash; Real person name</li>
+            <li><strong>Company/Tagline</strong> &mdash; Not empty</li>
+            <li><strong>Audience</strong> &mdash; Subscriber count + audience description + offering list (e.g., "7K subscribers. Purpose-driven entrepreneurs... Offering: Content Marketing, Course Creation Training...")</li>
+            <li><strong>Why Fit</strong> &mdash; Must follow 3-part structure: (1) shared audience/connection, (2) alignment with client's goals, (3) suggested next step (e.g., "Explore a joint program building on Marketing Your Truth&trade;")</li>
+            <li><strong>Contact Info</strong> &mdash; At least 1 of: email, phone, or LinkedIn</li>
+            <li><strong>Detail Note</strong> &mdash; Italic bio/context at bottom of card</li>
+          </ul>
+          <p><strong>Recommended per card:</strong></p>
+          <ul>
+            <li>2-4 relevant tags (e.g., MARKETING, STRATEGY, 7K LIST)</li>
+            <li>List size badge (top-right number)</li>
+            <li>Website URL</li>
+            <li>Booking/schedule link</li>
+            <li>All 3 contact methods (email + phone + LinkedIn)</li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">What is the standard outreach email format?</summary>
+        <div class="faq-a">
+          <p>Outreach email templates are <strong>generated per client</strong> (not per partner) using AI. They reference the client's actual offering, audience, and value proposition &mdash; not generic boilerplate.</p>
+          <p><strong>Initial Outreach (required elements):</strong></p>
+          <ul>
+            <li>Greeting with <code>{{partner_first_name}}</code> token</li>
+            <li>Opening that references what the <em>client</em> specifically offers (not "I love what you're doing")</li>
+            <li>Value proposition &mdash; what the partner gets from this partnership</li>
+            <li>Social proof &mdash; 1 credential, metric, or result</li>
+            <li>Soft CTA with real booking link (if available)</li>
+            <li>Signature (name + company)</li>
+            <li>Length: 120&ndash;250 words</li>
+          </ul>
+          <p><strong>Follow-Up (required elements):</strong></p>
+          <ul>
+            <li>Brief value-add (not just "following up")</li>
+            <li>Restates the value in different words</li>
+            <li>Soft close</li>
+            <li>Length: 50&ndash;100 words</li>
+          </ul>
+          <p>The verification agent checks that templates don't contain unfilled placeholders (<code>[their audience]</code>, <code>[Insert booking link]</code>) and aren't identical to the known generic boilerplate. Templates are stored in <code>MemberReport.outreach_templates</code> as JSON.</p>
+        </div>
+      </details>
+
+    </div>
+  </div>
+</div>
+
 </div><!-- end .content -->
 
 <script src="community_graph_data.js"></script>
 <script src="https://d3js.org/d3.v7.min.js"></script>
 <script>
+// ===== ZONE FILTERING (System Overview — hover-driven) =====
+var _currentZone = 'all';
+var _zoneRanges = [
+  { zone: 'apps',     y1: 4,   y2: 374 },
+  { zone: 'pipeline', y1: 382, y2: 652 },
+  { zone: 'services', y1: 658, y2: 746 },
+  { zone: 'sourcing', y1: 754, y2: 1174 },
+];
+
+function filterZone(zone) {
+  var svg = document.querySelector('.arch-svg');
+  var btns = document.querySelectorAll('.zone-btn');
+
+  btns.forEach(function(b) {
+    b.classList.toggle('active', b.dataset.zone === zone);
+  });
+
+  if (zone === 'all') {
+    svg.classList.remove('zone-filtered');
+    svg.querySelectorAll('g[data-zone]').forEach(function(g) {
+      g.classList.remove('zone-active');
+    });
+    return;
+  }
+
+  svg.classList.add('zone-filtered');
+  svg.querySelectorAll('g[data-zone]').forEach(function(g) {
+    g.classList.toggle('zone-active', g.dataset.zone === zone);
+  });
+}
+
+// Auto-detect zone from mouse position over SVG
+document.addEventListener('DOMContentLoaded', function() {
+  var svg = document.querySelector('.arch-svg');
+  if (!svg) return;
+
+  svg.addEventListener('mousemove', function(e) {
+    var pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    var svgP = pt.matrixTransform(svg.getScreenCTM().inverse());
+
+    var zone = 'all';
+    for (var i = 0; i < _zoneRanges.length; i++) {
+      if (svgP.y >= _zoneRanges[i].y1 && svgP.y <= _zoneRanges[i].y2) {
+        zone = _zoneRanges[i].zone;
+        break;
+      }
+    }
+
+    if (zone !== _currentZone) {
+      _currentZone = zone;
+      filterZone(zone);
+    }
+  });
+
+  svg.addEventListener('mouseleave', function() {
+    _currentZone = 'all';
+    filterZone('all');
+  });
+});
+
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => {
     t.classList.remove('active');
@@ -3992,6 +4551,8 @@ function switchTab(name) {
   event.target.classList.add('active');
   document.getElementById('view-' + name).classList.add('active');
   document.querySelectorAll('.detail-panel').forEach(d => d.classList.remove('open'));
+  // Reset zone filter when switching tabs
+  if (name !== 'overview') filterZone('all');
   if (name === 'datahealth') fetchLiveDataHealth();
 }
 

@@ -41,6 +41,7 @@ class AdminNotification:
     system_health: dict = field(default_factory=dict)
     ai_suggestions: list[str] = field(default_factory=list)
     cost_summary: dict = field(default_factory=dict)
+    market_intelligence: dict = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -163,10 +164,81 @@ def gather_verification_summary() -> list[dict[str, Any]]:
         conn.close()
 
 
+@task(name="gather-market-intelligence", retries=2, retry_delay_seconds=5)
+def gather_market_intelligence() -> dict:
+    """Load the latest market intelligence snapshot for admin reporting.
+
+    Reads from the niche_statistics_snapshots table (populated by
+    compute_market_intelligence management command or Prefect task).
+
+    Returns
+    -------
+    dict with: computed_at, enriched_profile_count, top_gaps (list),
+    role_gaps (list), health_summary, stability_warnings.
+    Returns empty dict if no snapshot exists.
+    """
+    logger = get_run_logger()
+
+    sql = """
+        SELECT snapshot_data, computed_at
+        FROM niche_statistics_snapshots
+        ORDER BY computed_at DESC
+        LIMIT 1
+    """
+
+    conn = _get_db_connection()
+    try:
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute(sql)
+        row = cur.fetchone()
+        if not row:
+            logger.info("No market intelligence snapshot found")
+            return {}
+
+        data = row["snapshot_data"] if isinstance(row["snapshot_data"], dict) else json.loads(row["snapshot_data"])
+        computed_at = str(row["computed_at"])
+
+        # Extract summary for admin email
+        top_gaps = []
+        for gap in (data.get("supply_demand_gaps") or [])[:5]:
+            if gap.get("gap_type") == "high_demand":
+                top_gaps.append(gap)
+
+        role_gaps = []
+        for rg in (data.get("role_gaps") or [])[:3]:
+            if rg.get("missing_high_value_roles"):
+                role_gaps.append(rg)
+
+        health = data.get("niche_health") or []
+        avg_health = sum(h.get("health_score", 0) for h in health) / max(len(health), 1) if health else 0
+
+        result = {
+            "computed_at": computed_at,
+            "enriched_profile_count": data.get("enriched_profile_count", 0),
+            "top_gaps": top_gaps,
+            "role_gaps": role_gaps,
+            "avg_health_score": round(avg_health, 1),
+            "stability_warnings": data.get("stability_warnings", []),
+        }
+
+        logger.info(
+            "Market intelligence loaded: %d gaps, %d role gaps, avg health=%.1f",
+            len(top_gaps), len(role_gaps), avg_health,
+        )
+        return result
+
+    except Exception as exc:
+        logger.warning("Failed to load market intelligence: %s", exc)
+        return {}
+    finally:
+        conn.close()
+
+
 @task(name="generate-ai-suggestions", retries=1, retry_delay_seconds=10)
 def generate_ai_suggestions(
     processing_data: list[dict[str, Any]],
     verification_data: list[dict[str, Any]],
+    market_data: dict = None,
 ) -> list[str]:
     """Use Claude to analyze processing + verification data and generate suggestions.
 
@@ -192,6 +264,33 @@ def generate_ai_suggestions(
         status = "confirmed" if v["confirmed_at"] else f"reminders={v['reminder_count']}"
         verification_lines.append(f"- {v['client_name']}: {status}")
 
+    # Market intelligence section (if available)
+    market_section = ""
+    if market_data and market_data.get("top_gaps"):
+        gap_lines = []
+        for g in market_data["top_gaps"]:
+            gap_lines.append(
+                f"- \"{g['keyword']}\": {g['seeking_count']} seeking, "
+                f"{g['offering_count']} offering (gap ratio: {g['gap_ratio']})"
+            )
+        role_gap_lines = []
+        for rg in market_data.get("role_gaps", []):
+            missing = ", ".join(rg.get("missing_high_value_roles", []))
+            role_gap_lines.append(
+                f"- {rg['niche']}: {rg['total_profiles']} profiles, missing {missing}"
+            )
+        market_section = f"""
+
+## Market Intelligence
+Top supply-demand gaps:
+{chr(10).join(gap_lines)}
+
+Structural role gaps by niche:
+{chr(10).join(role_gap_lines) if role_gap_lines else 'None identified'}
+
+Average ecosystem health score: {market_data.get('avg_health_score', 'N/A')}/100
+"""
+
     prompt = f"""You are an operations analyst for a JV (joint venture) matchmaking platform.
 
 Analyze the following monthly processing results and produce 3-8 short, actionable suggestions
@@ -202,13 +301,15 @@ for the admin. Focus on concrete next steps -- not generic advice.
 
 ## Verification Status
 {chr(10).join(verification_lines)}
-
+{market_section}
 ## Rules
 - If a client has fewer than 10 matches at 70+, suggest expanding their seeking criteria or
   adjusting niche parameters.
 - If any prospects scored 68-69, flag them as "near-threshold" and suggest small adjustments.
 - If acquisition costs are rising, suggest tightening the pre-filter.
 - If a client hasn't confirmed their profile, flag the risk of stale data.
+- If market intelligence shows gaps with ratio > 5.0, flag them as critical sourcing priorities.
+- If average ecosystem health score is below 40, suggest diversifying the partner pool.
 - Be specific: use client names and numbers.
 
 Return a JSON array of strings, each string being one suggestion. Example:
@@ -344,6 +445,29 @@ def send_admin_email(
             lines.append(f"  {k}: ${v:.2f}" if isinstance(v, float) else f"  {k}: {v}")
         lines.append("")
 
+    # Market Intelligence section
+    market = notification.market_intelligence
+    if market and market.get("top_gaps"):
+        lines.append("\n--- MARKET OPPORTUNITIES ---\n")
+        lines.append(f"Enriched profiles analyzed: {market.get('enriched_profile_count', '?')}")
+        lines.append(f"Ecosystem health: {market.get('avg_health_score', '?')}/100\n")
+        lines.append("Top unmet demand:")
+        for g in market["top_gaps"][:5]:
+            lines.append(
+                f"  \u2022 \"{g['keyword']}\": {g['seeking_count']} seeking, "
+                f"{g['offering_count']} offering (gap: {g['gap_ratio']}x)"
+            )
+        if market.get("role_gaps"):
+            lines.append("\nStructural role gaps:")
+            for rg in market["role_gaps"][:3]:
+                missing = ", ".join(rg.get("missing_high_value_roles", []))
+                lines.append(f"  \u2022 {rg['niche']}: missing {missing}")
+        if market.get("stability_warnings"):
+            lines.append("\nWarnings:")
+            for w in market["stability_warnings"]:
+                lines.append(f"  \u2022 {w}")
+        lines.append("")
+
     body = "\n".join(lines)
 
     if dry_run:
@@ -384,8 +508,9 @@ def admin_notification_flow(
     Steps:
       1. Gather processing results from Monday
       2. Gather verification status for all clients
-      3. AI agent analyzes data and generates suggestions
-      4. Send admin email with full summary + suggestions
+      3. Gather market intelligence
+      4. AI agent analyzes data and generates suggestions
+      5. Send admin email with full summary + suggestions
 
     Parameters
     ----------
@@ -402,20 +527,26 @@ def admin_notification_flow(
     logger.info("Admin notification flow started (dry_run=%s)", dry_run)
 
     # Step 1: Gather processing results
-    logger.info("Step 1/4: Gathering processing results")
+    logger.info("Step 1/5: Gathering processing results")
     processing_data = gather_processing_results()
     notification.per_client_summary = processing_data
 
     # Step 2: Gather verification summary
-    logger.info("Step 2/4: Gathering verification status")
+    logger.info("Step 2/5: Gathering verification status")
     verification_data = gather_verification_summary()
     notification.verification_status = verification_data
 
-    # Step 3: Generate AI suggestions
-    logger.info("Step 3/4: Generating AI suggestions")
+    # Step 3: Gather market intelligence
+    logger.info("Step 3/5: Gathering market intelligence")
+    market_data = gather_market_intelligence()
+    notification.market_intelligence = market_data
+
+    # Step 4: Generate AI suggestions
+    logger.info("Step 4/5: Generating AI suggestions")
     suggestions = generate_ai_suggestions(
         processing_data=processing_data,
         verification_data=verification_data,
+        market_data=market_data,
     )
     notification.ai_suggestions = suggestions
 
@@ -425,8 +556,8 @@ def admin_notification_flow(
     # Compute cost summary
     notification.cost_summary = _compute_cost_summary()
 
-    # Step 4: Send admin email
-    logger.info("Step 4/4: Sending admin email")
+    # Step 5: Send admin email
+    logger.info("Step 5/5: Sending admin email")
     send_admin_email(notification=notification, dry_run=dry_run)
 
     logger.info(

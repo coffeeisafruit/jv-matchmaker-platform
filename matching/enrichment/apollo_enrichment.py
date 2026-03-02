@@ -692,6 +692,19 @@ def process_apollo_result(
     existing_field_meta.update(field_meta_update)
     meta['field_meta'] = existing_field_meta
 
+    # Per-field confidence entries at top level
+    from matching.enrichment.confidence.confidence_scorer import ConfidenceScorer
+    scorer = ConfidenceScorer()
+    enriched_at = datetime.fromisoformat(now_iso)
+    for f in fields_written:
+        if f not in meta or not isinstance(meta.get(f), dict) or 'confidence' not in meta.get(f, {}):
+            field_conf = scorer.calculate_confidence(f, APOLLO_SOURCE, enriched_at)
+            meta[f] = {
+                'confidence': round(field_conf, 4),
+                'source': APOLLO_SOURCE,
+                'enriched_at': now_iso,
+            }
+
     updates['enrichment_metadata'] = meta
     updates['_fields_written'] = fields_written
     updates['_profile_id'] = result.get('_profile_id')

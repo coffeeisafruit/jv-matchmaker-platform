@@ -28,7 +28,7 @@ from django.db import connection
 from django.utils import timezone
 
 from matching.models import SupabaseProfile, SupabaseMatch
-from matching.services import SupabaseMatchScoringService
+from matching.services import SupabaseMatchScoringService, ShadowScoringService
 
 
 class Command(BaseCommand):
@@ -55,6 +55,14 @@ class Command(BaseCommand):
             '--snapshot-only', action='store_true',
             help='Save current scores to snapshot file without rescoring',
         )
+        parser.add_argument(
+            '--shadow', action='store_true',
+            help='Run experimental scorer in parallel and store both results',
+        )
+        parser.add_argument(
+            '--use-experimental', action='store_true',
+            help='Use the experimental scorer as production (after validation)',
+        )
 
     def handle(self, *args, **options):
         dry_run = options['dry_run']
@@ -62,9 +70,22 @@ class Command(BaseCommand):
         resume = options['resume']
         batch_size = options['batch_size']
         snapshot_only = options['snapshot_only']
+        shadow = options['shadow']
+        use_experimental = options['use_experimental']
 
         start_time = time.time()
-        scorer = SupabaseMatchScoringService()
+
+        if shadow:
+            shadow_service = ShadowScoringService()
+            scorer = shadow_service.production
+            self.stdout.write('Shadow mode: running experimental scorer in parallel')
+        elif use_experimental:
+            scorer = ShadowScoringService().experimental
+            self.stdout.write('Using experimental scorer as production')
+        else:
+            scorer = SupabaseMatchScoringService()
+
+        shadow_divergences = []
 
         # 1. Load match IDs + profile IDs upfront (lightweight queries)
         matches_qs = SupabaseMatch.objects.all()
@@ -156,7 +177,12 @@ class Command(BaseCommand):
                     continue
 
                 try:
-                    result = scorer.score_pair(profile_a, profile_b, outcome_data=outcome_agg)
+                    if shadow:
+                        result = shadow_service.score_pair_shadow(
+                            profile_a, profile_b, outcome_data=outcome_agg,
+                        )
+                    else:
+                        result = scorer.score_pair(profile_a, profile_b, outcome_data=outcome_agg)
 
                     after_scores.append({
                         'match_id': str(m.id),
@@ -174,12 +200,22 @@ class Command(BaseCommand):
                     m.score_ba = result['score_ba']
                     m.harmonic_mean = result['harmonic_mean']
                     m.match_reason = result.get('match_reason', '')
-                    m.match_context = json.dumps({
+
+                    context_data = {
                         'breakdown_ab': result['breakdown_ab'],
                         'breakdown_ba': result['breakdown_ba'],
                         'scored_at': timezone.now().isoformat(),
                         'scoring_version': 'ismc_v2_embeddings',
-                    })
+                    }
+
+                    # Store experimental scores alongside production when in shadow mode
+                    if shadow and result.get('experimental_scores') is not None:
+                        context_data['experimental_scores'] = result['experimental_scores']
+                        exp_hm = result['experimental_scores']['harmonic_mean']
+                        prod_hm = result['harmonic_mean']
+                        shadow_divergences.append(exp_hm - prod_hm)
+
+                    m.match_context = json.dumps(context_data)
                     to_update.append(m)
                     rescored += 1
 
@@ -214,6 +250,21 @@ class Command(BaseCommand):
             f'{skipped} skipped in {elapsed:.1f}s'
             f'{" (DRY RUN — no DB writes)" if dry_run else ""}'
         )
+
+        # Shadow mode summary
+        if shadow and shadow_divergences:
+            mean_div = statistics.mean(shadow_divergences)
+            median_div = statistics.median(shadow_divergences)
+            stdev_div = statistics.stdev(shadow_divergences) if len(shadow_divergences) > 1 else 0.0
+            self.stdout.write(
+                f'\n--- Shadow Scoring Summary ---\n'
+                f'  Pairs scored:       {len(shadow_divergences)}\n'
+                f'  Mean divergence:    {mean_div:+.3f}\n'
+                f'  Median divergence:  {median_div:+.3f}\n'
+                f'  Stdev divergence:   {stdev_div:.3f}\n'
+                f'  experimental_scores stored in match_context for offline analysis.\n'
+                f'  Run: python Validation/10_shadow_score_comparison.py'
+            )
 
         # Generate impact report (skip for resume mode — partial data skews comparison)
         if not resume:

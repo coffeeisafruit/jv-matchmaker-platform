@@ -2587,3 +2587,46 @@ class SupabaseMatchScoringService:
         ]
         filled = sum(1 for f in completeness_fields if f and str(f).strip())
         return (filled / len(completeness_fields)) * 10
+
+
+class ShadowScoringService:
+    """Runs experimental scorer in parallel with production scorer.
+
+    Records both scores for every pair without affecting production output.
+    Experimental scores are stored in the result dict under 'experimental_scores'
+    for offline comparison via Validation/10_shadow_score_comparison.py.
+
+    Usage:
+        shadow = ShadowScoringService(experimental_cls=MyExperimentalScorer)
+        result = shadow.score_pair_shadow(profile_a, profile_b)
+        # result['harmonic_mean'] = production score (unchanged)
+        # result['experimental_scores'] = experimental scores (for comparison)
+    """
+
+    def __init__(self, experimental_cls=None):
+        self.production = SupabaseMatchScoringService()
+        self.experimental = (experimental_cls or SupabaseMatchScoringService)()
+
+    def score_pair_shadow(
+        self,
+        profile_a,
+        profile_b,
+        outcome_data=None,
+    ) -> dict:
+        """Score with both engines, return production result + experimental annotation."""
+        prod_result = self.production.score_pair(profile_a, profile_b, outcome_data)
+
+        try:
+            exp_result = self.experimental.score_pair(profile_a, profile_b, outcome_data)
+            prod_result['experimental_scores'] = {
+                'harmonic_mean': exp_result.get('harmonic_mean', 0),
+                'score_ab': exp_result.get('score_ab', 0),
+                'score_ba': exp_result.get('score_ba', 0),
+            }
+        except Exception as e:
+            logger.warning("Experimental scorer failed for %s <-> %s: %s",
+                          getattr(profile_a, 'name', '?'),
+                          getattr(profile_b, 'name', '?'), e)
+            prod_result['experimental_scores'] = None
+
+        return prod_result

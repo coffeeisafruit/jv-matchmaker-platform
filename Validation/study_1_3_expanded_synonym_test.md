@@ -1,0 +1,122 @@
+# Study 1.3: Expanded Synonym / Embedding Discrimination Test
+
+**Generated:** 2026-03-01 04:13:11
+**Model:** BAAI/bge-large-en-v1.5 (1024 dimensions)
+**Time elapsed:** 40.6s
+
+## Executive Summary
+
+| Metric | Value | Target | Status |
+|--------|-------|--------|--------|
+| AUC-PR | 0.9489 | >= 0.80 | PASS |
+| Discrimination Gap (syn - neg) | 0.2478 | >= 0.15 | PASS |
+| Optimal F1 | 0.8766 @ t=0.64 | - | Possible (6.0) |
+| Original 30-pair AUC-PR | 0.5607 | >= 0.80 | BELOW TARGET |
+| Improvement | +0.3882 | - | Improved |
+
+## Dataset Composition
+
+| Category | Count |
+|----------|-------|
+| Synonym pairs (positive) | 982 |
+| Adversarial pairs (negative) | 60 |
+| Random negative pairs | 1200 |
+| **Total pairs** | **2242** |
+
+## Similarity Distributions
+
+| Group | N | Mean | Std | Median | Min | Max |
+|-------|---|------|-----|--------|-----|-----|
+| Synonym | 982 | 0.7892 | 0.1026 | 0.7881 | 0.5030 | 0.9941 |
+| Adversarial | 60 | 0.7100 | 0.0695 | - | - | - |
+| Random Negative | 1200 | 0.5329 | 0.0853 | - | - | - |
+| All Negative | 1260 | 0.5414 | 0.0926 | - | - | - |
+
+**Discrimination gap (synonym mean - all negative mean):** 0.2478
+**Discrimination gap (synonym mean - random negative mean):** 0.2563
+
+## Production Threshold Analysis
+
+| Threshold | Score Bucket | TP | FP | FN | Precision | Recall | F1 | FPR |
+|-----------|-------------|----|----|-----|-----------|--------|-----|------|
+| 0.53 | Noise (4.5) | 976 | 655 | 6 | 0.5984 | 0.9939 | 0.7470 | 0.5198 |
+| 0.60 | Possible (6.0) | 962 | 313 | 20 | 0.7545 | 0.9796 | 0.8525 | 0.2484 |
+| 0.65 | Good (8.0) | 888 | 167 | 94 | 0.8417 | 0.9043 | 0.8719 | 0.1325 |
+| 0.75 | Strong (10.0) | 617 | 30 | 365 | 0.9536 | 0.6283 | 0.7575 | 0.0238 |
+
+**Optimal F1 threshold:** 0.64 (score bucket: Possible (6.0))
+
+## Per-Category Breakdown (Synonym Pairs)
+
+| Category | N Pairs | Mean Sim | Std | Median | % >= 0.65 | % >= 0.75 |
+|----------|---------|----------|-----|--------|-----------|-----------|
+| production_offering | 50 | 0.9392 | 0.0140 | 0.9373 | 100.0% | 100.0% |
+| production_what_you_do | 50 | 0.9354 | 0.0229 | 0.9349 | 100.0% | 100.0% |
+| production_who_you_serve | 50 | 0.9215 | 0.0213 | 0.9168 | 100.0% | 100.0% |
+| production_seeking | 50 | 0.9039 | 0.0328 | 0.8900 | 100.0% | 100.0% |
+| niche | 120 | 0.7835 | 0.0666 | 0.7781 | 98.3% | 65.8% |
+| audience | 246 | 0.7610 | 0.0835 | 0.7629 | 90.7% | 55.3% |
+| cross_category | 10 | 0.7587 | 0.0658 | 0.7826 | 90.0% | 70.0% |
+| offering | 264 | 0.7421 | 0.0898 | 0.7437 | 83.0% | 48.1% |
+| seeking | 142 | 0.7413 | 0.0820 | 0.7451 | 83.8% | 47.9% |
+
+## Adversarial Pair Analysis
+
+- **Adversarial mean similarity:** 0.7100 (vs synonym mean 0.7892)
+- **% adversarial pairs scoring >= 0.65 (Good match):** 85.0%
+- **% adversarial pairs scoring >= 0.75 (Strong match):** 33.3%
+- **% adversarial above synonym median:** 11.7%
+
+WARNING: The model shows only **0.0792** separation between true synonyms and adversarial pairs. This is insufficient.
+
+## Comparison to Original 30-Pair Study
+
+| Metric | Original (30 pairs) | Expanded (982 positive pairs) | Change |
+|--------|--------------------|-----------------------------------------|--------|
+| AUC-PR | 0.5607 | 0.9489 | +0.3882 |
+| Sample size (positive) | 30 | 982 | +952 |
+| Sample size (negative) | ~500 | 1260 | - |
+
+## Recommendation
+
+**bge-large-en-v1.5 is ADEQUATE** for JV partner matching at the current thresholds.
+
+The model demonstrates sufficient discrimination between semantically similar JV texts
+and unrelated content. The production thresholds are well-calibrated.
+
+### Suggested Threshold Adjustments
+
+Based on the optimal F1 threshold of **0.64**, consider:
+
+```python
+# Current thresholds
+EMBEDDING_SCORE_THRESHOLDS = [
+    (0.75, 10.0),  # Strong semantic match
+    (0.65,  8.0),  # Good match
+    (0.60,  6.0),  # Possible match
+    (0.53,  4.5),  # At random noise mean
+]
+
+# Suggested revised thresholds (based on expanded test)
+EMBEDDING_SCORE_THRESHOLDS = [
+    (0.84, 10.0),  # Strong match (synonym mean + 0.5 std)
+    (0.64,  8.0),  # Good match (optimal F1 threshold)
+    (0.62,  6.0),  # Possible match (midpoint)
+    (0.60,  4.5),  # At noise ceiling (neg mean + 1 std)
+]
+```
+
+### Adversarial Vulnerability Note
+
+The adversarial gap (0.0792) is notably smaller than the synonym-vs-random gap
+(0.2563). This means the embedding model struggles
+to distinguish between genuinely related JV concepts (e.g., 'life coaching' = semantically
+similar) and superficially similar but JV-irrelevant concepts (e.g., 'life insurance').
+This is a known limitation of general-purpose text embeddings and is best mitigated by:
+
+1. **JV-specific entity tagging** before embedding (e.g., tagging 'coaching' vs 'insurance' as different domains)
+2. **Post-hoc re-ranking** with an LLM that understands business context
+3. **Embedding fine-tuning** on JV-specific positive/negative pairs
+
+---
+*Report generated by Study 1.3 expanded synonym test script.*

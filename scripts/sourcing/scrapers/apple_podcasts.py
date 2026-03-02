@@ -142,11 +142,32 @@ RESULTS_PER_QUERY = 200  # iTunes API max
 class Scraper(BaseScraper):
     SOURCE_NAME = "apple_podcasts"
     BASE_URL = "https://itunes.apple.com"
-    REQUESTS_PER_MINUTE = 15  # iTunes API is fairly generous
+    REQUESTS_PER_MINUTE = 10  # Conservative — iTunes API can be slow
+    TYPICAL_ROLES = ["Media/Publisher", "Thought Leader"]
+    TYPICAL_NICHES = ["podcasting", "content_marketing"]
+    TYPICAL_OFFERINGS = ["podcast", "content", "audience"]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._seen_ids: set[str] = set()
+
+    def fetch_page(self, url: str, timeout: int = 45):
+        """Override with longer timeout — iTunes API is often slow."""
+        import time as _time
+        if self.rate_limiter:
+            self.rate_limiter.wait(self.SOURCE_NAME, self.REQUESTS_PER_MINUTE)
+        for attempt in range(3):
+            try:
+                resp = self.session.get(url, timeout=timeout)
+                resp.raise_for_status()
+                self.stats["pages_scraped"] += 1
+                return resp.text
+            except Exception as exc:
+                self.logger.warning("Attempt %d failed for %s: %s", attempt + 1, url[:80], exc)
+                if attempt < 2:
+                    _time.sleep(5 * (attempt + 1))
+                self.stats["errors"] += 1
+        return None
 
     def generate_urls(self, **kwargs) -> Iterator[str]:
         """Yield iTunes Search API URLs across multiple country stores."""

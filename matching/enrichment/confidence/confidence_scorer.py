@@ -27,11 +27,19 @@ class ConfidenceScorer:
     # Base confidence by source (starting point, not final)
     SOURCE_BASE_CONFIDENCE = {
         'manual': 1.0,              # Manually entered/verified
+        'client_ingest': 1.0,       # Client-provided data
+        'client_confirmed': 1.0,    # Client confirmed accuracy
         'apollo_verified': 0.95,    # Apollo.io verified email
         'owl': 0.85,                # OWL deep research
         'apollo': 0.80,             # Apollo.io match (not verified)
+        'exa_research': 0.75,       # Exa.ai web research extraction
+        'exa_pipeline': 0.75,       # Exa pipeline (alias)
+        'ai_research': 0.75,        # AI-driven web research
         'website_scraped': 0.70,    # Scraped from website
+        'website_scrape': 0.70,     # Scraped (alias)
+        'web_discovery': 0.70,      # Web discovered
         'linkedin_scraped': 0.65,   # Scraped from LinkedIn
+        'ai_inference': 0.50,       # AI guessed/inferred
         'email_domain_inferred': 0.50,  # Inferred from domain
         'unknown': 0.30,            # Unknown source
     }

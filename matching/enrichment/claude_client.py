@@ -47,7 +47,11 @@ def _is_retryable(exc: BaseException) -> bool:
 
 
 class ClaudeClient:
-    """Shared Claude API client. OpenRouter preferred, Anthropic fallback."""
+    """Shared Claude API client. OpenRouter preferred, Anthropic fallback.
+
+    Set LLM_MODEL env var to override the model (e.g. "qwen/qwen3-30b-a3b").
+    When LLM_MODEL is set, always routes through OpenRouter.
+    """
 
     def __init__(
         self,
@@ -71,7 +75,14 @@ class ClaudeClient:
                 openrouter_key = os.environ.get('OPENROUTER_API_KEY', '')
                 anthropic_key = os.environ.get('ANTHROPIC_API_KEY', '')
 
-        if openrouter_key:
+        # LLM_MODEL override forces OpenRouter path with the specified model
+        model_override = os.environ.get('LLM_MODEL', '')
+
+        if model_override and openrouter_key:
+            self.use_openrouter = True
+            self.api_key = openrouter_key
+            self.model = model_override
+        elif openrouter_key:
             self.use_openrouter = True
             self.api_key = openrouter_key
             self.model = "anthropic/claude-sonnet-4"
@@ -188,9 +199,11 @@ class ClaudeClient:
 def get_pydantic_model():
     """Return a Pydantic AI model configured with available API keys.
 
-    Prefers OpenRouter (via OpenAI provider) over direct Anthropic.
+    When LLM_MODEL is set, uses that model via OpenRouter.
+    Otherwise prefers OpenRouter (via OpenAI provider) over direct Anthropic.
     Returns None if no API key is available.
     """
+    model_override = os.environ.get('LLM_MODEL', '')
     openrouter_key = anthropic_key = ""
     try:
         from django.conf import settings
@@ -207,7 +220,8 @@ def get_pydantic_model():
             base_url="https://openrouter.ai/api/v1",
             api_key=openrouter_key,
         )
-        return OpenAIModel("anthropic/claude-sonnet-4", provider=provider)
+        model_name = model_override or "anthropic/claude-sonnet-4"
+        return OpenAIModel(model_name, provider=provider)
     elif anthropic_key:
         from pydantic_ai.models.anthropic import AnthropicModel
         return AnthropicModel("claude-sonnet-4-20250514", api_key=anthropic_key)
@@ -216,9 +230,12 @@ def get_pydantic_model():
 
 
 def get_model_for_tier(tier: int = 3) -> str:
-    """Return the appropriate Claude model name based on profile tier.
+    """Return the appropriate model name based on profile tier.
 
-    Tier routing:
+    When LLM_MODEL env var is set, returns that model for all tiers
+    (useful for A/B testing OSS models via OpenRouter).
+
+    Tier routing (default):
         0-1: Haiku (fast, cheap — auto-fill and entry-level profiles)
         2-3: Sonnet (default — standard enrichment)
         4-5: Opus (premium — high-value profiles needing deeper reasoning)
@@ -226,6 +243,10 @@ def get_model_for_tier(tier: int = 3) -> str:
     Returns the model string suitable for the current API provider
     (OpenRouter format or direct Anthropic format).
     """
+    model_override = os.environ.get('LLM_MODEL', '')
+    if model_override:
+        return model_override
+
     openrouter_key = ""
     try:
         from django.conf import settings
@@ -246,10 +267,11 @@ def get_model_for_tier(tier: int = 3) -> str:
 def get_pydantic_model_for_tier(tier: int = 3):
     """Return a Pydantic AI model configured for the given profile tier.
 
-    Uses get_model_for_tier() to select the model, then wraps it
-    in the appropriate Pydantic AI provider.
+    Uses get_model_for_tier() to select the model (respects LLM_MODEL override),
+    then wraps it in the appropriate Pydantic AI provider.
     """
     model_name = get_model_for_tier(tier)
+    model_override = os.environ.get('LLM_MODEL', '')
 
     openrouter_key = anthropic_key = ""
     try:
@@ -260,6 +282,7 @@ def get_pydantic_model_for_tier(tier: int = 3):
         openrouter_key = os.environ.get('OPENROUTER_API_KEY', '')
         anthropic_key = os.environ.get('ANTHROPIC_API_KEY', '')
 
+    # When using a model override, always route through OpenRouter
     if openrouter_key:
         from pydantic_ai.providers.openai import OpenAIProvider
         from pydantic_ai.models.openai import OpenAIModel
@@ -268,7 +291,7 @@ def get_pydantic_model_for_tier(tier: int = 3):
             api_key=openrouter_key,
         )
         return OpenAIModel(model_name, provider=provider)
-    elif anthropic_key:
+    elif anthropic_key and not model_override:
         from pydantic_ai.models.anthropic import AnthropicModel
         return AnthropicModel(model_name, api_key=anthropic_key)
     else:

@@ -86,6 +86,10 @@ class SupabaseProfile(models.Model):
     embeddings_model = models.CharField(max_length=100, null=True, blank=True)
     embeddings_updated_at = models.DateTimeField(null=True, blank=True)
 
+    # JV triage (populated by scripts/sourcing/jv_triage.py)
+    jv_tier = models.CharField(max_length=1, null=True, blank=True)  # A/B/C/D/E/X
+    jv_readiness_score = models.FloatField(null=True, blank=True)    # 0-100
+
     # Recommendation pressure
     recommendation_pressure_30d = models.IntegerField(null=True, blank=True)
     pressure_updated_at = models.DateTimeField(null=True, blank=True)
@@ -615,6 +619,30 @@ class MemberReport(models.Model):
     # Tracking
     last_accessed_at = models.DateTimeField(null=True, blank=True)
     access_count = models.IntegerField(default=0)
+
+    # Production readiness gate
+    production_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('draft', 'Draft'),
+            ('production', 'Production'),
+        ],
+        default='draft',
+        help_text='draft = not validated; production = passed standard, ready for Keap sync'
+    )
+    production_score = models.FloatField(
+        null=True, blank=True,
+        help_text='0-100 score from profile standard validation'
+    )
+    production_issues = models.JSONField(
+        default=list, blank=True,
+        help_text='List of issues from last validation run'
+    )
+    production_validated_at = models.DateTimeField(
+        null=True, blank=True,
+        help_text='When the profile was last validated against the standard'
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

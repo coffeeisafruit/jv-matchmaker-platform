@@ -2026,10 +2026,28 @@ class SafeEnrichmentPipeline:
                                     'pipeline_version': PIPELINE_VERSION,
                                 }
 
+                # -- Per-field confidence scores --
+                # Write top-level entries with {'confidence', 'source', 'enriched_at'}
+                # so calculate_profile_confidence() can compute a weighted average.
+                for f in fields_written:
+                    f_source = field_meta_update.get(f, {}).get('source', enrichment_source)
+                    field_conf = scorer.calculate_confidence(f, f_source, enriched_at)
+                    meta_payload[f] = {
+                        'confidence': round(field_conf, 4),
+                        'source': f_source,
+                        'enriched_at': enriched_at.isoformat(),
+                    }
+
                 set_parts.append(sql.SQL(
                     "enrichment_metadata = COALESCE(enrichment_metadata, '{{}}'::jsonb) || %s::jsonb"
                 ))
                 params.append(json.dumps(meta_payload))
+
+                # Update profile_confidence from per-field weighted average
+                profile_conf = scorer.calculate_profile_confidence(meta_payload)
+                if profile_conf > 0:
+                    set_parts.append(sql.SQL("profile_confidence = %s"))
+                    params.append(round(profile_conf, 4))
 
                 params.append(profile_id)
                 profile_updates.append((set_parts, params))

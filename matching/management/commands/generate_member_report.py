@@ -349,6 +349,44 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f'\n  ACCESS CODE: {report.access_code}'))
         self.stdout.write(f'  Report URL:  /matching/report/{report.id}/\n')
 
+        # ── Validate against production standard ──
+        from matching.enrichment.profile_standard import validate_profile
+        partner_cards = list(
+            report.partners.order_by('rank').values(
+                'name', 'company', 'tagline', 'audience', 'why_fit',
+                'detail_note', 'email', 'phone', 'linkedin', 'website',
+                'schedule', 'list_size', 'tags', 'match_score',
+            )
+        )
+        validation = validate_profile(
+            report.client_profile,
+            report.outreach_templates,
+            len(partner_cards),
+            partner_cards,
+        )
+        report.production_score = validation.score
+        report.production_issues = [
+            {'field': i.field, 'requirement': i.requirement.value, 'message': i.message}
+            for i in validation.issues
+        ]
+        report.production_status = 'production' if validation.passed else 'draft'
+        report.production_validated_at = timezone.now()
+        report.save()
+
+        status_style = self.style.SUCCESS if validation.passed else self.style.WARNING
+        self.stdout.write(status_style(
+            f'\n  Production standard: {validation.score:.0f}/100 → {report.production_status.upper()}'
+        ))
+        if not validation.passed:
+            req_issues = [i for i in validation.issues if i.requirement.value == 'required']
+            if req_issues:
+                self.stdout.write(f'  Blocking issues ({len(req_issues)}):')
+                for issue in req_issues[:5]:
+                    self.stdout.write(f'    ✗ {issue.field}: {issue.message}')
+                if len(req_issues) > 5:
+                    self.stdout.write(f'    ... and {len(req_issues) - 5} more')
+            self.stdout.write('  Run: python manage.py validate_profile_standard --client-name "..." --fix')
+
     # =========================================================================
     # CLIENT RESOLUTION
     # =========================================================================
@@ -445,8 +483,17 @@ class Command(BaseCommand):
             })
 
         scored.sort(key=lambda x: x['score'], reverse=True)
-        top_matches = scored[:top_n]
-        self.stdout.write(f'  Top {len(top_matches)} selected')
+
+        # Enforce minimum 10 partners
+        min_partners = max(top_n, 10)
+        top_matches = scored[:min_partners]
+
+        if len(top_matches) < 10:
+            self.stdout.write(self.style.WARNING(
+                f'  WARNING: Only {len(top_matches)} partners available (minimum 10 recommended)'
+            ))
+
+        self.stdout.write(f'  Top {len(top_matches)} selected (minimum: 10)')
         return top_matches
 
     def _build_why_fit_from_ismc(
@@ -767,7 +814,7 @@ class Command(BaseCommand):
         bio_text = sp.bio or f'{name} is the founder of {company}.'
         who_text = (sp.who_you_serve or 'entrepreneurs and business owners').rstrip('.')
 
-        return {
+        profile = {
             'client': {
                 'name': company,
                 'tagline': sp.what_you_do or sp.niche or '',
@@ -801,6 +848,52 @@ class Command(BaseCommand):
             'launch_stats': None,
             'contact_email': 'help@jvmatches.com',
         }
+
+        # AI gap filling for empty fields
+        try:
+            from matching.enrichment.profile_gap_filler import ProfileGapFiller
+            filler = ProfileGapFiller()
+            if filler.is_available():
+                missing = []
+                if not profile.get('about_story') or profile['about_story'] == f'{name} is the founder of {company}.':
+                    missing.append('about_story')
+                if len(profile.get('credentials', [])) < 2:
+                    missing.append('credentials')
+                if not profile.get('faqs'):
+                    missing.append('faqs')
+                if not profile.get('key_message') or profile['key_message'] == sp.offering:
+                    missing.append('key_message_headline')
+                if not profile.get('perfect_for'):
+                    missing.append('perfect_for')
+                if not profile.get('why_converts'):
+                    missing.append('why_converts')
+                if not profile.get('partner_deliverables'):
+                    missing.append('partner_deliverables')
+
+                if missing:
+                    profile_data = {
+                        'name': name,
+                        'company': company,
+                        'bio': sp.bio or '',
+                        'what_you_do': sp.what_you_do or '',
+                        'who_you_serve': sp.who_you_serve or '',
+                        'offering': sp.offering or '',
+                        'seeking': sp.seeking or '',
+                        'niche': sp.niche or '',
+                        'signature_programs': sp.signature_programs or '',
+                        'audience_type': sp.audience_type or '',
+                        'list_size': sp.list_size,
+                        'social_reach': sp.social_reach,
+                        'booking_link': sp.booking_link or '',
+                    }
+                    filled = filler.fill_gaps(profile_data, profile, missing)
+                    if filled:
+                        profile.update(filled)
+                        self.stdout.write(f'  AI gap filler: filled {len(filled)} fields ({", ".join(filled.keys())})')
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f'  AI gap filler failed: {e}'))
+
+        return profile
 
     def _build_offers_partners(self, sp: SupabaseProfile) -> list:
         offers = []
@@ -851,28 +944,78 @@ class Command(BaseCommand):
     # =========================================================================
 
     def _build_outreach_templates(self, sp: SupabaseProfile) -> dict:
+        """Build client-specific outreach email templates.
+
+        Tries AI-generated templates first (via ProfileGapFiller),
+        falls back to improved static template if AI unavailable.
+        """
         name = sp.name
         company = self._clean_company_name(sp)
+        first_name = name.split()[0] if name else ''
+        offering = sp.offering or sp.what_you_do or ''
+        audience = sp.who_you_serve or sp.audience_type or ''
+        booking_link = sp.booking_link or ''
+
+        # Try AI-generated templates
+        try:
+            from matching.enrichment.profile_gap_filler import ProfileGapFiller
+            filler = ProfileGapFiller()
+            if filler.is_available():
+                profile_data = {
+                    'name': name,
+                    'company': company,
+                    'offering': offering,
+                    'who_you_serve': audience,
+                    'booking_link': booking_link,
+                    'bio': sp.bio or '',
+                    'what_you_do': sp.what_you_do or '',
+                    'niche': sp.niche or '',
+                    'signature_programs': sp.signature_programs or '',
+                    'list_size': sp.list_size,
+                }
+                ai_templates = filler.generate_outreach_emails(profile_data)
+                if ai_templates and 'initial' in ai_templates and 'followup' in ai_templates:
+                    self.stdout.write('  Outreach templates: AI-generated (client-specific)')
+                    return ai_templates
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f'  AI template generation failed: {e}'))
+
+        # Improved static fallback (better than old generic boilerplate)
+        self.stdout.write('  Outreach templates: static fallback')
+
+        # Build a more specific static template using available data
+        offering_line = f" at {company}" if company else ""
+        audience_line = f" serving {audience}" if audience else ""
+        value_line = f" focused on {offering}" if offering else ""
+        cta = f"Would you be open to a quick call? You can book a time here: {booking_link}" if booking_link else "Would you be open to a quick call to explore some partnership ideas?"
+
         return {
             'initial': {
                 'title': 'Initial Outreach',
                 'text': (
-                    f"Hi [Partner Name],\n\n"
-                    f"I came across your work and love what you're doing for [their audience]. "
-                    f"I'm {name} with {company}, and I think our audiences could really "
-                    f"benefit from knowing about each other.\n\n"
-                    f"Would you be open to a quick call to explore some partnership ideas?\n\n"
-                    f"Best,\n{name}"
+                    f"Hi {{{{partner_first_name}}}},\n\n"
+                    f"I came across your work and I think there's a strong fit between our audiences. "
+                    f"I'm {name}{offering_line}{value_line}. "
+                    f"We work with {audience or 'entrepreneurs and business professionals'} "
+                    f"and I believe a partnership could be mutually beneficial.\n\n"
+                    f"Our program helps our partners earn commissions while providing "
+                    f"real value to their audience. We've built a subscriber base of "
+                    f"{self._format_list_size(sp.list_size) or 'thousands'} "
+                    f"and are actively looking for partners{audience_line} to collaborate with.\n\n"
+                    f"{cta}\n\n"
+                    f"Looking forward to connecting,\n{name}"
                 ),
             },
             'followup': {
                 'title': 'Follow-Up',
                 'text': (
-                    f"Hi [Partner Name],\n\n"
-                    f"Just following up on my earlier message. I'd love to connect and "
-                    f"explore how we might support each other's communities.\n\n"
-                    f"No pressure at all — just thought there might be a great fit.\n\n"
-                    f"Warmly,\n{name}"
+                    f"Hi {{{{partner_first_name}}}},\n\n"
+                    f"I wanted to follow up on my previous message about a potential partnership. "
+                    f"I believe there's a genuine opportunity for us to support each other's communities"
+                    f"{value_line}.\n\n"
+                    f"If you're interested, I'd love to set up a brief call to discuss how we could "
+                    f"work together.\n\n"
+                    f"Best,\n{name}"
                 ),
             },
         }

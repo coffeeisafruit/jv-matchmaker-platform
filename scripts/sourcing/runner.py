@@ -44,12 +44,20 @@ from scripts.sourcing.rate_limiter import RateLimiter
 
 SCRAPER_REGISTRY: dict[str, type[BaseScraper]] = {}
 
+# Scrapers excluded from gap-driven sourcing (low JV-relevant data yield)
+GAP_SOURCING_EXCLUDED = {
+    "bbb_sitemap", "irs_business_leagues", "census_business",
+    "usaspending", "usaspending_recipients", "fdic_banks",
+    "epa_echo", "fda_devices", "gsa_sam", "sam_awards",
+    "wikidata", "crossref", "state_business_registrations",
+}
+
 # Tier assignments for --tier flag
 # P1 = API-based (most reliable), P2 = server-rendered HTML, P3 = JS-rendered/blocked
 TIERS: dict[int, list[str]] = {
-    1: ["sam_gov", "sbir_gov", "sec_edgar", "irs_exempt", "apple_podcasts", "youtube_api", "google_books", "openlibrary"],
-    2: ["chambers", "opencorporates", "muncheye", "noomii", "psychology_today", "tedx", "icf_coaching", "summit_speakers"],
-    3: ["speakerhub", "udemy", "podchaser", "gumroad", "substack"],
+    1: ["usaspending", "usaspending_recipients", "fdic_banks", "sam_awards", "sam_gov", "sbir_gov", "sec_edgar", "sec_edgar_search", "irs_exempt", "irs_business_leagues", "apple_podcasts", "youtube_api", "google_books", "openlibrary", "yc_companies", "trustpilot", "clutch_sitemap", "bbb_sitemap", "epa_echo", "fda_devices", "crossref", "wikidata", "podcastindex", "sessionize", "sba_loans", "grants_gov", "gsa_sam", "census_business", "wordpress_plugins", "atlassian_marketplace", "toastmasters"],
+    2: ["chambers", "opencorporates", "muncheye", "noomii", "psychology_today", "tedx", "icf_coaching", "summit_speakers", "shopify_partners", "webflow_experts", "nsaspeakers", "espeakers", "speaking_com", "expertfile", "coaching_federation", "lifecoach_directory", "clarity_fm", "crunchbase_public", "producthunt", "betalist", "startupgrind", "f6s_startups", "techstars_portfolio", "fivehundred_global", "a16z_portfolio", "association_members", "thumbtack_pros", "state_business_registrations", "yelp_businesses", "google_maps_places", "linkedin_companies", "angel_list", "glassdoor_companies", "dnb_listings", "salesforce_appexchange", "microsoft_appsource", "aws_marketplace", "stripe_partners", "g2_reviews", "capterra_listings", "chrome_extensions", "slack_app_directory", "score_mentors", "clutch_agencies", "bni_members", "eonetwork", "vistage_members", "alignable", "sequoia_portfolio", "greylock_portfolio", "nea_portfolio", "index_ventures", "accel_portfolio", "benchmark_portfolio", "founders_fund", "lightspeed_portfolio", "general_catalyst", "bessemer_portfolio"],
+    3: ["speakerhub", "udemy", "podchaser", "gumroad", "substack", "hubspot_partners", "zapier_partners", "partnerstack_marketplace", "cj_affiliates", "shareasale_merchants", "impact_partners", "indie_hackers", "upwork_agencies", "fiverr_pros", "meetup_organizers"],
     4: ["clickbank", "jvzoo", "warriorplus", "eventbrite", "medium"],
 }
 
@@ -129,7 +137,12 @@ def run_source(
         csv_file = open(export_csv, "a", newline="", encoding="utf-8")
         csv_writer = csv.DictWriter(
             csv_file,
-            fieldnames=["name", "email", "company", "website", "linkedin", "phone", "bio", "source", "source_url"],
+            fieldnames=[
+                "name", "email", "company", "website", "linkedin", "phone", "bio",
+                "pricing", "rating", "review_count", "tier", "categories",
+                "location", "join_date", "product_focus", "revenue_indicator",
+                "source", "source_url",
+            ],
         )
         if csv_file.tell() == 0:
             csv_writer.writeheader()
@@ -146,7 +159,24 @@ def run_source(
             last_url = contact.source_url
 
             if csv_writer:
-                row = {**ingestion_dict, "source": source_name, "source_url": contact.source_url}
+                rd = contact.raw_data or {}
+                cats = contact.categories or rd.get("categories") or rd.get("sectors") or ""
+                if isinstance(cats, list):
+                    cats = ", ".join(str(c) for c in cats)
+                row = {
+                    **ingestion_dict,
+                    "pricing": contact.pricing or rd.get("pricing") or rd.get("starting_price") or "",
+                    "rating": contact.rating or rd.get("rating") or "",
+                    "review_count": contact.review_count or rd.get("review_count") or rd.get("reviews") or "",
+                    "tier": contact.tier or rd.get("tier") or "",
+                    "categories": cats,
+                    "location": contact.location or rd.get("location") or "",
+                    "join_date": contact.join_date or rd.get("join_date") or "",
+                    "product_focus": contact.product_focus or rd.get("product_name") or rd.get("product_focus") or "",
+                    "revenue_indicator": contact.revenue_indicator or rd.get("revenue_indicator") or "",
+                    "source": source_name,
+                    "source_url": contact.source_url,
+                }
                 csv_writer.writerow(row)
 
             if len(batch) >= batch_size:
@@ -273,6 +303,52 @@ def show_available() -> None:
     print()
 
 
+def _compute_scraper_priorities(gap_data: dict, max_scrapers: int = 5) -> list[tuple[str, float, list[str]]]:
+    """Score scrapers against market gaps. Returns [(name, priority_score, gaps_filled)]."""
+    supply_demand_gaps = gap_data.get("supply_demand_gaps", [])
+    role_gaps = gap_data.get("role_gaps", [])
+
+    # Build lookup: keyword -> gap_ratio for high-demand gaps only
+    keyword_gaps = {}
+    for gap in supply_demand_gaps:
+        if gap.get("gap_type") == "high_demand":
+            keyword_gaps[gap["keyword"]] = gap["gap_ratio"]
+
+    # Build lookup: (niche, role) -> True for missing roles
+    missing_roles = set()
+    for rg in role_gaps:
+        niche = rg.get("niche", "")
+        for role in rg.get("missing_high_value_roles", []):
+            missing_roles.add((niche, role))
+
+    priorities = []
+    for name, cls in SCRAPER_REGISTRY.items():
+        if name in GAP_SOURCING_EXCLUDED:
+            continue
+
+        score = 0.0
+        filled = []
+
+        # Score against keyword gaps
+        for offering_kw in getattr(cls, "TYPICAL_OFFERINGS", []):
+            if offering_kw in keyword_gaps:
+                score += keyword_gaps[offering_kw]
+                filled.append(f"keyword:{offering_kw} (gap={keyword_gaps[offering_kw]:.1f})")
+
+        # Score against role gaps
+        for role in getattr(cls, "TYPICAL_ROLES", []):
+            for niche in getattr(cls, "TYPICAL_NICHES", []):
+                if (niche, role) in missing_roles:
+                    score += 5.0  # Structural gap bonus
+                    filled.append(f"role:{role} in {niche}")
+
+        if score > 0:
+            priorities.append((name, score, filled))
+
+    priorities.sort(key=lambda x: x[1], reverse=True)
+    return priorities[:max_scrapers]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Multi-source JV candidate scraper")
     parser.add_argument("--source", help="Scraper name to run (e.g., speakerhub)")
@@ -285,6 +361,8 @@ def main() -> None:
     parser.add_argument("--no-resume", action="store_true", help="Start from scratch (ignore checkpoint)")
     parser.add_argument("--status", action="store_true", help="Show progress for all sources")
     parser.add_argument("--list", action="store_true", help="List available scrapers")
+    parser.add_argument("--fill-gaps", type=int, nargs="?", const=5, metavar="N",
+                        help="Auto-select top N scrapers based on market gap analysis (default: 5)")
     parser.add_argument("--reset", help="Reset checkpoint for a source")
     parser.add_argument("--verbose", "-v", action="store_true")
 
@@ -316,6 +394,53 @@ def main() -> None:
         for source in available:
             run_source(
                 source,
+                batch_size=args.batch_size,
+                max_pages=args.max_pages,
+                max_contacts=args.max_contacts,
+                dry_run=args.dry_run,
+                export_csv=args.export_csv,
+                resume=not args.no_resume,
+            )
+        show_status()
+        return
+
+    if args.fill_gaps is not None:
+        # Load latest gap analysis
+        gap_file = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+            "reports", "market_intelligence", "gap_report.json",
+        )
+        if not os.path.exists(gap_file):
+            print(f"ERROR: No gap report found at {gap_file}")
+            print("Run: python3 manage.py compute_market_intelligence")
+            return
+
+        with open(gap_file) as f:
+            gap_data = json.load(f)
+
+        priorities = _compute_scraper_priorities(gap_data, args.fill_gaps)
+        if not priorities:
+            print("No scrapers match current market gaps.")
+            print("Ensure scrapers have TYPICAL_ROLES/NICHES/OFFERINGS metadata.")
+            return
+
+        print(f"\n{'=' * 60}")
+        print(f"GAP-DRIVEN SOURCING PLAN")
+        print(f"(based on {gap_data.get('enriched_profile_count', '?')} enriched profiles)")
+        print(f"{'=' * 60}\n")
+        for i, (name, score, filled) in enumerate(priorities, 1):
+            print(f"  {i}. {name:25s} (priority={score:.1f})")
+            for f_item in filled[:3]:
+                print(f"     \u2514\u2500 fills: {f_item}")
+        print()
+
+        if args.dry_run:
+            print("[DRY RUN] Would run the above scrapers.")
+            return
+
+        for name, score, filled in priorities:
+            run_source(
+                name,
                 batch_size=args.batch_size,
                 max_pages=args.max_pages,
                 max_contacts=args.max_contacts,

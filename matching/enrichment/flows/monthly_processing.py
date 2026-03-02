@@ -36,6 +36,9 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from prefect import flow, task, get_run_logger
 
+from matching.enrichment.flows.market_intelligence_task import compute_market_intelligence
+from matching.enrichment.flows.gap_driven_sourcing_task import gap_driven_sourcing
+
 
 # ---------------------------------------------------------------------------
 # Result dataclass
@@ -102,7 +105,7 @@ def flag_low_confidence_profiles(
             FROM profiles
             WHERE profile_confidence IS NOT NULL
               AND profile_confidence < %s
-            ORDER BY profile_confidence ASC
+            ORDER BY (status = 'Member') DESC, profile_confidence ASC
             """,
             (confidence_threshold,),
         )
@@ -115,7 +118,7 @@ def flag_low_confidence_profiles(
             FROM profiles
             WHERE last_enriched_at IS NOT NULL
               AND last_enriched_at < NOW() - INTERVAL '%s days'
-            ORDER BY last_enriched_at ASC
+            ORDER BY (status = 'Member') DESC, last_enriched_at ASC
             """,
             (stale_days,),
         )
@@ -494,7 +497,7 @@ def generate_all_reports(dry_run: bool = False) -> dict[str, Any]:
 
 @flow(
     name="monthly-processing",
-    description="Week 4 Mon: Flag priority -> re-enrich -> rescore -> gap detect -> acquire -> generate reports",
+    description="Week 4 Mon: Flag priority -> re-enrich -> rescore -> gap detect -> market intel -> gap sourcing -> acquire -> generate reports",
     retries=0,
     timeout_seconds=7200,  # 2 hours
 )
@@ -513,8 +516,10 @@ def monthly_processing_flow(
       3. Apply any client profile updates from verification
       4. Rescore all matches (call rescore_matches management command)
       5. Gap detection for each client
-      6. Trigger acquisition pipeline for clients with gaps (if not skip_acquisition)
-      7. Generate/regenerate reports for all clients
+      6. Population-level market intelligence
+      7. Gap-driven sourcing (if not skip_acquisition)
+      8. Trigger acquisition pipeline for clients with gaps (if not skip_acquisition)
+      9. Generate/regenerate reports for all clients
 
     Parameters
     ----------
@@ -544,7 +549,7 @@ def monthly_processing_flow(
     )
 
     # Step 1: Flag low-confidence and stale profiles for priority re-enrichment
-    logger.info("Step 1/7: Flagging low-confidence and stale profiles")
+    logger.info("Step 1/9: Flagging low-confidence and stale profiles")
     flag_result = flag_low_confidence_profiles(
         confidence_threshold=0.5,
         stale_days=29,
@@ -561,7 +566,7 @@ def monthly_processing_flow(
     )
 
     # Step 2: Re-enrich priority profiles first, then stale profiles
-    logger.info("Step 2/7: Re-enriching profiles (priority + stale)")
+    logger.info("Step 2/9: Re-enriching profiles (priority + stale)")
     enrich_result = re_enrich_stale_profiles(
         stale_days=stale_days,
         priority_ids=priority_ids if priority_ids else None,
@@ -572,12 +577,12 @@ def monthly_processing_flow(
     result.total_cost += enrich_result.get("total_cost", 0.0)
 
     # Step 3: Apply verification updates
-    logger.info("Step 3/7: Applying verification updates")
+    logger.info("Step 3/9: Applying verification updates")
     verify_result = apply_verification_updates()
     result.clients_processed = verify_result.get("clients_updated", 0)
 
     # Step 4: Rescore all matches
-    logger.info("Step 4/7: Rescoring all matches")
+    logger.info("Step 4/9: Rescoring all matches")
     rescore_result = rescore_all_matches(dry_run=dry_run)
     if rescore_result.get("return_code", 1) == 0:
         # Parse match count from output if possible
@@ -587,24 +592,37 @@ def monthly_processing_flow(
         logger.warning("Rescore command returned non-zero; continuing anyway")
 
     # Step 5: Gap detection
-    logger.info("Step 5/7: Running gap detection")
+    logger.info("Step 5/9: Running gap detection")
     gaps = run_gap_detection(
         target_score=target_score,
         target_count=target_count,
     )
     result.gaps_detected = sum(1 for g in gaps if g.get("has_gap"))
 
-    # Step 6: Acquisition (optional)
-    if skip_acquisition:
-        logger.info("Step 6/7: Acquisition SKIPPED (skip_acquisition=True)")
+    # Step 6: Population-level market intelligence
+    logger.info("Step 6/9: Computing market intelligence...")
+    market_result = compute_market_intelligence(dry_run=dry_run)
+    result.gaps_detected += market_result.get("gaps_found", 0)
+
+    # Step 7: Gap-driven sourcing
+    if not skip_acquisition:
+        logger.info("Step 7/9: Running gap-driven sourcing...")
+        sourcing_result = gap_driven_sourcing(max_scrapers=3, dry_run=dry_run)
+        result.acquisitions_triggered += sourcing_result.get("scrapers_run", 0)
     else:
-        logger.info("Step 6/7: Triggering acquisition for clients with gaps")
+        logger.info("Step 7/9: Gap-driven sourcing SKIPPED (skip_acquisition=True)")
+
+    # Step 8: Acquisition (optional)
+    if skip_acquisition:
+        logger.info("Step 8/9: Acquisition SKIPPED (skip_acquisition=True)")
+    else:
+        logger.info("Step 8/9: Triggering acquisition for clients with gaps")
         acq_result = trigger_acquisition(gaps=gaps, dry_run=dry_run)
-        result.acquisitions_triggered = acq_result.get("clients_triggered", 0)
+        result.acquisitions_triggered += acq_result.get("clients_triggered", 0)
         result.total_cost += acq_result.get("total_cost", 0.0)
 
-    # Step 7: Generate reports
-    logger.info("Step 7/7: Generating/regenerating reports")
+    # Step 9: Generate reports
+    logger.info("Step 9/9: Generating/regenerating reports")
     report_result = generate_all_reports(dry_run=dry_run)
     result.reports_generated = report_result.get("regenerated", 0)
 

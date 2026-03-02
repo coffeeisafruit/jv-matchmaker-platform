@@ -9,7 +9,7 @@ Usage:
 from datetime import timedelta
 
 from django.core.management.base import BaseCommand
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, Value, When
 from django.utils import timezone
 
 from matching.models import SupabaseProfile
@@ -48,7 +48,14 @@ class Command(BaseCommand):
             low_confidence | stale_data | never_enriched
         ).exclude(
             status='Inactive'
-        ).order_by('profile_confidence')
+        ).order_by(
+            Case(
+                When(status='Member', then=Value(0)),
+                default=Value(1),
+                output_field=IntegerField(),
+            ),
+            'profile_confidence',
+        )
 
         total = flagged.count()
 

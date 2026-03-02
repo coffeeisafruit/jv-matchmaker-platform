@@ -62,6 +62,17 @@ class ScrapedContact:
     phone: str = ""
     bio: str = ""
 
+    # JV partnership intelligence
+    pricing: str = ""           # Pricing model or starting price
+    rating: str = ""            # Average rating (e.g. "4.8")
+    review_count: str = ""      # Number of reviews/ratings
+    tier: str = ""              # Partner tier/level (e.g. "Premier", "Gold")
+    categories: str = ""        # Industry/service categories (comma-separated)
+    location: str = ""          # Geographic location
+    join_date: str = ""         # When they joined the platform
+    product_focus: str = ""     # Primary product or service offered
+    revenue_indicator: str = "" # Revenue signals (employee count, deal size, etc.)
+
     # Metadata (tracking only, not sent to ingestion)
     source_platform: str = ""
     source_url: str = ""
@@ -124,6 +135,11 @@ class BaseScraper(ABC):
     BASE_URL: str = ""
     REQUESTS_PER_MINUTE: int = 10
     RESPECT_ROBOTS_TXT: bool = False  # Disabled — all sources are public directories
+
+    # Optional metadata for gap-driven sourcing (auto-prioritization)
+    TYPICAL_ROLES: list[str] = []       # Canonical roles this scraper yields
+    TYPICAL_NICHES: list[str] = []      # Canonical niches this scraper targets
+    TYPICAL_OFFERINGS: list[str] = []   # Common offering keywords from this source
 
     def __init__(self, rate_limiter=None):
         self.session = self._build_session()
