@@ -190,16 +190,39 @@ def _run_exa_similar(seed_urls: list[str], max_results: int) -> tuple[list[dict]
         return [], 0.0, [f"Exa similar error: {exc}"]
 
 
-def _run_apollo(niche: str, max_results: int) -> tuple[list[dict], float, list[str]]:
-    """Run Apollo people search. Returns (results, cost, errors)."""
+def _run_apollo(
+    niche: str,
+    max_results: int,
+    filters: dict | None = None,
+) -> tuple[list[dict], float, list[str]]:
+    """Run Apollo people search with optional rich filters.
+
+    Parameters
+    ----------
+    niche:
+        Niche keyword (used as title fallback when no filters provided).
+    max_results:
+        Maximum number of prospects to return.
+    filters:
+        Optional dict of Apollo search params (title, industry,
+        person_seniorities, q_keywords, company_size, etc.).
+        When provided, these override the simple niche-as-title approach.
+
+    Returns (results, cost, errors).
+    """
     try:
         from matching.enrichment.apollo_enrichment import ApolloEnrichmentService
 
         svc = ApolloEnrichmentService()
         if not svc.api_key:
             return [], 0.0, ["Apollo: API key not configured"]
-        prospects = svc.search_people(title=niche, max_results=max_results)
-        cost = len(prospects) * 0.05 if prospects else 0.0
+
+        if filters:
+            prospects = svc.search_people(**filters, max_results=max_results)
+        else:
+            prospects = svc.search_people(title=niche, max_results=max_results)
+
+        cost = len(prospects) * 0.03 if prospects else 0.0
         return [
             {
                 "name": p.get("name", ""),

@@ -1,16 +1,17 @@
 """
-Prefect @task: Prospect discovery using Exa Websets + supplementary tools.
+Prefect @task: Prospect discovery using Exa Websets + Apollo People Search.
 
 Discovers new potential JV partners for a client by building semantic
 search queries from the client's profile and gap analysis, then querying
-Exa's search and find-similar APIs.
+Exa's search/find-similar APIs and Apollo's structured People Search.
 
 Discovery strategy (layered by cost):
   1. Exa Websets for bulk semantic discovery (primary, cheapest per result)
   2. Exa find-similar for "find people like top matches"
-  3. Fallback to Exa regular search with keyword queries
+  3. Exa niche-specific supplementary keyword queries
+  4. Apollo People Search for structured discovery (titles, seniority, industry)
 
-Budget target: ~$0.50 per acquisition run.
+Budget target: ~$0.50-1.25 per acquisition run.
 """
 
 from __future__ import annotations
@@ -365,6 +366,70 @@ def discover_prospects(
                 "Layer 3.%d: %d results, %d unique, $%.4f cost",
                 i, len(niche_prospects), added, cost,
             )
+
+    # ------------------------------------------------------------------
+    # Layer 4: Apollo People Search (structured discovery)
+    # ------------------------------------------------------------------
+    if len(all_prospects) < max_results:
+        try:
+            from matching.enrichment.apollo_query_builder import build_apollo_queries
+            from matching.enrichment.apollo_enrichment import ApolloEnrichmentService
+            from matching.enrichment.cost_guard import get_cost_guard, BudgetExceededError
+
+            apollo_svc = ApolloEnrichmentService()
+            if apollo_svc.api_key:
+                apollo_queries = build_apollo_queries(client_profile, gap_analysis)
+                for i, query_params in enumerate(apollo_queries):
+                    if len(all_prospects) >= max_results:
+                        break
+
+                    # Budget guard check before each Apollo query
+                    try:
+                        get_cost_guard().check_budget(
+                            "apollo_discovery", estimated_cost=0.75,
+                        )
+                    except BudgetExceededError:
+                        logger.warning(
+                            "Budget exceeded — stopping Apollo discovery"
+                        )
+                        break
+
+                    apollo_results = apollo_svc.search_people(
+                        **query_params,
+                        max_results=min(25, max_results - len(all_prospects)),
+                    )
+
+                    # Track cost per query
+                    query_cost = len(apollo_results) * 0.03
+                    total_cost += query_cost
+                    added = _dedup_and_add(apollo_results)
+
+                    # Log to JSONL cost tracker
+                    try:
+                        import json
+                        from matching.enrichment.flows.cost_tracking import (
+                            log_search_cost, CostEntry,
+                        )
+                        log_search_cost(CostEntry(
+                            tool="apollo_discovery",
+                            query=json.dumps(query_params)[:200],
+                            cost=query_cost,
+                            results_returned=len(apollo_results),
+                            results_useful=added,
+                            context=f"acquisition_for_{client_profile.get('id', '')}",
+                            profile_id=client_profile.get("id", ""),
+                        ))
+                    except Exception:
+                        pass  # cost logging should never block discovery
+
+                    logger.info(
+                        "Layer 4.%d (Apollo): %d results, %d unique, $%.3f cost",
+                        i, len(apollo_results), added, query_cost,
+                    )
+            else:
+                logger.info("Layer 4 (Apollo): skipped — API key not configured")
+        except ImportError as exc:
+            logger.warning("Layer 4 (Apollo): skipped — %s", exc)
 
     # ------------------------------------------------------------------
     # Finalize: trim to max_results and attach total cost

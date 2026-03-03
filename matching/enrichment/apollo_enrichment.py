@@ -379,21 +379,32 @@ class ApolloEnrichmentService:
         company_size: str = "",
         location: str = "",
         max_results: int = 25,
+        person_seniorities: list[str] | None = None,
+        q_keywords: str = "",
+        revenue_range: list[str] | None = None,
+        page: int = 1,
     ) -> list[dict]:
         """Search Apollo for people matching criteria.
 
-        Uses the Apollo /people/search endpoint for discovering
-        new prospects by title, industry, and company attributes.
+        Uses the Apollo /mixed_people/search endpoint for discovering
+        new prospects by title, industry, seniority, and company attributes.
 
         Args:
-            title: Job title keywords (e.g. "health coach", "CEO")
-            industry: Industry filter
-            company_size: Company size range (e.g. "1-10", "11-50")
-            location: Location filter
-            max_results: Max results to return (Apollo caps at 100/page)
+            title: Job title keywords (e.g. "health coach", "CEO").
+                   Comma-separated titles are split into a list.
+            industry: Industry filter (e.g. "Professional Training & Coaching")
+            company_size: Company size range (e.g. "1,10", "11,50")
+            location: Location filter (e.g. "United States")
+            max_results: Max results to return. Paginates automatically if >100.
+            person_seniorities: Seniority levels — any of
+                "owner", "founder", "c_suite", "vp", "director", "manager", "senior"
+            q_keywords: Freeform keyword search across Apollo's index
+            revenue_range: Min/max annual revenue strings, e.g. ["1000000", "10000000"]
+            page: Starting page number (1-indexed)
 
         Returns:
-            List of prospect dicts with name, email, linkedin, company, title.
+            List of prospect dicts with name, email, linkedin, company, title,
+            website, industry, company_size, source_tool.
         """
         if not self.api_key:
             logger.warning("Apollo API key not configured for people search")
@@ -401,13 +412,14 @@ class ApolloEnrichmentService:
 
         import httpx
 
-        payload = {
+        per_page = min(max_results, 100)
+        payload: dict = {
             "api_key": self.api_key,
-            "per_page": min(max_results, 100),
-            "page": 1,
+            "per_page": per_page,
+            "page": page,
         }
 
-        # Build person_titles filter
+        # Build filters — only add non-empty values
         if title:
             payload["person_titles"] = [t.strip() for t in title.split(",")]
         if industry:
@@ -416,36 +428,64 @@ class ApolloEnrichmentService:
             payload["organization_num_employees_ranges"] = [company_size]
         if location:
             payload["person_locations"] = [location]
+        if person_seniorities:
+            payload["person_seniorities"] = person_seniorities
+        if q_keywords:
+            payload["q_keywords"] = q_keywords
+        if revenue_range and len(revenue_range) == 2:
+            payload["organization_revenue_ranges"] = [revenue_range]
 
-        try:
-            resp = httpx.post(
-                "https://api.apollo.io/api/v1/mixed_people/search",
-                json=payload,
-                timeout=30,
-            )
-            resp.raise_for_status()
-            data = resp.json()
-        except Exception as exc:
-            logger.warning("Apollo people search failed: %s", exc)
-            return []
+        all_prospects: list[dict] = []
+        current_page = page
+        pages_needed = (max_results + per_page - 1) // per_page  # ceiling division
 
-        prospects = []
-        for person in data.get("people", [])[:max_results]:
-            org = person.get("organization", {}) or {}
-            prospects.append({
-                "name": person.get("name", ""),
-                "email": person.get("email", ""),
-                "linkedin": person.get("linkedin_url", ""),
-                "company": org.get("name", ""),
-                "title": person.get("title", ""),
-                "website": org.get("website_url", ""),
-                "industry": org.get("industry", ""),
-                "company_size": org.get("estimated_num_employees"),
-                "source_tool": "apollo",
-            })
+        for _ in range(pages_needed):
+            payload["page"] = current_page
+            try:
+                resp = httpx.post(
+                    "https://api.apollo.io/api/v1/mixed_people/search",
+                    json=payload,
+                    timeout=30,
+                )
+                resp.raise_for_status()
+                data = resp.json()
+            except Exception as exc:
+                logger.warning("Apollo people search failed (page %d): %s", current_page, exc)
+                break
 
-        logger.info("Apollo people search: %d results for title='%s'", len(prospects), title[:40])
-        return prospects
+            people = data.get("people") or []
+            if not people:
+                break
+
+            for person in people:
+                if len(all_prospects) >= max_results:
+                    break
+                org = person.get("organization", {}) or {}
+                all_prospects.append({
+                    "name": person.get("name", ""),
+                    "email": person.get("email", ""),
+                    "linkedin": person.get("linkedin_url", ""),
+                    "company": org.get("name", ""),
+                    "title": person.get("title", ""),
+                    "website": org.get("website_url", ""),
+                    "industry": org.get("industry", ""),
+                    "company_size": org.get("estimated_num_employees"),
+                    "source_tool": "apollo",
+                })
+
+            # Stop if we got fewer results than requested (last page)
+            if len(people) < per_page:
+                break
+            current_page += 1
+
+        logger.info(
+            "Apollo people search: %d results for title='%s' seniorities=%s keywords='%s'",
+            len(all_prospects),
+            (title or "")[:40],
+            person_seniorities or [],
+            (q_keywords or "")[:30],
+        )
+        return all_prospects
 
     def extract_all_fields(self, person: Dict, original_profile: Dict) -> Dict:
         """

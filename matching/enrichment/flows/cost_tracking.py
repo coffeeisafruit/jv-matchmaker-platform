@@ -34,6 +34,7 @@ TRACKED_TOOLS: set[str] = {
     "serper",
     "tavily",
     "apollo",
+    "apollo_discovery",
     "duckduckgo",
     "claude_ai",
 }
@@ -47,6 +48,7 @@ DEFAULT_COST_PER_QUERY: dict[str, float] = {
     "serper": 0.002,
     "tavily": 0.01,
     "apollo": 0.03,
+    "apollo_discovery": 0.75,  # ~25 results × $0.03/credit per query
     "duckduckgo": 0.0,
     "claude_ai": 0.015,
 }
