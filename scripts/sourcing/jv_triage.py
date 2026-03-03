@@ -266,6 +266,23 @@ def score_jv_readiness(row: dict, tier: str) -> float:
 
     if scraper_data.get("jv_page_url") or scraper_data.get("affiliate_network"):
         c2 += 15
+
+    # NEW: seeking (Intent tier — AI-inferred, +10)
+    seeking = (row.get("seeking") or "").strip()
+    if len(seeking) > 10:
+        c2 += 10
+
+    # Seniority: decision-makers score higher (Apollo-derived)
+    seniority = (row.get("seniority") or "").lower()
+    if seniority in ("owner", "founder", "c_suite"):
+        c2 += 15
+    elif seniority in ("vp", "director"):
+        c2 += 8
+
+    # Intent signal from Apollo: active business development behavior
+    if row.get("intent_signal"):
+        c2 += 10
+
     c2 = min(c2, 100)
 
     # --- Component 3: Audience Signals (20%) ---
@@ -299,6 +316,24 @@ def score_jv_readiness(row: dict, tier: str) -> float:
                        "member", "audience", "community")
     if any(kw in bio for kw in audience_bio_kw):
         c3 += 15
+
+    # NEW: who_you_serve (Intent tier — AI-inferred, +8)
+    who_you_serve = (row.get("who_you_serve") or "").strip()
+    if len(who_you_serve) > 10:
+        c3 += 8
+
+    # NEW: audience_engagement_score (Computed tier — full points)
+    aes = row.get("audience_engagement_score") or 0
+    if isinstance(aes, str):
+        try:
+            aes = float(aes)
+        except ValueError:
+            aes = 0
+    if aes > 0.5:
+        c3 += 12
+    elif aes > 0:
+        c3 += 6
+
     c3 = min(c3, 100)
 
     # --- Component 4: Business Substance (12%) ---
@@ -314,6 +349,22 @@ def score_jv_readiness(row: dict, tier: str) -> float:
         c4 += 15
     if bio and len(bio) > 100:
         c4 += 15
+
+    # NEW: what_you_do (Fit tier — observable, +15)
+    what_you_do = (row.get("what_you_do") or "").strip()
+    if len(what_you_do) > 10:
+        c4 += 15
+
+    # NEW: offering (Fit tier — observable, +12)
+    offering = (row.get("offering") or "").strip()
+    if len(offering) > 10:
+        c4 += 12
+
+    # NEW: signature_programs (Fit tier — observable, +10)
+    sig_programs = (row.get("signature_programs") or "").strip()
+    if len(sig_programs) > 5:
+        c4 += 10
+
     c4 = min(c4, 100)
 
     # --- Component 5: Contactability (8%) ---
@@ -326,6 +377,29 @@ def score_jv_readiness(row: dict, tier: str) -> float:
         c5 += 25
     if website:
         c5 += 15
+
+    # NEW: booking_link (Fit tier — factual URL, +20)
+    booking_link = (row.get("booking_link") or "").strip()
+    if booking_link:
+        c5 += 20
+
+    # NEW: network_role (Computed tier — graph-derived, +10)
+    network_role = (row.get("network_role") or "").strip().lower()
+    if network_role in ("hub", "bridge"):
+        c5 += 10
+
+    # Email confidence: high confidence = more contactable (Apollo-derived)
+    email_conf = row.get("email_confidence") or 0
+    if isinstance(email_conf, str):
+        try:
+            email_conf = float(email_conf)
+        except ValueError:
+            email_conf = 0
+    if email_conf >= 0.8:
+        c5 += 10
+    elif email_conf >= 0.5:
+        c5 += 5
+
     c5 = min(c5, 100)
 
     score = (c1 * 0.35) + (c2 * 0.25) + (c3 * 0.20) + (c4 * 0.12) + (c5 * 0.08)
@@ -345,7 +419,7 @@ def get_connection():
 
 
 def ensure_columns(conn):
-    """Add jv_tier and jv_readiness_score columns if they don't exist."""
+    """Add jv_tier, jv_readiness_score, and Apollo-derived columns if they don't exist."""
     with conn.cursor() as cur:
         cur.execute("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS jv_tier VARCHAR(1);")
         cur.execute("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS jv_readiness_score FLOAT;")
@@ -354,19 +428,35 @@ def ensure_columns(conn):
             "CREATE INDEX IF NOT EXISTS idx_profiles_jv_score "
             "ON profiles (jv_readiness_score DESC NULLS LAST);"
         )
+        # Apollo-derived columns (promoted from enrichment_metadata.apollo_data)
+        cur.execute("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS seniority VARCHAR(30);")
+        cur.execute("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email_confidence FLOAT;")
+        cur.execute("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS engagement_likelihood BOOLEAN;")
+        cur.execute("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS intent_signal BOOLEAN;")
+        cur.execute("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS funding_stage VARCHAR(30);")
+        cur.execute(
+            "CREATE INDEX IF NOT EXISTS idx_profiles_seniority "
+            "ON profiles (seniority) WHERE seniority IS NOT NULL;"
+        )
     conn.commit()
-    print("  Columns jv_tier + jv_readiness_score ensured.")
+    print("  Columns jv_tier + jv_readiness_score + Apollo fields ensured.")
 
 
 FETCH_COLS = (
     "id, name, email, company, website, linkedin, phone, bio, tags, niche, "
-    "revenue_tier, jv_history, content_platforms, list_size, enrichment_metadata"
+    "revenue_tier, jv_history, content_platforms, list_size, enrichment_metadata, "
+    "what_you_do, who_you_serve, seeking, offering, signature_programs, "
+    "booking_link, audience_engagement_score, network_role, "
+    "seniority, email_confidence, intent_signal"
 )
 
 COL_NAMES = [
     "id", "name", "email", "company", "website", "linkedin", "phone",
     "bio", "tags", "niche", "revenue_tier", "jv_history",
     "content_platforms", "list_size", "enrichment_metadata",
+    "what_you_do", "who_you_serve", "seeking", "offering",
+    "signature_programs", "booking_link", "audience_engagement_score",
+    "network_role", "seniority", "email_confidence", "intent_signal",
 ]
 
 

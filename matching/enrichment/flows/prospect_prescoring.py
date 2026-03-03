@@ -93,6 +93,7 @@ def prescore_prospects(
     client_profile: dict,
     prospects: list[dict],
     threshold: int = 60,
+    gap_size: int | None = None,
 ) -> list[dict]:
     """Pre-score prospects against the client using lightweight ISMC.
 
@@ -111,6 +112,9 @@ def prescore_prospects(
     threshold:
         Minimum harmonic_mean score to be considered "above threshold".
         Default 60 -- intentionally loose for partial data.
+    gap_size:
+        Number of additional matches needed. When small, the threshold
+        is raised to be pickier and save enrichment budget.
 
     Returns
     -------
@@ -119,6 +123,17 @@ def prescore_prospects(
         Each prospect is annotated with _pre_score and _above_threshold.
     """
     logger = get_run_logger()
+
+    # Adaptive threshold: be pickier when gap is small (saves enrichment $)
+    if gap_size is not None:
+        if gap_size <= 3:
+            threshold = max(threshold, 72)
+        elif gap_size <= 5:
+            threshold = max(threshold, 67)
+        logger.info(
+            "Adaptive threshold: gap_size=%d → threshold=%d",
+            gap_size, threshold,
+        )
 
     if not prospects:
         logger.info("No prospects to pre-score")

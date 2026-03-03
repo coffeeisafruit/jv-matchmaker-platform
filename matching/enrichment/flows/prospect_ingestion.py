@@ -44,6 +44,13 @@ _DEDUP_BY_EMAIL_SQL = """
     SELECT id FROM profiles WHERE email = %s LIMIT 1
 """
 
+_DEDUP_BY_PHONE_SQL = """
+    SELECT id FROM profiles
+    WHERE phone IS NOT NULL
+      AND regexp_replace(phone, '[^0-9]', '', 'g') = regexp_replace(%s, '[^0-9]', '', 'g')
+    LIMIT 1
+"""
+
 _DEDUP_BY_WEBSITE_SQL = """
     SELECT id FROM profiles WHERE website = %s LIMIT 1
 """
@@ -90,6 +97,14 @@ def _check_duplicate(
     email = (prospect.get("email") or "").strip().lower()
     if email and "@" in email:
         cursor.execute(_DEDUP_BY_EMAIL_SQL, (email,))
+        row = cursor.fetchone()
+        if row:
+            return str(row["id"])
+
+    # Check by phone (digits-only comparison for format normalization)
+    phone = (prospect.get("phone") or "").strip()
+    if phone and len(phone) >= 7:
+        cursor.execute(_DEDUP_BY_PHONE_SQL, (phone,))
         row = cursor.fetchone()
         if row:
             return str(row["id"])

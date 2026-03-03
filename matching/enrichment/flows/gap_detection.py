@@ -146,6 +146,7 @@ def detect_match_gaps(
         all_scores: list[float] = []
         qualifying_count = 0
         niche_counts: dict[str, int] = {}
+        top_match_ids: list[str] = []
 
         for match in matches:
             score = float(match.get("harmonic_mean") or 0)
@@ -153,6 +154,8 @@ def detect_match_gaps(
 
             if score >= target_score:
                 qualifying_count += 1
+                # Track IDs of top matches for network expansion
+                top_match_ids.append(str(match["suggested_profile_id"]))
 
             # Track niche distribution
             match_niche = (match.get("niche") or "").strip().lower()
@@ -190,6 +193,7 @@ def detect_match_gaps(
             "avg_score": round(avg_score, 2),
             "niche_gaps": niche_gaps,
             "top_niches": top_niches,
+            "top_match_ids": top_match_ids[:20],
         }
 
         logger.info(

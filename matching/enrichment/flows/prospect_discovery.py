@@ -41,6 +41,70 @@ _SKIP_DOMAINS = [
 
 
 # ---------------------------------------------------------------------------
+# Network expansion helper
+# ---------------------------------------------------------------------------
+
+def _extract_partner_names(top_match_ids: list[str], max_names: int = 5) -> list[str]:
+    """Read jv_history from top matches and extract partner names for discovery.
+
+    Queries the database for profiles with jv_history, then extracts
+    unique partner names that can be used as Exa search queries.
+    """
+    if not top_match_ids:
+        return []
+
+    import os
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+
+    dsn = os.environ.get("DATABASE_URL", "")
+    if not dsn:
+        return []
+
+    try:
+        conn = psycopg2.connect(dsn)
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        # Fetch jv_history for top matches (limit to 10 for efficiency)
+        cursor.execute(
+            "SELECT jv_history FROM profiles "
+            "WHERE id = ANY(%s::uuid[]) AND jv_history IS NOT NULL",
+            ([str(uid) for uid in top_match_ids[:10]],),
+        )
+        rows = cursor.fetchall()
+        conn.close()
+    except Exception:
+        return []
+
+    names: list[str] = []
+    seen: set[str] = set()
+    for row in rows:
+        jv_history = row.get("jv_history") or []
+        if isinstance(jv_history, str):
+            import json
+            try:
+                jv_history = json.loads(jv_history)
+            except (json.JSONDecodeError, TypeError):
+                continue
+        if not isinstance(jv_history, list):
+            continue
+        for entry in jv_history:
+            if isinstance(entry, dict):
+                name = (entry.get("partner_name") or "").strip()
+            elif isinstance(entry, str):
+                name = entry.strip()
+            else:
+                continue
+            name_lower = name.lower()
+            if name and len(name) > 3 and name_lower not in seen:
+                seen.add(name_lower)
+                names.append(name)
+                if len(names) >= max_names:
+                    return names
+
+    return names
+
+
+# ---------------------------------------------------------------------------
 # Query builders
 # ---------------------------------------------------------------------------
 
@@ -295,6 +359,37 @@ def discover_prospects(
             all_prospects.append(p)
             added += 1
         return added
+
+    # ------------------------------------------------------------------
+    # Layer 0: Network expansion (partners of existing good matches)
+    # ------------------------------------------------------------------
+    top_match_ids = gap_analysis.get("top_match_ids", [])
+    if top_match_ids:
+        partner_names = _extract_partner_names(top_match_ids)
+        if partner_names:
+            logger.info(
+                "Discovery Layer 0: network expansion — %d partner names from jv_history",
+                len(partner_names),
+            )
+            for i, name in enumerate(partner_names):
+                if total_cost >= budget * 0.3:
+                    logger.info("Layer 0: budget fraction reached, moving to Layer 1")
+                    break
+                if len(all_prospects) >= max_results:
+                    break
+
+                network_query = f"{name} joint venture partner coach speaker"
+                network_prospects, cost = _exa_search(
+                    exa_service, network_query,
+                    num_results=min(10, max_results - len(all_prospects)),
+                    logger=logger,
+                )
+                total_cost += cost
+                added = _dedup_and_add(network_prospects)
+                logger.info(
+                    "Layer 0.%d: '%s' → %d results, %d unique, $%.4f",
+                    i, name[:30], len(network_prospects), added, cost,
+                )
 
     # ------------------------------------------------------------------
     # Layer 1: Primary semantic search (largest allocation)

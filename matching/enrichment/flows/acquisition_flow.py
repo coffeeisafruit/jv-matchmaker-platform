@@ -207,11 +207,12 @@ def acquisition_flow(
     # ------------------------------------------------------------------
     # Step 4: Pre-score prospects
     # ------------------------------------------------------------------
-    logger.info("Pre-scoring %d prospects", len(prospects))
+    logger.info("Pre-scoring %d prospects (gap=%d)", len(prospects), result.gap_detected)
     scored_prospects = prescore_prospects(
         client_profile=client_profile,
         prospects=prospects,
-        threshold=60,  # Pre-filter threshold
+        threshold=60,
+        gap_size=result.gap_detected,
     )
 
     above_threshold = [

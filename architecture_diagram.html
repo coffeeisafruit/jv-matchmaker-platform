@@ -2272,7 +2272,7 @@
     <div class="detail-section">
       <h4>Models</h4>
       <table class="detail-table">
-        <tr><td>SupabaseProfile</td><td>Unmanaged model mapped to Supabase. 3,577 JV partner profiles with enrichment_metadata JSONB for field-level provenance tracking</td></tr>
+        <tr><td>SupabaseProfile</td><td>Unmanaged model mapped to Supabase. 1.17M JV partner profiles with enrichment_metadata JSONB for field-level provenance tracking. Includes Apollo-promoted columns: seniority, email_confidence, engagement_likelihood, intent_signal, funding_stage</td></tr>
         <tr><td>SupabaseMatch</td><td>Pre-computed matches with bi-directional scoring (score_ab, score_ba), trust levels (platinum/gold/bronze). Composite DB index on (profile_id, -harmonic_mean) for fast top-N queries. match_reason field persists human-readable partnership insights</td></tr>
         <tr><td>MemberReport</td><td>Code-gated report with access_code, company branding, linked SupabaseProfile, client_profile JSON snapshot, partner list</td></tr>
         <tr><td>ReportPartner</td><td>Ranked partner in a report with match score (0-100), outreach template, display order</td></tr>
@@ -3234,6 +3234,21 @@
 
     <div class="db-section" onclick="this.classList.toggle('open')">
       <div class="db-section-header">
+        <h4><div class="db-dot" style="background:var(--accent-orange)"></div> Apollo-Derived Fields <span class="db-field-count">— 5 fields + 1 index</span></h4>
+        <span class="db-chevron">&#9654;</span>
+      </div>
+      <div class="db-section-body">
+        <div class="db-row"><span class="db-row-name">seniority</span><span class="db-row-desc">varchar(30) — Apollo seniority: owner, founder, c_suite, vp, director, manager, senior, entry. Feeds JV Signals scoring (+15/+8)</span></div>
+        <div class="db-row"><span class="db-row-name">email_confidence</span><span class="db-row-desc">float — 0.0-1.0 Apollo email confidence score. Feeds Contactability scoring (+10/+5)</span></div>
+        <div class="db-row"><span class="db-row-name">engagement_likelihood</span><span class="db-row-desc">boolean — Apollo is_likely_to_engage flag. Feeds ISMC Momentum dimension</span></div>
+        <div class="db-row"><span class="db-row-name">intent_signal</span><span class="db-row-desc">boolean — Apollo show_intent flag. Feeds JV Signals scoring (+10)</span></div>
+        <div class="db-row"><span class="db-row-name">funding_stage</span><span class="db-row-desc">varchar(30) — Derived from Apollo total_funding: seed, series_a, series_b, growth, profitable</span></div>
+        <div class="db-row" style="color:var(--text-dim);font-style:italic"><span class="db-row-name">idx_profiles_seniority</span><span class="db-row-desc">Partial index on seniority WHERE seniority IS NOT NULL</span></div>
+      </div>
+    </div>
+
+    <div class="db-section" onclick="this.classList.toggle('open')">
+      <div class="db-section-header">
         <h4><div class="db-dot" style="background:var(--text-dim)"></div> Timestamps <span class="db-field-count">— 4 fields</span></h4>
         <span class="db-chevron">&#9654;</span>
       </div>
@@ -3598,7 +3613,47 @@
       </div>
     </div>
 
-    <!-- ========== GROUP 7: System Fields ========== -->
+    <!-- ========== GROUP 7: Apollo-Derived Fields ========== -->
+    <div class="dh-group" onclick="this.classList.toggle('open')">
+      <div class="dh-group-header">
+        <h4><div class="dh-dot" style="background:var(--accent-orange)"></div> Apollo-Derived Fields <span class="dh-group-count">&mdash; 5 fields (new)</span></h4>
+        <span class="dh-chevron">&#9654;</span>
+      </div>
+      <div class="dh-group-body">
+        <div class="dh-bar-row">
+          <span class="dh-field-name">seniority</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:0.3%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">~0.3%</span>
+          <span class="dh-bar-delta dh-delta-zero">backfill pending</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">email_confidence</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:0.3%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">~0.3%</span>
+          <span class="dh-bar-delta dh-delta-zero">backfill pending</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">engagement_likelihood</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:0.3%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">~0.3%</span>
+          <span class="dh-bar-delta dh-delta-zero">backfill pending</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">intent_signal</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:0.3%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">~0.3%</span>
+          <span class="dh-bar-delta dh-delta-zero">backfill pending</span>
+        </div>
+        <div class="dh-bar-row">
+          <span class="dh-field-name">funding_stage</span>
+          <div class="dh-bar-track"><div class="dh-bar-fill dh-fill-red" style="width:0.3%"></div></div>
+          <span class="dh-bar-pct" style="color:var(--accent-red)">~0.3%</span>
+          <span class="dh-bar-delta dh-delta-zero">backfill pending</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== GROUP 8: System Fields ========== -->
     <div class="dh-group" onclick="this.classList.toggle('open')">
       <div class="dh-group-header">
         <h4><div class="dh-dot" style="background:var(--text-dim)"></div> System Fields <span class="dh-group-count">&mdash; 3 fields</span></h4>
@@ -4054,7 +4109,7 @@
           <tr><td style="color:#e87bb5">admin-notification</td><td>AI admin digest</td><td>Week 4 Tuesday</td><td>&mdash;</td><td>Claude summary generation</td></tr>
           <tr><td style="color:#f0a04b">report-delivery</td><td>Member report delivery</td><td>1st of month</td><td>&mdash;</td><td>Access code rotation + AI intros</td></tr>
           <tr><td style="color:#4ec8cb">enrichment-pipeline</td><td>Core data enrichment</td><td>Called by processing</td><td>1h</td><td>select &rarr; email &rarr; research &rarr; validate &rarr; write</td></tr>
-          <tr><td style="color:#5b8af5">acquisition-flow</td><td>New prospect discovery</td><td>Called by processing</td><td>30m</td><td>discover &rarr; prescore &rarr; ingest &rarr; enrich</td></tr>
+          <tr><td style="color:#5b8af5">acquisition-flow</td><td>New prospect discovery</td><td>Called by processing</td><td>30m</td><td>gap detect (+ top_match_ids) &rarr; discover (5 layers: network/Exa/Apollo) &rarr; adaptive prescore &rarr; ingest (5-layer dedup) &rarr; enrich</td></tr>
           <tr><td style="color:#f06b6b">retry-quarantined</td><td>Error recovery</td><td>Called by processing</td><td>&mdash;</td><td>Adaptive retry strategies</td></tr>
           <tr><td style="color:#4ecb8d">new-contact-flow</td><td>CSV/API contact ingest</td><td>On demand</td><td>1h</td><td>ingest &rarr; enrich &rarr; cross-client score</td></tr>
         </tbody>
@@ -4093,11 +4148,11 @@
         </div>
         <div class="dh-group-body">
           <table class="detail-table">
-            <tr><td>detect_match_gaps</td><td>Gap analysis per client <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 5s</span></td></tr>
-            <tr><td>discover_prospects</td><td>Exa websets + find-similar <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 30s</span></td></tr>
-            <tr><td>prescore_prospects</td><td>Lightweight ISMC pre-scoring</td></tr>
-            <tr><td>ingest_prospects</td><td>Save to DB with dedup <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 10s</span></td></tr>
-            <tr><td>enrichment_flow</td><td>Enrich high-scorers (cascaded call)</td></tr>
+            <tr><td>detect_match_gaps</td><td>Gap analysis per client + returns <em>top_match_ids</em> for network expansion <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 5s</span></td></tr>
+            <tr><td>discover_prospects</td><td>5-layer: <strong>L0</strong> network expansion (jv_history partners) &rarr; <strong>L1</strong> Exa search &rarr; <strong>L2</strong> Exa find-similar &rarr; <strong>L3</strong> niche queries &rarr; <strong>L4</strong> Apollo People Search <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 30s</span></td></tr>
+            <tr><td>prescore_prospects</td><td>Lightweight ISMC pre-scoring with <em>adaptive threshold</em> (gap&le;3: 72, gap&le;5: 67, else: 60)</td></tr>
+            <tr><td>ingest_prospects</td><td>Save to DB with 5-layer dedup (email, phone, website, LinkedIn, name) <span class="how-chip" style="background:rgba(78,203,141,0.1);color:#4ecb8d;font-size:10px;padding:2px 6px">retries: 2 / 10s</span></td></tr>
+            <tr><td>enrichment_flow</td><td>Enrich high-scorers &rarr; promotes Apollo fields (seniority, email_confidence, intent_signal, funding_stage) to columns</td></tr>
           </table>
         </div>
       </div>
@@ -4546,12 +4601,15 @@
           <p>Recalculates the <strong>jv_readiness_score</strong> (0&ndash;100) for individual profiles. This is a weighted formula with five components:</p>
           <table style="width:100%;margin:12px 0;font-size:13px;border-collapse:collapse">
             <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>Source JV Affinity</strong></td><td style="padding:6px">35%</td><td style="padding:6px;color:var(--text-dim)">How JV-relevant is the data source? (MunchEye = 100, BBB = 30)</td></tr>
-            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>JV Signals</strong></td><td style="padding:6px">25%</td><td style="padding:6px;color:var(--text-dim)">JV history, affiliate keywords in bio, commission mentions</td></tr>
-            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>Audience Signals</strong></td><td style="padding:6px">20%</td><td style="padding:6px;color:var(--text-dim)">Content platforms, list size, podcast/course/membership tags</td></tr>
-            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>Business Substance</strong></td><td style="padding:6px">12%</td><td style="padding:6px;color:var(--text-dim)">Company name, real website, revenue tier, niche, bio length</td></tr>
-            <tr><td style="padding:6px 12px"><strong>Contactability</strong></td><td style="padding:6px">8%</td><td style="padding:6px;color:var(--text-dim)">Has email, phone, LinkedIn</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>JV Signals</strong></td><td style="padding:6px">25%</td><td style="padding:6px;color:var(--text-dim)">JV history, affiliate keywords, commission mentions + <em>seeking</em> (AI-inferred intent, +10) + <em>seniority</em> (Apollo: owner/founder +15, vp/director +8) + <em>intent_signal</em> (Apollo, +10)</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>Audience Signals</strong></td><td style="padding:6px">20%</td><td style="padding:6px;color:var(--text-dim)">Content platforms, list size, audience tags + <em>who_you_serve</em> (+8), <em>audience_engagement_score</em> (+12/+6)</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>Business Substance</strong></td><td style="padding:6px">12%</td><td style="padding:6px;color:var(--text-dim)">Company, website, revenue tier, niche, bio + <em>what_you_do</em> (+15), <em>offering</em> (+12), <em>signature_programs</em> (+10)</td></tr>
+            <tr><td style="padding:6px 12px"><strong>Contactability</strong></td><td style="padding:6px">8%</td><td style="padding:6px;color:var(--text-dim)">Email, phone, LinkedIn, website + <em>booking_link</em> (+20), <em>network_role</em> (+10) + <em>email_confidence</em> (Apollo: &ge;0.8 +10, &ge;0.5 +5)</td></tr>
           </table>
-          <p>After enrichment fills in fields like niche, tags, revenue_tier, and email, a profile&rsquo;s score can jump significantly &mdash; for example, from 25 (name + directory URL only) to 50+ (fully enriched with business context).</p>
+
+          <p style="margin:8px 0;font-size:12px;color:var(--text-dim)"><strong>Confidence tiers (updated March 2026):</strong> Sub-signals use a Fit / Computed / Intent / Apollo framework. Observable facts (<em>what_you_do</em>, <em>offering</em>, <em>signature_programs</em>, <em>booking_link</em>) receive full points. Computed metrics (<em>audience_engagement_score</em>, <em>network_role</em>) receive full points. AI-inferred intent fields (<em>seeking</em>, <em>who_you_serve</em>) receive ~67% points since data is publicly sourced, not self-reported. Apollo-derived fields (<em>seniority</em> +15/+8, <em>intent_signal</em> +10, <em>email_confidence</em> +10/+5) receive full points as they come from verified API data. When profiles are claimed by users, Intent fields can be upgraded to full points as a &ldquo;verified&rdquo; boost.</p>
+
+          <p>After enrichment fills in fields like what_you_do, offering, seeking, and signature_programs, a profile&rsquo;s score can jump significantly &mdash; for example, from 29 (source + basic contact only) to 55+ (fully enriched with business context and partnership signals).</p>
 
           <p><strong>2. Match Rescoring (ISMC Pair Scoring)</strong> &mdash; <code>rescore_matches</code></p>
           <p>Recalculates how well <strong>pairs of profiles</strong> would work as JV partners using the 25-factor ISMC engine. This produces a harmonic mean score that determines the match tier:</p>

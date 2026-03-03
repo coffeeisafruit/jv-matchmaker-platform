@@ -90,6 +90,13 @@ class SupabaseProfile(models.Model):
     jv_tier = models.CharField(max_length=1, null=True, blank=True)  # A/B/C/D/E/X
     jv_readiness_score = models.FloatField(null=True, blank=True)    # 0-100
 
+    # Apollo-derived fields (promoted from enrichment_metadata.apollo_data)
+    seniority = models.CharField(max_length=30, null=True, blank=True)  # owner, founder, c_suite, vp, director, manager, senior, entry
+    email_confidence = models.FloatField(null=True, blank=True)  # 0.0-1.0
+    engagement_likelihood = models.BooleanField(null=True, blank=True)  # Apollo is_likely_to_engage
+    intent_signal = models.BooleanField(null=True, blank=True)  # Apollo show_intent
+    funding_stage = models.CharField(max_length=30, null=True, blank=True)  # seed, series_a, series_b, growth, profitable
+
     # Recommendation pressure
     recommendation_pressure_30d = models.IntegerField(null=True, blank=True)
     pressure_updated_at = models.DateTimeField(null=True, blank=True)

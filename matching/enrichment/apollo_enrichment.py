@@ -173,6 +173,21 @@ def validate_url(url: str) -> bool:
         return False
 
 
+def _derive_funding_stage(total_funding: int | None) -> str:
+    """Map Apollo total_funding to a funding stage category."""
+    if not total_funding:
+        return ""
+    if total_funding < 1_000_000:
+        return "seed"
+    if total_funding < 5_000_000:
+        return "series_a"
+    if total_funding < 20_000_000:
+        return "series_b"
+    if total_funding < 100_000_000:
+        return "growth"
+    return "profitable"
+
+
 class ApolloEnrichmentService:
     """
     Apollo.io enrichment service that captures ALL returned data.
@@ -562,6 +577,28 @@ class ApolloEnrichmentService:
         if social_urls:
             result['_social_urls'] = social_urls
 
+        # === Promoted Apollo fields → queryable columns ===
+        seniority = (person.get('seniority') or '').strip()
+        if seniority:
+            result['seniority'] = seniority
+
+        email_confidence = person.get('email_confidence')
+        if email_confidence is not None:
+            try:
+                result['email_confidence'] = float(email_confidence)
+            except (ValueError, TypeError):
+                pass
+
+        if person.get('is_likely_to_engage') is not None:
+            result['engagement_likelihood'] = bool(person['is_likely_to_engage'])
+
+        if person.get('show_intent') is not None:
+            result['intent_signal'] = bool(person['show_intent'])
+
+        funding_stage = _derive_funding_stage(org.get('total_funding'))
+        if funding_stage:
+            result['funding_stage'] = funding_stage
+
         # === ALL raw Apollo data → enrichment_metadata.apollo_data ===
         apollo_data = {
             'apollo_id': person.get('id'),
@@ -713,6 +750,27 @@ def process_apollo_result(
     if result.get('avatar_url') and should_write('avatar_url', result['avatar_url']):
         updates['avatar_url'] = result['avatar_url']
         fields_written.append('avatar_url')
+
+    # Promoted Apollo fields (always write — no source priority needed, Apollo-exclusive)
+    if result.get('seniority'):
+        updates['seniority'] = result['seniority']
+        fields_written.append('seniority')
+
+    if result.get('email_confidence') is not None:
+        updates['email_confidence'] = result['email_confidence']
+        fields_written.append('email_confidence')
+
+    if result.get('engagement_likelihood') is not None:
+        updates['engagement_likelihood'] = result['engagement_likelihood']
+        fields_written.append('engagement_likelihood')
+
+    if result.get('intent_signal') is not None:
+        updates['intent_signal'] = result['intent_signal']
+        fields_written.append('intent_signal')
+
+    if result.get('funding_stage'):
+        updates['funding_stage'] = result['funding_stage']
+        fields_written.append('funding_stage')
 
     # Build enrichment_metadata update
     field_meta_update = {}
