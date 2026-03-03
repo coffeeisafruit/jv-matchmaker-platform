@@ -668,7 +668,7 @@ class PartnershipInsight:
 class PartnershipAnalysis:
     """Complete analysis of a partner with dynamic insights."""
     partner: SupabaseProfile
-    tier: str  # 'hand_picked', 'strong', 'wildcard'
+    tier: str  # 'premier', 'strong', 'aligned'
     score: Optional[float]  # harmonic_mean from SupabaseMatch if available
     insights: List[PartnershipInsight] = field(default_factory=list)
     suggested_action: Optional[str] = None
@@ -689,9 +689,9 @@ class PartnershipAnalyzer:
     # Tier thresholds based on harmonic_mean (0-100 scale)
     # Calibrated for ISMC distribution: mean ~57.5, stdev ~5.7, range 25-78
     TIER_THRESHOLDS = {
-        'hand_picked': 67,  # ~Top 5%, no weak dimensions (geometric mean enforces this)
+        'premier': 67,      # ~Top 5%, no weak dimensions (geometric mean enforces this)
         'strong': 55,       # Above mean, solid signal across most dimensions
-        'wildcard': 0,      # Below average, algorithm doesn't see strong fit
+        'aligned': 0,       # Below average but still compatible partners
     }
 
     def __init__(
@@ -1115,8 +1115,8 @@ class PartnershipAnalyzer:
     ) -> str:
         """Determine confidence tier based on score and insights."""
         if score is not None:
-            if score >= self.TIER_THRESHOLDS['hand_picked']:
-                return 'hand_picked'
+            if score >= self.TIER_THRESHOLDS['premier']:
+                return 'premier'
             elif score >= self.TIER_THRESHOLDS['strong']:
                 return 'strong'
 
@@ -1124,9 +1124,9 @@ class PartnershipAnalyzer:
         if insight_count >= 3:
             return 'strong'
         elif insight_count >= 1:
-            return 'wildcard'
+            return 'aligned'
 
-        return 'wildcard'
+        return 'aligned'
 
     def _generate_suggested_action(
         self,
@@ -1140,7 +1140,7 @@ class PartnershipAnalyzer:
         # Combine actions from insights
         actions = [i.action for i in insights if i.action]
 
-        if tier == 'hand_picked':
+        if tier == 'premier':
             if 'audience_overlap' in [i.type for i in insights]:
                 return "High-priority: Propose a co-marketing campaign or list swap"
             return "High-priority: Request an introduction call"
@@ -1206,8 +1206,8 @@ class PartnershipAnalyzer:
             analysis = self.analyze(partner, match)
             analyses.append(analysis)
 
-        # Sort by tier (hand_picked first) then by score
-        tier_order = {'hand_picked': 0, 'strong': 1, 'wildcard': 2}
+        # Sort by tier (premier first) then by score
+        tier_order = {'premier': 0, 'strong': 1, 'aligned': 2}
         analyses.sort(
             key=lambda a: (tier_order.get(a.tier, 3), -(a.score or 0))
         )

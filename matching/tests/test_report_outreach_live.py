@@ -338,7 +338,7 @@ class TestOutreachAssignSectionFromDict:
         pd = {'match_score': 70, 'email': 'a@b.com', 'linkedin': '', 'schedule': '', 'apply_url': ''}
         section, label, note = _outreach_assign_section_from_dict(pd)
         assert section == 'priority'
-        assert 'Hand-picked' in label or 'Priority' in label
+        assert 'Premier' in label or 'Priority' in label
 
     def test_this_week_moderate_score_with_email(self):
         pd = {'match_score': 60, 'email': 'a@b.com', 'linkedin': '', 'schedule': '', 'apply_url': ''}
@@ -385,9 +385,9 @@ class TestOutreachAssignSectionFromDict:
 
 
 class TestOutreachAssignBadge:
-    def test_hand_picked(self, db):
+    def test_premier(self, db):
         sp = SupabaseProfile(seeking='')
-        assert _outreach_assign_badge(sp, 70) == 'Hand-Picked'
+        assert _outreach_assign_badge(sp, 70) == 'Premier'
 
     def test_active_jv(self, db):
         sp = SupabaseProfile(seeking='JV partners')
@@ -430,11 +430,11 @@ class TestOutreachBuildTags:
         labels = [t['label'] for t in tags]
         assert 'Coaches' in labels
 
-    def test_hand_picked_tag_for_high_score(self, db):
+    def test_premier_tag_for_high_score(self, db):
         sp = SupabaseProfile(who_you_serve='', niche='', what_you_do='', offering='')
         tags = _outreach_build_tags(sp, 70)
         labels = [t['label'] for t in tags]
-        assert 'Hand-Picked' in labels
+        assert 'Premier' in labels
 
     def test_large_list_tag(self, db):
         sp = SupabaseProfile(who_you_serve='', niche='', what_you_do='', offering='', list_size=60000)

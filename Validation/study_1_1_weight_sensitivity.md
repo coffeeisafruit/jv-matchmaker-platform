@@ -3,7 +3,7 @@
 **Generated:** 2026-03-01 04:05:40
 **Total pairs analyzed:** 29,863
 **Scoring formula:** Weighted geometric mean per direction, harmonic mean across directions
-**Tier thresholds:** hand_picked >= 67, strong >= 55, wildcard < 55
+**Tier thresholds:** premier >= 67, strong >= 55, aligned < 55
 
 ## Weight Configurations
 
@@ -18,8 +18,8 @@
 
 ## 1. Tier Distribution
 
-| Config | Hand-Picked | % | Strong | % | Wildcard | % |
-|--------|-------------|---|--------|---|----------|---|
+| Config | Premier | % | Strong | % | Aligned | % |
+|--------|---------|---|--------|---|---------|---|
 | Current | 671 | 2.2% | 20,841 | 69.8% | 8,351 | 28.0% |
 | Equal | 1,440 | 4.8% | 22,147 | 74.2% | 6,276 | 21.0% |
 | Synergy-heavy | 1,845 | 6.2% | 20,806 | 69.7% | 7,212 | 24.2% |
@@ -40,8 +40,8 @@
 
 ## 3. Jaccard Similarity vs. Current Weights
 
-| Config | Hand-Picked | Strong | Wildcard |
-|--------|-------------|--------|----------|
+| Config | Premier | Strong | Aligned |
+|--------|---------|--------|---------|
 | Current | 1.0000 | 1.0000 | 1.0000 |
 | Equal | 0.3943 | 0.8517 | 0.7054 |
 | Synergy-heavy | 0.2739 | 0.7687 | 0.5900 |
@@ -142,7 +142,7 @@ The current weights are MODERATELY SENSITIVE. The worst-case config ('Synergy-he
    ```
    where only dimensions with non-null scores participate (weight is redistributed)
 3. Combined directional scores via harmonic mean: `H = 2*S_ab*S_ba / (S_ab + S_ba)`
-4. Assigned tiers: hand_picked >= 67, strong >= 55, wildcard < 55
+4. Assigned tiers: premier >= 67, strong >= 55, aligned < 55
 5. Compared tier assignments, Jaccard similarity, and score distributions
 
 ---

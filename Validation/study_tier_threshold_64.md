@@ -1,4 +1,4 @@
-# Tier Threshold Evaluation: hand_picked 67 -> 64
+# Tier Threshold Evaluation: premier 67 -> 64
 
 **Generated:** 2026-02-28
 **Matches analyzed:** 29,863
@@ -7,24 +7,24 @@
 ## Background
 
 Weight sensitivity analysis (study_1_1) showed the quality break in harmonic mean
-scores naturally clusters around 61.5. The current hand_picked threshold of 67
+scores naturally clusters around 61.5. The current premier threshold of 67
 captures only 2.3% of matches. Moving from 67 to 64 is a conservative compromise
 that captures more quality matches without lowering the bar to the natural break
 point.
 
-**Current tiers:** hand_picked >= 67, strong >= 55, wildcard < 55
-**Proposed tiers:** hand_picked >= 64, strong >= 55, wildcard < 55
+**Current tiers:** premier >= 67, strong >= 55, aligned < 55
+**Proposed tiers:** premier >= 64, strong >= 55, aligned < 55
 
 ## Tier Distribution Comparison
 
 | Tier | Current (>=67) | Current % | New (>=64) | New % | Change |
 |------|---------------|-----------|------------|-------|--------|
-| hand_picked | 673 | 2.3% | 2,705 | 9.1% | +2,032 |
+| premier | 673 | 2.3% | 2,705 | 9.1% | +2,032 |
 | strong | 20,854 | 69.8% | 18,822 | 63.0% | -2,032 |
-| wildcard | 8,336 | 27.9% | 8,336 | 27.9% | 0 |
+| aligned | 8,336 | 27.9% | 8,336 | 27.9% | 0 |
 | **TOTAL** | **29,863** | **100%** | **29,863** | **100%** | — |
 
-The proposed change quadruples the hand_picked tier (2.3% -> 9.1%). The strong
+The proposed change quadruples the premier tier (2.3% -> 9.1%). The strong
 tier shrinks proportionally but remains the dominant tier at 63%.
 
 ## Score Distribution Around Boundary
@@ -54,7 +54,7 @@ adds 2,032 matches. Moving an additional 3 points (64 to 61) would add 5,026 mor
 The 64 threshold sits at a density inflection point where match counts roughly
 double per point below it.
 
-## Matches Moving: strong -> hand_picked (64.0 <= score < 67.0)
+## Matches Moving: strong -> premier (64.0 <= score < 67.0)
 
 - **Total movers:** 2,032 matches
 - **As % of total:** 6.80%
@@ -64,15 +64,15 @@ double per point below it.
 
 | Band | Intent | Synergy | Momentum | Context | Asymmetry |AB-BA| |
 |------|--------|---------|----------|---------|------------|
-| hand_picked (>=67) | 7.17 | 7.01 | 6.24 | 7.86 | 6.19 |
+| premier (>=67) | 7.17 | 7.01 | 6.24 | 7.86 | 6.19 |
 | **movers (64-66.99)** | **6.78** | **6.79** | **6.03** | **7.71** | **5.84** |
 | strong (55-63.99) | 6.50 | 6.48 | 5.88 | 7.47 | 5.69 |
-| wildcard (<55) | 5.49 | 5.62 | 5.45 | 6.54 | 7.53 |
+| aligned (<55) | 5.49 | 5.62 | 5.45 | 6.54 | 7.53 |
 
 **Observations:**
-1. Movers are closer to current hand_picked than to the strong average on every
+1. Movers are closer to current premier than to the strong average on every
    dimension. The gap mover->HP is roughly half the gap mover->strong.
-2. Movers have **lower asymmetry** (5.84) than current hand_picked (6.19), meaning
+2. Movers have **lower asymmetry** (5.84) than current premier (6.19), meaning
    these are more bidirectionally balanced matches.
 3. The weakest dimension across all bands is Momentum, suggesting these matches
    involve partners who are slightly less active but otherwise well-aligned.
@@ -125,7 +125,7 @@ double per point below it.
 - **Jane Offering:** Business Consulting, Email List Building, Email Marketing Software, Lead Generation Specialists...
 - **Catharine Seeking:** Funnel software providers, email marketing platforms, and lead magnet creators. Co-created quiz funn...
 - **Catharine Offering:** Business Coaching, Coach Marketing Training, Email List Building, Funnel Creation Consulting...
-- **Assessment:** Excellent match. Both in email marketing/funnel space. Jane's offerings match Catharine's seeking almost perfectly. This is a clear hand_picked-quality match.
+- **Assessment:** Excellent match. Both in email marketing/funnel space. Jane's offerings match Catharine's seeking almost perfectly. This is a clear premier-quality match.
 
 ### Match 7: Christie Love <-> Business Skills (65.92)
 - **Top Dimension:** Context (9.1) | I=6.0, S=6.9, M=6.6, C=9.1
@@ -164,13 +164,13 @@ double per point below it.
 
 | Quality Assessment | Count | Matches |
 |-------------------|-------|---------|
-| Clear hand_picked quality | 4 | #2 (Amy/Donna), #5 (Matt/Sharyn), #6 (Jane/Catharine), #10 (Jason/Gulraiz) |
+| Clear premier quality | 4 | #2 (Amy/Donna), #5 (Matt/Sharyn), #6 (Jane/Catharine), #10 (Jason/Gulraiz) |
 | Decent/reasonable match | 4 | #1 (Vinny/Amanda), #4 (Andrew/Ed), #8 (Sabine/Avital), #9 (Andre/Sally) |
 | Borderline/inflated by Context | 2 | #3 (Sharon/Carol), #7 (Christie/Business Skills) |
 
-**4 of 10 sampled matches (40%)** are clearly hand_picked quality with strong
+**4 of 10 sampled matches (40%)** are clearly premier quality with strong
 bidirectional seeking-offering alignment. Another 4 are reasonable matches that
-would benefit from the "hand_picked" label to encourage outreach. Only 2 of 10
+would benefit from the "premier" label to encourage outreach. Only 2 of 10
 appear borderline, and even those have some coaching overlap.
 
 ## Engagement Data
@@ -186,7 +186,7 @@ The assessment relies entirely on ISMC dimension analysis and qualitative review
 
 | File | Line(s) | Context |
 |------|---------|---------|
-| `matching/services.py` | 692 | `TIER_THRESHOLDS = {'hand_picked': 67, ...}` — **canonical definition** |
+| `matching/services.py` | 692 | `TIER_THRESHOLDS = {'premier': 67, ...}` — **canonical definition** |
 | `matching/views.py` | 1018 | `if score >= 67 and has_email:` — outreach section assignment |
 | `matching/views.py` | 1034 | `if score >= 67:` — badge assignment |
 | `matching/views.py` | 1046 | `if score >= 67:` — badge style assignment |
@@ -197,8 +197,8 @@ The assessment relies entirely on ISMC dimension analysis and qualitative review
 
 | File | Line(s) | Context |
 |------|---------|---------|
-| `matching/tests/test_services.py` | 816 | Comment: `below 67 hand_picked` |
-| `matching/tests/test_services.py` | 906 | Comment: `Thresholds: hand_picked >= 67` |
+| `matching/tests/test_services.py` | 816 | Comment: `below 67 premier` |
+| `matching/tests/test_services.py` | 906 | Comment: `Thresholds: premier >= 67` |
 | `matching/tests/test_report_outreach_live.py` | 365-368 | `test_boundary_67_with_email_is_priority` |
 | `matching/tests/test_report_outreach_live.py` | 370-373 | `test_boundary_66_with_email_is_this_week` |
 | `matching/tests/test_report_outreach_live.py` | 717 | Comment: `score 68 >= 67` |
@@ -208,7 +208,7 @@ The assessment relies entirely on ISMC dimension analysis and qualitative review
 
 | File | Line(s) | Context |
 |------|---------|---------|
-| `Validation/generate_dashboard.py` | 54 | `TIER_THRESHOLDS = {'hand_picked': 67, ...}` |
+| `Validation/generate_dashboard.py` | 54 | `TIER_THRESHOLDS = {'premier': 67, ...}` |
 | `Validation/generate_dashboard.py` | 348-349 | Hardcoded 67 in tier counting |
 | `Validation/generate_dashboard.py` | 1060, 1327, 1544, 1574 | HTML/JS references to 67 |
 | `Validation/01_score_distribution.py` | 74, 113 | Tier definitions |
@@ -229,13 +229,13 @@ The assessment relies entirely on ISMC dimension analysis and qualitative review
 ## Refactoring Recommendation
 
 The `matching/views.py` file hardcodes `67` in **5 separate places** rather than
-referencing `PartnershipAnalyzer.TIER_THRESHOLDS['hand_picked']`. When deploying
+referencing `PartnershipAnalyzer.TIER_THRESHOLDS['premier']`. When deploying
 this change, views.py should be refactored to import and use the canonical
 threshold from `services.py` to prevent future drift:
 
 ```python
 from matching.services import PartnershipAnalyzer
-HP_THRESHOLD = PartnershipAnalyzer.TIER_THRESHOLDS['hand_picked']
+HP_THRESHOLD = PartnershipAnalyzer.TIER_THRESHOLDS['premier']
 ```
 
 ## Verdict
@@ -245,22 +245,22 @@ HP_THRESHOLD = PartnershipAnalyzer.TIER_THRESHOLDS['hand_picked']
 ### Reasons FOR:
 
 1. **Quality holds up.** 8 of 10 sampled matches (80%) are reasonable-to-excellent
-   quality. 4 of 10 (40%) are clearly hand_picked quality that the current threshold
+   quality. 4 of 10 (40%) are clearly premier quality that the current threshold
    incorrectly excludes.
 
 2. **ISMC dimensions support it.** Movers average I=6.78, S=6.79, M=6.03, C=7.71 --
-   much closer to current hand_picked (I=7.17, S=7.01, M=6.24, C=7.86) than to the
+   much closer to current premier (I=7.17, S=7.01, M=6.24, C=7.86) than to the
    strong average (I=6.50, S=6.48, M=5.88, C=7.47).
 
 3. **Lower asymmetry.** Movers have |AB-BA| asymmetry of 5.84, actually better
-   (more balanced) than current hand_picked at 6.19. These are bidirectionally
+   (more balanced) than current premier at 6.19. These are bidirectionally
    sound matches.
 
 4. **Density inflection.** The score distribution shows a natural density
    inflection around 64 -- below this point, match counts roughly double per point.
    The 64 threshold captures the quality plateau before the steep falloff.
 
-5. **Still selective.** At 9.1% hand_picked, the tier remains exclusive (roughly
+5. **Still selective.** At 9.1% premier, the tier remains exclusive (roughly
    1 in 11 matches). This is well within the "top decile" that users expect from
    a curated recommendation.
 
@@ -275,14 +275,14 @@ HP_THRESHOLD = PartnershipAnalyzer.TIER_THRESHOLDS['hand_picked']
    on ISMC scores and qualitative review. After deployment, monitor click-through
    and contact rates for the 64-67 band vs. the 67+ band.
 
-3. **Perception risk.** Quadrupling the hand_picked count (673 -> 2,705) may dilute
-   the perceived exclusivity of the tier. Consider whether the label "Hand-Picked"
+3. **Perception risk.** Quadrupling the premier count (673 -> 2,705) may dilute
+   the perceived exclusivity of the tier. Consider whether the label "Premier"
    still resonates at 9.1%, or if it needs to be reserved for >=67 with a new
    intermediate label like "Top Match" for 64-67.
 
 ### Implementation checklist:
 
-- [ ] Update `matching/services.py` line 692: `'hand_picked': 64`
+- [ ] Update `matching/services.py` line 692: `'premier': 64`
 - [ ] Update `matching/views.py` lines 1018, 1034, 1046, 1075, 1146: change `67` to `64`
   (or refactor to reference `TIER_THRESHOLDS`)
 - [ ] Update test expectations in `test_services.py` and `test_report_outreach_live.py`

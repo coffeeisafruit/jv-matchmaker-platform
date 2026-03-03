@@ -51,7 +51,7 @@ from matching.models import SupabaseMatch, SupabaseProfile  # noqa: E402
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 OUTPUT_PATH = Path(__file__).resolve().parent / 'validation_dashboard.html'
 
-TIER_THRESHOLDS = {'hand_picked': 67, 'strong': 55, 'wildcard': 0}
+TIER_THRESHOLDS = {'premier': 67, 'strong': 55, 'aligned': 0}
 
 EMBEDDING_FIELDS = [
     'embedding_seeking',
@@ -345,19 +345,19 @@ def compute_correlation_matrix(intent: List[float], synergy: List[float],
 
 def compute_tier_distribution(scores: List[float]) -> Dict[str, Any]:
     """Count matches in each tier."""
-    hand_picked = sum(1 for s in scores if s >= 67)
+    premier = sum(1 for s in scores if s >= 67)
     strong = sum(1 for s in scores if 55 <= s < 67)
-    wildcard = sum(1 for s in scores if s < 55)
+    aligned = sum(1 for s in scores if s < 55)
     total = len(scores)
 
     return {
-        'hand_picked': hand_picked,
+        'premier': premier,
         'strong': strong,
-        'wildcard': wildcard,
+        'aligned': aligned,
         'total': total,
-        'hand_picked_pct': round(100.0 * hand_picked / total, 1) if total > 0 else 0,
+        'premier_pct': round(100.0 * premier / total, 1) if total > 0 else 0,
         'strong_pct': round(100.0 * strong / total, 1) if total > 0 else 0,
-        'wildcard_pct': round(100.0 * wildcard / total, 1) if total > 0 else 0,
+        'aligned_pct': round(100.0 * aligned / total, 1) if total > 0 else 0,
     }
 
 
@@ -1057,7 +1057,7 @@ body {
                             </div>
                             <div class="stats-row">
                                 <span class="label">Tier Boundaries</span>
-                                <span class="value">Hand-Picked &ge;67, Strong &ge;55</span>
+                                <span class="value">Premier &ge;67, Strong &ge;55</span>
                             </div>
                         </div>
                     </div>
@@ -1381,9 +1381,9 @@ function initDistribution() {
         ['Median', median.toFixed(2)],
         ['Std Deviation', stdev.toFixed(2)],
         ['Range', sorted[0].toFixed(1) + ' - ' + sorted[sorted.length-1].toFixed(1)],
-        ['Hand-Picked Threshold', '\u226567'],
+        ['Premier Threshold', '\u226567'],
         ['Strong Threshold', '\u226555'],
-        ['Wildcard Zone', '<55']
+        ['Aligned Zone', '<55']
     ];
     statsRows.forEach(function(r) {
         var div = document.createElement('div');
@@ -1541,12 +1541,12 @@ function initTiers() {
         type: 'doughnut',
         data: {
             labels: [
-                'Hand-Picked (>= 67): ' + tiers.hand_picked,
+                'Premier (>= 67): ' + tiers.premier,
                 'Strong (55-66): ' + tiers.strong,
-                'Wildcard (< 55): ' + tiers.wildcard
+                'Aligned (< 55): ' + tiers.aligned
             ],
             datasets: [{
-                data: [tiers.hand_picked, tiers.strong, tiers.wildcard],
+                data: [tiers.premier, tiers.strong, tiers.aligned],
                 backgroundColor: ['#27AE60', '#E67E22', '#E74C3C'],
                 borderWidth: 3,
                 borderColor: '#fff',
@@ -1571,9 +1571,9 @@ function initTiers() {
     var rows = [
         ['Total Matches', formatNumber(tiers.total)],
         ['---', ''],
-        ['Hand-Picked (\u226567)', formatNumber(tiers.hand_picked) + ' (' + tiers.hand_picked_pct + '%)'],
+        ['Premier (\u226567)', formatNumber(tiers.premier) + ' (' + tiers.premier_pct + '%)'],
         ['Strong (55-66)', formatNumber(tiers.strong) + ' (' + tiers.strong_pct + '%)'],
-        ['Wildcard (<55)', formatNumber(tiers.wildcard) + ' (' + tiers.wildcard_pct + '%)']
+        ['Aligned (<55)', formatNumber(tiers.aligned) + ' (' + tiers.aligned_pct + '%)']
     ];
     rows.forEach(function(r) {
         if (r[0] === '---') {
@@ -1825,7 +1825,7 @@ def main() -> None:
     tiers = compute_tier_distribution(scores)
 
     print(f'       Scores: mean={stats["mean"]}, median={stats["median"]}, stdev={stats["stdev"]}')
-    print(f'       Tiers: hand_picked={tiers["hand_picked"]}, strong={tiers["strong"]}, wildcard={tiers["wildcard"]}')
+    print(f'       Tiers: premier={tiers["premier"]}, strong={tiers["strong"]}, aligned={tiers["aligned"]}')
     print(f'       Correlation max |r|={correlation["max_abs_r"]}, independence={"PASS" if correlation["independence_ok"] else "FAIL"}')
 
     # ---- Assemble dashboard data ----

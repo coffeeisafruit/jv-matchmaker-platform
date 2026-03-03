@@ -12,7 +12,7 @@ Analyses:
     1. Score distribution statistics (normality, skewness, kurtosis, entropy, Gini)
     2. Per-dimension ISMC distributions (Intent, Synergy, Momentum, Context)
     3. Component independence (Pearson correlation matrix, verify max |r| < 0.7)
-    4. Tier distribution (hand_picked >= 67, strong >= 55, wildcard < 55)
+    4. Tier distribution (premier >= 67, strong >= 55, aligned < 55)
     5. Sanity checks against known population values (mean ~57.49, stdev ~5.70)
 
 Usage:
@@ -71,9 +71,9 @@ BOOTSTRAP_ITERATIONS = 10_000
 SHAPIRO_MAX_N = 5000
 
 TIER_BOUNDARIES = {
-    'hand_picked': (67, 100),
+    'premier':     (67, 100),
     'strong':      (55, 67),
-    'wildcard':    (0,  55),
+    'aligned':     (0,  55),
 }
 
 PERCENTILES = [1, 5, 10, 25, 50, 75, 90, 95, 99]
@@ -111,11 +111,11 @@ def ensure_output_dirs() -> None:
 def assign_tier(score: float) -> str:
     """Map a harmonic_mean score to its tier label."""
     if score >= 67:
-        return 'hand_picked'
+        return 'premier'
     elif score >= 55:
         return 'strong'
     else:
-        return 'wildcard'
+        return 'aligned'
 
 
 def _sig_label(p: float) -> str:
@@ -463,7 +463,7 @@ def analyze_tier_distribution(df: pd.DataFrame) -> dict:
     tier_counts = df['tier'].value_counts().to_dict()
 
     tiers = {}
-    for tier_name in ['hand_picked', 'strong', 'wildcard']:
+    for tier_name in ['premier', 'strong', 'aligned']:
         count = tier_counts.get(tier_name, 0)
         pct = (count / total * 100) if total > 0 else 0.0
         lo, hi = TIER_BOUNDARIES[tier_name]
@@ -561,16 +561,16 @@ def plot_score_histogram(scores: np.ndarray, dist_stats: dict) -> None:
     ax.axvline(x=55, color='#E67E22', linewidth=2, linestyle='--',
                label='Strong threshold (55)')
     ax.axvline(x=67, color='#27AE60', linewidth=2, linestyle='--',
-               label='Hand-picked threshold (67)')
+               label='Premier threshold (67)')
 
     # Mean line
     ax.axvline(x=dist_stats['mean'], color='#E74C3C', linewidth=1.5,
                linestyle=':', label=f'Mean ({dist_stats["mean"]:.1f})')
 
     # Shade tier regions
-    ax.axvspan(0, 55, alpha=0.05, color='#E74C3C', label='Wildcard zone')
+    ax.axvspan(0, 55, alpha=0.05, color='#E74C3C', label='Aligned zone')
     ax.axvspan(55, 67, alpha=0.05, color='#E67E22', label='Strong zone')
-    ax.axvspan(67, 100, alpha=0.05, color='#27AE60', label='Hand-picked zone')
+    ax.axvspan(67, 100, alpha=0.05, color='#27AE60', label='Premier zone')
 
     ax.set_xlabel('Harmonic Mean Score', fontsize=12)
     ax.set_ylabel('Count', fontsize=12)
@@ -683,7 +683,7 @@ def plot_dimension_boxplot(df: pd.DataFrame) -> None:
     ax.axhline(y=55, color='#E67E22', linewidth=1, linestyle=':', alpha=0.6,
                label='Strong threshold (55)')
     ax.axhline(y=67, color='#27AE60', linewidth=1, linestyle=':', alpha=0.6,
-               label='Hand-picked threshold (67)')
+               label='Premier threshold (67)')
 
     ax.set_ylabel('Score', fontsize=12)
     ax.set_title('ISMC Dimension Score Distributions', fontsize=14, fontweight='bold')
@@ -875,7 +875,7 @@ def generate_report(dist_stats: dict, dim_stats: dict, corr_results: dict,
     lines.append(f'  {"Tier":>15}  {"Range":>10}  {"Count":>8}  {"Pct":>8}')
     lines.append(f'  {"-"*15}  {"-"*10}  {"-"*8}  {"-"*8}')
 
-    for tier_name in ['hand_picked', 'strong', 'wildcard']:
+    for tier_name in ['premier', 'strong', 'aligned']:
         t = tier_results['tiers'][tier_name]
         lines.append(f'  {tier_name:>15}  {t["range"]:>10}  {t["count"]:>8,}  {t["pct"]:>7.1f}%')
 
@@ -979,7 +979,7 @@ def main():
     # -----------------------------------------------------------------------
     print('\n[5/6] Analyzing tier distribution...')
     tier_results = analyze_tier_distribution(df)
-    for tier_name in ['hand_picked', 'strong', 'wildcard']:
+    for tier_name in ['premier', 'strong', 'aligned']:
         t = tier_results['tiers'][tier_name]
         print(f'  {tier_name}: {t["count"]:,} ({t["pct"]:.1f}%)')
 

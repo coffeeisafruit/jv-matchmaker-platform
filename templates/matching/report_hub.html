@@ -83,7 +83,7 @@
 <body>
     <div class="container">
         <h1>{{ report.company_name }}</h1>
-        <p class="subtitle">{{ report.member_name }} · Partner report</p>
+        <p class="subtitle">{{ report.member_name }} · {{ report.month|date:"F Y" }}</p>
         <ul class="nav-list">
             <li class="nav-card">
                 <a href="{% url 'matching:report-outreach' report.id %}">

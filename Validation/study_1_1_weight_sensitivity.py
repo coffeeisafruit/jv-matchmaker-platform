@@ -12,7 +12,7 @@ Algorithm:
      Final directional = S_dir * 10  (0-100 scale)
   2. Pair score: harmonic mean of both directions
      H = 2 * S_ab * S_ba / (S_ab + S_ba)
-  3. Tiers: hand_picked >= 67, strong >= 55, wildcard < 55
+  3. Tiers: premier >= 67, strong >= 55, aligned < 55
 """
 
 import csv
@@ -44,7 +44,7 @@ WEIGHT_CONFIGS = {
     "Momentum-heavy":  {"intent": 20, "synergy": 20, "momentum": 40, "context": 20},
 }
 
-TIER_THRESHOLDS = {"hand_picked": 67, "strong": 55}  # wildcard < 55
+TIER_THRESHOLDS = {"premier": 67, "strong": 55}  # aligned < 55
 
 EPSILON = 1e-10
 
@@ -53,12 +53,12 @@ EPSILON = 1e-10
 # ---------------------------------------------------------------------------
 
 def tier_label(score: float) -> str:
-    if score >= TIER_THRESHOLDS["hand_picked"]:
-        return "hand_picked"
+    if score >= TIER_THRESHOLDS["premier"]:
+        return "premier"
     elif score >= TIER_THRESHOLDS["strong"]:
         return "strong"
     else:
-        return "wildcard"
+        return "aligned"
 
 
 def weighted_geometric_mean(dim_scores: dict, weights: dict) -> float:
@@ -229,12 +229,12 @@ for config_name in WEIGHT_CONFIGS:
     for r in results[config_name]:
         counts[r["tier"]] += 1
     tier_distributions[config_name] = counts
-    hp = counts["hand_picked"]
+    hp = counts["premier"]
     st = counts["strong"]
-    wc = counts["wildcard"]
-    print(f"  {config_name:20s}  hand_picked: {hp:5d} ({hp/total_pairs*100:5.1f}%)  "
+    wc = counts["aligned"]
+    print(f"  {config_name:20s}  premier: {hp:5d} ({hp/total_pairs*100:5.1f}%)  "
           f"strong: {st:5d} ({st/total_pairs*100:5.1f}%)  "
-          f"wildcard: {wc:5d} ({wc/total_pairs*100:5.1f}%)")
+          f"aligned: {wc:5d} ({wc/total_pairs*100:5.1f}%)")
 
 # 2. Tier changes vs current
 print(f"\n2. Tier Changes vs. '{baseline}'")
@@ -257,16 +257,16 @@ print("-" * 80)
 jaccard_results = {}
 for config_name in WEIGHT_CONFIGS:
     jaccards = {}
-    for tier_name in ["hand_picked", "strong", "wildcard"]:
+    for tier_name in ["premier", "strong", "aligned"]:
         set_baseline = {r["pair_key"] for r in baseline_results if r["tier"] == tier_name}
         set_config = {r["pair_key"] for r in results[config_name] if r["tier"] == tier_name}
         j = jaccard(set_baseline, set_config)
         jaccards[tier_name] = j
     jaccard_results[config_name] = jaccards
-    hp_j = jaccards["hand_picked"]
+    hp_j = jaccards["premier"]
     st_j = jaccards["strong"]
-    wc_j = jaccards["wildcard"]
-    print(f"  {config_name:20s}  hand_picked: {hp_j:.4f}  strong: {st_j:.4f}  wildcard: {wc_j:.4f}")
+    wc_j = jaccards["aligned"]
+    print(f"  {config_name:20s}  premier: {hp_j:.4f}  strong: {st_j:.4f}  aligned: {wc_j:.4f}")
 
 # 4. Top 10 pairs with biggest score swing
 print(f"\n4. Top 10 Pairs with Biggest Score Swing (max absolute delta across all configs)")
@@ -404,7 +404,7 @@ lines.append("")
 lines.append(f"**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 lines.append(f"**Total pairs analyzed:** {total_pairs:,}")
 lines.append(f"**Scoring formula:** Weighted geometric mean per direction, harmonic mean across directions")
-lines.append(f"**Tier thresholds:** hand_picked >= 67, strong >= 55, wildcard < 55")
+lines.append(f"**Tier thresholds:** premier >= 67, strong >= 55, aligned < 55")
 lines.append("")
 
 # Weight configs table
@@ -419,11 +419,11 @@ lines.append("")
 # Tier distribution
 lines.append("## 1. Tier Distribution")
 lines.append("")
-lines.append("| Config | Hand-Picked | % | Strong | % | Wildcard | % |")
-lines.append("|--------|-------------|---|--------|---|----------|---|")
+lines.append("| Config | Premier | % | Strong | % | Aligned | % |")
+lines.append("|--------|---------|---|--------|---|---------|---|")
 for cn in WEIGHT_CONFIGS:
     c = tier_distributions[cn]
-    hp, st, wc = c["hand_picked"], c["strong"], c["wildcard"]
+    hp, st, wc = c["premier"], c["strong"], c["aligned"]
     lines.append(
         f"| {cn} | {hp:,} | {hp/total_pairs*100:.1f}% "
         f"| {st:,} | {st/total_pairs*100:.1f}% "
@@ -447,11 +447,11 @@ lines.append("")
 # Jaccard similarity
 lines.append("## 3. Jaccard Similarity vs. Current Weights")
 lines.append("")
-lines.append("| Config | Hand-Picked | Strong | Wildcard |")
-lines.append("|--------|-------------|--------|----------|")
+lines.append("| Config | Premier | Strong | Aligned |")
+lines.append("|--------|---------|--------|---------|")
 for cn in WEIGHT_CONFIGS:
     j = jaccard_results[cn]
-    lines.append(f"| {cn} | {j['hand_picked']:.4f} | {j['strong']:.4f} | {j['wildcard']:.4f} |")
+    lines.append(f"| {cn} | {j['premier']:.4f} | {j['strong']:.4f} | {j['aligned']:.4f} |")
 lines.append("")
 
 # Top 10 swing
@@ -517,7 +517,7 @@ lines.append("   S_dir = exp(sum(w_d * log(s_d)) / sum(w_d)) * 10")
 lines.append("   ```")
 lines.append("   where only dimensions with non-null scores participate (weight is redistributed)")
 lines.append("3. Combined directional scores via harmonic mean: `H = 2*S_ab*S_ba / (S_ab + S_ba)`")
-lines.append("4. Assigned tiers: hand_picked >= 67, strong >= 55, wildcard < 55")
+lines.append("4. Assigned tiers: premier >= 67, strong >= 55, aligned < 55")
 lines.append("5. Compared tier assignments, Jaccard similarity, and score distributions")
 lines.append("")
 lines.append("---")

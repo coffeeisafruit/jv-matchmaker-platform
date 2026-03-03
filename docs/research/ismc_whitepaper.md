@@ -287,9 +287,9 @@ Match pairs are classified into tiers based on their harmonic mean score:
 
 | Tier | Threshold | Description |
 |------|-----------|-------------|
-| `hand_picked` | $\geq 67$ | Top-tier matches recommended with high confidence |
+| `premier` | $\geq 67$ | Top-tier matches recommended with high confidence |
 | `strong` | $\geq 55$ | Solid matches worth pursuing |
-| `wildcard` | $< 55$ | Exploratory matches, may have potential |
+| `aligned` | $< 55$ | Compatible partners with developing match signal |
 
 These thresholds were calibrated from the production score distribution to produce meaningful tier sizes.
 
@@ -487,7 +487,7 @@ The MatchLearningSignal model captures learning signals from match outcomes, tyi
 
 **Embedding model fixed.** The current system uses a single embedding model (bge-large-en-v1.5) for all semantic comparisons. While this model performed best in our evaluation, the optimal model may vary by field type (e.g., a model fine-tuned on business descriptions might outperform a general-purpose model for the "what_you_do" field).
 
-**Threshold sensitivity.** The tier thresholds (hand_picked $\geq 67$, strong $\geq 55$) and embedding score mapping thresholds were calibrated on the current dataset distribution. As the profile corpus grows and diversifies, these thresholds may require recalibration.
+**Threshold sensitivity.** The tier thresholds (premier $\geq 67$, strong $\geq 55$) and embedding score mapping thresholds were calibrated on the current dataset distribution. As the profile corpus grows and diversifies, these thresholds may require recalibration.
 
 ### 7.2 Future Work
 

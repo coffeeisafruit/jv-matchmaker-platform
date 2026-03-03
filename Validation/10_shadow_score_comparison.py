@@ -58,9 +58,9 @@ from matching.models import SupabaseMatch
 
 # ── Constants ───────────────────────────────────────────────────────
 TIER_THRESHOLDS = {
-    'hand_picked': 67,   # Curator-quality: both sides benefit strongly
+    'premier': 67,       # Curator-quality: both sides benefit strongly
     'strong': 55,        # High-confidence: clear mutual value, worth introducing
-    'wildcard': 0,       # Speculative: possible fit, needs manual review
+    'aligned': 0,        # Speculative: possible fit, needs manual review
 }
 
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), 'validation_results')
@@ -79,12 +79,12 @@ MEAN_SHIFT_HARD_FAIL = 5.0     # abs(shift) > 5.0
 
 def classify_tier(score: float) -> str:
     """Classify a harmonic_mean score into a tier."""
-    if score >= TIER_THRESHOLDS['hand_picked']:
-        return 'hand_picked'
+    if score >= TIER_THRESHOLDS['premier']:
+        return 'premier'
     elif score >= TIER_THRESHOLDS['strong']:
         return 'strong'
     else:
-        return 'wildcard'
+        return 'aligned'
 
 
 # ── Data loading ────────────────────────────────────────────────────
@@ -352,15 +352,15 @@ class ShadowAnalysis:
         self._section("3. TIER RECLASSIFICATION IMPACT")
         self._line("  How many matches would jump between tiers under the new scorer?")
         self._line("  Tier changes are user-visible — a match moving from 'Strong' to")
-        self._line("  'Wildcard' changes how it's presented and prioritized in the UI.")
+        self._line("  'Aligned' changes how it's presented and prioritized in the UI.")
         self._line("")
         self._line("  Tiers:")
-        self._line("    Hand-Picked (67+)  — Curator-quality, both sides benefit strongly")
+        self._line("    Premier (67+)      — Curator-quality, both sides benefit strongly")
         self._line("    Strong (55-66)     — High-confidence, clear mutual value")
-        self._line("    Wildcard (<55)     — Speculative, possible fit, needs review")
+        self._line("    Aligned (<55)      — Speculative, possible fit, needs review")
         self._line("")
 
-        tier_order = {'wildcard': 0, 'strong': 1, 'hand_picked': 2}
+        tier_order = {'aligned': 0, 'strong': 1, 'premier': 2}
         transitions = Counter()
         changed = 0
         total = 0
@@ -389,9 +389,9 @@ class ShadowAnalysis:
         self._line("")
 
         # Transition matrix
-        tiers_list = ['wildcard', 'strong', 'hand_picked']
-        tier_labels = {'wildcard': 'Wildcard (<55)', 'strong': 'Strong (55-66)',
-                       'hand_picked': 'Hand-Picked (67+)'}
+        tiers_list = ['aligned', 'strong', 'premier']
+        tier_labels = {'aligned': 'Aligned (<55)', 'strong': 'Strong (55-66)',
+                       'premier': 'Premier (67+)'}
 
         self._line("  Transition matrix (rows=production tier, cols=experimental tier):")
         header = f"    {'':>15}" + "".join(f"  {t:>12}" for t in tiers_list)
@@ -445,8 +445,8 @@ class ShadowAnalysis:
         """Bar chart of tier transitions."""
         os.makedirs(PLOTS_DIR, exist_ok=True)
 
-        tiers = ['wildcard', 'strong', 'hand_picked']
-        tier_labels = ['Wildcard (<55)', 'Strong (55-66)', 'Hand-Picked (67+)']
+        tiers = ['aligned', 'strong', 'premier']
+        tier_labels = ['Aligned (<55)', 'Strong (55-66)', 'Premier (67+)']
 
         fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -705,8 +705,8 @@ class ShadowAnalysis:
             self._line("  OVERALL: HARD FAIL — Experimental scorer diverges dangerously from production.")
             self._line("")
             self._line("  What this means: Promoting this scorer would visibly change match rankings")
-            self._line("  and tier assignments for users. Matches they previously saw as 'Hand-Picked'")
-            self._line("  could drop to 'Wildcard' or vice versa.")
+            self._line("  and tier assignments for users. Matches they previously saw as 'Premier'")
+            self._line("  could drop to 'Aligned' or vice versa.")
             self._line("")
             self._line("  Next steps:")
             self._line("    1. Identify which scoring component(s) changed most (check score_ab vs score_ba)")
@@ -761,9 +761,9 @@ class ShadowAnalysis:
             f"  Pairs analyzed:  {len(self.data)}",
             "",
             f"  Tier thresholds:",
-            f"    Hand-Picked:   >= {TIER_THRESHOLDS['hand_picked']}  (curator-quality, both sides benefit strongly)",
+            f"    Premier:       >= {TIER_THRESHOLDS['premier']}  (curator-quality, both sides benefit strongly)",
             f"    Strong:        >= {TIER_THRESHOLDS['strong']}  (high-confidence, clear mutual value)",
-            f"    Wildcard:       < {TIER_THRESHOLDS['strong']}  (speculative, possible fit, needs review)",
+            f"    Aligned:        < {TIER_THRESHOLDS['strong']}  (speculative, possible fit, needs review)",
             "",
             f"  Pass/fail gates:",
             f"    Spearman rho:           PASS >= {SPEARMAN_PASS}, HARD FAIL < {SPEARMAN_HARD_FAIL}",

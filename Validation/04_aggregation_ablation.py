@@ -64,9 +64,9 @@ WEIGHTS = {
 DIMENSIONS = ['intent', 'synergy', 'momentum', 'context']
 
 TIER_THRESHOLDS = {
-    'hand_picked': 67,
+    'premier': 67,
     'strong': 55,
-    'wildcard': 0,
+    'aligned': 0,
 }
 
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), 'validation_results')
@@ -124,12 +124,12 @@ def harmonic_mean_of_two(a: float, b: float) -> float:
 
 def classify_tier(score: float) -> str:
     """Classify a harmonic_mean score into a tier."""
-    if score >= TIER_THRESHOLDS['hand_picked']:
-        return 'hand_picked'
+    if score >= TIER_THRESHOLDS['premier']:
+        return 'premier'
     elif score >= TIER_THRESHOLDS['strong']:
         return 'strong'
     else:
-        return 'wildcard'
+        return 'aligned'
 
 
 # ── Data extraction ────────────────────────────────────────────────
@@ -542,7 +542,7 @@ class AblationAnalysis:
         penalized = 0
         same = 0
 
-        tier_order = {'wildcard': 0, 'strong': 1, 'hand_picked': 2}
+        tier_order = {'aligned': 0, 'strong': 1, 'premier': 2}
 
         for r in self.results:
             hm_geo = r.get('hm_geo')
@@ -572,7 +572,7 @@ class AblationAnalysis:
         self._line("  Tier distribution:")
         self._line(f"    {'Tier':<15}  {'Geometric':>10}  {'Arithmetic':>10}  {'Change':>10}")
         self._line("    " + "-" * 50)
-        for tier in ['hand_picked', 'strong', 'wildcard']:
+        for tier in ['premier', 'strong', 'aligned']:
             g = geo_tiers.get(tier, 0)
             a = arith_tiers.get(tier, 0)
             diff = a - g
@@ -589,7 +589,7 @@ class AblationAnalysis:
 
         # Transition matrix
         self._line("  Transition matrix (rows=geometric tier, cols=arithmetic tier):")
-        tiers_list = ['wildcard', 'strong', 'hand_picked']
+        tiers_list = ['aligned', 'strong', 'premier']
         header = f"    {'':>15}" + "".join(f"  {t:>12}" for t in tiers_list)
         self._line(header)
         self._line("    " + "-" * (15 + 14 * len(tiers_list)))
@@ -601,11 +601,11 @@ class AblationAnalysis:
         # Specific transitions of interest
         self._line("  Notable transitions:")
         for from_t, to_t, label in [
-            ('wildcard', 'strong', 'wildcard -> strong (rescued)'),
-            ('wildcard', 'hand_picked', 'wildcard -> hand_picked (rescued)'),
-            ('strong', 'hand_picked', 'strong -> hand_picked (rescued)'),
-            ('hand_picked', 'strong', 'hand_picked -> strong (penalized)'),
-            ('strong', 'wildcard', 'strong -> wildcard (penalized)'),
+            ('aligned', 'strong', 'aligned -> strong (rescued)'),
+            ('aligned', 'premier', 'aligned -> premier (rescued)'),
+            ('strong', 'premier', 'strong -> premier (rescued)'),
+            ('premier', 'strong', 'premier -> strong (penalized)'),
+            ('strong', 'aligned', 'strong -> aligned (penalized)'),
         ]:
             count = transitions.get((from_t, to_t), 0)
             self._line(f"    {label:<45}: {count:>6d}")
@@ -923,8 +923,8 @@ class AblationPlotter:
         if not transitions:
             return
 
-        tiers = ['wildcard', 'strong', 'hand_picked']
-        tier_labels = ['Wildcard (<55)', 'Strong (55-66)', 'Hand-Picked (67+)']
+        tiers = ['aligned', 'strong', 'premier']
+        tier_labels = ['Aligned (<55)', 'Strong (55-66)', 'Premier (67+)']
 
         fig, ax = plt.subplots(figsize=(12, 6))
 

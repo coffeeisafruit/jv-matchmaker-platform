@@ -165,10 +165,10 @@ The confidence backfill's isolated contribution is ~0.01 HM points — negligibl
 
 | Transition | Count |
 |------------|-------|
-| wildcard -> strong | 641 |
-| strong -> hand_picked | 60 |
-| hand_picked -> strong | 17 |
-| strong -> wildcard | 2 |
+| aligned -> strong | 641 |
+| strong -> premier | 60 |
+| premier -> strong | 17 |
+| strong -> aligned | 2 |
 
 **Net direction:** Strongly upward. 701 matches moved up, 19 moved down.
 This is primarily from enrichment data improvements, not the confidence backfill.

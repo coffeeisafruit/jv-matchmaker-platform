@@ -625,10 +625,12 @@ class MemberReport(models.Model):
         max_length=20,
         choices=[
             ('draft', 'Draft'),
+            ('in_remediation', 'In Remediation'),
+            ('pipeline_restart', 'Pipeline Restart'),
             ('production', 'Production'),
         ],
         default='draft',
-        help_text='draft = not validated; production = passed standard, ready for Keap sync'
+        help_text='draft = not validated; in_remediation = judge sent to pipeline stage; pipeline_restart = needs full redo; production = approved, ready for Keap sync'
     )
     production_score = models.FloatField(
         null=True, blank=True,
@@ -667,6 +669,92 @@ class MemberReport(models.Model):
         """Report is stale if older than 30 days."""
         from django.utils import timezone
         return (timezone.now() - self.created_at).days >= 30
+
+
+class ProfileQualityLog(models.Model):
+    """
+    Append-only audit log for profile quality evaluations.
+
+    Every evaluation by the Final Production Judge creates a new entry.
+    Score history is append-only — never overwrite previous entries.
+    This creates an auditable trail: initial score → remediation → final score.
+    """
+    report = models.ForeignKey(
+        MemberReport, on_delete=models.CASCADE,
+        related_name='quality_logs',
+    )
+    run_id = models.CharField(
+        max_length=36, unique=True, db_index=True,
+        help_text='UUID for this evaluation pass',
+    )
+    evaluated_at = models.DateTimeField(auto_now_add=True)
+
+    # Scoring
+    score = models.IntegerField(help_text='0-100 quality score from Final Judge')
+    verdict = models.CharField(
+        max_length=30,
+        choices=[
+            ('approved', 'Approved'),
+            ('approved_with_notes', 'Approved With Notes'),
+            ('revision_required', 'Revision Required'),
+            ('blocked', 'Blocked'),
+        ],
+    )
+
+    # Score history tracking (append-only)
+    previous_run_id = models.CharField(max_length=36, null=True, blank=True)
+    previous_score = models.IntegerField(null=True, blank=True)
+    score_delta = models.IntegerField(
+        null=True, blank=True,
+        help_text='Current score minus previous score',
+    )
+    score_history = models.JSONField(
+        default=list,
+        help_text='Append-only list of {run_id, score, evaluated_at, verdict}',
+    )
+
+    # Field-level detail
+    required_fields_passed = models.JSONField(default=list)
+    required_fields_failed = models.JSONField(
+        default=list,
+        help_text='[{field, reason, blocking}]',
+    )
+    recommended_fields_present = models.JSONField(default=list)
+    recommended_fields_missing = models.JSONField(default=list)
+    partner_cards_flagged = models.JSONField(
+        default=list,
+        help_text='[{name, issues}]',
+    )
+    outreach_issues = models.JSONField(
+        default=dict,
+        help_text='{initial: [...], followup: [...]}',
+    )
+
+    # Remediation tracking
+    remediation_action = models.CharField(
+        max_length=30,
+        choices=[
+            ('none', 'None'),
+            ('self_remediated', 'Self-Remediated'),
+            ('routed_to_verification', 'Routed to Verification'),
+            ('routed_to_research', 'Routed to Research'),
+            ('full_restart', 'Full Restart'),
+        ],
+        default='none',
+    )
+    remediation_notes = models.TextField(blank=True)
+    judge_notes = models.TextField(
+        blank=True,
+        help_text='Institutional memory — what caused the score, what to improve',
+    )
+
+    class Meta:
+        ordering = ['-evaluated_at']
+        verbose_name = 'Profile Quality Log'
+        verbose_name_plural = 'Profile Quality Logs'
+
+    def __str__(self):
+        return f'{self.report.member_name} — {self.verdict} ({self.score}/100) — {self.evaluated_at:%Y-%m-%d %H:%M}'
 
 
 class ReportPartner(models.Model):

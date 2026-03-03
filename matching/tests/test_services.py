@@ -806,14 +806,14 @@ class TestTierDetermination:
         user = make_mock_user()
         return PartnershipAnalyzer(user=user)
 
-    def test_tier_hand_picked(self):
-        """score=85 → 'hand_picked'."""
+    def test_tier_premier(self):
+        """score=85 → 'premier'."""
         analyzer = self._make_analyzer()
         tier = analyzer._determine_tier(score=85, insight_count=2)
-        assert tier == 'hand_picked'
+        assert tier == 'premier'
 
     def test_tier_strong_by_score(self):
-        """score=60 → 'strong' (above 55 threshold, below 67 hand_picked)."""
+        """score=60 → 'strong' (above 55 threshold, below 67 premier)."""
         analyzer = self._make_analyzer()
         tier = analyzer._determine_tier(score=60, insight_count=1)
         assert tier == 'strong'
@@ -824,11 +824,11 @@ class TestTierDetermination:
         tier = analyzer._determine_tier(score=None, insight_count=3)
         assert tier == 'strong'
 
-    def test_tier_wildcard(self):
-        """score=40, 0 insights → 'wildcard'."""
+    def test_tier_aligned(self):
+        """score=40, 0 insights → 'aligned'."""
         analyzer = self._make_analyzer()
         tier = analyzer._determine_tier(score=40, insight_count=0)
-        assert tier == 'wildcard'
+        assert tier == 'aligned'
 
 
 # =============================================================================
@@ -868,7 +868,7 @@ class TestAnalyzeBatch:
     """Tests for PartnershipAnalyzer.analyze_batch."""
 
     def test_analyze_batch_sorts_by_tier(self):
-        """hand_picked before strong before wildcard in output order."""
+        """premier before strong before aligned in output order."""
         user = make_mock_user()
         user_profile = make_mock_supabase_profile(list_size=5000)
         analyzer = PartnershipAnalyzer(
@@ -877,9 +877,9 @@ class TestAnalyzeBatch:
         )
 
         # Create three partners — scores will map to different tiers
-        partner_wildcard = make_mock_supabase_profile(
-            id='wildcard-id',
-            name='Wildcard Partner',
+        partner_aligned = make_mock_supabase_profile(
+            id='aligned-id',
+            name='Aligned Partner',
             list_size=0,
             revenue_tier=None,
             jv_history=None,
@@ -893,9 +893,9 @@ class TestAnalyzeBatch:
             jv_history=None,
             content_platforms=None,
         )
-        partner_hand_picked = make_mock_supabase_profile(
-            id='hand-picked-id',
-            name='Hand Picked Partner',
+        partner_premier = make_mock_supabase_profile(
+            id='premier-id',
+            name='Premier Partner',
             list_size=0,
             revenue_tier=None,
             jv_history=None,
@@ -903,24 +903,24 @@ class TestAnalyzeBatch:
         )
 
         # Create matches that produce different tiers
-        # Thresholds: hand_picked >= 67, strong >= 55, wildcard < 55
-        match_wildcard = make_mock_supabase_match(harmonic_mean=40.0, match_reason='Low match')
+        # Thresholds: premier >= 67, strong >= 55, aligned < 55
+        match_aligned = make_mock_supabase_match(harmonic_mean=40.0, match_reason='Low match')
         match_strong = make_mock_supabase_match(harmonic_mean=60.0, match_reason='Good match')
-        match_hand_picked = make_mock_supabase_match(harmonic_mean=90.0, match_reason='Excellent match')
+        match_premier = make_mock_supabase_match(harmonic_mean=90.0, match_reason='Excellent match')
 
-        partners = [partner_wildcard, partner_strong, partner_hand_picked]
+        partners = [partner_aligned, partner_strong, partner_premier]
         matches_by_id = {
-            'wildcard-id': match_wildcard,
+            'aligned-id': match_aligned,
             'strong-id': match_strong,
-            'hand-picked-id': match_hand_picked,
+            'premier-id': match_premier,
         }
 
         results = analyzer.analyze_batch(partners, matches_by_id)
 
         assert len(results) == 3
 
-        # Verify sort order: hand_picked first, then strong, then wildcard
+        # Verify sort order: premier first, then strong, then aligned
         tiers = [r.tier for r in results]
-        assert tiers[0] == 'hand_picked'
+        assert tiers[0] == 'premier'
         assert tiers[1] == 'strong'
-        assert tiers[2] == 'wildcard'
+        assert tiers[2] == 'aligned'

@@ -120,7 +120,7 @@
       }
     },
     "tier_distribution": {
-      "hand_picked": {
+      "premier": {
         "threshold": ">=67",
         "count": 4231,
         "pct": 14.2
@@ -130,7 +130,7 @@
         "count": 18456,
         "pct": 61.8
       },
-      "wildcard": {
+      "aligned": {
         "threshold": "<55",
         "count": 7176,
         "pct": 24.0

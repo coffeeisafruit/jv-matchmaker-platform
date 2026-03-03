@@ -76,9 +76,9 @@ except ImportError:
 # ---------------------------------------------------------------------------
 BONFERRONI_ALPHA = 0.05 / 6  # 6 primary tests -> 0.0083
 TIER_BOUNDARIES = {
-    'hand_picked': (67, 100),
+    'premier':     (67, 100),
     'strong':      (55, 67),
-    'wildcard':    (0,  55),
+    'aligned':     (0,  55),
 }
 CENSORING_DAYS = 30
 RANDOM_SEED = 42
@@ -104,11 +104,11 @@ def ensure_output_dirs() -> None:
 def assign_tier(score: float) -> str:
     """Map a harmonic_mean score to its tier label."""
     if score >= 67:
-        return 'hand_picked'
+        return 'premier'
     elif score >= 55:
         return 'strong'
     else:
-        return 'wildcard'
+        return 'aligned'
 
 
 def _sig_label(p: float) -> str:
@@ -452,7 +452,7 @@ def analysis_1_data_check(df: pd.DataFrame, rpt: ReportWriter,
     # Tier breakdown
     rpt.line()
     rpt.line('  Tier distribution:')
-    for tier in ('hand_picked', 'strong', 'wildcard'):
+    for tier in ('premier', 'strong', 'aligned'):
         n_tier = (df['tier'] == tier).sum()
         rpt.line(f'    {tier:.<30s} {n_tier:>5d}  ({n_tier / max(n_total, 1):.1%})')
 
@@ -638,7 +638,7 @@ def analysis_4_tier_chi_squared(df: pd.DataFrame, rpt: ReportWriter) -> dict:
     """
     rpt.h2('4. Tier Contact Rates (Chi-Squared Test)')
 
-    tier_order = ['hand_picked', 'strong', 'wildcard']
+    tier_order = ['premier', 'strong', 'aligned']
     tier_counts = []
     for tier in tier_order:
         subset = df[df['tier'] == tier]
@@ -676,10 +676,10 @@ def analysis_4_tier_chi_squared(df: pd.DataFrame, rpt: ReportWriter) -> dict:
     rpt.kv('p-value', f'{p_value:.4e} {_sig_label(p_value)}')
     rpt.kv("Cramer's V (effect size)", f'{cramers_v:.4f}')
 
-    # Check ordering: hand_picked > strong > wildcard
+    # Check ordering: premier > strong > aligned
     rates = [tc['contact_rate'] for tc in tier_counts]
     monotonic = rates[0] > rates[1] > rates[2]
-    rpt.kv('Rate ordering (HP > S > W)', 'Yes' if monotonic else 'No')
+    rpt.kv('Rate ordering (P > S > A)', 'Yes' if monotonic else 'No')
 
     return {
         'chi2': chi2, 'p_value': p_value, 'dof': dof,
@@ -718,13 +718,13 @@ def analysis_5_survival(df: pd.DataFrame, rpt: ReportWriter) -> dict:
 
     # --- Kaplan-Meier by tier ---
     fig, ax = plt.subplots(figsize=(10, 6))
-    tier_colors = {'hand_picked': '#2563eb', 'strong': '#f59e0b', 'wildcard': '#ef4444'}
-    tier_labels = {'hand_picked': 'Hand-Picked (>=67)', 'strong': 'Strong (55-67)',
-                   'wildcard': 'Wildcard (<55)'}
+    tier_colors = {'premier': '#2563eb', 'strong': '#f59e0b', 'aligned': '#ef4444'}
+    tier_labels = {'premier': 'Premier (>=67)', 'strong': 'Strong (55-67)',
+                   'aligned': 'Aligned (<55)'}
 
     kmf = KaplanMeierFitter()
     median_times = {}
-    for tier in ('hand_picked', 'strong', 'wildcard'):
+    for tier in ('premier', 'strong', 'aligned'):
         mask = sdf['tier'] == tier
         if mask.sum() < 5:
             rpt.line(f'  {tier}: too few observations ({mask.sum()}) for KM estimation.')
@@ -771,10 +771,10 @@ def analysis_5_survival(df: pd.DataFrame, rpt: ReportWriter) -> dict:
         rpt.kv('p-value (Cox)', f'{p_cox:.4e} {_sig_label(p_cox)}')
         rpt.kv('Concordance index', f'{cph.concordance_index_:.4f}')
 
-        # Compute hand_picked vs wildcard hazard ratio (approximation)
+        # Compute premier vs aligned hazard ratio (approximation)
         # HR for a 20-point difference (midpoint 72 vs midpoint 42)
         hr_hp_vs_wc = np.exp(cph.params_['harmonic_mean'] * 20)
-        rpt.kv('HR: hand_picked vs wildcard (~20pt)', f'{hr_hp_vs_wc:.3f}')
+        rpt.kv('HR: premier vs aligned (~20pt)', f'{hr_hp_vs_wc:.3f}')
         rpt.kv('Target (HR > 1.5)', 'PASS' if hr_hp_vs_wc > 1.5 else 'FAIL')
 
         return {
@@ -901,11 +901,11 @@ def analysis_7_optimal_threshold(df: pd.DataFrame, rpt: ReportWriter,
     rpt.kv('Specificity at optimum', f'{best_specificity:.4f}')
     rpt.line()
     rpt.line('  Comparison with current tier boundaries:')
-    rpt.kv('Current hand_picked cutoff', '67')
+    rpt.kv('Current premier cutoff', '67')
     rpt.kv('Current strong cutoff', '55')
     rpt.kv('Data-driven optimal cutoff', f'{optimal_score:.1f}')
     diff_hp = abs(optimal_score - 67) if not np.isnan(optimal_score) else float('nan')
-    rpt.kv('Diff from hand_picked boundary', f'{diff_hp:.1f} points')
+    rpt.kv('Diff from premier boundary', f'{diff_hp:.1f} points')
 
     # --- ROC curve plot ---
     fig, ax = plt.subplots(figsize=(7, 7))
@@ -1083,10 +1083,10 @@ def write_summary(rpt: ReportWriter, results: dict) -> None:
     checks = [
         ('AUC-ROC > 0.60', results.get('logreg', {}).get('auc', 0) > 0.60),
         ('Monotonic contact rates', results.get('monotonicity_rho', 0) > 0),
-        ('Tier ordering (HP > S > W)', results.get('chi2', {}).get('monotonic', False)),
+        ('Tier ordering (P > S > A)', results.get('chi2', {}).get('monotonic', False)),
         ('Brier score < 0.20', results.get('calibration', {}).get('brier', 1) < 0.20),
         ('ECE < 0.10', results.get('calibration', {}).get('ece', 1) < 0.10),
-        ('HR hand_picked vs wildcard > 1.5',
+        ('HR premier vs aligned > 1.5',
          results.get('survival', {}).get('hr_hp_vs_wc', 0) > 1.5),
     ]
 

@@ -82,18 +82,18 @@ Total similarity values extracted: 117592
 
 | Transition | Count |
 |------------|-------|
-| strong -> wildcard | 2791 |
-| hand_picked -> strong | 257 |
-| wildcard -> strong | 102 |
-| strong -> hand_picked | 34 |
+| strong -> aligned | 2791 |
+| premier -> strong | 257 |
+| aligned -> strong | 102 |
+| strong -> premier | 34 |
 
 ### Tier Distribution (Before vs After)
 
 | Tier | Before | After | Delta |
 |------|--------|-------|-------|
-| hand_picked | 673 | 450 | -223 |
+| premier | 673 | 450 | -223 |
 | strong | 20854 | 18388 | -2466 |
-| wildcard | 8336 | 11025 | +2689 |
+| aligned | 8336 | 11025 | +2689 |
 
 ### Harmonic Mean Score Impact
 
@@ -132,7 +132,7 @@ the largest score shifts under the proposed thresholds.
 - **B serves:** Those who aspire to live their best life, grow into their purpose, maximize their potential, and flo
 - **Raw cosine similarities:** {'ab_Offering↔Seeking': 0.567, 'ab_Audience Alignment': 0.551, 'ba_Offering↔Seeking': 0.569, 'ba_Audience Alignment': 0.551}
 - **Current:** HM=59.25, tier=strong
-- **Proposed:** HM=54.95, tier=wildcard
+- **Proposed:** HM=54.95, tier=aligned
 - **Delta:** -4.30
 
 ### [3] Etta Hornsteiner <-> Kara James
@@ -143,7 +143,7 @@ the largest score shifts under the proposed thresholds.
 - **B serves:** Service-based business owners
 - **Raw cosine similarities:** {'ab_Offering↔Seeking': 0.564, 'ab_Audience Alignment': 0.566, 'ba_Offering↔Seeking': 0.564, 'ba_Audience Alignment': 0.566}
 - **Current:** HM=59.04, tier=strong
-- **Proposed:** HM=54.75, tier=wildcard
+- **Proposed:** HM=54.75, tier=aligned
 - **Delta:** -4.29
 
 ### [4] Donna Price <-> Jennifer Glass
@@ -165,7 +165,7 @@ the largest score shifts under the proposed thresholds.
 - **B serves:** This masterclass is for women who want to feel well and grounded again, are spiritually curious and 
 - **Raw cosine similarities:** {'ab_Offering↔Seeking': 0.576, 'ab_Audience Alignment': 0.569, 'ba_Offering↔Seeking': 0.571, 'ba_Audience Alignment': 0.569}
 - **Current:** HM=57.06, tier=strong
-- **Proposed:** HM=52.84, tier=wildcard
+- **Proposed:** HM=52.84, tier=aligned
 - **Delta:** -4.22
 
 ## Verification
@@ -189,7 +189,7 @@ The proposed thresholds would change tiers for 10.7% of matches. While the optim
 ### Risk Factors
 
 - 3048 matches move to a lower tier, which could affect user trust if
-  previously-seen hand_picked matches suddenly appear as strong or wildcard.
+  previously-seen premier matches suddenly appear as strong or aligned.
 - The 0.75-0.83 similarity range is the most impacted zone; these pairs
   were previously scored as Strong (10.0) and would become Good (8.0).
 

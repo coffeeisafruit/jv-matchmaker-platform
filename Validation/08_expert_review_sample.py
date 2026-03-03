@@ -7,9 +7,9 @@ Generates a stratified sample of 100 match pairs for blind expert review,
 the gold standard for validating any matching algorithm.
 
 Strata:
-  - 25 hand_picked  (harmonic_mean >= 67)
+  - 25 premier      (harmonic_mean >= 67)
   - 25 strong       (55 <= harmonic_mean < 67)
-  - 25 wildcard     (harmonic_mean < 55)
+  - 25 aligned      (harmonic_mean < 55)
   - 25 asymmetric   (|score_ab - score_ba| > 15)
 
 Outputs:
@@ -91,21 +91,21 @@ def get_profile_map(profile_ids: list) -> Dict[str, SupabaseProfile]:
 def classify_stratum_from_harmonic(harmonic: float) -> str:
     """Map a harmonic_mean value to the algorithmic tier label."""
     if harmonic >= 67:
-        return 'hand_picked'
+        return 'premier'
     elif harmonic >= 55:
         return 'strong'
     else:
-        return 'wildcard'
+        return 'aligned'
 
 
 def rating_to_tier(rating: int) -> str:
     """Map a 1-5 expert rating to a tier label for kappa comparison."""
     if rating >= 4:
-        return 'hand_picked'
+        return 'premier'
     elif rating == 3:
         return 'strong'
     else:
-        return 'wildcard'
+        return 'aligned'
 
 
 # ---------------------------------------------------------------------------
@@ -132,9 +132,9 @@ def build_strata(test_mode: bool = False) -> Dict[str, list]:
     else:
         matches = list(base_qs)
 
-    hand_picked = []
+    premier = []
     strong = []
-    wildcard = []
+    aligned = []
     asymmetric = []
 
     for m in matches:
@@ -150,16 +150,16 @@ def build_strata(test_mode: bool = False) -> Dict[str, list]:
             asymmetric.append(m)
 
         if hm >= 67:
-            hand_picked.append(m)
+            premier.append(m)
         elif hm >= 55:
             strong.append(m)
         else:
-            wildcard.append(m)
+            aligned.append(m)
 
     return {
-        'hand_picked': hand_picked,
+        'premier': premier,
         'strong': strong,
-        'wildcard': wildcard,
+        'aligned': aligned,
         'asymmetric': asymmetric,
     }
 
@@ -182,7 +182,7 @@ def sample_pairs(
     result: List[Tuple[SupabaseMatch, str]] = []
 
     # Order: asymmetric first (so we can remove them from tier pools)
-    order = ['asymmetric', 'hand_picked', 'strong', 'wildcard']
+    order = ['asymmetric', 'premier', 'strong', 'aligned']
 
     for stratum_name in order:
         pool = [m for m in strata[stratum_name] if m.id not in selected_ids]
@@ -361,13 +361,13 @@ def write_sample_report(
         f.write(f"Total pairs sampled: {len(resolved)}\n\n")
 
         f.write("Population sizes (full dataset):\n")
-        for name in ['hand_picked', 'strong', 'wildcard', 'asymmetric']:
+        for name in ['premier', 'strong', 'aligned', 'asymmetric']:
             f.write(f"  {name:15s}: {len(strata[name]):,} matches\n")
         f.write(f"  {'TOTAL':15s}: {sum(len(v) for v in strata.values()):,} "
                 f"(note: asymmetric overlaps with tiers)\n\n")
 
         f.write("Sample composition:\n")
-        for name in ['hand_picked', 'strong', 'wildcard', 'asymmetric']:
+        for name in ['premier', 'strong', 'aligned', 'asymmetric']:
             count = stratum_counts.get(name, 0)
             f.write(f"  {name:15s}: {count} pairs\n")
         f.write(f"  {'TOTAL':15s}: {len(resolved)} pairs\n\n")
@@ -477,14 +477,14 @@ def compute_kappa(ratings_file: str) -> None:
     The answer key CSV is loaded automatically from the standard location.
 
     Tier mapping:
-      Expert rating 4-5 -> hand_picked
+      Expert rating 4-5 -> premier
       Expert rating 3   -> strong
-      Expert rating 1-2 -> wildcard
+      Expert rating 1-2 -> aligned
 
     Algorithmic tier is derived from the harmonic_mean in the answer key:
-      harmonic_mean >= 67 -> hand_picked
+      harmonic_mean >= 67 -> premier
       55 <= harmonic_mean < 67 -> strong
-      harmonic_mean < 55 -> wildcard
+      harmonic_mean < 55 -> aligned
     """
     answer_key_path = os.path.join(OUTPUT_DIR, 'expert_review_answer_key.csv')
 
@@ -537,7 +537,7 @@ def compute_kappa(ratings_file: str) -> None:
     expert_labels = [expert_tiers[pid] for pid in common_ids]
 
     # Compute Cohen's kappa manually (avoid sklearn dependency)
-    categories = ['hand_picked', 'strong', 'wildcard']
+    categories = ['premier', 'strong', 'aligned']
     cat_to_idx = {c: i for i, c in enumerate(categories)}
     n = len(common_ids)
     k = len(categories)
@@ -663,7 +663,7 @@ def main() -> None:
     # Step 1: Build strata
     print("[1/6] Building strata from match database...")
     strata = build_strata(test_mode=test_mode)
-    for name in ['hand_picked', 'strong', 'wildcard', 'asymmetric']:
+    for name in ['premier', 'strong', 'aligned', 'asymmetric']:
         print(f"  {name:15s}: {len(strata[name]):,} matches in pool")
 
     # Step 2: Sample

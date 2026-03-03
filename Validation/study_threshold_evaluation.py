@@ -74,9 +74,9 @@ ISMC_WEIGHTS = {
 }
 
 TIER_THRESHOLDS = {
-    'hand_picked': 67,
+    'premier': 67,
     'strong': 55,
-    'wildcard': 0,
+    'aligned': 0,
 }
 
 # The two embedding-based synergy factor names
@@ -100,12 +100,12 @@ def embedding_to_score(sim: float, thresholds: list, default: float) -> float:
 
 def assign_tier(harmonic_mean: float) -> str:
     """Assign tier based on harmonic mean (0-100 scale)."""
-    if harmonic_mean >= TIER_THRESHOLDS['hand_picked']:
-        return 'hand_picked'
+    if harmonic_mean >= TIER_THRESHOLDS['premier']:
+        return 'premier'
     elif harmonic_mean >= TIER_THRESHOLDS['strong']:
         return 'strong'
     else:
-        return 'wildcard'
+        return 'aligned'
 
 
 def weighted_geometric_mean(components: list) -> float:
@@ -407,7 +407,7 @@ def main():
     print(f"  Matches that change tier: {changed_count} ({pct_affected:.1f}%)")
 
     # Direction of changes
-    tier_rank = {'hand_picked': 3, 'strong': 2, 'wildcard': 1}
+    tier_rank = {'premier': 3, 'strong': 2, 'aligned': 1}
     moved_up = 0
     moved_down = 0
     change_detail = Counter()
@@ -431,7 +431,7 @@ def main():
     print("\n  Tier distribution:")
     current_tiers = Counter(r['current_tier'] for r in results)
     proposed_tiers = Counter(r['proposed_tier'] for r in results)
-    for tier in ['hand_picked', 'strong', 'wildcard']:
+    for tier in ['premier', 'strong', 'aligned']:
         print(f"    {tier}: {current_tiers.get(tier, 0)} -> {proposed_tiers.get(tier, 0)} "
               f"(delta: {proposed_tiers.get(tier, 0) - current_tiers.get(tier, 0):+d})")
 
@@ -452,7 +452,7 @@ def main():
     # or where the tier changes
     boundary_candidates = []
     for r in results:
-        # Near hand_picked boundary (67)
+        # Near premier boundary (67)
         if abs(r['proposed_hm'] - 67) < 5 or abs(r['current_hm'] - 67) < 5:
             boundary_candidates.append(r)
         # Near strong boundary (55)
@@ -674,7 +674,7 @@ def main():
     lines.append("")
     lines.append("| Tier | Before | After | Delta |")
     lines.append("|------|--------|-------|-------|")
-    for tier in ['hand_picked', 'strong', 'wildcard']:
+    for tier in ['premier', 'strong', 'aligned']:
         before = current_tiers.get(tier, 0)
         after = proposed_tiers.get(tier, 0)
         delta = after - before
@@ -793,7 +793,7 @@ def main():
         lines.append("### Risk Factors")
         lines.append("")
         lines.append(f"- {moved_down} matches move to a lower tier, which could affect user trust if")
-        lines.append("  previously-seen hand_picked matches suddenly appear as strong or wildcard.")
+        lines.append("  previously-seen premier matches suddenly appear as strong or aligned.")
         lines.append("- The 0.75-0.83 similarity range is the most impacted zone; these pairs")
         lines.append("  were previously scored as Strong (10.0) and would become Good (8.0).")
         lines.append("")

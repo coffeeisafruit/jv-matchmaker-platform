@@ -63,9 +63,9 @@ RESULTS_DIR = Path(__file__).resolve().parent / 'validation_results'
 PLOTS_DIR = RESULTS_DIR / 'plots'
 
 TIER_THRESHOLDS = {
-    'hand_picked': 67,
+    'premier': 67,
     'strong': 55,
-    'wildcard': 0,
+    'aligned': 0,
 }
 
 ISMC_DIMENSIONS = ['intent', 'synergy', 'momentum', 'context']
@@ -405,12 +405,12 @@ def rank_correlations(agg_scores: dict[str, list[float]]) -> dict[str, dict[str,
 def tier_impact(agg_scores: dict[str, list[float]]) -> dict[str, dict[str, int]]:
     """Count how many pairs fall into each tier under each aggregation method."""
     def classify(score: float) -> str:
-        if score >= TIER_THRESHOLDS['hand_picked']:
-            return 'hand_picked'
+        if score >= TIER_THRESHOLDS['premier']:
+            return 'premier'
         elif score >= TIER_THRESHOLDS['strong']:
             return 'strong'
         else:
-            return 'wildcard'
+            return 'aligned'
 
     results: dict[str, dict[str, int]] = {}
     for name, scores in agg_scores.items():
@@ -418,9 +418,9 @@ def tier_impact(agg_scores: dict[str, list[float]]) -> dict[str, dict[str, int]]
         for s in scores:
             counts[classify(s)] += 1
         results[name] = {
-            'hand_picked': counts['hand_picked'],
+            'premier': counts['premier'],
             'strong': counts['strong'],
-            'wildcard': counts['wildcard'],
+            'aligned': counts['aligned'],
             'total': len(scores),
         }
     return results
@@ -811,28 +811,28 @@ def format_report(
     # --- 6. Tier Impact Analysis ---
     lines.append('6. TIER IMPACT ANALYSIS')
     lines.append(subsep)
-    lines.append(f'  Tier thresholds: hand_picked >= {TIER_THRESHOLDS["hand_picked"]}, '
-                 f'strong >= {TIER_THRESHOLDS["strong"]}, wildcard < {TIER_THRESHOLDS["strong"]}')
+    lines.append(f'  Tier thresholds: premier >= {TIER_THRESHOLDS["premier"]}, '
+                 f'strong >= {TIER_THRESHOLDS["strong"]}, aligned < {TIER_THRESHOLDS["strong"]}')
     lines.append('')
-    lines.append(f'  {"Method":<15} {"Hand-Picked":>12} {"Strong":>8} {"Wildcard":>10} {"Total":>8}')
+    lines.append(f'  {"Method":<15} {"Premier":>12} {"Strong":>8} {"Aligned":>10} {"Total":>8}')
     lines.append(f'  {"-"*15} {"-"*12} {"-"*8} {"-"*10} {"-"*8}')
     for name in AGGREGATION_METHODS:
         t = tiers[name]
         lines.append(
-            f'  {name:<15} {t["hand_picked"]:12d} {t["strong"]:8d} '
-            f'{t["wildcard"]:10d} {t["total"]:8d}'
+            f'  {name:<15} {t["premier"]:12d} {t["strong"]:8d} '
+            f'{t["aligned"]:10d} {t["total"]:8d}'
         )
     lines.append('')
 
     # Compute tier drift for each method vs harmonic
     if tiers['harmonic']['total'] > 0:
         lines.append('  Tier drift vs. harmonic (production):')
-        harm_hp = tiers['harmonic']['hand_picked']
+        harm_hp = tiers['harmonic']['premier']
         for name in ['arithmetic', 'geometric', 'min']:
-            diff = tiers[name]['hand_picked'] - harm_hp
+            diff = tiers[name]['premier'] - harm_hp
             direction = '+' if diff >= 0 else ''
             lines.append(
-                f'    {name:<15} hand_picked delta: {direction}{diff} '
+                f'    {name:<15} premier delta: {direction}{diff} '
                 f'({diff / max(tiers[name]["total"], 1) * 100:+.1f}% of total)'
             )
         lines.append('')

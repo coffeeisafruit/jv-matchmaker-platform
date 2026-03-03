@@ -66,9 +66,9 @@ RESULTS_DIR = Path(__file__).resolve().parent / 'validation_results'
 PLOTS_DIR = RESULTS_DIR / 'plots'
 
 TIER_THRESHOLDS = {
-    'hand_picked': 67,
+    'premier': 67,
     'strong': 55,
-    'wildcard': 0,
+    'aligned': 0,
 }
 
 # ---------------------------------------------------------------------------
@@ -585,19 +585,19 @@ def collect_live_metrics() -> Dict[str, Any]:
             metrics['score_median'] = round(statistics.median(scores_float), 2)
 
             # Tier breakdown
-            hand_picked = sum(1 for s in scores_float if s >= TIER_THRESHOLDS['hand_picked'])
+            premier_count = sum(1 for s in scores_float if s >= TIER_THRESHOLDS['premier'])
             strong = sum(
                 1 for s in scores_float
-                if TIER_THRESHOLDS['strong'] <= s < TIER_THRESHOLDS['hand_picked']
+                if TIER_THRESHOLDS['strong'] <= s < TIER_THRESHOLDS['premier']
             )
-            wildcard = sum(1 for s in scores_float if s < TIER_THRESHOLDS['strong'])
+            aligned_count = sum(1 for s in scores_float if s < TIER_THRESHOLDS['strong'])
 
-            metrics['tier_hand_picked'] = hand_picked
-            metrics['tier_hand_picked_pct'] = round(100.0 * hand_picked / len(scores_float), 1)
+            metrics['tier_premier'] = premier_count
+            metrics['tier_premier_pct'] = round(100.0 * premier_count / len(scores_float), 1)
             metrics['tier_strong'] = strong
             metrics['tier_strong_pct'] = round(100.0 * strong / len(scores_float), 1)
-            metrics['tier_wildcard'] = wildcard
-            metrics['tier_wildcard_pct'] = round(100.0 * wildcard / len(scores_float), 1)
+            metrics['tier_aligned'] = aligned_count
+            metrics['tier_aligned_pct'] = round(100.0 * aligned_count / len(scores_float), 1)
         else:
             _set_empty_score_metrics(metrics)
     else:
@@ -623,12 +623,12 @@ def _set_empty_score_metrics(metrics: Dict[str, Any]) -> None:
     metrics['score_min'] = 0
     metrics['score_max'] = 0
     metrics['score_median'] = 0
-    metrics['tier_hand_picked'] = 0
-    metrics['tier_hand_picked_pct'] = 0
+    metrics['tier_premier'] = 0
+    metrics['tier_premier_pct'] = 0
     metrics['tier_strong'] = 0
     metrics['tier_strong_pct'] = 0
-    metrics['tier_wildcard'] = 0
-    metrics['tier_wildcard_pct'] = 0
+    metrics['tier_aligned'] = 0
+    metrics['tier_aligned_pct'] = 0
 
 
 def generate_test_metrics() -> Dict[str, Any]:
@@ -645,12 +645,12 @@ def generate_test_metrics() -> Dict[str, Any]:
         'score_min': 25.38,
         'score_max': 77.72,
         'score_median': 57.94,
-        'tier_hand_picked': 4231,
-        'tier_hand_picked_pct': 14.2,
+        'tier_premier': 4231,
+        'tier_premier_pct': 14.2,
         'tier_strong': 18456,
         'tier_strong_pct': 61.8,
-        'tier_wildcard': 7176,
-        'tier_wildcard_pct': 24.0,
+        'tier_aligned': 7176,
+        'tier_aligned_pct': 24.0,
         'field_seeking_filled': 2891,
         'field_seeking_pct': 92.0,
         'field_offering_filled': 2756,
@@ -895,12 +895,12 @@ def format_system_metrics(metrics: Dict[str, Any]) -> str:
     out.append('')
 
     out.append('--- Tier Breakdown ---')
-    out.append(f"  Hand-Picked (>={TIER_THRESHOLDS['hand_picked']}): "
-               f"{metrics['tier_hand_picked']:>7,}  ({metrics['tier_hand_picked_pct']:.1f}%)")
+    out.append(f"  Premier     (>={TIER_THRESHOLDS['premier']}): "
+               f"{metrics['tier_premier']:>7,}  ({metrics['tier_premier_pct']:.1f}%)")
     out.append(f"  Strong      (>={TIER_THRESHOLDS['strong']}): "
                f"{metrics['tier_strong']:>7,}  ({metrics['tier_strong_pct']:.1f}%)")
-    out.append(f"  Wildcard    (<{TIER_THRESHOLDS['strong']}):  "
-               f"{metrics['tier_wildcard']:>7,}  ({metrics['tier_wildcard_pct']:.1f}%)")
+    out.append(f"  Aligned     (<{TIER_THRESHOLDS['strong']}):  "
+               f"{metrics['tier_aligned']:>7,}  ({metrics['tier_aligned_pct']:.1f}%)")
     out.append('')
 
     out.append('--- Feature Fill Rates ---')
@@ -1146,17 +1146,17 @@ def plot_system_scale_summary(metrics: Dict[str, Any], output_path: Path) -> Non
 
     # --- Panel 3: Tier breakdown (top-right) ---
     ax3 = fig.add_subplot(gs[0, 2])
-    tier_labels = ['Hand-Picked', 'Strong', 'Wildcard']
+    tier_labels = ['Premier', 'Strong', 'Aligned']
     tier_values = [
-        metrics['tier_hand_picked'],
+        metrics['tier_premier'],
         metrics['tier_strong'],
-        metrics['tier_wildcard'],
+        metrics['tier_aligned'],
     ]
     tier_colors = ['#16a34a', '#2563eb', '#f59e0b']
     tier_pcts = [
-        metrics['tier_hand_picked_pct'],
+        metrics['tier_premier_pct'],
         metrics['tier_strong_pct'],
-        metrics['tier_wildcard_pct'],
+        metrics['tier_aligned_pct'],
     ]
 
     wedges, texts, autotexts = ax3.pie(
@@ -1334,9 +1334,9 @@ def main() -> None:
     print(f'  Matches:      {metrics["total_matches"]:>8,}')
     print(f'  Embeddings:   {metrics["embedding_coverage_pct"]:>7.1f}%')
     print(f'  Score mean:   {metrics["score_mean"]:>7.2f}')
-    print(f'  Hand-picked:  {metrics["tier_hand_picked"]:>8,} ({metrics["tier_hand_picked_pct"]:.1f}%)')
+    print(f'  Premier:      {metrics["tier_premier"]:>8,} ({metrics["tier_premier_pct"]:.1f}%)')
     print(f'  Strong:       {metrics["tier_strong"]:>8,} ({metrics["tier_strong_pct"]:.1f}%)')
-    print(f'  Wildcard:     {metrics["tier_wildcard"]:>8,} ({metrics["tier_wildcard_pct"]:.1f}%)')
+    print(f'  Aligned:      {metrics["tier_aligned"]:>8,} ({metrics["tier_aligned_pct"]:.1f}%)')
     print()
 
     print('Output Files:')

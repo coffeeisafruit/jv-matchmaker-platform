@@ -2893,9 +2893,9 @@
     <div class="formula-box" style="margin-top:16px;border-left:3px solid var(--accent-green)">
       <h4>Tier Thresholds (PartnershipAnalyzer)</h4>
       <div class="formula-note">
-        <strong>Hand-Picked</strong>: &ge;67 (~top 5%, no weak dimensions)<br/>
+        <strong>Premier</strong>: &ge;67 (~top 5%, no weak dimensions)<br/>
         <strong>Strong</strong>: &ge;55 (above mean, solid signal across most dimensions)<br/>
-        <strong>Wildcard</strong>: &lt;55 (below average, algorithm doesn't see strong fit)
+        <strong>Aligned</strong>: &lt;55 (compatible partners with developing match signal)
       </div>
     </div>
 
@@ -3881,7 +3881,7 @@
     <div class="formula-box" style="margin-top:0;padding:14px 18px;text-align:left">
       <h4 style="margin-bottom:8px">Score Tier Thresholds</h4>
       <div class="formula-note" style="margin-top:0">
-        <strong style="color:#4ecb8d">&ge; 67</strong>: &ldquo;Hand Picked&rdquo; (top 5%) &mdash; no weak dimensions, geometric mean enforced<br/>
+        <strong style="color:#4ecb8d">&ge; 67</strong>: &ldquo;Premier&rdquo; (top 5%) &mdash; no weak dimensions, geometric mean enforced<br/>
         <strong style="color:#5b8af5">&ge; 55</strong>: &ldquo;Strong&rdquo; &mdash; above mean (~57.5), solid signal across all ISMC components<br/>
         <strong style="color:#f0a04b">&ge; 50</strong>: Included &mdash; meets minimum threshold but lower quality matches<br/>
         <strong style="color:#f06b6b">&lt; 50</strong>: Excluded &mdash; insufficient enrichment data for meaningful match scoring
@@ -4468,6 +4468,40 @@
             <li>Length: 50&ndash;100 words</li>
           </ul>
           <p>The verification agent checks that templates don't contain unfilled placeholders (<code>[their audience]</code>, <code>[Insert booking link]</code>) and aren't identical to the known generic boilerplate. Templates are stored in <code>MemberReport.outreach_templates</code> as JSON.</p>
+        </div>
+      </details>
+
+      <details class="faq-item">
+        <summary class="faq-q">What does "rescoring" mean, and when does it happen?</summary>
+        <div class="faq-a">
+          <p>Rescoring recalculates scores using the latest data. There are <strong>two distinct rescoring operations</strong> that work at different levels:</p>
+
+          <p><strong>1. Profile Rescoring (JV Readiness)</strong> &mdash; <code>jv_triage.py</code></p>
+          <p>Recalculates the <strong>jv_readiness_score</strong> (0&ndash;100) for individual profiles. This is a weighted formula with five components:</p>
+          <table style="width:100%;margin:12px 0;font-size:13px;border-collapse:collapse">
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>Source JV Affinity</strong></td><td style="padding:6px">35%</td><td style="padding:6px;color:var(--text-dim)">How JV-relevant is the data source? (MunchEye = 100, BBB = 30)</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>JV Signals</strong></td><td style="padding:6px">25%</td><td style="padding:6px;color:var(--text-dim)">JV history, affiliate keywords in bio, commission mentions</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>Audience Signals</strong></td><td style="padding:6px">20%</td><td style="padding:6px;color:var(--text-dim)">Content platforms, list size, podcast/course/membership tags</td></tr>
+            <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 12px"><strong>Business Substance</strong></td><td style="padding:6px">12%</td><td style="padding:6px;color:var(--text-dim)">Company name, real website, revenue tier, niche, bio length</td></tr>
+            <tr><td style="padding:6px 12px"><strong>Contactability</strong></td><td style="padding:6px">8%</td><td style="padding:6px;color:var(--text-dim)">Has email, phone, LinkedIn</td></tr>
+          </table>
+          <p>After enrichment fills in fields like niche, tags, revenue_tier, and email, a profile&rsquo;s score can jump significantly &mdash; for example, from 25 (name + directory URL only) to 50+ (fully enriched with business context).</p>
+
+          <p><strong>2. Match Rescoring (ISMC Pair Scoring)</strong> &mdash; <code>rescore_matches</code></p>
+          <p>Recalculates how well <strong>pairs of profiles</strong> would work as JV partners using the 25-factor ISMC engine. This produces a harmonic mean score that determines the match tier:</p>
+          <ul>
+            <li><strong>Premier (67+)</strong> &mdash; Highest confidence, both sides benefit strongly</li>
+            <li><strong>Strong (55&ndash;66)</strong> &mdash; High-confidence, clear mutual value</li>
+            <li><strong>Aligned (&lt;55)</strong> &mdash; Compatible partners, developing match signal</li>
+          </ul>
+          <p>Before promoting a new scoring formula, <strong>shadow scoring</strong> runs both the production and experimental scorers on the same match pairs and compares outputs. This A/B comparison checks Spearman rank correlation, tier reclassification rates, and mean score shift to ensure changes are safe and predictable.</p>
+
+          <p><strong>When does rescoring happen?</strong></p>
+          <ol>
+            <li>After batch enrichment &mdash; profile rescoring updates readiness scores to reflect newly filled fields</li>
+            <li>After scoring formula changes &mdash; match rescoring recomputes all pair scores with the updated weights</li>
+            <li>Monthly maintenance cycle &mdash; both run as part of the automated pipeline to keep recommendations current</li>
+          </ol>
         </div>
       </details>
 

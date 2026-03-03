@@ -78,11 +78,11 @@ But here is the critical difference: **every match explanation is fact-checked a
 
 Every match is classified into an actionable tier:
 
-- **Hand-Picked (Top 14.2%)** --- **4,231 matches** scored 67+. These are the highest-confidence recommendations: strong alignment across all four dimensions, mutual benefit confirmed, ready to act on immediately.
+- **Premier (Top 14.2%)** --- **4,231 matches** scored 67+. These are the highest-confidence recommendations: strong alignment across all four dimensions, mutual benefit confirmed, ready to act on immediately.
 
 - **Strong (Next 61.8%)** --- **18,456 matches** scored 55-66. Solid partnerships with clear value for both sides. Worth exploring, especially where specific dimension scores are particularly high.
 
-- **Wildcard (Remaining 24.0%)** --- **7,176 matches** scored below 55. Unconventional pairings that may unlock unexpected opportunities. Lower overall scores, but sometimes the most creative partnerships come from unexpected combinations.
+- **Aligned (Remaining 24.0%)** --- **7,176 matches** scored below 55. Compatible partners with developing match signals. These partnerships may unlock unexpected opportunities as more data becomes available.
 
 ### The Rescue Effect
 
@@ -152,7 +152,7 @@ JV Matchmaker is built with a complete measurement infrastructure ready to quant
 
 **When engagement tracking goes live, we will measure:**
 
-- **Contact rates by tier** --- Do Hand-Picked matches convert to conversations at higher rates than Strong or Wildcard?
+- **Contact rates by tier** --- Do Premier matches convert to conversations at higher rates than Strong or Aligned?
 - **Time-to-first-action** --- How quickly do matched partners reach out after receiving a recommendation?
 - **ROI per partnership** --- What is the measurable revenue and audience impact of each JV partnership initiated through the platform?
 - **Match quality feedback** --- Do partners who connect rate the match quality highly? Does the scoring system predict satisfaction?

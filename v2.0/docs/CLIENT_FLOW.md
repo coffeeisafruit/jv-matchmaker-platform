@@ -60,7 +60,7 @@ flowchart TB
 
         A_VIEW --> P1[Full Partner Analysis]
         P1 --> P2[Partnership Insights]
-        P2 --> P3[Tier: Hand-Picked / Strong / Wildcard]
+        P2 --> P3[Tier: Premier / Strong / Aligned]
     end
 
     subgraph OUTREACH["Outreach & Tracking"]

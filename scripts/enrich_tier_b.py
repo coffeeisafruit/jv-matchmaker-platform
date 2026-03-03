@@ -63,7 +63,14 @@ SOURCE_PRIORITY = {
 
 
 def get_conn():
-    return psycopg2.connect(os.environ["DATABASE_URL"])
+    return psycopg2.connect(
+        os.environ["DATABASE_URL"],
+        keepalives=1,
+        keepalives_idle=30,
+        keepalives_interval=10,
+        keepalives_count=5,
+        connect_timeout=10
+    )
 
 
 # ---------------------------------------------------------------------------
