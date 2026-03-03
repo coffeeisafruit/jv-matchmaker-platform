@@ -37,6 +37,8 @@ RETRY_OPERATIONS = {
     "ai_research_failed": "AI research permanently failed — needs retry with fresh data",
     "report_skipped": "Report generation skipped due to insufficient data",
     "confidence_calc_failed": "Profile confidence calculation failed",
+    "profile_validation_failed": "Profile failed production standard after judge remediation — needs manual review",
+    "profile_pipeline_restart": "Profile scored below 50 — full pipeline restart needed",
 }
 
 

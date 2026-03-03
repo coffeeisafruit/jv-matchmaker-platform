@@ -689,8 +689,8 @@ class PartnershipAnalyzer:
     # Tier thresholds based on harmonic_mean (0-100 scale)
     # Calibrated for ISMC distribution: mean ~57.5, stdev ~5.7, range 25-78
     TIER_THRESHOLDS = {
-        'premier': 67,      # ~Top 5%, no weak dimensions (geometric mean enforces this)
-        'strong': 55,       # Above mean, solid signal across most dimensions
+        'premier': 64,      # Top tier — highest confidence, both sides benefit strongly
+        'strong': 55,       # High-confidence, clear mutual value
         'aligned': 0,       # Below average but still compatible partners
     }
 

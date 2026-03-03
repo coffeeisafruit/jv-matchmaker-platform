@@ -362,13 +362,13 @@ class TestOutreachAssignSectionFromDict:
         assert section == 'low_priority'
         assert 'Research' in label
 
-    def test_boundary_67_with_email_is_priority(self):
-        pd = {'match_score': 67, 'email': 'x@y.com', 'linkedin': '', 'schedule': '', 'apply_url': ''}
+    def test_boundary_64_with_email_is_priority(self):
+        pd = {'match_score': 64, 'email': 'x@y.com', 'linkedin': '', 'schedule': '', 'apply_url': ''}
         section, _, _ = _outreach_assign_section_from_dict(pd)
         assert section == 'priority'
 
-    def test_boundary_66_with_email_is_this_week(self):
-        pd = {'match_score': 66, 'email': 'x@y.com', 'linkedin': '', 'schedule': '', 'apply_url': ''}
+    def test_boundary_63_with_email_is_this_week(self):
+        pd = {'match_score': 63, 'email': 'x@y.com', 'linkedin': '', 'schedule': '', 'apply_url': ''}
         section, _, _ = _outreach_assign_section_from_dict(pd)
         assert section == 'this_week'
 
@@ -714,7 +714,7 @@ class TestReportOutreachViewLive:
         partner_with_linkedin.email = 'bob@bobmedia.com'
         partner_with_linkedin.save()
 
-        # After: email added, score 68 >= 67 → priority
+        # After: email added, score 68 >= 64 → priority
         response = http_client.get(url)
         sections = response.context['sections']
         section_keys = [s['key'] for s in sections]
@@ -895,7 +895,7 @@ class TestReportOutreachLiveData:
         sections = response.context['sections']
         assert sections[0]['key'] == 'low_priority'
 
-        # Add email → priority (score 68 >= 67)
+        # Add email → priority (score 68 >= 64)
         partner_no_contact.email = 'charlie@wellness.com'
         partner_no_contact.save()
 

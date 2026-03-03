@@ -56,6 +56,8 @@ class MonthlyProcessingResult:
     gaps_detected: int = 0
     acquisitions_triggered: int = 0
     reports_generated: int = 0
+    reports_judged: int = 0
+    reports_approved: int = 0
     total_cost: float = 0.0
 
 
@@ -497,7 +499,7 @@ def generate_all_reports(dry_run: bool = False) -> dict[str, Any]:
 
 @flow(
     name="monthly-processing",
-    description="Week 4 Mon: Flag priority -> re-enrich -> rescore -> gap detect -> market intel -> gap sourcing -> acquire -> generate reports",
+    description="Week 4 Mon: Flag priority -> re-enrich -> rescore -> gap detect -> market intel -> gap sourcing -> acquire -> generate reports -> final judge",
     retries=0,
     timeout_seconds=7200,  # 2 hours
 )
@@ -520,6 +522,7 @@ def monthly_processing_flow(
       7. Gap-driven sourcing (if not skip_acquisition)
       8. Trigger acquisition pipeline for clients with gaps (if not skip_acquisition)
       9. Generate/regenerate reports for all clients
+     10. Run Final Production Judge on DRAFT reports
 
     Parameters
     ----------
@@ -549,7 +552,7 @@ def monthly_processing_flow(
     )
 
     # Step 1: Flag low-confidence and stale profiles for priority re-enrichment
-    logger.info("Step 1/9: Flagging low-confidence and stale profiles")
+    logger.info("Step 1/10: Flagging low-confidence and stale profiles")
     flag_result = flag_low_confidence_profiles(
         confidence_threshold=0.5,
         stale_days=29,
@@ -566,7 +569,7 @@ def monthly_processing_flow(
     )
 
     # Step 2: Re-enrich priority profiles first, then stale profiles
-    logger.info("Step 2/9: Re-enriching profiles (priority + stale)")
+    logger.info("Step 2/10: Re-enriching profiles (priority + stale)")
     enrich_result = re_enrich_stale_profiles(
         stale_days=stale_days,
         priority_ids=priority_ids if priority_ids else None,
@@ -577,12 +580,12 @@ def monthly_processing_flow(
     result.total_cost += enrich_result.get("total_cost", 0.0)
 
     # Step 3: Apply verification updates
-    logger.info("Step 3/9: Applying verification updates")
+    logger.info("Step 3/10: Applying verification updates")
     verify_result = apply_verification_updates()
     result.clients_processed = verify_result.get("clients_updated", 0)
 
     # Step 4: Rescore all matches
-    logger.info("Step 4/9: Rescoring all matches")
+    logger.info("Step 4/10: Rescoring all matches")
     rescore_result = rescore_all_matches(dry_run=dry_run)
     if rescore_result.get("return_code", 1) == 0:
         # Parse match count from output if possible
@@ -592,7 +595,7 @@ def monthly_processing_flow(
         logger.warning("Rescore command returned non-zero; continuing anyway")
 
     # Step 5: Gap detection
-    logger.info("Step 5/9: Running gap detection")
+    logger.info("Step 5/10: Running gap detection")
     gaps = run_gap_detection(
         target_score=target_score,
         target_count=target_count,
@@ -600,37 +603,66 @@ def monthly_processing_flow(
     result.gaps_detected = sum(1 for g in gaps if g.get("has_gap"))
 
     # Step 6: Population-level market intelligence
-    logger.info("Step 6/9: Computing market intelligence...")
+    logger.info("Step 6/10: Computing market intelligence...")
     market_result = compute_market_intelligence(dry_run=dry_run)
     result.gaps_detected += market_result.get("gaps_found", 0)
 
     # Step 7: Gap-driven sourcing
     if not skip_acquisition:
-        logger.info("Step 7/9: Running gap-driven sourcing...")
+        logger.info("Step 7/10: Running gap-driven sourcing...")
         sourcing_result = gap_driven_sourcing(max_scrapers=3, dry_run=dry_run)
         result.acquisitions_triggered += sourcing_result.get("scrapers_run", 0)
     else:
-        logger.info("Step 7/9: Gap-driven sourcing SKIPPED (skip_acquisition=True)")
+        logger.info("Step 7/10: Gap-driven sourcing SKIPPED (skip_acquisition=True)")
 
     # Step 8: Acquisition (optional)
     if skip_acquisition:
-        logger.info("Step 8/9: Acquisition SKIPPED (skip_acquisition=True)")
+        logger.info("Step 8/10: Acquisition SKIPPED (skip_acquisition=True)")
     else:
-        logger.info("Step 8/9: Triggering acquisition for clients with gaps")
+        logger.info("Step 8/10: Triggering acquisition for clients with gaps")
         acq_result = trigger_acquisition(gaps=gaps, dry_run=dry_run)
         result.acquisitions_triggered += acq_result.get("clients_triggered", 0)
         result.total_cost += acq_result.get("total_cost", 0.0)
 
     # Step 9: Generate reports
-    logger.info("Step 9/9: Generating/regenerating reports")
+    logger.info("Step 9/10: Generating/regenerating reports")
     report_result = generate_all_reports(dry_run=dry_run)
     result.reports_generated = report_result.get("regenerated", 0)
+
+    # Step 10: Run Final Production Judge on DRAFT reports
+    logger.info("Step 10/10: Running Final Production Judge on DRAFT reports")
+    try:
+        from matching.enrichment.flows.final_judge import final_judge_task
+        from matching.models import MemberReport
+        draft_reports = MemberReport.objects.filter(
+            is_active=True, production_status='draft',
+        )
+        judged = 0
+        approved = 0
+        for report in draft_reports:
+            if dry_run:
+                logger.info("[DRY RUN] Would judge report %d (%s)", report.id, report.member_name)
+                judged += 1
+                continue
+            judge_result = final_judge_task(report.id, dry_run=False)
+            judged += 1
+            if judge_result.get('passed'):
+                approved += 1
+        logger.info(
+            "Final Judge complete: %d evaluated, %d approved for production",
+            judged, approved,
+        )
+        result.reports_judged = judged
+        result.reports_approved = approved
+    except Exception as exc:
+        logger.error("Final Judge step failed: %s", exc)
 
     elapsed = time.time() - start_time
     logger.info(
         "Monthly processing complete in %.1fs: "
         "priority_flagged=%d, priority_enriched=%d, re-enriched=%d, "
-        "rescored=%d, gaps=%d, acquisitions=%d, reports=%d, cost=$%.2f",
+        "rescored=%d, gaps=%d, acquisitions=%d, reports=%d, "
+        "judged=%d, approved=%d, cost=$%.2f",
         elapsed,
         result.priority_profiles_flagged,
         result.priority_profiles_enriched,
@@ -639,6 +671,8 @@ def monthly_processing_flow(
         result.gaps_detected,
         result.acquisitions_triggered,
         result.reports_generated,
+        result.reports_judged,
+        result.reports_approved,
         result.total_cost,
     )
 

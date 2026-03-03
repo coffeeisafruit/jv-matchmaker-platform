@@ -24,6 +24,7 @@ class Command(BaseCommand):
         parser.add_argument('--all', action='store_true', help='Validate all active reports')
         parser.add_argument('--fix', action='store_true', help='Auto-fill gaps with AI before validation')
         parser.add_argument('--dry-run', action='store_true', help='Show what would change without saving')
+        parser.add_argument('--judge', action='store_true', help='Run the AI Final Judge after deterministic validation')
 
     def handle(self, *args, **options):
         reports = self._get_reports(options)
@@ -206,5 +207,31 @@ class Command(BaseCommand):
 
         if not result.passed and not gap_filler:
             self.stdout.write(f'\n  Run with --fix to auto-generate missing sections.')
+
+        # Run AI Final Judge if requested
+        if options.get('judge') and not options.get('dry_run'):
+            try:
+                from matching.enrichment.flows.final_judge import final_judge_task
+                self.stdout.write(f'\n  Running Final Production Judge...')
+                judge_result = final_judge_task(report.id, dry_run=False)
+                judge_score = judge_result.get('score', 0)
+                judge_verdict = judge_result.get('verdict', 'unknown')
+                judge_action = judge_result.get('remediation_action', 'none')
+                judge_error = judge_result.get('error', '')
+
+                if judge_error:
+                    self.stdout.write(self.style.WARNING(f'  Judge error: {judge_error}'))
+                else:
+                    passed = judge_result.get('passed', False)
+                    style = self.style.SUCCESS if passed else self.style.WARNING
+                    self.stdout.write(style(
+                        f'  Judge: {judge_score}/100 → {judge_verdict.upper()}'
+                        f'{f" (action: {judge_action})" if judge_action != "none" else ""}'
+                    ))
+                    # Reload report to get updated production_status from judge
+                    report.refresh_from_db()
+                    return report.production_status == 'production'
+            except Exception as e:
+                self.stdout.write(self.style.WARNING(f'  Judge failed: {e}'))
 
         return result.passed

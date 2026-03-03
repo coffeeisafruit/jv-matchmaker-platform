@@ -813,7 +813,7 @@ class TestTierDetermination:
         assert tier == 'premier'
 
     def test_tier_strong_by_score(self):
-        """score=60 → 'strong' (above 55 threshold, below 67 premier)."""
+        """score=60 → 'strong' (above 55 threshold, below 64 premier)."""
         analyzer = self._make_analyzer()
         tier = analyzer._determine_tier(score=60, insight_count=1)
         assert tier == 'strong'
@@ -903,7 +903,7 @@ class TestAnalyzeBatch:
         )
 
         # Create matches that produce different tiers
-        # Thresholds: premier >= 67, strong >= 55, aligned < 55
+        # Thresholds: premier >= 64, strong >= 55, aligned < 55
         match_aligned = make_mock_supabase_match(harmonic_mean=40.0, match_reason='Low match')
         match_strong = make_mock_supabase_match(harmonic_mean=60.0, match_reason='Good match')
         match_premier = make_mock_supabase_match(harmonic_mean=90.0, match_reason='Excellent match')

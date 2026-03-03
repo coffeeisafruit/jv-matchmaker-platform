@@ -387,6 +387,26 @@ class Command(BaseCommand):
                     self.stdout.write(f'    ... and {len(req_issues) - 5} more')
             self.stdout.write('  Run: python manage.py validate_profile_standard --client-name "..." --fix')
 
+        # ── Run Final Production Judge ──
+        try:
+            from matching.enrichment.flows.final_judge import final_judge_task
+            self.stdout.write('\n  Running Final Production Judge...')
+            judge_result = final_judge_task(report.id, dry_run=False)
+            judge_score = judge_result.get('score', 0)
+            judge_verdict = judge_result.get('verdict', 'unknown')
+            judge_error = judge_result.get('error', '')
+
+            if judge_error:
+                self.stdout.write(self.style.WARNING(f'  Judge error: {judge_error}'))
+            else:
+                passed = judge_result.get('passed', False)
+                style = self.style.SUCCESS if passed else self.style.WARNING
+                self.stdout.write(style(
+                    f'  Final Judge: {judge_score}/100 → {judge_verdict.upper()}'
+                ))
+        except Exception as e:
+            self.stdout.write(self.style.WARNING(f'  Final Judge skipped: {e}'))
+
     # =========================================================================
     # CLIENT RESOLUTION
     # =========================================================================

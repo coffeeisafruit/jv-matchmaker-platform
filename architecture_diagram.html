@@ -1803,6 +1803,9 @@
       <marker id="arrow-orange" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
         <path d="M0,0 L10,3.5 L0,7" fill="#f0a04b" />
       </marker>
+      <marker id="arrow-red" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+        <path d="M0,0 L10,3.5 L0,7" fill="#f06b6b" />
+      </marker>
       <!-- Step number circle -->
       <filter id="glow-blue" x="-50%" y="-50%" width="200%" height="200%">
         <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"/>
@@ -1887,6 +1890,24 @@
     <!-- Matching → Reports -->
     <line x1="450" y1="290" x2="310" y2="310" stroke="#4ecb8d" stroke-width="1" marker-end="url(#arrow-green)"/>
     <text x="370" y="296" text-anchor="middle" fill="#4ecb8d" font-size="9" font-weight="500">reports</text>
+
+    <!-- Production Quality Gate (between Member Reports and Playbook) -->
+    <rect x="365" y="300" width="400" height="56" rx="10" fill="rgba(240,107,107,0.05)" stroke="#f06b6b" stroke-width="1.2"/>
+    <text x="565" y="320" text-anchor="middle" fill="#f06b6b" font-size="13" font-weight="700">Production Quality Gate</text>
+    <text x="565" y="336" text-anchor="middle" fill="#8b90a8" font-size="9">Profile Standard (deterministic) &rarr; Final Judge (AI) &rarr; Publish or Remediate</text>
+    <text x="565" y="350" text-anchor="middle" fill="#f06b6b" font-size="8" font-weight="500">Zero-issue threshold &middot; ProfileQualityLog audit trail</text>
+
+    <!-- Member Reports → Quality Gate -->
+    <line x1="310" y1="323" x2="365" y2="323" stroke="#f06b6b" stroke-width="1.2" marker-end="url(#arrow-red)"/>
+
+    <!-- Quality Gate → Playbook (approved → delivery) -->
+    <line x1="765" y1="328" x2="810" y2="328" stroke="#4ecb8d" stroke-width="1" marker-end="url(#arrow-green)"/>
+    <text x="788" y="320" text-anchor="middle" fill="#4ecb8d" font-size="8" font-weight="500">approved</text>
+
+    <!-- Quality Gate remediation loop back to Pipeline -->
+    <path d="M 565 356 L 565 370 L 810 370 L 810 450" fill="none" stroke="#f06b6b" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-red)"/>
+    <rect x="690" y="362" width="70" height="14" rx="3" fill="var(--bg)"/>
+    <text x="725" y="372" text-anchor="middle" fill="#f06b6b" font-size="8" font-weight="500">remediate</text>
 
 
     </g><!-- end zone: apps -->
@@ -2618,7 +2639,7 @@
       </div>
       <div class="pipeline-card" style="border-left:3px solid var(--accent-green)">
         <h4>Step 8: Member Report Generation <span class="cost-badge cost-free">AUTOMATED</span></h4>
-        <p><strong>manage.py generate_member_report</strong> &mdash; Fetches top 15 matches for a client, assigns to sections (<strong>Priority</strong> &ge;67 + email, <strong>This Week</strong> &ge;55, <strong>Low Priority</strong> LinkedIn-only, <strong>JV Programs</strong>). Generates unique access code. Creates <code>MemberReport</code> + <code>ReportPartner</code> snapshot records with outreach templates.</p>
+        <p><strong>manage.py generate_member_report</strong> &mdash; Fetches top 15 matches for a client, assigns to sections (<strong>Priority</strong> &ge;64 + email, <strong>This Week</strong> &ge;55, <strong>Low Priority</strong> LinkedIn-only, <strong>JV Programs</strong>). Generates unique access code. Creates <code>MemberReport</code> + <code>ReportPartner</code> snapshot records with outreach templates.</p>
       </div>
     </div>
 
@@ -2893,8 +2914,8 @@
     <div class="formula-box" style="margin-top:16px;border-left:3px solid var(--accent-green)">
       <h4>Tier Thresholds (PartnershipAnalyzer)</h4>
       <div class="formula-note">
-        <strong>Premier</strong>: &ge;67 (~top 5%, no weak dimensions)<br/>
-        <strong>Strong</strong>: &ge;55 (above mean, solid signal across most dimensions)<br/>
+        <strong>Premier</strong>: &ge;64 (highest confidence, both sides benefit strongly)<br/>
+        <strong>Strong</strong>: &ge;55 (high-confidence, clear mutual value)<br/>
         <strong>Aligned</strong>: &lt;55 (compatible partners with developing match signal)
       </div>
     </div>
@@ -3881,7 +3902,7 @@
     <div class="formula-box" style="margin-top:0;padding:14px 18px;text-align:left">
       <h4 style="margin-bottom:8px">Score Tier Thresholds</h4>
       <div class="formula-note" style="margin-top:0">
-        <strong style="color:#4ecb8d">&ge; 67</strong>: &ldquo;Premier&rdquo; (top 5%) &mdash; no weak dimensions, geometric mean enforced<br/>
+        <strong style="color:#4ecb8d">&ge; 64</strong>: &ldquo;Premier&rdquo; &mdash; highest confidence, both sides benefit strongly<br/>
         <strong style="color:#5b8af5">&ge; 55</strong>: &ldquo;Strong&rdquo; &mdash; above mean (~57.5), solid signal across all ISMC components<br/>
         <strong style="color:#f0a04b">&ge; 50</strong>: Included &mdash; meets minimum threshold but lower quality matches<br/>
         <strong style="color:#f06b6b">&lt; 50</strong>: Excluded &mdash; insufficient enrichment data for meaningful match scoring
@@ -4472,6 +4493,51 @@
       </details>
 
       <details class="faq-item">
+        <summary class="faq-q">What is the Final Production Judge?</summary>
+        <div class="faq-a">
+          <p>The Final Production Judge is a <strong>Claude-powered AI verification agent</strong> that runs after deterministic validation. It evaluates profiles with the mindset of a senior JV partnership strategist.</p>
+
+          <p><strong>Scoring Tiers:</strong></p>
+          <ul>
+            <li><strong>90&ndash;100: APPROVED</strong> &mdash; Ship immediately</li>
+            <li><strong>80&ndash;89: APPROVED WITH NOTES</strong> &mdash; Ship with advisory</li>
+            <li><strong>70&ndash;79: Self-remediate</strong> &mdash; Agent fixes issues inline, re-scores, ships if &ge;80</li>
+            <li><strong>50&ndash;69: Route to pipeline</strong> &mdash; Sends to Data Verification or Research stage</li>
+            <li><strong>Below 50: Full restart</strong> &mdash; Flags for complete pipeline re-run</li>
+          </ul>
+
+          <p><strong>What It Evaluates:</strong></p>
+          <ul>
+            <li><strong>Content quality</strong> &mdash; Is the about_story compelling? Are credentials JV-relevant?</li>
+            <li><strong>Specificity</strong> &mdash; Does the target_audience pass the &ldquo;could a partner check their list?&rdquo; test?</li>
+            <li><strong>Outreach effectiveness</strong> &mdash; Would a busy affiliate manager actually respond to this email?</li>
+            <li><strong>Partner card quality</strong> &mdash; Does each why_fit have the 3-part structure?</li>
+          </ul>
+
+          <p><strong>Logging:</strong></p>
+          <p>Every evaluation is logged to the <code>ProfileQualityLog</code> table with append-only score history. Re-evaluations track score deltas (e.g., 62 &rarr; 71 &rarr; 84) with timestamps and remediation actions taken.</p>
+
+          <p><strong>Remediation Actions:</strong></p>
+          <ul>
+            <li><code>self_remediated</code> &mdash; Judge used ProfileGapFiller to fix issues inline</li>
+            <li><code>routed_to_verification</code> &mdash; Sent to data verification pipeline stage</li>
+            <li><code>routed_to_research</code> &mdash; Sent to AI research for deeper data collection</li>
+            <li><code>full_restart</code> &mdash; Profile needs complete pipeline restart</li>
+          </ul>
+
+          <p><strong>CLI Usage:</strong></p>
+          <pre style="margin:8px 0;padding:10px 14px;background:var(--bg-card);border-radius:6px;font-size:13px;overflow-x:auto"><code>python manage.py validate_profile_standard --all --judge</code></pre>
+
+          <p><strong>Integration Points:</strong></p>
+          <ul>
+            <li>Runs automatically after every report generation</li>
+            <li>Step 10 in the monthly processing pipeline</li>
+            <li>Can be triggered manually via <code>--judge</code> flag on <code>validate_profile_standard</code></li>
+          </ul>
+        </div>
+      </details>
+
+      <details class="faq-item">
         <summary class="faq-q">What does "rescoring" mean, and when does it happen?</summary>
         <div class="faq-a">
           <p>Rescoring recalculates scores using the latest data. There are <strong>two distinct rescoring operations</strong> that work at different levels:</p>
@@ -4490,8 +4556,8 @@
           <p><strong>2. Match Rescoring (ISMC Pair Scoring)</strong> &mdash; <code>rescore_matches</code></p>
           <p>Recalculates how well <strong>pairs of profiles</strong> would work as JV partners using the 25-factor ISMC engine. This produces a harmonic mean score that determines the match tier:</p>
           <ul>
-            <li><strong>Premier (67+)</strong> &mdash; Highest confidence, both sides benefit strongly</li>
-            <li><strong>Strong (55&ndash;66)</strong> &mdash; High-confidence, clear mutual value</li>
+            <li><strong>Premier (64+)</strong> &mdash; Highest confidence, both sides benefit strongly</li>
+            <li><strong>Strong (55&ndash;63)</strong> &mdash; High-confidence, clear mutual value</li>
             <li><strong>Aligned (&lt;55)</strong> &mdash; Compatible partners, developing match signal</li>
           </ul>
           <p>Before promoting a new scoring formula, <strong>shadow scoring</strong> runs both the production and experimental scorers on the same match pairs and compares outputs. This A/B comparison checks Spearman rank correlation, tier reclassification rates, and mean score shift to ensure changes are safe and predictable.</p>
