@@ -1508,7 +1508,7 @@ def _build_profile_context(sp, report):
         'ideal_partner_intro': f'Partners serving <strong>{who_text}</strong>.',
         'ideal_partner_sub': sp.what_you_do or '',
         'seeking_goals': seeking_goals,
-        'contact_email': sp.email or '',
+        'contact_email': 'help@jvmatches.com',
         'tiers': [],
         'offers_partners': [],
         'shared_stage': [],
