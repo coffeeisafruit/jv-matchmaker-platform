@@ -265,7 +265,7 @@ class Command(BaseCommand):
                 name=pin['name'],
                 company=pin.get('company', ''),
                 tagline=pin.get('tagline', ''),
-                email=pin.get('email', ''),
+                email=pin.get('email') or pin.get('contact_email', ''),
                 website=pin.get('website', ''),
                 phone=pin.get('phone', ''),
                 linkedin=pin.get('linkedin', ''),
@@ -504,6 +504,20 @@ class Command(BaseCommand):
 
         scored.sort(key=lambda x: x['score'], reverse=True)
 
+        # 90-day rotation: exclude partners delivered to this client recently
+        rotation_ids = self._get_rotation_exclusions(client_sp)
+        if rotation_ids:
+            before_count = len(scored)
+            scored = [
+                s for s in scored
+                if str(s['partner'].id) not in rotation_ids
+            ]
+            excluded = before_count - len(scored)
+            if excluded:
+                self.stdout.write(
+                    f'  90-day rotation: excluded {excluded} recently delivered partners'
+                )
+
         # Enforce minimum 10 partners
         min_partners = max(top_n, 10)
         top_matches = scored[:min_partners]
@@ -703,6 +717,23 @@ class Command(BaseCommand):
     # =========================================================================
     # DISPLAY HELPERS
     # =========================================================================
+
+    def _get_rotation_exclusions(self, client_sp: SupabaseProfile) -> set:
+        """Get profile IDs delivered to this client in the last 90 days.
+
+        Partners delivered within the rotation window are excluded from the
+        next report to ensure clients receive brand-new contacts each month.
+        """
+        cutoff = timezone.now() - timedelta(days=90)
+
+        delivered = ReportPartner.objects.filter(
+            report__supabase_profile=client_sp,
+            report__is_active=True,
+            created_at__gte=cutoff,
+            source_profile__isnull=False,
+        ).values_list('source_profile_id', flat=True).distinct()
+
+        return {str(pid) for pid in delivered}
 
     def _clean_company_name(self, sp: SupabaseProfile) -> str:
         """Extract a clean company name, filtering out niche/category text."""
