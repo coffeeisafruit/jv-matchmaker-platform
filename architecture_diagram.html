@@ -1640,6 +1640,7 @@
   <button class="tab" onclick="switchTab('prefect')">Prefect</button>
   <button class="tab" onclick="switchTab('faq')">FAQ</button>
   <button class="tab" onclick="switchTab('budgets')">Budgets</button>
+  <button class="tab" onclick="switchTab('analytics')">Site Analytics</button>
 </div>
 
 <div class="content">
@@ -4770,6 +4771,20 @@
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- =============== SITE ANALYTICS (internal only) =============== -->
+<div id="view-analytics" class="view">
+  <div style="max-width:700px;margin:0 auto;padding:24px 0">
+    <h2 style="color:var(--accent-cyan);margin-bottom:4px">Site Analytics</h2>
+    <p style="color:var(--text-dim);margin-bottom:24px">Visitor behavior and engagement for client-facing static pages (e.g. partner report hubs). <strong>Internal use only</strong> — not linked from client-facing pages.</p>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px">
+      <h3 style="margin-bottom:12px">Microsoft Clarity</h3>
+      <p style="font-size:14px;color:var(--text-dim);margin-bottom:16px">Sessions, unique users, pages per session, engagement, and UX signals (dead clicks, rage clicks, quickbacks, JS errors).</p>
+      <a href="https://clarity.microsoft.com/projects/view" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--accent-blue);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">Open Clarity dashboard &rarr;</a>
+    </div>
+    <p style="font-size:13px;color:var(--text-dim)">Use the project that corresponds to the static site (e.g. vadim-voss-profile). Clarity project ID is set via <code>CLARITY_PROJECT_ID</code> when generating static pages; the dashboard is only linked from this internal architecture page.</p>
   </div>
 </div>
 
