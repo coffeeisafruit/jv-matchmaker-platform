@@ -3,6 +3,9 @@
 
 Updates Supabase profile fields and renders static HTML.
 
+For Vadim's report (outreach), generate with --pinned-partners scripts/vadim_pinned_partners.json;
+see scripts/VADIM_REPORT.md.
+
 Usage:
     python scripts/export_vadim_profile.py --output /tmp/vadim-voss-profile/profile.html
     python scripts/export_vadim_profile.py --output /tmp/vadim-voss-profile/profile.html --update-db

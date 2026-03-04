@@ -5,6 +5,9 @@ Generates index.html with links to Client Profile and Partner Outreach only.
 Site Analytics is internal-only and must not appear on Vadim's page; it lives
 on the internal architecture page (architecture_diagram.html) instead.
 
+For Vadim's report (outreach), generate with --pinned-partners scripts/vadim_pinned_partners.json;
+see scripts/VADIM_REPORT.md.
+
 Deploying vadim-voss-profile:
   1. Run this script to generate index.html (no Site Analytics link).
   2. Run export_vadim_profile.py and export_static_outreach.py for profile.html and outreach.html.

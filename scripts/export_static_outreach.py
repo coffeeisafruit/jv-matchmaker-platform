@@ -4,6 +4,9 @@
 Renders the outreach page from ReportPartner snapshot data (not live
 SupabaseMatch queries), making it self-contained for static hosting.
 
+For Vadim Voss, the report must be generated with
+--pinned-partners scripts/vadim_pinned_partners.json; see scripts/VADIM_REPORT.md.
+
 Usage:
     python scripts/export_static_outreach.py --name "Vadim Voss" --output /tmp/vadim-voss-profile/outreach.html
     python scripts/export_static_outreach.py --report-id 11 --output /tmp/outreach.html
