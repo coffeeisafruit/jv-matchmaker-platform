@@ -10,7 +10,7 @@ import threading
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from matching.models import SavedCandidate
+from matching.models import SavedCandidate, MemberReport
 
 logger = logging.getLogger(__name__)
 
@@ -69,3 +69,49 @@ def trigger_new_contact_flow(sender, instance, created, **kwargs):
         "new_contact_flow dispatched in background thread for SavedCandidate id=%s",
         instance.pk,
     )
+
+
+@receiver(post_save, sender=MemberReport)
+def trigger_new_client_acquisition(sender, instance, created, **kwargs):
+    """Fire the acquisition flow when a new active MemberReport is created.
+
+    This ensures new clients immediately get JV partner prospects
+    instead of waiting for the next monthly cycle.
+    """
+    if not created or not instance.is_active or not instance.supabase_profile_id:
+        return
+
+    client_id = str(instance.supabase_profile_id)
+
+    logger.info(
+        "New MemberReport created (id=%s, client=%s) -- "
+        "dispatching acquisition_flow",
+        instance.pk, client_id,
+    )
+
+    def _run_acquisition():
+        try:
+            from matching.enrichment.flows.acquisition_flow import acquisition_flow
+
+            result = acquisition_flow(
+                client_profile_id=client_id,
+                target_score=64,
+                target_count=30,
+                budget=2.00,
+            )
+            logger.info(
+                "New-client acquisition complete for %s: "
+                "%d discovered, %d enriched, $%.2f cost",
+                client_id,
+                result.total_discovered,
+                result.enriched,
+                result.cost,
+            )
+        except Exception:
+            logger.exception(
+                "acquisition_flow failed for new client %s",
+                client_id,
+            )
+
+    thread = threading.Thread(target=_run_acquisition, daemon=True)
+    thread.start()

@@ -41,6 +41,10 @@ from prefect import flow, get_run_logger
 
 PHASES = (
     "freshness",
+    "cascade_free",
+    "cascade_ai",
+    "cascade_scoring",
+    "cascade_acquisition",
     "verification",
     "processing",
     "notification",
@@ -71,6 +75,10 @@ def _determine_phase(dt: date | None = None) -> str:
     Rules (in priority order):
       - 1st of month             -> ``"delivery"``
       - Week 1, Monday           -> ``"freshness"``
+      - Week 1, Wednesday        -> ``"cascade_free"``  (L1+L2)
+      - Week 2, Monday           -> ``"cascade_ai"``  (L3+L4)
+      - Week 2, Wednesday        -> ``"cascade_scoring"``  (L5+L6)
+      - Week 2, Friday           -> ``"cascade_acquisition"``
       - Week 3, Mon/Wed/Fri      -> ``"verification"``
       - Week 4, Monday           -> ``"processing"``
       - Week 4, Tuesday          -> ``"notification"``
@@ -100,6 +108,22 @@ def _determine_phase(dt: date | None = None) -> str:
     # Week 1, Monday: freshness
     if week == 1 and weekday == 1:
         return "freshness"
+
+    # Week 1, Wednesday: cascade L1+L2 (free extraction + rescore)
+    if week == 1 and weekday == 3:
+        return "cascade_free"
+
+    # Week 2, Monday: cascade L3+L4 (AI enrichment + verification)
+    if week == 2 and weekday == 1:
+        return "cascade_ai"
+
+    # Week 2, Wednesday: cascade L5+L6 (cross-client scoring + gap filling)
+    if week == 2 and weekday == 3:
+        return "cascade_scoring"
+
+    # Week 2, Friday: targeted acquisition for remaining gaps
+    if week == 2 and weekday == 5:
+        return "cascade_acquisition"
 
     # Week 3, Mon/Wed/Fri: verification
     if week == 3 and weekday in (1, 3, 5):
@@ -189,6 +213,18 @@ def monthly_orchestrator_flow(
     if resolved_phase == "freshness":
         result = _run_freshness(dry_run=dry_run)
 
+    elif resolved_phase == "cascade_free":
+        result = _run_cascade_free(dry_run=dry_run)
+
+    elif resolved_phase == "cascade_ai":
+        result = _run_cascade_ai(dry_run=dry_run)
+
+    elif resolved_phase == "cascade_scoring":
+        result = _run_cascade_scoring(dry_run=dry_run)
+
+    elif resolved_phase == "cascade_acquisition":
+        result = _run_cascade_acquisition(dry_run=dry_run)
+
     elif resolved_phase == "verification":
         result = _run_verification(dry_run=dry_run)
 
@@ -223,13 +259,101 @@ def monthly_orchestrator_flow(
 # ---------------------------------------------------------------------------
 
 def _run_freshness(dry_run: bool = False) -> Any:
-    """Week 1 Mon: run change detection / profile freshness check."""
+    """Week 1 Mon: run change detection / profile freshness check.
+
+    When material changes are detected, automatically triggers a
+    cascade re-enrichment (L3+L4+L5) for the affected profiles.
+    """
     logger = get_run_logger()
     logger.info("Running freshness phase (change_detection_flow)")
 
     from matching.enrichment.flows.change_detection_flow import change_detection_flow
 
-    return change_detection_flow(dry_run=dry_run)
+    result = change_detection_flow(dry_run=dry_run)
+
+    # Wire material changes to re-enrichment
+    queued = []
+    if isinstance(result, dict):
+        queued = result.get("queued_for_enrichment", [])
+    elif hasattr(result, "queued_for_enrichment"):
+        queued = result.queued_for_enrichment or []
+
+    if queued and not dry_run:
+        logger.info(
+            "Material changes detected: %d profiles queued for re-enrichment",
+            len(queued),
+        )
+        try:
+            from matching.enrichment.flows.cascade_flow import enrichment_cascade_flow
+
+            enrichment_cascade_flow(
+                layers=[3, 4, 5],
+                limit=len(queued),
+                dry_run=dry_run,
+            )
+        except Exception as exc:
+            logger.error("Re-enrichment after freshness check failed: %s", exc)
+    elif queued and dry_run:
+        logger.info(
+            "DRY RUN -- would re-enrich %d profiles with material changes",
+            len(queued),
+        )
+
+    return result
+
+
+def _run_cascade_free(dry_run: bool = False) -> Any:
+    """Week 1 Wed: cascade L1+L2 (free extraction + rescore)."""
+    logger = get_run_logger()
+    logger.info("Running cascade_free phase (L1+L2)")
+
+    from matching.enrichment.flows.cascade_flow import enrichment_cascade_flow
+
+    return enrichment_cascade_flow(
+        layers=[1, 2],
+        tier_filter={"C", "D"},
+        dry_run=dry_run,
+    )
+
+
+def _run_cascade_ai(dry_run: bool = False) -> Any:
+    """Week 2 Mon: cascade L3+L4 (AI enrichment + verification)."""
+    logger = get_run_logger()
+    logger.info("Running cascade_ai phase (L3+L4)")
+
+    from matching.enrichment.flows.cascade_flow import enrichment_cascade_flow
+
+    return enrichment_cascade_flow(
+        layers=[3, 4],
+        tier_filter={"C", "D"},
+        dry_run=dry_run,
+    )
+
+
+def _run_cascade_scoring(dry_run: bool = False) -> Any:
+    """Week 2 Wed: cascade L5+L6 (cross-client scoring + gap filling)."""
+    logger = get_run_logger()
+    logger.info("Running cascade_scoring phase (L5+L6)")
+
+    from matching.enrichment.flows.cascade_flow import enrichment_cascade_flow
+
+    return enrichment_cascade_flow(
+        layers=[5, 6],
+        dry_run=dry_run,
+    )
+
+
+def _run_cascade_acquisition(dry_run: bool = False) -> Any:
+    """Week 2 Fri: targeted acquisition for remaining gaps."""
+    logger = get_run_logger()
+    logger.info("Running cascade_acquisition phase (gap filling)")
+
+    from matching.enrichment.flows.cascade_flow import enrichment_cascade_flow
+
+    return enrichment_cascade_flow(
+        layers=[6],
+        dry_run=dry_run,
+    )
 
 
 def _run_verification(dry_run: bool = False) -> Any:
@@ -252,8 +376,8 @@ def _run_processing(dry_run: bool = False) -> Any:
 
     return monthly_processing_flow(
         stale_days=30,
-        target_score=70,
-        target_count=10,
+        target_score=64,
+        target_count=30,
         dry_run=dry_run,
     )
 

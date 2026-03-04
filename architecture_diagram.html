@@ -1639,6 +1639,7 @@
   <button class="tab" onclick="switchTab('datahealth')">Data Health</button>
   <button class="tab" onclick="switchTab('prefect')">Prefect</button>
   <button class="tab" onclick="switchTab('faq')">FAQ</button>
+  <button class="tab" onclick="switchTab('budgets')">Budgets</button>
 </div>
 
 <div class="content">
@@ -4629,6 +4630,145 @@
         </div>
       </details>
 
+    </div>
+  </div>
+</div>
+
+<!-- =============== BUDGETS TAB =============== -->
+<div id="view-budgets" class="view">
+  <div style="max-width:900px;margin:0 auto;padding:24px 0">
+    <h2 style="color:var(--accent-green);margin-bottom:4px">Acquisition Budget Dashboard</h2>
+    <p style="color:var(--text-dim);margin-bottom:24px">Per-client cost tracking for the acquisition pipeline. Hard cap: <strong style="color:var(--accent-orange)">$2.00/client</strong> per run.</p>
+
+    <!-- How it works -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
+      <h3 style="margin-bottom:12px">How Budget Control Works</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+        <div>
+          <div style="color:var(--accent-green);font-weight:600;margin-bottom:4px">Phase 1: DB Search ($0)</div>
+          <div style="font-size:13px;color:var(--text-dim)">Search 1.1M+ existing profiles using pgvector cosine similarity and text keyword matching. Always free.</div>
+        </div>
+        <div>
+          <div style="color:var(--accent-cyan);font-weight:600;margin-bottom:4px">Phase 2: External APIs</div>
+          <div style="font-size:13px;color:var(--text-dim)">Exa Websets + Apollo People Search. Budget auto-adjusts: if DB finds 2&times; gap, external drops to 25%.</div>
+        </div>
+        <div>
+          <div style="color:var(--accent-purple);font-weight:600;margin-bottom:4px">Phase 3: Enrichment</div>
+          <div style="font-size:13px;color:var(--text-dim)">AI enrichment for high-scoring prospects. Skipped if budget cap already reached.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Budget adjustment logic -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
+      <h3 style="margin-bottom:12px">Dynamic Budget Adjustment</h3>
+      <table style="width:100%;font-size:13px;border-collapse:collapse">
+        <tr style="border-bottom:1px solid var(--border)">
+          <th style="text-align:left;padding:8px;color:var(--text-dim)">DB Results vs Gap</th>
+          <th style="text-align:left;padding:8px;color:var(--text-dim)">External Budget</th>
+          <th style="text-align:left;padding:8px;color:var(--text-dim)">Reasoning</th>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px"><strong style="color:var(--accent-green)">DB &ge; 2&times; gap</strong></td>
+          <td style="padding:8px">25% of cap ($0.50)</td>
+          <td style="padding:8px;color:var(--text-dim)">DB has more than enough — minimal external spend</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:8px"><strong style="color:var(--accent-orange)">DB &ge; 1&times; gap</strong></td>
+          <td style="padding:8px">50% of cap ($1.00)</td>
+          <td style="padding:8px;color:var(--text-dim)">DB covers the gap — moderate supplementary search</td>
+        </tr>
+        <tr>
+          <td style="padding:8px"><strong style="color:var(--accent-red)">DB &lt; gap</strong></td>
+          <td style="padding:8px">100% of cap ($2.00)</td>
+          <td style="padding:8px;color:var(--text-dim)">Need external help — full budget allocated</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Cost breakdown example -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
+      <h3 style="margin-bottom:12px">Per-Client Cost Breakdown</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-bottom:12px">Each <code>AcquisitionResult</code> tracks cost granularly:</p>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;text-align:center">
+        <div>
+          <div style="font-size:24px;font-weight:700;color:var(--accent-green)">$0.00</div>
+          <div style="font-size:11px;color:var(--text-dim)">DB Search</div>
+        </div>
+        <div>
+          <div style="font-size:24px;font-weight:700;color:var(--accent-cyan)">varies</div>
+          <div style="font-size:11px;color:var(--text-dim)">Discovery (Exa/Apollo)</div>
+        </div>
+        <div>
+          <div style="font-size:24px;font-weight:700;color:var(--accent-purple)">varies</div>
+          <div style="font-size:11px;color:var(--text-dim)">Enrichment (AI)</div>
+        </div>
+        <div>
+          <div style="font-size:24px;font-weight:700;color:var(--text)">sum</div>
+          <div style="font-size:11px;color:var(--text-dim)">Total Cost</div>
+        </div>
+        <div>
+          <div style="font-size:24px;font-weight:700;color:var(--accent-orange)">$2.00</div>
+          <div style="font-size:11px;color:var(--text-dim)">Hard Cap</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert system -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
+      <h3 style="margin-bottom:12px">Budget Alerting</h3>
+      <div style="font-size:13px">
+        <p>When a client reaches the <strong>$2.00 cap</strong>:</p>
+        <ol style="padding-left:20px;color:var(--text-dim)">
+          <li>Pipeline immediately stops external API calls</li>
+          <li>Enrichment phase is skipped</li>
+          <li>Alert logged to <code>cascade_learning/cascade_learning_log.jsonl</code> with severity=warning</li>
+          <li><code>AcquisitionResult.budget_cap_reached = True</code> propagates to orchestrator</li>
+        </ol>
+        <p style="margin-top:12px;color:var(--text-dim)">Alert log location: <code>scripts/enrichment_batches/cascade_learning/cascade_learning_log.jsonl</code></p>
+        <p style="color:var(--text-dim)">Format: <code>{"type":"action","action_type":"alert","severity":"warning","message":"Budget cap $2.00 reached for Client Name..."}</code></p>
+      </div>
+    </div>
+
+    <!-- Learning integration -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px">
+      <h3 style="margin-bottom:12px">Learning-Driven Cost Reduction</h3>
+      <div style="font-size:13px;color:var(--text-dim)">
+        <p>The acquisition pipeline learns from each client's existing high-scoring matches to reduce external API spend:</p>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:12px">
+          <div style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px">
+            <div style="color:var(--accent-green);font-weight:600;margin-bottom:4px">Per-Client Learning</div>
+            <div>5+ personal 64+ matches &rarr; learns what partners work for THIS client. Uses verbatim text, roles, keywords from top matches.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px">
+            <div style="color:var(--accent-cyan);font-weight:600;margin-bottom:4px">Per-Category Bootstrap</div>
+            <div>New client with &lt;5 matches &rarr; learns from ALL clients in the same niche. A new retreat coach benefits from all retreat client patterns.</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.03);padding:12px;border-radius:8px">
+            <div style="color:var(--accent-purple);font-weight:600;margin-bottom:4px">Engagement Weighting</div>
+            <div>Partners the client actually clicked/contacted in OutreachEvent get 2&times; weight. Card expands get 1.5&times;. System learns from behavior, not just scores.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CLI commands -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px">
+      <h3 style="margin-bottom:12px">CLI Commands</h3>
+      <div style="font-size:13px">
+        <div style="margin-bottom:12px">
+          <code style="color:var(--accent-cyan)">python3 manage.py run_new_client_acquisition --client-id &lt;uuid&gt;</code>
+          <div style="color:var(--text-dim);margin-top:4px">Manual trigger for a specific client. Accepts --dry-run, --budget, --target-score, --target-count.</div>
+        </div>
+        <div style="margin-bottom:12px">
+          <code style="color:var(--accent-cyan)">python3 manage.py run_enrichment_cascade --layers 6</code>
+          <div style="color:var(--text-dim);margin-top:4px">Run Layer 6 (gap acquisition) across all clients with gaps. Part of the monthly cascade.</div>
+        </div>
+        <div>
+          <code style="color:var(--accent-cyan)">python -m matching.enrichment.flows.acquisition_flow --client-id &lt;uuid&gt; --budget 2.00</code>
+          <div style="color:var(--text-dim);margin-top:4px">Direct Prefect flow invocation. Useful for testing with --dry-run.</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

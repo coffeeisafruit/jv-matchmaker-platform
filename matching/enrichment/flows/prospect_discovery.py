@@ -170,6 +170,56 @@ def _build_niche_queries(client_profile: dict, gap_analysis: dict) -> list[str]:
     return queries
 
 
+def _build_complementary_query(
+    client_profile: dict,
+    ideal_partner=None,
+) -> str:
+    """Build a search query describing the IDEAL PARTNER, not the client.
+
+    Uses learned patterns from IdealPartnerProfile (offering_examples,
+    common_roles, high_scoring_keywords) to describe who we're looking for,
+    rather than searching for the client's own terms.
+
+    Falls back to a field-flip approach when no learned data is available.
+    """
+    parts: list[str] = []
+
+    if ideal_partner and getattr(ideal_partner, "learned", False):
+        # Use real examples from high-scoring matches
+        if getattr(ideal_partner, "offering_examples", None):
+            # Use the top offering example (from best match)
+            parts.append(ideal_partner.offering_examples[0][:150])
+
+        if getattr(ideal_partner, "common_roles", None):
+            parts.append(" ".join(ideal_partner.common_roles[:3]))
+
+        if getattr(ideal_partner, "high_scoring_keywords", None):
+            parts.append(" ".join(ideal_partner.high_scoring_keywords[:5]))
+
+        # Add niche diversity from target_niches
+        if getattr(ideal_partner, "target_niches", None):
+            parts.append(" ".join(ideal_partner.target_niches[:2]))
+    else:
+        # Fallback: field-flip (client's seeking = partner's offering)
+        seeking = (client_profile.get("seeking") or "").strip()
+        if seeking:
+            parts.append(seeking[:150])
+
+        who_you_serve = (client_profile.get("who_you_serve") or "").strip()
+        if who_you_serve:
+            parts.append(f"serves {who_you_serve[:80]}")
+
+        niche = (client_profile.get("niche") or "").strip()
+        if niche:
+            parts.append(niche)
+
+    if not parts:
+        parts.append("business coach speaker entrepreneur joint venture")
+
+    query = " ".join(parts)
+    return query[:500]  # Exa query length limit
+
+
 # ---------------------------------------------------------------------------
 # Exa API interaction helpers
 # ---------------------------------------------------------------------------
@@ -302,6 +352,7 @@ def discover_prospects(
     gap_analysis: dict,
     max_results: int = 100,
     budget: float = 0.50,
+    ideal_partner=None,
 ) -> list[dict]:
     """Discover new prospect candidates using Exa Websets + supplementary tools.
 
@@ -394,11 +445,18 @@ def discover_prospects(
     # ------------------------------------------------------------------
     # Layer 1: Primary semantic search (largest allocation)
     # ------------------------------------------------------------------
-    primary_query = _build_primary_query(client_profile, gap_analysis)
-    logger.info(
-        "Discovery Layer 1: primary search for %s -- query: '%s'",
-        client_name, primary_query[:100],
-    )
+    if ideal_partner and getattr(ideal_partner, "learned", False):
+        primary_query = _build_complementary_query(client_profile, ideal_partner)
+        logger.info(
+            "Discovery Layer 1: complementary search (learned) for %s -- query: '%s'",
+            client_name, primary_query[:100],
+        )
+    else:
+        primary_query = _build_primary_query(client_profile, gap_analysis)
+        logger.info(
+            "Discovery Layer 1: primary search for %s -- query: '%s'",
+            client_name, primary_query[:100],
+        )
 
     primary_results = min(50, max_results)
     prospects, cost = _exa_search(

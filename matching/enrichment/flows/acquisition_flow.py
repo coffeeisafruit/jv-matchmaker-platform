@@ -32,6 +32,9 @@ from matching.enrichment.flows.gap_detection import detect_match_gaps
 from matching.enrichment.flows.prospect_discovery import discover_prospects
 from matching.enrichment.flows.prospect_prescoring import prescore_prospects
 from matching.enrichment.flows.prospect_ingestion import ingest_prospects
+from matching.enrichment.flows.db_prospect_search import search_database_prospects
+
+CLIENT_BUDGET_CAP = 2.00  # Hard cap per client per acquisition run
 
 
 # ---------------------------------------------------------------------------
@@ -53,6 +56,11 @@ class AcquisitionResult:
     cost: float = 0.0
     runtime_seconds: float = 0.0
     skipped_reason: str = ""
+    db_search_count: int = 0
+    db_search_cost: float = 0.0
+    discovery_cost: float = 0.0
+    enrichment_cost: float = 0.0
+    budget_cap_reached: bool = False
 
 
 # ---------------------------------------------------------------------------
@@ -81,6 +89,20 @@ def _load_client_profile(client_profile_id: str) -> dict | None:
         return dict(row) if row else None
     finally:
         conn.close()
+
+
+def _log_budget_alert(client_id: str, client_name: str, total_cost: float):
+    """Log a budget cap alert to the cascade learning log."""
+    try:
+        from matching.enrichment.cascade.learning import CascadeLearningLog, Alert
+        log = CascadeLearningLog()
+        log.record_action(Alert(
+            severity="warning",
+            message=f"Budget cap ${CLIENT_BUDGET_CAP:.2f} reached for {client_name} "
+                    f"(id={client_id}). Total cost: ${total_cost:.2f}",
+        ))
+    except Exception:
+        pass  # alerting should never block the pipeline
 
 
 # ---------------------------------------------------------------------------
@@ -182,35 +204,119 @@ def acquisition_flow(
     )
 
     # ------------------------------------------------------------------
-    # Step 3: Discover prospects
+    # Step 2.5: Build ideal partner profile (data-driven learning)
     # ------------------------------------------------------------------
-    logger.info(
-        "Discovering prospects (max=%d, budget=$%.2f)",
-        max_prospects, budget,
-    )
-    prospects = discover_prospects(
-        client_profile=client_profile,
-        gap_analysis=gap_analysis,
-        max_results=max_prospects,
-        budget=budget,
-    )
+    ideal_partner = None
+    try:
+        from matching.enrichment.cascade.partner_pipeline import PartnerPipeline
+        pipeline = PartnerPipeline()
+        ideal_partner = pipeline.build_ideal_partner_profile(client_profile_id)
+        logger.info(
+            "Ideal partner profile: learning_level=%s, match_count=%d, "
+            "engagement_weighted=%s",
+            ideal_partner.learning_level,
+            ideal_partner.match_count,
+            ideal_partner.engagement_weighted,
+        )
+    except Exception as exc:
+        logger.warning("Failed to build ideal partner profile: %s", exc)
 
-    result.total_discovered = len(prospects)
-    if not prospects:
+    # ------------------------------------------------------------------
+    # Step 3a: Search own database first ($0 cost)
+    # ------------------------------------------------------------------
+    rotation_ids = []
+    try:
+        from matching.enrichment.cascade.partner_pipeline import PartnerPipeline
+        rotation_ids = list(PartnerPipeline().get_rotation_filter(client_profile_id))
+    except Exception:
+        pass
+
+    if not dry_run:
+        logger.info("Searching own database first (gap=%d)", result.gap_detected)
+        try:
+            db_prospects = search_database_prospects(
+                client_profile=client_profile,
+                ideal_partner=ideal_partner,
+                exclude_ids=rotation_ids,
+                max_results=max_prospects,
+                min_readiness_score=20.0,
+                max_staleness_days=180,
+            )
+        except Exception as exc:
+            logger.warning("DB prospect search failed: %s", exc)
+            db_prospects = []
+        result.db_search_count = len(db_prospects)
+        logger.info("DB search: %d prospects found ($0.00)", len(db_prospects))
+    else:
+        db_prospects = []
+        logger.info("DRY RUN -- skipping DB search")
+
+    # ------------------------------------------------------------------
+    # Step 3b: Adjust external budget based on DB results
+    # ------------------------------------------------------------------
+    external_budget = min(budget, CLIENT_BUDGET_CAP)
+    if result.db_search_count >= result.gap_detected * 2:
+        external_budget *= 0.25
+        logger.info("DB found 2x gap — external budget reduced to $%.2f", external_budget)
+    elif result.db_search_count >= result.gap_detected:
+        external_budget *= 0.50
+        logger.info("DB found 1x gap — external budget reduced to $%.2f", external_budget)
+    else:
+        logger.info("DB found < gap — full external budget $%.2f", external_budget)
+
+    # ------------------------------------------------------------------
+    # Step 3c: External discovery (Exa + Apollo)
+    # ------------------------------------------------------------------
+    remaining_slots = max_prospects - len(db_prospects)
+    if remaining_slots > 0 and external_budget > 0.05:
+        logger.info(
+            "Discovering external prospects (max=%d, budget=$%.2f)",
+            remaining_slots, external_budget,
+        )
+        external_prospects = discover_prospects(
+            client_profile=client_profile,
+            gap_analysis=gap_analysis,
+            max_results=remaining_slots,
+            budget=external_budget,
+            ideal_partner=ideal_partner,
+        )
+        result.discovery_cost = sum(
+            p.get("discovery_cost", 0) for p in external_prospects
+        )
+    else:
+        external_prospects = []
+        logger.info("Skipping external discovery — DB filled enough slots")
+
+    # Combine DB + external prospects
+    all_prospects = db_prospects + external_prospects
+    result.total_discovered = len(all_prospects)
+    result.cost = result.discovery_cost
+
+    if not all_prospects:
         logger.info("No prospects discovered -- done")
         result.skipped_reason = "no_prospects_found"
         result.runtime_seconds = time.time() - start_time
         return result
 
-    logger.info("Discovered %d prospects", len(prospects))
+    logger.info(
+        "Total discovered: %d (%d DB + %d external, $%.3f cost)",
+        len(all_prospects), len(db_prospects), len(external_prospects),
+        result.cost,
+    )
+
+    # Budget cap check
+    if result.cost >= CLIENT_BUDGET_CAP:
+        result.budget_cap_reached = True
+        _log_budget_alert(client_profile_id, result.client_name, result.cost)
+        logger.warning("Budget cap reached ($%.2f >= $%.2f)", result.cost, CLIENT_BUDGET_CAP)
 
     # ------------------------------------------------------------------
     # Step 4: Pre-score prospects
     # ------------------------------------------------------------------
-    logger.info("Pre-scoring %d prospects (gap=%d)", len(prospects), result.gap_detected)
+    logger.info("Pre-scoring %d prospects (gap=%d)", len(all_prospects), result.gap_detected)
     scored_prospects = prescore_prospects(
         client_profile=client_profile,
-        prospects=prospects,
+        prospects=all_prospects,
         threshold=60,
         gap_size=result.gap_detected,
     )
@@ -226,8 +332,12 @@ def acquisition_flow(
     )
 
     # ------------------------------------------------------------------
-    # Step 5: Ingest ALL prospects to database
+    # Step 5: Ingest prospects to database
     # ------------------------------------------------------------------
+    # Skip DB-sourced prospects (they already exist in the database)
+    new_prospects = [p for p in scored_prospects if not p.get("_db_profile_id")]
+    db_sourced = [p for p in scored_prospects if p.get("_db_profile_id")]
+
     if dry_run:
         logger.info("DRY RUN -- skipping DB ingestion")
         ingestion_result = {
@@ -236,58 +346,93 @@ def acquisition_flow(
             "total_saved": 0,
             "errors": 0,
         }
-    else:
-        logger.info("Ingesting %d prospects to database", len(scored_prospects))
+    elif new_prospects:
+        logger.info(
+            "Ingesting %d new prospects to database (skipping %d DB-sourced)",
+            len(new_prospects), len(db_sourced),
+        )
         ingestion_result = ingest_prospects(
-            prospects=scored_prospects,
+            prospects=new_prospects,
             source="acquisition",
         )
+    else:
+        ingestion_result = {
+            "new_ids": [],
+            "duplicate_count": 0,
+            "total_saved": 0,
+            "errors": 0,
+        }
 
     result.saved_to_db = ingestion_result.get("total_saved", 0)
     result.duplicates = ingestion_result.get("duplicate_count", 0)
     new_ids = ingestion_result.get("new_ids", [])
 
     logger.info(
-        "Ingestion: %d new, %d duplicates",
-        result.saved_to_db, result.duplicates,
+        "Ingestion: %d new, %d duplicates, %d DB-sourced (skipped)",
+        result.saved_to_db, result.duplicates, len(db_sourced),
     )
 
     # ------------------------------------------------------------------
     # Step 6: Feed high-scorers into enrichment pipeline
     # ------------------------------------------------------------------
-    # Only enrich newly ingested profiles that scored above threshold
+    # Collect IDs for enrichment: new inserts + DB-sourced above threshold
     high_scorer_ids = []
-    for prospect, new_id in _match_prospects_to_ids(scored_prospects, new_ids):
+
+    # From newly ingested
+    for prospect, new_id in _match_prospects_to_ids(new_prospects, new_ids):
         if prospect.get("_above_threshold") and new_id:
             high_scorer_ids.append(new_id)
 
-    if high_scorer_ids and not dry_run:
-        logger.info(
-            "Triggering enrichment for %d high-scoring prospects",
-            len(high_scorer_ids),
-        )
-        try:
-            from matching.enrichment.flows.enrichment_flow import enrichment_flow
+    # From DB-sourced (already have profile IDs)
+    for prospect in db_sourced:
+        if prospect.get("_above_threshold") and prospect.get("_db_profile_id"):
+            high_scorer_ids.append(prospect["_db_profile_id"])
 
-            enrichment_result = enrichment_flow(
-                profile_ids=high_scorer_ids,
-                dry_run=dry_run,
-            )
-            result.enriched = enrichment_result.profiles_researched
-            result.cost += enrichment_result.total_cost
-
+    if high_scorer_ids and not dry_run and not result.budget_cap_reached:
+        remaining_budget = CLIENT_BUDGET_CAP - result.cost
+        if remaining_budget > 0.10:
             logger.info(
-                "Enrichment complete: %d profiles researched, $%.3f cost",
-                result.enriched, enrichment_result.total_cost,
+                "Triggering enrichment for %d high-scoring prospects "
+                "(remaining budget: $%.2f)",
+                len(high_scorer_ids), remaining_budget,
             )
-        except Exception as exc:
-            logger.error("Enrichment flow failed: %s", exc)
-            result.enriched = 0
+            try:
+                from matching.enrichment.flows.enrichment_flow import enrichment_flow
+
+                enrichment_result = enrichment_flow(
+                    profile_ids=high_scorer_ids,
+                    dry_run=dry_run,
+                )
+                result.enriched = enrichment_result.profiles_researched
+                result.enrichment_cost = enrichment_result.total_cost
+                result.cost += result.enrichment_cost
+
+                logger.info(
+                    "Enrichment complete: %d profiles researched, $%.3f cost",
+                    result.enriched, result.enrichment_cost,
+                )
+
+                # Check budget after enrichment
+                if result.cost >= CLIENT_BUDGET_CAP:
+                    result.budget_cap_reached = True
+                    _log_budget_alert(
+                        client_profile_id, result.client_name, result.cost,
+                    )
+            except Exception as exc:
+                logger.error("Enrichment flow failed: %s", exc)
+                result.enriched = 0
+        else:
+            logger.warning(
+                "Skipping enrichment — remaining budget too low ($%.2f)",
+                remaining_budget,
+            )
     elif dry_run:
         logger.info(
             "DRY RUN -- would enrich %d high-scoring prospects",
             len(high_scorer_ids),
         )
+    elif result.budget_cap_reached:
+        logger.warning("Budget cap reached — skipping enrichment")
     else:
         logger.info("No high-scoring new prospects to enrich")
 
