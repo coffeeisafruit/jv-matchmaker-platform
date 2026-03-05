@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JV Matchmaker · Find Your Next 10 Partners</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #faf8f5;
+            --cream-dark: #f2efe9;
+            --ink: #1a1a1a;
+            --ink-soft: #2d2d2d;
+            --forest: #1e3a2f;
+            --forest-mid: #2a5040;
+            --gold: #c9a962;
+            --gold-light: #e8d5a8;
+            --gold-pale: #f7f0e0;
+            --muted: #8b8680;
+            --muted-light: #b5b0aa;
+            --card: #ffffff;
+            --border: #e8e4de;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* ── TYPOGRAPHY ── */
+        h1, h2, h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            line-height: 1.2;
+        }
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 12px;
+        }
+
+        /* ── LAYOUT ── */
+        .section { padding: 80px 24px; }
+        .section-tight { padding: 60px 24px; }
+        .inner { max-width: 720px; margin: 0 auto; }
+        .inner-wide { max-width: 960px; margin: 0 auto; }
+
+        /* ── NAV ── */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--forest);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+            box-shadow: 0 1px 8px rgba(0,0,0,0.15);
+        }
+        .nav-brand {
+            font-family: 'Playfair Display', serif;
+            color: var(--gold-light);
+            font-size: 17px;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+        }
+        .nav-cta {
+            padding: 8px 18px;
+            background: var(--gold);
+            color: var(--forest);
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.15s, opacity 0.15s;
+        }
+        .nav-cta:hover { opacity: 0.88; }
+
+        /* ── HERO ── */
+        .hero {
+            background: var(--forest);
+            color: white;
+            padding: 96px 24px 88px;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: clamp(32px, 6vw, 52px);
+            font-weight: 600;
+            color: #fff;
+            max-width: 680px;
+            margin: 0 auto 20px;
+            line-height: 1.15;
+        }
+        .hero h1 em {
+            font-style: italic;
+            color: var(--gold-light);
+        }
+        .hero-sub {
+            font-size: 18px;
+            color: rgba(255,255,255,0.72);
+            max-width: 520px;
+            margin: 0 auto 40px;
+            line-height: 1.55;
+        }
+        .hero-cta {
+            display: inline-block;
+            padding: 16px 36px;
+            background: var(--gold);
+            color: var(--forest);
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .hero-cta:hover { opacity: 0.9; transform: translateY(-1px); }
+        .hero-note {
+            margin-top: 16px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.45);
+        }
+
+        /* ── PROOF BAR ── */
+        .proof-bar {
+            background: var(--gold-pale);
+            border-top: 1px solid var(--gold-light);
+            border-bottom: 1px solid var(--gold-light);
+            padding: 28px 24px;
+        }
+        .proof-bar-inner {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+        .proof-stat { text-align: center; }
+        .proof-stat .num {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--forest);
+            display: block;
+        }
+        .proof-stat .label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--muted);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        .proof-divider {
+            width: 1px;
+            height: 36px;
+            background: var(--gold-light);
+        }
+
+        /* ── SECTION HEADING ── */
+        .section-heading {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+        .section-heading h2 {
+            font-size: clamp(24px, 4vw, 36px);
+            color: var(--forest);
+            margin-bottom: 12px;
+        }
+        .section-heading p {
+            font-size: 17px;
+            color: var(--muted);
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        /* ── PROBLEM ── */
+        .problem-section { background: var(--card); }
+        .problem-intro {
+            font-size: 18px;
+            color: var(--ink-soft);
+            max-width: 600px;
+            margin: 0 auto 40px;
+            text-align: center;
+            line-height: 1.65;
+        }
+        .problem-list {
+            list-style: none;
+            max-width: 580px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .problem-list li {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        .problem-icon {
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            margin-top: 1px;
+        }
+        .problem-text strong {
+            display: block;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+        .problem-text span {
+            font-size: 15px;
+            color: var(--muted);
+        }
+
+        /* ── DELIVERABLE ── */
+        .deliverable-section { background: var(--cream); }
+        .deliverable-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .deliverable-card-header {
+            background: var(--forest);
+            color: white;
+            padding: 20px 28px;
+        }
+        .deliverable-card-header h3 {
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--gold-light);
+        }
+        .deliverable-card-header p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.55);
+            margin-top: 4px;
+        }
+        .deliverable-table { width: 100%; border-collapse: collapse; }
+        .deliverable-table tr { border-bottom: 1px solid var(--border); }
+        .deliverable-table tr:last-child { border-bottom: none; }
+        .deliverable-table td {
+            padding: 18px 28px;
+            font-size: 15px;
+        }
+        .deliverable-table td:first-child {
+            width: 220px;
+            font-weight: 600;
+            color: var(--forest);
+        }
+        .deliverable-table td:last-child {
+            color: var(--ink-soft);
+        }
+        .deliverable-table tr:nth-child(even) td { background: var(--cream); }
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            background: var(--gold-pale);
+            border: 1px solid var(--gold-light);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--forest);
+            letter-spacing: 0.03em;
+        }
+        .deliverable-note {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* ── HOW IT WORKS ── */
+        .how-section { background: var(--card); }
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .step {
+            display: flex;
+            gap: 24px;
+            position: relative;
+        }
+        .step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 19px;
+            top: 52px;
+            bottom: -8px;
+            width: 2px;
+            background: var(--gold-light);
+        }
+        .step-num {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--forest);
+            color: var(--gold-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        .step-body { padding-bottom: 36px; }
+        .step-body h3 {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--forest);
+            margin-bottom: 6px;
+            margin-top: 8px;
+        }
+        .step-body p {
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+        .step-aside {
+            margin-top: 32px;
+            padding: 20px 24px;
+            background: var(--gold-pale);
+            border-left: 3px solid var(--gold);
+            border-radius: 0 6px 6px 0;
+            font-size: 14px;
+            color: var(--ink-soft);
+            line-height: 1.6;
+        }
+        .step-aside strong { color: var(--forest); }
+
+        /* ── PROOF SECTION ── */
+        .proof-section { background: var(--cream); }
+        .proof-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .proof-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px 20px;
+        }
+        .proof-card-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: var(--gold-pale);
+            border: 1px solid var(--gold-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            margin-bottom: 14px;
+        }
+        .proof-card h3 {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--forest);
+            margin-bottom: 6px;
+        }
+        .proof-card p {
+            font-size: 14px;
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        /* ── FIT SECTION ── */
+        .fit-section { background: var(--card); }
+        .fit-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            max-width: 640px;
+            margin: 0 auto;
+        }
+        @media (max-width: 560px) { .fit-columns { grid-template-columns: 1fr; } }
+        .fit-col h3 {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .fit-col.yes h3 { color: var(--forest); }
+        .fit-col.no h3 { color: var(--muted); }
+        .fit-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .fit-list li {
+            display: flex;
+            gap: 10px;
+            font-size: 15px;
+            align-items: flex-start;
+            line-height: 1.45;
+        }
+        .fit-list li .check { color: var(--gold); font-size: 13px; margin-top: 2px; }
+        .fit-list li .cross { color: var(--muted-light); font-size: 13px; margin-top: 2px; }
+
+        /* ── PRICING ── */
+        .pricing-section { background: var(--cream); }
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            max-width: 800px;
+            margin: 0 auto 32px;
+        }
+        .pricing-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 28px 24px;
+            position: relative;
+        }
+        .pricing-card.featured {
+            border-color: var(--forest);
+            box-shadow: 0 4px 20px rgba(30,58,47,0.10);
+        }
+        .pricing-badge {
+            position: absolute;
+            top: -11px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--forest);
+            color: var(--gold-light);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 14px;
+            border-radius: 20px;
+        }
+        .pricing-card h3 {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .pricing-price {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            color: var(--forest);
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+        .pricing-price span {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 400;
+            color: var(--muted);
+        }
+        .pricing-desc {
+            font-size: 14px;
+            color: var(--muted);
+            margin: 12px 0 20px;
+            line-height: 1.5;
+        }
+        .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 9px; }
+        .pricing-features li {
+            font-size: 14px;
+            color: var(--ink-soft);
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+        }
+        .pricing-features li::before {
+            content: '✓';
+            color: var(--gold);
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .pricing-note {
+            text-align: center;
+            font-size: 13px;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* ── FAQ ── */
+        .faq-section { background: var(--card); }
+        .faq-list { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 0; }
+        .faq-item { border-bottom: 1px solid var(--border); }
+        .faq-item:first-child { border-top: 1px solid var(--border); }
+        .faq-q {
+            width: 100%;
+            background: none;
+            border: none;
+            padding: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--forest);
+            text-align: left;
+            gap: 16px;
+        }
+        .faq-arrow {
+            font-size: 18px;
+            color: var(--gold);
+            flex-shrink: 0;
+            transition: transform 0.2s;
+        }
+        .faq-item.open .faq-arrow { transform: rotate(45deg); }
+        .faq-a {
+            display: none;
+            padding: 0 0 20px;
+            font-size: 15px;
+            color: var(--muted);
+            line-height: 1.65;
+        }
+        .faq-item.open .faq-a { display: block; }
+
+        /* ── CTA STRIP ── */
+        .cta-strip {
+            background: var(--forest);
+            padding: 72px 24px;
+            text-align: center;
+        }
+        .cta-strip h2 {
+            font-size: clamp(26px, 4vw, 38px);
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        .cta-strip h2 em {
+            font-style: italic;
+            color: var(--gold-light);
+        }
+        .cta-strip p {
+            font-size: 17px;
+            color: rgba(255,255,255,0.6);
+            max-width: 420px;
+            margin: 0 auto 36px;
+        }
+        .cta-btn {
+            display: inline-block;
+            padding: 16px 40px;
+            background: var(--gold);
+            color: var(--forest);
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+        .cta-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .cta-sub {
+            margin-top: 14px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.35);
+        }
+
+        /* ── FOOTER ── */
+        footer {
+            background: var(--ink);
+            padding: 32px 24px;
+            text-align: center;
+            font-size: 13px;
+            color: rgba(255,255,255,0.3);
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 600px) {
+            .proof-bar-inner { gap: 24px; }
+            .proof-divider { display: none; }
+            .deliverable-table td:first-child { width: auto; }
+            .deliverable-table { display: block; }
+            .deliverable-table tr { display: flex; flex-direction: column; }
+            .deliverable-table td { padding: 10px 20px; }
+            .deliverable-table td:first-child { padding-bottom: 2px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+    <span class="nav-brand">JV Matchmaker</span>
+    <a href="#pricing" class="nav-cta">Apply for a Spot</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+    <p class="eyebrow">Done-for-You Partner Matching</p>
+    <h1>We find your next <em>10 JV partners.</em><br>Every month.</h1>
+    <p class="hero-sub">No cold lists. No guesswork. Curated matches, contact info, and outreach templates — delivered to your inbox each month.</p>
+    <a href="#pricing" class="hero-cta">Apply for a Spot →</a>
+    <p class="hero-note">Spots are limited per month to maintain match quality.</p>
+</section>
+
+<!-- PROOF BAR -->
+<div class="proof-bar">
+    <div class="proof-bar-inner">
+        <div class="proof-stat">
+            <span class="num">1M+</span>
+            <span class="label">Profiles indexed</span>
+        </div>
+        <div class="proof-divider"></div>
+        <div class="proof-stat">
+            <span class="num">35+</span>
+            <span class="label">Data sources</span>
+        </div>
+        <div class="proof-divider"></div>
+        <div class="proof-stat">
+            <span class="num">10</span>
+            <span class="label">Curated matches / month</span>
+        </div>
+        <div class="proof-divider"></div>
+        <div class="proof-stat">
+            <span class="num">90‑day</span>
+            <span class="label">Partner rotation</span>
+        </div>
+    </div>
+</div>
+
+<!-- PROBLEM -->
+<section class="section problem-section">
+    <div class="inner">
+        <div class="section-heading">
+            <p class="eyebrow">The Problem</p>
+            <h2>Finding the right JV partner<br>is a full-time job. It shouldn't be.</h2>
+        </div>
+        <p class="problem-intro">
+            You already know partnerships are one of the fastest ways to grow. The problem isn't the strategy — it's the execution.
+        </p>
+        <ul class="problem-list">
+            <li>
+                <div class="problem-icon">✗</div>
+                <div class="problem-text">
+                    <strong>The research rabbit hole</strong>
+                    <span>You find someone promising, spend 45 minutes digging through their site, and realize their audience is the wrong fit. Then you do it again. And again.</span>
+                </div>
+            </li>
+            <li>
+                <div class="problem-icon">✗</div>
+                <div class="problem-text">
+                    <strong>The awkward cold pitch</strong>
+                    <span>You don't know if they're even open to partnerships, so every outreach feels like a shot in the dark — and often goes unanswered.</span>
+                </div>
+            </li>
+            <li>
+                <div class="problem-icon">✗</div>
+                <div class="problem-text">
+                    <strong>The wrong match</strong>
+                    <span>You invest time building a relationship, only to discover your offers compete, your audiences don't actually overlap, or they're not ready to promote anyone yet.</span>
+                </div>
+            </li>
+            <li>
+                <div class="problem-icon">✗</div>
+                <div class="problem-text">
+                    <strong>The missed follow-up</strong>
+                    <span>Even when you find someone great, you don't have a template ready — and the moment slips away.</span>
+                </div>
+            </li>
+        </ul>
+    </div>
+</section>
+
+<!-- DELIVERABLE -->
+<section class="section deliverable-section">
+    <div class="inner">
+        <div class="section-heading">
+            <p class="eyebrow">What You Get</p>
+            <h2>Your monthly partner report —<br>curated, ranked, ready to act on</h2>
+            <p>A private report with your top 10 partner matches, delivered monthly. No login required — just click the link in your inbox.</p>
+        </div>
+        <div class="deliverable-card">
+            <div class="deliverable-card-header">
+                <h3>Monthly Partner Report</h3>
+                <p>Everything you need to make contact — in one place</p>
+            </div>
+            <table class="deliverable-table">
+                <tr>
+                    <td>10 curated matches <span class="tag">ranked</span></td>
+                    <td>Sorted by fit to your specific offer, audience, and partnership goals</td>
+                </tr>
+                <tr>
+                    <td>Full contact info</td>
+                    <td>Email, phone, LinkedIn, website, and scheduling link for each match</td>
+                </tr>
+                <tr>
+                    <td>Why they fit <span class="tag">personalized</span></td>
+                    <td>A plain-English explanation of exactly why this partner makes sense for you</td>
+                </tr>
+                <tr>
+                    <td>Outreach templates</td>
+                    <td>An intro message and follow-up — already written, ready to copy into Gmail or Outlook</td>
+                </tr>
+                <tr>
+                    <td>Monthly progress tracker</td>
+                    <td>See how many partners you've contacted. Reset each month to stay on pace.</td>
+                </tr>
+                <tr>
+                    <td>Your partner one-pager</td>
+                    <td>A shareable page with your offer, audience, and commissions — ready to send when partners ask</td>
+                </tr>
+            </table>
+        </div>
+        <p class="deliverable-note">Most clients complete their full outreach in under 30 minutes a month.</p>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="section how-section">
+    <div class="inner">
+        <div class="section-heading">
+            <p class="eyebrow">How It Works</p>
+            <h2>Three steps. No learning curve.</h2>
+        </div>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-body">
+                    <h3>We build your partner profile</h3>
+                    <p>You complete a short intake — your offer, your audience, your niche, and what you're looking for in a partner. This profile drives every match decision, every month.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-body">
+                    <h3>Our system finds your matches</h3>
+                    <p>We run your profile against a database of over one million vetted business profiles using a proprietary matching system. It evaluates each potential partner for audience alignment, partnership intent, mutual value, and business readiness — and surfaces the ones most likely to be a genuine fit.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-body">
+                    <h3>You get your report — monthly</h3>
+                    <p>Your report arrives with everything you need to reach out. Review your matches, read why each one fits, copy the outreach template, and start your conversations.</p>
+                </div>
+            </div>
+        </div>
+        <div class="step-aside">
+            <strong>Behind the scenes:</strong> our database draws from 35+ sources including dedicated JV platforms, podcast directories, coaching networks, and speaker bureaus. Every profile is researched and enriched with AI — we know what each person does, who they serve, and what they're looking for. Match quality is reviewed by a human expert panel before any match type reaches your report.
+        </div>
+    </div>
+</section>
+
+<!-- PROOF -->
+<section class="section proof-section">
+    <div class="inner-wide">
+        <div class="section-heading">
+            <p class="eyebrow">Why It Works</p>
+            <h2>Built for precision, not volume</h2>
+        </div>
+        <div class="proof-grid">
+            <div class="proof-card">
+                <div class="proof-card-icon">🗂</div>
+                <h3>1,000,000+ profiles indexed</h3>
+                <p>We've aggregated and vetted over one million business profiles from 35+ data sources. You benefit from a database that took years to build.</p>
+            </div>
+            <div class="proof-card">
+                <div class="proof-card-icon">🔬</div>
+                <h3>AI-researched, not scraped</h3>
+                <p>Every profile is enriched with AI research — we know what each person does, who they serve, and what they're actively looking for in a partner. Not just a name and email.</p>
+            </div>
+            <div class="proof-card">
+                <div class="proof-card-icon">👥</div>
+                <h3>Human quality review</h3>
+                <p>An expert panel evaluates real match quality and tracks where matches fall short. That feedback improves every future report.</p>
+            </div>
+            <div class="proof-card">
+                <div class="proof-card-icon">🔄</div>
+                <h3>90-day partner rotation</h3>
+                <p>You never see the same match twice within a quarter. Every month is a fresh set of vetted partners — no recycled lists.</p>
+            </div>
+            <div class="proof-card">
+                <div class="proof-card-icon">✅</div>
+                <h3>Quality-gated delivery</h3>
+                <p>Reports only go out when they meet our internal production standard. If the data isn't strong enough, we don't send it.</p>
+            </div>
+            <div class="proof-card">
+                <div class="proof-card-icon">🎯</div>
+                <h3>Built around your specific offer</h3>
+                <p>This isn't a generic database search. Every match is selected for <em>you</em>, based on your profile, your audience, and your goals.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- WHO IT'S FOR -->
+<section class="section fit-section">
+    <div class="inner">
+        <div class="section-heading">
+            <p class="eyebrow">Is This For You?</p>
+            <h2>Best-fit clients and honest non-fits</h2>
+        </div>
+        <div class="fit-columns">
+            <div class="fit-col yes">
+                <h3>Great fit if you…</h3>
+                <ul class="fit-list">
+                    <li><span class="check">✓</span> Have an established offer and an audience that trusts you</li>
+                    <li><span class="check">✓</span> Have something to offer a partner — a commission structure, co-promotion, content swap, or list access</li>
+                    <li><span class="check">✓</span> Want to grow through partnerships, not just paid ads</li>
+                    <li><span class="check">✓</span> Are a coach, course creator, speaker, consultant, or service provider</li>
+                    <li><span class="check">✓</span> Spend more time searching for partners than actually working with them</li>
+                </ul>
+            </div>
+            <div class="fit-col no">
+                <h3>Not a fit if you…</h3>
+                <ul class="fit-list">
+                    <li><span class="cross">—</span> Are just getting started with no offer and no audience yet</li>
+                    <li><span class="cross">—</span> Want a cold lead list to blast at scale</li>
+                    <li><span class="cross">—</span> Need partners this week — quality matching takes time</li>
+                    <li><span class="cross">—</span> Aren't willing to do any outreach yourself (standard plan)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICING -->
+<section class="section-tight pricing-section" id="pricing">
+    <div class="inner">
+        <div class="section-heading">
+            <p class="eyebrow">Pricing</p>
+            <h2>Simple, transparent options</h2>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Starter</h3>
+                <div class="pricing-price">$[X]<span>/mo</span></div>
+                <p class="pricing-desc">Your first report + partner profile setup</p>
+                <ul class="pricing-features">
+                    <li>Partner profile build</li>
+                    <li>First monthly report</li>
+                    <li>10 curated matches</li>
+                    <li>Contact info + templates</li>
+                </ul>
+            </div>
+            <div class="pricing-card featured">
+                <div class="pricing-badge">Most Popular</div>
+                <h3>Monthly</h3>
+                <div class="pricing-price">$[X]<span>/mo</span></div>
+                <p class="pricing-desc">Ongoing monthly partner reports</p>
+                <ul class="pricing-features">
+                    <li>10 new curated matches / month</li>
+                    <li>90-day partner rotation</li>
+                    <li>Your partner one-pager (shareable)</li>
+                    <li>Outreach templates included</li>
+                    <li>Progress tracker</li>
+                </ul>
+            </div>
+            <div class="pricing-card">
+                <h3>Done For You</h3>
+                <div class="pricing-price">$[X]<span>/mo</span></div>
+                <p class="pricing-desc">We handle the first outreach on your behalf</p>
+                <ul class="pricing-features">
+                    <li>Everything in Monthly</li>
+                    <li>First contact sent by our team</li>
+                    <li>Warm introduction to interested partners</li>
+                    <li>You take it from there</li>
+                </ul>
+            </div>
+        </div>
+        <p class="pricing-note">Spots are limited per month to maintain match quality. Pricing shown is placeholder — reach out to confirm current rates.</p>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="section faq-section">
+    <div class="inner">
+        <div class="section-heading">
+            <p class="eyebrow">Questions</p>
+            <h2>Answered honestly</h2>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item">
+                <button class="faq-q">
+                    How are partners selected for my report?
+                    <span class="faq-arrow">+</span>
+                </button>
+                <div class="faq-a">
+                    Every match is based on your specific partner profile — your offer, audience, niche, and goals. We don't send the same list to everyone. Each report is generated for you specifically, drawing from our database of 1M+ vetted profiles.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q">
+                    Do you send emails on my behalf?
+                    <span class="faq-arrow">+</span>
+                </button>
+                <div class="faq-a">
+                    Not on the standard plan. The Partner Report gives you the contact info and a ready-to-use template — you send it from your own email, in your own voice. If you want us to handle first contact, that's the Done For You plan.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q">
+                    What if I don't love the matches in my first report?
+                    <span class="faq-arrow">+</span>
+                </button>
+                <div class="faq-a">
+                    Tell us. We use your feedback to refine your profile for the next month. And with 90-day rotation, you'll always see a fresh set of matches — nothing recycled. The system improves the longer you're in it.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q">
+                    How long until I receive my first report?
+                    <span class="faq-arrow">+</span>
+                </button>
+                <div class="faq-a">
+                    After your intake is complete, most clients receive their first report within a week. Quality takes a little time — we'd rather send something great than something fast.
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA STRIP -->
+<section class="cta-strip">
+    <div class="inner">
+        <h2>Ready to stop searching<br>and <em>start partnering?</em></h2>
+        <p>Apply for a spot and we'll reach out to get started.</p>
+        <a href="#" class="cta-btn">Apply for a Spot →</a>
+        <p class="cta-sub">Spots are limited per month to maintain match quality.</p>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <p>© JV Matchmaker. All rights reserved.</p>
+</footer>
+
+<script>
+    // FAQ accordion
+    document.querySelectorAll('.faq-q').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const item = btn.closest('.faq-item');
+            const isOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+            if (!isOpen) item.classList.add('open');
+        });
+    });
+</script>
+</body>
+</html>

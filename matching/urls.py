@@ -75,6 +75,10 @@ urlpatterns = [
     path('eval/<int:batch_id>/item/<int:item_id>/narrative/', views_evaluation.EvalNarrativeView.as_view(), name='eval-narrative'),
     path('eval/<int:batch_id>/complete/', views_evaluation.EvalBatchCompleteView.as_view(), name='eval-batch-complete'),
 
+    # Sales / Pitch Page (code-gated, no login required)
+    path('pitch/', views.SalesPageAccessView.as_view(), name='sales-access'),
+    path('pitch/page/', views.SalesPageView.as_view(), name='sales-page'),
+
     # Client profile verification (token-gated, no login required)
     path('verify/<uuid:token>/', views_verification.ProfileVerificationView.as_view(), name='verification-form'),
     path('verify/<uuid:token>/submit/', views_verification.ProfileVerificationSubmitView.as_view(), name='verification-submit'),

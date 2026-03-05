@@ -33,6 +33,7 @@ TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "")
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 CLAY_WEBHOOK_SECRET = os.environ.get("CLAY_WEBHOOK_SECRET", "")
+SALES_PAGE_PASSWORD = os.environ.get("SALES_PAGE_PASSWORD", "")
 
 # Email configuration for report delivery
 EMAIL_BACKEND = os.environ.get(

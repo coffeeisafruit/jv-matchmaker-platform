@@ -2106,3 +2106,59 @@ class ContactIngestionWebhookView(View):
         from django.utils.decorators import method_decorator
         from django.views.decorators.csrf import csrf_exempt
         return super().dispatch(request, *args, **kwargs)
+
+
+# =============================================================================
+# SALES / PITCH PAGE (code-gated, no login required)
+# =============================================================================
+
+class SalesPageAccessView(View):
+    """
+    Code-gated entry to the pitch/sales page.
+    Password set via SALES_PAGE_PASSWORD env var (falls back to settings).
+    """
+    template = 'matching/sales/access.html'
+
+    def get(self, request):
+        if request.session.get('sales_page_access'):
+            return redirect('matching:sales-page')
+        return render(request, self.template)
+
+    def post(self, request):
+        code = request.POST.get('code', '').strip()
+
+        # Rate limiting: 5 attempts per 15 minutes
+        now = time.time()
+        attempts = request.session.get('sales_access_attempts', [])
+        window = 15 * 60
+        attempts = [t for t in attempts if now - t < window]
+
+        if len(attempts) >= 5:
+            messages.error(request, 'Too many attempts. Please wait 15 minutes before trying again.')
+            return render(request, self.template)
+
+        attempts.append(now)
+        request.session['sales_access_attempts'] = attempts
+
+        from django.conf import settings
+        password = os.environ.get('SALES_PAGE_PASSWORD') or getattr(settings, 'SALES_PAGE_PASSWORD', '')
+
+        if not password:
+            messages.error(request, 'Access is not configured. Contact the administrator.')
+            return render(request, self.template)
+
+        if code.lower() != password.lower():
+            messages.error(request, 'Invalid access code.')
+            return render(request, self.template)
+
+        request.session['sales_page_access'] = True
+        return redirect('matching:sales-page')
+
+
+class SalesPageView(View):
+    """The gated pitch / sales landing page."""
+
+    def get(self, request):
+        if not request.session.get('sales_page_access'):
+            return redirect('matching:sales-access')
+        return render(request, 'matching/sales/page.html')
