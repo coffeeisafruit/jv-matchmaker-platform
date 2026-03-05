@@ -129,23 +129,27 @@ class ClaudeClient:
         before_sleep=before_sleep_log(logger, logging.WARNING),
         reraise=True,
     )
-    def _call_api(self, prompt: str) -> str:
+    def _call_api(self, prompt: str, guided_json: dict = None) -> str:
         """Execute API call with tenacity retry on transient errors."""
         try:
             if self.use_openrouter:
                 import openai
 
                 client = openai.OpenAI(
-                    base_url="https://openrouter.ai/api/v1",
+                    base_url=os.environ.get('LLM_BASE_URL', 'https://openrouter.ai/api/v1'),
                     api_key=self.api_key,
                 )
 
-                response = client.chat.completions.create(
+                kwargs = dict(
                     model=self.model,
                     max_tokens=self.max_tokens,
                     temperature=0,
-                    messages=[{"role": "user", "content": prompt}]
+                    messages=[{"role": "user", "content": prompt}],
                 )
+                if guided_json:
+                    kwargs["extra_body"] = {"guided_json": guided_json}
+
+                response = client.chat.completions.create(**kwargs)
 
                 result = response.choices[0].message.content
             else:
@@ -217,7 +221,7 @@ def get_pydantic_model():
         from pydantic_ai.providers.openai import OpenAIProvider
         from pydantic_ai.models.openai import OpenAIModel
         provider = OpenAIProvider(
-            base_url="https://openrouter.ai/api/v1",
+            base_url=os.environ.get('LLM_BASE_URL', 'https://openrouter.ai/api/v1'),
             api_key=openrouter_key,
         )
         model_name = model_override or "anthropic/claude-sonnet-4"
@@ -287,7 +291,7 @@ def get_pydantic_model_for_tier(tier: int = 3):
         from pydantic_ai.providers.openai import OpenAIProvider
         from pydantic_ai.models.openai import OpenAIModel
         provider = OpenAIProvider(
-            base_url="https://openrouter.ai/api/v1",
+            base_url=os.environ.get('LLM_BASE_URL', 'https://openrouter.ai/api/v1'),
             api_key=openrouter_key,
         )
         return OpenAIModel(model_name, provider=provider)

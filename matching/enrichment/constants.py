@@ -13,6 +13,7 @@ SOURCE_PRIORITY: dict[str, int] = {
     'exa_research': 50,
     'ai_research': 40,
     'apollo': 30,
+    'website_scrape': 25,
     # Directory scrapers — lowest priority so enrichment overwrites
     'scraper_youtube_api': 20,
     'scraper_speakerhub': 20,

@@ -92,8 +92,7 @@ def _load_client_profile(client_profile_id: str) -> dict | None:
 def prescore_prospects(
     client_profile: dict,
     prospects: list[dict],
-    threshold: int = 60,
-    gap_size: int | None = None,
+    threshold: int = 64,
 ) -> list[dict]:
     """Pre-score prospects against the client using lightweight ISMC.
 
@@ -111,10 +110,7 @@ def prescore_prospects(
         List of discovered prospect dicts from prospect_discovery.
     threshold:
         Minimum harmonic_mean score to be considered "above threshold".
-        Default 60 -- intentionally loose for partial data.
-    gap_size:
-        Number of additional matches needed. When small, the threshold
-        is raised to be pickier and save enrichment budget.
+        Default 64 -- matches the ISMC target score.
 
     Returns
     -------
@@ -123,17 +119,6 @@ def prescore_prospects(
         Each prospect is annotated with _pre_score and _above_threshold.
     """
     logger = get_run_logger()
-
-    # Adaptive threshold: be pickier when gap is small (saves enrichment $)
-    if gap_size is not None:
-        if gap_size <= 3:
-            threshold = max(threshold, 72)
-        elif gap_size <= 5:
-            threshold = max(threshold, 67)
-        logger.info(
-            "Adaptive threshold: gap_size=%d → threshold=%d",
-            gap_size, threshold,
-        )
 
     if not prospects:
         logger.info("No prospects to pre-score")
@@ -168,6 +153,34 @@ def prescore_prospects(
     client_data = db_client if db_client else client_profile
     client_proxy = _PartialProfile(client_data)
 
+    # Pre-load full profiles for DB-sourced prospects so they get
+    # proper ISMC scoring with embedding vectors.
+    db_ids = [
+        p["_db_profile_id"] for p in prospects
+        if p.get("_db_profile_id")
+    ]
+    db_profiles_by_id: dict[str, dict] = {}
+    if db_ids:
+        try:
+            dsn = os.environ["DATABASE_URL"]
+            conn = psycopg2.connect(dsn)
+            try:
+                cursor = conn.cursor(cursor_factory=RealDictCursor)
+                cursor.execute(
+                    _CLIENT_PROFILE_SQL.replace("WHERE id = %s", "WHERE id = ANY(%s::uuid[])"),
+                    (db_ids,),
+                )
+                for row in cursor.fetchall():
+                    db_profiles_by_id[str(row["id"])] = dict(row)
+            finally:
+                conn.close()
+            logger.info(
+                "Loaded %d/%d full DB profiles for prescoring (with embeddings)",
+                len(db_profiles_by_id), len(db_ids),
+            )
+        except Exception as exc:
+            logger.warning("Could not batch-load DB profiles: %s", exc)
+
     # Score each prospect
     scored_count = 0
     above_count = 0
@@ -175,7 +188,13 @@ def prescore_prospects(
 
     for prospect in prospects:
         try:
-            prospect_proxy = _PartialProfile(prospect)
+            # Use full DB profile (with embeddings) when available
+            db_profile_id = prospect.get("_db_profile_id")
+            if db_profile_id and db_profile_id in db_profiles_by_id:
+                prospect_data = db_profiles_by_id[db_profile_id]
+            else:
+                prospect_data = prospect
+            prospect_proxy = _PartialProfile(prospect_data)
             result = scorer.score_pair(client_proxy, prospect_proxy)
 
             harmonic = result.get("harmonic_mean", 0.0)

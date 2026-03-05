@@ -53,6 +53,7 @@ ENRICHABLE_FIELDS = [
     "email", "phone", "revenue_tier", "niche", "tags",
     "signature_programs", "booking_link", "social_proof",
     "content_platforms", "bio",
+    "service_provided", "audience_type", "current_projects",
 ]
 
 SOURCE_PRIORITY = {
@@ -63,8 +64,14 @@ SOURCE_PRIORITY = {
 
 
 def get_conn():
+    # Add sslmode=require to DATABASE_URL if not present
+    db_url = os.environ["DATABASE_URL"]
+    if 'sslmode=' not in db_url:
+        separator = '&' if '?' in db_url else '?'
+        db_url = f"{db_url}{separator}sslmode=require"
+
     return psycopg2.connect(
-        os.environ["DATABASE_URL"],
+        db_url,
         keepalives=1,
         keepalives_idle=30,
         keepalives_interval=10,
@@ -331,97 +338,172 @@ def show_batch_range(start_batch: int, end_batch: int):
 # UPDATE mode — same as Tier A
 # ---------------------------------------------------------------------------
 
+def _get_direct_conn():
+    """Connect via DIRECT_DATABASE_URL (port 5432), bypassing pgbouncer."""
+    db_url = os.environ.get("DIRECT_DATABASE_URL") or os.environ["DATABASE_URL"]
+    if 'sslmode=' not in db_url:
+        separator = '&' if '?' in db_url else '?'
+        db_url = f"{db_url}{separator}sslmode=require"
+    return psycopg2.connect(
+        db_url,
+        keepalives=1,
+        keepalives_idle=30,
+        keepalives_interval=10,
+        keepalives_count=5,
+        connect_timeout=10,
+    )
+
+
+def _build_update_params(profile: dict, existing_meta: dict) -> tuple[list, list, list]:
+    """Return (sets, params, fields_written) for a single profile's writable fields."""
+    sets, params, fields_written = [], [], []
+    now = datetime.now().isoformat()
+    for field in ENRICHABLE_FIELDS:
+        new_val = profile.get(field)
+        if not new_val:
+            continue
+        if _should_write(field, new_val, existing_meta):
+            if field == "tags":
+                sets.append(f"{field} = %s")
+                params.append(new_val)
+            elif field == "content_platforms":
+                sets.append(f"{field} = %s::jsonb")
+                params.append(json.dumps(new_val) if not isinstance(new_val, str) else new_val)
+            else:
+                sets.append(f"{field} = %s")
+                params.append(new_val)
+            fields_written.append(field)
+    return sets, params, fields_written
+
+
 def update_profiles():
-    """Read enriched profile JSON from stdin, write to Supabase."""
+    """Read enriched profile JSON from stdin, write to Supabase.
+
+    Batch strategy: collect up to 10 profiles, then:
+      1. One SELECT ANY(%s::uuid[]) to fetch all metadata
+      2. Build per-profile UPDATE params in memory
+      3. Single COMMIT per batch of 10
+    Uses DIRECT_DATABASE_URL (port 5432) to bypass pgbouncer transaction mode.
+    """
     data = json.load(sys.stdin)
     if isinstance(data, dict):
         data = [data]
 
-    conn = get_conn()
+    conn = _get_direct_conn()
     cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    try:
+        cur.execute("SET statement_timeout = '30s'")
+    except Exception:
+        pass
 
     updated = 0
     skipped = 0
     errors = 0
+    BATCH = 10  # profiles per COMMIT cycle
 
-    for profile in data:
-        pid = profile.get("id")
-        if not pid:
-            skipped += 1
+    def _reconnect():
+        nonlocal conn, cur
+        try:
+            cur.close(); conn.close()
+        except Exception:
+            pass
+        conn = _get_direct_conn()
+        cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        try:
+            cur.execute("SET statement_timeout = '30s'")
+        except Exception:
+            pass
+
+    # Process in batches of BATCH
+    for batch_start in range(0, len(data), BATCH):
+        batch = data[batch_start:batch_start + BATCH]
+        valid = [(p, str(p["id"])) for p in batch if p.get("id")]
+        skipped += len(batch) - len(valid)
+        if not valid:
             continue
 
+        pids = [pid for _, pid in valid]
+
         try:
+            # 1 SELECT for the whole batch
+            try:
+                cur.execute("SELECT 1")
+            except Exception:
+                print("  Reconnecting to database...", file=sys.stderr)
+                _reconnect()
+
             cur.execute(
-                "SELECT enrichment_metadata FROM profiles WHERE id = %s::uuid",
-                (pid,)
+                "SELECT id::text, enrichment_metadata FROM profiles WHERE id = ANY(%s::uuid[])",
+                (pids,)
             )
-            row = cur.fetchone()
-            if not row:
-                skipped += 1
-                continue
+            meta_map = {row["id"]: (row["enrichment_metadata"] or {}) for row in cur.fetchall()}
 
-            existing_meta = row["enrichment_metadata"] or {}
-            if isinstance(existing_meta, str):
-                existing_meta = json.loads(existing_meta)
+            now = datetime.now().isoformat()
 
-            sets = []
-            params = []
-            fields_written = []
-
-            for field in ENRICHABLE_FIELDS:
-                new_val = profile.get(field)
-                if not new_val:
+            for profile, pid in valid:
+                if pid not in meta_map:
+                    skipped += 1
                     continue
-                if _should_write(field, new_val, existing_meta):
-                    if field == "tags":
-                        sets.append(f"{field} = %s")
-                        params.append(new_val)
-                    elif field == "content_platforms":
-                        sets.append(f"{field} = %s::jsonb")
-                        params.append(json.dumps(new_val) if not isinstance(new_val, str) else new_val)
-                    else:
-                        sets.append(f"{field} = %s")
-                        params.append(new_val)
-                    fields_written.append(field)
 
-            if not sets:
-                skipped += 1
-                continue
+                existing_meta = meta_map[pid]
+                if isinstance(existing_meta, str):
+                    existing_meta = json.loads(existing_meta)
 
-            new_meta = dict(existing_meta)
-            new_meta["last_enrichment_source"] = "ai_research"
-            new_meta["last_enrichment_at"] = datetime.now().isoformat()
-            if profile.get("revenue_amount"):
-                new_meta["revenue_amount"] = profile["revenue_amount"]
+                sets, params, fields_written = _build_update_params(profile, existing_meta)
+                if not sets:
+                    skipped += 1
+                    continue
 
-            field_meta = new_meta.get("field_meta", {})
-            for f in fields_written:
-                field_meta[f] = {
-                    "source": "ai_research",
-                    "updated_at": datetime.now().isoformat(),
-                }
-            new_meta["field_meta"] = field_meta
+                new_meta = dict(existing_meta)
+                new_meta["last_enrichment_source"] = "ai_research"
+                new_meta["last_enrichment_at"] = now
+                if profile.get("revenue_amount"):
+                    new_meta["revenue_amount"] = profile["revenue_amount"]
+                field_meta = new_meta.get("field_meta", {})
+                for f in fields_written:
+                    field_meta[f] = {"source": "ai_research", "updated_at": now}
+                new_meta["field_meta"] = field_meta
 
-            sets.append("enrichment_metadata = %s::jsonb")
-            params.append(json.dumps(new_meta, default=str))
-            sets.append("last_enriched_at = NOW()")
+                # Handle confidence → profile_confidence
+                if profile.get("confidence") is not None:
+                    sets.append("profile_confidence = %s")
+                    params.append(float(profile["confidence"]))
 
-            params.append(pid)
-            sql = f"UPDATE profiles SET {', '.join(sets)} WHERE id = %s::uuid"
-            cur.execute(sql, params)
+                sets.append("enrichment_metadata = %s::jsonb")
+                params.append(json.dumps(new_meta, default=str))
+                sets.append("last_enriched_at = NOW()")
+                params.append(pid)
+
+                sql = f"UPDATE profiles SET {', '.join(sets)} WHERE id = %s::uuid"
+                cur.execute(sql, params)
+                updated += 1
+
+            # Single COMMIT per batch
             conn.commit()
-            updated += 1
 
-            if updated % 50 == 0:
+            if updated % 50 == 0 and updated > 0:
                 print(f"  Updated {updated} profiles...", file=sys.stderr)
 
+        except (psycopg2.OperationalError, psycopg2.InterfaceError) as e:
+            print(f"  DB connection error on batch {batch_start}-{batch_start+BATCH}: {e}", file=sys.stderr)
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+            errors += len(valid)
         except Exception as e:
-            conn.rollback()
-            print(f"  ERROR updating {pid}: {e}", file=sys.stderr)
-            errors += 1
+            try:
+                conn.rollback()
+            except Exception:
+                pass
+            print(f"  ERROR on batch {batch_start}-{batch_start+BATCH}: {e}", file=sys.stderr)
+            errors += len(valid)
 
-    cur.close()
-    conn.close()
+    try:
+        cur.close()
+        conn.close()
+    except Exception:
+        pass
     print(f"\nUpdate complete: {updated} updated, {skipped} skipped, {errors} errors")
 
 

@@ -72,6 +72,7 @@ class SafeEnrichmentPipeline:
         self.apollo_credits_used = 0
         self.dry_run = dry_run
         self.batch_size = batch_size
+        self.jv_tier_filter = None  # Set via --jv-tier CLI arg
 
         # Connection pool (P5) — lazy init, created on first use
         self._pool = None
@@ -569,11 +570,20 @@ class SafeEnrichmentPipeline:
                     profiles = []
                     seen_ids = set()
 
+                    # Apply JV tier filter if specified
+                    jv_clause = ""
+                    if self.jv_tier_filter:
+                        jv_clause = f" AND jv_tier = '{self.jv_tier_filter}'"
+
                     for tier, query in tier_queries:
                         if tier_filter and tier not in tier_filter:
                             continue
                         if len(profiles) >= limit:
                             break
+
+                        # Inject JV tier filter before ORDER BY
+                        if jv_clause:
+                            query = query.replace("ORDER BY", f"{jv_clause}\n                            ORDER BY")
 
                         cursor.execute(query)
                         rows = cursor.fetchall()
@@ -2212,6 +2222,8 @@ def main():
                         help='Enable cascade: Exa first, then full Apollo on gaps, then OWL')
     parser.add_argument('--owl-fallback', action='store_true', default=False,
                         help='Enable OWL deep research as final cascade fallback')
+    parser.add_argument('--jv-tier', type=str, default=None,
+                        help='Filter by JV tier letter (e.g. A, B, C, D). Adds AND jv_tier = X to queries.')
 
     args = parser.parse_args()
 
@@ -2232,6 +2244,10 @@ def main():
     if args.refresh:
         pipeline.refresh_mode = True
         pipeline.stale_days = args.stale_days
+
+    # JV tier filter (letter-based: A, B, C, D, E)
+    if args.jv_tier:
+        pipeline.jv_tier_filter = args.jv_tier.strip().upper()
 
     try:
         asyncio.run(pipeline.run(

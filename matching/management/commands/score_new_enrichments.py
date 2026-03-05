@@ -11,6 +11,8 @@ Usage:
     python manage.py score_new_enrichments --dry-run
     python manage.py score_new_enrichments --threshold 64
     python manage.py score_new_enrichments --limit 500
+    python manage.py score_new_enrichments --tier A
+    python manage.py score_new_enrichments --tier A --tier B
 """
 
 import os
@@ -45,12 +47,20 @@ class Command(BaseCommand):
             '--limit', type=int, default=0,
             help='Max profiles to score (0 = all)',
         )
+        parser.add_argument(
+            '--tier', type=str, action='append', dest='tiers',
+            metavar='TIER',
+            help='Only score profiles in this JV tier (A/B/C/D/E). '
+                 'Can be repeated: --tier A --tier B. '
+                 'Matches are still evaluated against ALL active clients.',
+        )
 
     def handle(self, *args, **options):
         since_str = options['since']
         threshold = options['threshold']
         dry_run = options['dry_run']
         limit = options['limit']
+        tiers = options.get('tiers') or []
 
         start_time = time.time()
 
@@ -75,6 +85,12 @@ class Command(BaseCommand):
         # ------------------------------------------------------------------
         # Step 2: Query profiles enriched since that date
         # ------------------------------------------------------------------
+        if tiers:
+            self.stdout.write(
+                f'Tier filter: {tiers} '
+                f'(matches still scored against all active clients)'
+            )
+
         dsn = os.environ.get('DATABASE_URL')
         if not dsn:
             self.stderr.write('ERROR: DATABASE_URL environment variable not set.')
@@ -83,14 +99,25 @@ class Command(BaseCommand):
         conn = psycopg2.connect(dsn)
         try:
             cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-            query = """
-                SELECT id
-                FROM profiles
-                WHERE last_enriched_at >= %s
-                  AND jv_readiness_score >= 20
-                ORDER BY last_enriched_at DESC
-            """
-            params = [since_dt]
+            if tiers:
+                query = """
+                    SELECT id
+                    FROM profiles
+                    WHERE last_enriched_at >= %s
+                      AND jv_readiness_score >= 20
+                      AND jv_tier = ANY(%s)
+                    ORDER BY last_enriched_at DESC
+                """
+                params = [since_dt, tiers]
+            else:
+                query = """
+                    SELECT id
+                    FROM profiles
+                    WHERE last_enriched_at >= %s
+                      AND jv_readiness_score >= 20
+                    ORDER BY last_enriched_at DESC
+                """
+                params = [since_dt]
             if limit:
                 query += " LIMIT %s"
                 params.append(limit)

@@ -51,43 +51,60 @@ if not DATABASE_URL:
     sys.exit(1)
 
 
-def get_profiles_with_gaps(limit: int = None, bare_only: bool = False) -> List[Dict]:
-    """Query profiles that have Tier 1-2 gaps Apollo can fill."""
-    conn = psycopg2.connect(DATABASE_URL)
+def get_profiles_with_gaps(
+    limit: int = None,
+    bare_only: bool = False,
+    tier: str = None,
+    skip_already_apollo: bool = True,
+) -> List[Dict]:
+    """Query profiles that have Tier 1-2 gaps Apollo can fill.
+
+    Parameters
+    ----------
+    tier : str, optional
+        Filter by jv_tier (e.g. 'A', 'B'). If None, all tiers.
+    skip_already_apollo : bool
+        Skip profiles that already have a last_apollo_enrichment timestamp.
+    """
+    conn = psycopg2.connect(DATABASE_URL, options="-c statement_timeout=60000")
     cur = conn.cursor(cursor_factory=RealDictCursor)
 
-    limit_clause = f"LIMIT {limit}" if limit else ""
+    conditions = ["name IS NOT NULL AND name != ''"]
+
+    if tier:
+        conditions.append(f"jv_tier = '{tier}'")
+
+    if skip_already_apollo:
+        conditions.append(
+            "(enrichment_metadata->>'last_apollo_enrichment' IS NULL)"
+        )
 
     if bare_only:
-        # Target only profiles with zero key enrichment fields
-        cur.execute(f"""
-            SELECT id, name, email, phone, company, website, linkedin,
-                   enrichment_metadata
-            FROM profiles
-            WHERE (what_you_do IS NULL OR what_you_do = '')
-              AND (who_you_serve IS NULL OR who_you_serve = '')
-              AND (niche IS NULL OR niche = '')
-              AND (bio IS NULL OR bio = '')
-              AND (offering IS NULL OR offering = '')
-              AND (seeking IS NULL OR seeking = '')
-              AND name IS NOT NULL AND name != ''
-            ORDER BY name
-            {limit_clause}
-        """)
+        conditions.extend([
+            "(what_you_do IS NULL OR what_you_do = '')",
+            "(who_you_serve IS NULL OR who_you_serve = '')",
+            "(niche IS NULL OR niche = '')",
+            "(bio IS NULL OR bio = '')",
+            "(offering IS NULL OR offering = '')",
+            "(seeking IS NULL OR seeking = '')",
+        ])
     else:
-        cur.execute(f"""
-            SELECT id, name, email, phone, company, website, linkedin,
-                   enrichment_metadata
-            FROM profiles
-            WHERE (email IS NULL OR email = ''
-                   OR phone IS NULL OR phone = ''
-                   OR linkedin IS NULL OR linkedin = '')
-            ORDER BY
-                CASE WHEN email IS NULL OR email = '' THEN 0 ELSE 1 END,
-                CASE WHEN linkedin IS NULL OR linkedin = '' THEN 0 ELSE 1 END,
-                name
-            {limit_clause}
-        """)
+        conditions.append(
+            "(email IS NULL OR email = '' "
+            "OR phone IS NULL OR phone = '' "
+            "OR linkedin IS NULL OR linkedin = '')"
+        )
+
+    where = " AND ".join(conditions)
+    limit_clause = f"LIMIT {limit}" if limit else ""
+
+    cur.execute(f"""
+        SELECT id, name, email, phone, company, website, linkedin,
+               enrichment_metadata
+        FROM profiles
+        WHERE {where}
+        {limit_clause}
+    """)
 
     profiles = cur.fetchall()
     cur.close()
@@ -225,14 +242,17 @@ def run_sweep(
     batch_delay: float = 1.0,
     webhook_url: str = None,
     bare_only: bool = False,
+    tier: str = None,
 ):
     """Run Apollo enrichment sweep."""
+    tier_label = f" (TIER {tier})" if tier else ""
+    bare_label = " (BARE PROFILES ONLY)" if bare_only else ""
     print(f"\n{'='*60}")
-    print("APOLLO.IO API SWEEP" + (" (BARE PROFILES ONLY)" if bare_only else ""))
+    print(f"APOLLO.IO API SWEEP{tier_label}{bare_label}")
     print(f"{'='*60}\n")
 
     # Get profiles with gaps
-    profiles = get_profiles_with_gaps(limit, bare_only=bare_only)
+    profiles = get_profiles_with_gaps(limit, bare_only=bare_only, tier=tier)
     print(f"Profiles with contact gaps: {len(profiles)}")
     print(f"Max credits: {max_credits}")
     print(f"Batch delay: {batch_delay}s")
@@ -370,6 +390,8 @@ def main():
                         help='Webhook URL for async phone/email delivery')
     parser.add_argument('--bare-only', action='store_true',
                         help='Only target bare profiles (0 key enrichment fields)')
+    parser.add_argument('--tier', choices=['A', 'B', 'C', 'D', 'E'],
+                        default=None, help='Filter by JV tier (e.g. A, B)')
 
     args = parser.parse_args()
 
@@ -380,6 +402,7 @@ def main():
         batch_delay=args.batch_delay,
         webhook_url=args.webhook_url,
         bare_only=args.bare_only,
+        tier=args.tier,
     )
 
 

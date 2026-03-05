@@ -73,8 +73,8 @@ _ACTIVE_CLIENTS_SQL = """
 @task(name="detect-match-gaps", retries=2, retry_delay_seconds=5)
 def detect_match_gaps(
     client_profile_id: str,
-    target_score: int = 70,
-    target_count: int = 10,
+    target_score: int = 64,
+    target_count: int = 30,
 ) -> dict:
     """Detect gaps in a client's match pool.
 
@@ -214,8 +214,8 @@ def detect_match_gaps(
 
 @task(name="detect-gaps-batch", retries=2, retry_delay_seconds=5)
 def detect_gaps_batch(
-    target_score: int = 70,
-    target_count: int = 10,
+    target_score: int = 64,
+    target_count: int = 30,
 ) -> list[dict]:
     """Run gap detection for all active clients.
 
