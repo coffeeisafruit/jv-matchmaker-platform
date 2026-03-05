@@ -29,11 +29,14 @@ from matching.services import SupabaseMatchScoringService
 logger = logging.getLogger(__name__)
 
 
-# Score bands for stratified sampling
+# Score bands aligned with ISMC delivery threshold (64 = Premier tier cutoff)
+# 30% high (≥64): matches we actually deliver to clients
+# 40% mid  (55-63): borderline — below delivery threshold, useful anchors
+# 30% low  (<55): weak matches — bottom-of-scale anchors
 SCORE_BANDS = [
-    ('low',  0,   40,   5),   # (label, min, max, target_count)
-    ('mid',  40,  70,  None),  # fills remaining slots
-    ('high', 70, 100,   5),
+    ('low',   0,  55, None),
+    ('mid',  55,  64, None),
+    ('high', 64, 100, None),
 ]
 
 
@@ -217,10 +220,13 @@ class Command(BaseCommand):
 
     def _stratified_sample(self, scored, target_size):
         """
-        Sample across score bands:
-        - Fixed counts for low/high anchors (5 each)
-        - Remainder from mid band
-        - If a band has fewer candidates than target, take all available
+        Proportional stratified sampling aligned with ISMC delivery threshold:
+          - High  (≥64): 30% — delivery range, primary calibration target
+          - Mid (55-63): 40% — borderline anchors
+          - Low   (<55): 30% — bottom-of-scale anchors
+
+        If a band has fewer candidates than its target, the remainder is
+        redistributed to the next band down (high → mid → low).
         """
         by_band = {'low': [], 'mid': [], 'high': []}
         for item in scored:
@@ -228,25 +234,24 @@ class Command(BaseCommand):
             if band in by_band:
                 by_band[band].append(item)
 
-        # Shuffle within bands for randomness
         for band in by_band:
             random.shuffle(by_band[band])
 
-        selected = []
+        high_target = round(target_size * 0.30)
+        mid_target  = round(target_size * 0.40)
+        low_target  = target_size - high_target - mid_target
 
-        # Low and high anchors (5 each, or all available if fewer)
-        low_count = min(5, len(by_band['low']))
-        high_count = min(5, len(by_band['high']))
-        selected.extend(by_band['low'][:low_count])
-        selected.extend(by_band['high'][:high_count])
+        high_count = min(high_target, len(by_band['high']))
+        overflow   = high_target - high_count          # couldn't fill high → push to mid
+        mid_count  = min(mid_target + overflow, len(by_band['mid']))
+        overflow   = (mid_target + overflow) - mid_count  # couldn't fill mid → push to low
+        low_count  = min(low_target + overflow, len(by_band['low']))
 
-        # Mid fills remaining slots
-        mid_target = target_size - low_count - high_count
-        mid_count = min(mid_target, len(by_band['mid']))
-        selected.extend(by_band['mid'][:mid_count])
+        selected = (
+            by_band['high'][:high_count] +
+            by_band['mid'][:mid_count] +
+            by_band['low'][:low_count]
+        )
 
-        # Shuffle final selection so ordering doesn't hint at score
         random.shuffle(selected)
-
-        # Assign sequential positions
         return selected[:target_size]
