@@ -1658,7 +1658,7 @@
         <div class="how-number" style="background:rgba(91,138,245,0.12);color:var(--accent-blue)">1</div>
         <div class="how-step-content">
           <h3 style="color:var(--accent-blue)">Tell Us Who You're Looking For</h3>
-          <p>Define your Ideal Customer Profile (ICP) — who you serve, what you offer, and the kind of partner that would be a win-win. Upload your contact list or browse our database of 3,577 potential JV partners.</p>
+          <p>Define your Ideal Customer Profile (ICP) — who you serve, what you offer, and the kind of partner that would be a win-win. Upload your contact list or browse our database of 1,175,922 potential JV partners.</p>
           <div class="how-detail-chips">
             <span class="how-chip" style="background:rgba(91,138,245,0.1);color:var(--accent-blue)">Your niche & audience</span>
             <span class="how-chip" style="background:rgba(91,138,245,0.1);color:var(--accent-blue)">What you're seeking</span>
@@ -1856,7 +1856,7 @@
     <rect x="390" y="190" width="320" height="100" rx="10" fill="rgba(168,123,245,0.06)" stroke="#a87bf5" stroke-width="1.2"/>
     <text x="550" y="215" text-anchor="middle" fill="#a87bf5" font-size="14" font-weight="700">Matching Engine</text>
     <text x="550" y="234" text-anchor="middle" fill="#8b90a8" font-size="10">ISMC: Intent 45% | Synergy 25% | Momentum 20% | Context 10%</text>
-    <text x="550" y="252" text-anchor="middle" fill="#8b90a8" font-size="10">3,577 Profiles &middot; Embedding-based &middot; Harmonic Mean</text>
+    <text x="550" y="252" text-anchor="middle" fill="#8b90a8" font-size="10">1,175,922 Profiles &middot; Embedding-based &middot; Harmonic Mean</text>
     <text x="550" y="270" text-anchor="middle" fill="#8b90a8" font-size="10">Member Reports &middot; Access-Code Delivery</text>
     <text x="550" y="284" text-anchor="middle" fill="#a87bf5" font-size="9" font-weight="500">Provenance-stamped data protection</text>
 
@@ -2002,7 +2002,7 @@
     <!-- Services row — evenly spaced -->
     <rect x="50" y="682" width="170" height="48" rx="8" fill="#1a1d27" stroke="#4ecb8d" stroke-width="0.8"/>
     <text x="135" y="703" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">Supabase PostgreSQL</text>
-    <text x="135" y="720" text-anchor="middle" fill="#8b90a8" font-size="9">3,577 profiles</text>
+    <text x="135" y="720" text-anchor="middle" fill="#8b90a8" font-size="9">1,175,922 profiles</text>
 
     <rect x="240" y="682" width="170" height="48" rx="8" fill="#1a1d27" stroke="#a87bf5" stroke-width="0.8"/>
     <text x="325" y="703" text-anchor="middle" fill="#a87bf5" font-size="11" font-weight="600">Claude Sonnet</text>
@@ -2167,7 +2167,7 @@
     <div class="app-card matching" onclick="toggleDetail('matching-detail')">
       <div class="app-icon">M</div>
       <h3>Matching Engine</h3>
-      <p>ISMC scoring with weighted geometric mean + harmonic mean. Embedding-based synergy (bge-large-en-v1.5). Manages 3,577 Supabase profiles, code-gated member reports with provenance-stamped data protection.</p>
+      <p>ISMC scoring with weighted geometric mean + harmonic mean. Embedding-based synergy (bge-large-en-v1.5). Manages 1,175,922 Supabase profiles, code-gated member reports with provenance-stamped data protection.</p>
       <div class="models-list">
         <span class="model-tag">SupabaseProfile</span>
         <span class="model-tag">SupabaseMatch</span>
@@ -2321,7 +2321,7 @@
     <div class="detail-section">
       <h4>Other URLs</h4>
       <table class="detail-table">
-        <tr><td>/matching/partners/</td><td>Browse 3,577 partner profiles with search and filters</td></tr>
+        <tr><td>/matching/partners/</td><td>Browse 1,175,922 partner profiles with search and filters</td></tr>
         <tr><td>/matching/matches/</td><td>View scored matches</td></tr>
         <tr><td>/matching/calculate/&lt;id&gt;/</td><td>Calculate match score for a profile</td></tr>
         <tr><td>/matching/profiles/import/</td><td>Bulk CSV import</td></tr>
@@ -2498,7 +2498,7 @@
       </div>
       <div class="pipeline-card">
         <h4>CSV / Supabase Input <span class="cost-badge cost-free">INPUT</span></h4>
-        <p>Profiles imported from CSV upload or pulled from Supabase (3,577 existing). Fields: name, email, company, website, LinkedIn URL.</p>
+        <p>Profiles imported from CSV upload or pulled from Supabase (1,175,922 existing). Fields: name, email, company, website, LinkedIn URL.</p>
       </div>
     </div>
 
@@ -2934,7 +2934,7 @@
     <div class="formula-box" style="margin-top:16px;border-left:3px solid var(--accent-purple)">
       <h4>Production Validation (Feb 2026)</h4>
       <div class="formula-note">
-        <strong>29,863</strong> matches rescored. Mean: 27.2 &rarr; 57.5 (+30.3). Std dev: 16.1 &rarr; 5.7.<br/>
+        <strong>158,031</strong> matches scored. 4,830 high-quality (≥64 ISMC). Mean: 55.9. Wave 2 scoring in progress (215K additional pairs).<br/>
         Upgraded: <strong>25,776 (86.3%)</strong> | Downgraded: 2,126 (7.1%) | Rescued: <strong>8,991</strong><br/>
         Semantic (embedding): 58,796 evaluations | Word overlap fallback: 930
       </div>
@@ -3022,7 +3022,7 @@
     <div class="integration-card" style="border-left:3px solid var(--accent-green)">
       <h4>Supabase PostgreSQL</h4>
       <div class="api-type">Database</div>
-      <div class="purpose">Primary database with 3,577 JV partner profiles and pre-computed match suggestions. Read via unmanaged Django models.</div>
+      <div class="purpose">Primary database with 1,175,922 JV partner profiles and pre-computed match suggestions. Read via unmanaged Django models.</div>
       <div class="env-var">SUPABASE_URL</div>
       <div class="env-var">SUPABASE_KEY</div>
     </div>
@@ -3332,12 +3332,12 @@
     <div class="dh-hero">
       <h2>Database Enrichment Health</h2>
       <p>Fill rates from Supabase &mdash; <span id="dh-live-status" style="font-size:11px;font-weight:600;">Loading live data...</span></p>
-      <div class="dh-stat-row">
-        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-blue)">3,577</span><span class="dh-stat-label">Total Profiles</span></div>
-        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-green)">$84</span><span class="dh-stat-label">Enrichment Spend</span></div>
-        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-purple)">3,577</span><span class="dh-stat-label">Enriched (100%)</span></div>
-        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-orange)">10+</span><span class="dh-stat-label">Pipeline Runs</span></div>
-        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-cyan)">38</span><span class="dh-stat-label">Total Fields</span></div>
+      <div class="dh-stat-row dh-hero">
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-blue)">1,175,922</span><span class="dh-stat-label">Total Profiles</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-green)">~$5</span><span class="dh-stat-label">Enrichment/18K</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-purple)">92,685</span><span class="dh-stat-label">Enriched (7.9%)</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-orange)">158,031</span><span class="dh-stat-label">Match Pairs Scored</span></div>
+        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-cyan)">4,830</span><span class="dh-stat-label">High-Quality (≥64)</span></div>
       </div>
     </div>
 
@@ -3776,7 +3776,7 @@
         <span class="dh-insight-icon">&#128269;</span>
         <h4>Enrichment Coverage</h4>
         <span class="dh-big-num" style="color:var(--accent-green)">100%</span>
-        <p><strong>3,577</strong> of 3,577 profiles enriched (100%). Network centrality computed for <strong>1,558</strong> (43.5%). Confidence scores on <strong>100%</strong> of profiles. <strong>1,220</strong> have verified email (34.1%), <strong>1,526</strong> have phone (42.7%).</p>
+        <p><strong>92,685</strong> of 1,175,922 profiles AI-enriched (7.9% — Tier A + B complete). <strong>158,031</strong> match pairs scored, <strong>4,830</strong> high-quality (≥64 ISMC). Tier C/D enrichment in progress.</p>
       </div>
       <div class="dh-insight" style="border-left: 3px solid var(--accent-red)">
         <span class="dh-insight-icon">&#9888;</span>
@@ -4358,11 +4358,11 @@
       </details>
 
       <details class="faq-item">
-        <summary class="faq-q">What does the enrichment cost for 3,500 active members?</summary>
+        <summary class="faq-q">What does the enrichment cost at scale?</summary>
         <div class="faq-a">
-          <p>At the current scale of ~3,500 active member profiles, monthly enrichment costs are <strong>low</strong> because:</p>
+          <p>At current scale (92K+ enriched, 1.17M total profiles), enrichment costs are <strong>low</strong> because:</p>
           <ul>
-            <li>Only profiles whose confidence has decayed below threshold are re-enriched &mdash; not all 3,500 every cycle</li>
+            <li>Only profiles whose confidence has decayed below threshold are re-enriched &mdash; not all profiles every cycle</li>
             <li>The 29-day stale window means roughly 1/4 of profiles need refresh per month</li>
             <li>AI research uses Claude via OpenRouter at competitive per-token pricing</li>
             <li>Each run tracks cost via <code>MonthlyProcessingResult.total_cost</code></li>
@@ -4448,7 +4448,7 @@
       <details class="faq-item">
         <summary class="faq-q">Can the system scale to enrich all 800K+ contacts?</summary>
         <div class="faq-a">
-          <p>The current architecture is designed for the ~3,500 active member profiles. For full-scale enrichment of all 800K+ contacts:</p>
+          <p>The current architecture handles 1.17M profiles with Vast.ai for bulk enrichment (~$2/18K profiles). For full-scale enrichment of all 1.17M contacts:</p>
           <ul>
             <li><strong>Tiered selection</strong> ensures the highest-value profiles are enriched first (members &rarr; high list-size prospects &rarr; others)</li>
             <li><strong>Cost trigger</strong> &mdash; when monthly AI costs exceed $150 or volume exceeds 500 profiles/month, the platform can switch to self-hosted models via Vast.ai for 90%+ cost reduction</li>
