@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     "matching.apps.MatchingConfig",
     "outreach.apps.OutreachConfig",
     "playbook.apps.PlaybookConfig",
+    "email_monitor.apps.EmailMonitorConfig",
 ]
 
 MIDDLEWARE = [
@@ -203,6 +204,13 @@ MICROSOFT_OAUTH_SCOPES = [
     "User.Read",
     "offline_access",
 ]
+
+# Gmail Monitor — dedicated inbox for newsletter subscriptions
+# Separate from outreach Gmail (different scopes: readonly + modify only)
+GMAIL_MONITOR_ADDRESS = os.environ.get("GMAIL_MONITOR_ADDRESS", "")
+GMAIL_MONITOR_CLIENT_ID = os.environ.get("GMAIL_MONITOR_CLIENT_ID", "")
+GMAIL_MONITOR_CLIENT_SECRET = os.environ.get("GMAIL_MONITOR_CLIENT_SECRET", "")
+GMAIL_MONITOR_REFRESH_TOKEN = os.environ.get("GMAIL_MONITOR_REFRESH_TOKEN", "")
 
 # Static files with WhiteNoise
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"

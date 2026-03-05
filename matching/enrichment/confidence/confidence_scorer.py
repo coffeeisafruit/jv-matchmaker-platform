@@ -42,6 +42,7 @@ class ConfidenceScorer:
         'ai_inference': 0.50,       # AI guessed/inferred
         'email_domain_inferred': 0.50,  # Inferred from domain
         'unknown': 0.30,            # Unknown source
+        'email_list_monitor': 0.90, # Observed newsletter behavior (ground truth)
     }
 
     # Field type decay rates (how fast confidence drops, in days)
@@ -63,6 +64,8 @@ class ConfidenceScorer:
         'jv_history': 180,     # Historical facts, very stable
         'content_platforms': 120,  # Platform presence changes slowly
         'audience_engagement_score': 45,  # Engagement quality shifts moderately
+        'email_list_activity_score': 30,  # Mailing cadence can change quickly
+        'promotion_willingness_score': 60,  # Promotion behavior shifts over a few months
     }
 
     def calculate_confidence(
@@ -302,6 +305,8 @@ class ConfidenceScorer:
             'jv_history': 1.5,
             'content_platforms': 1.0,
             'audience_engagement_score': 1.5,
+            'email_list_activity_score': 2.0,
+            'promotion_willingness_score': 2.0,
         }
 
         total_weighted_confidence = 0.0

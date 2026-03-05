@@ -74,6 +74,7 @@ SOURCE_PRIORITY: dict[str, int] = {
     'scraper_meetup_organizers': 20,
     'scraper_eonetwork': 20,
     'scraper_vistage_members': 20,
+    'email_list_monitor': 20,
     'unknown': 0,
 }
 

@@ -218,6 +218,7 @@ def score_against_all_clients(
     high_quality: list[NewMatchResult] = []
     total_scored = 0
     total_saved = 0
+    COMMIT_EVERY = 500
 
     conn = _get_connection()
     try:
@@ -259,6 +260,15 @@ def score_against_all_clients(
                             score_ab=scores["score_ab"],
                             score_ba=scores["score_ba"],
                         )
+                    )
+
+                # Commit in batches so progress is visible and crash-safe
+                if total_saved % COMMIT_EVERY == 0:
+                    conn.commit()
+                    logger.info(
+                        "Progress: %d pairs saved so far (%d high-quality)",
+                        total_saved,
+                        len(high_quality),
                     )
 
         conn.commit()

@@ -28,6 +28,7 @@ urlpatterns = [
     path("matching/", include("matching.urls")),
     path("outreach/", include("outreach.urls")),
     path("playbook/", include("playbook.urls")),
+    path("email-monitor/", include("email_monitor.urls", namespace="email_monitor")),
 ]
 
 # Serve static and media files in development

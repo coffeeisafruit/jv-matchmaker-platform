@@ -602,6 +602,14 @@ def monthly_processing_flow(
     )
     result.gaps_detected = sum(1 for g in gaps if g.get("has_gap"))
 
+    # Step 5b: Email activity aggregation (email monitor signals → ISMC scores)
+    logger.info("Step 5b/10: Computing email list activity scores...")
+    try:
+        from django.core.management import call_command
+        call_command('compute_email_activity', verbosity=0)
+    except Exception as exc:
+        logger.warning("Email activity computation failed (non-fatal): %s", exc)
+
     # Step 6: Population-level market intelligence
     logger.info("Step 6/10: Computing market intelligence...")
     market_result = compute_market_intelligence(dry_run=dry_run)

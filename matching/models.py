@@ -101,6 +101,12 @@ class SupabaseProfile(models.Model):
     recommendation_pressure_30d = models.IntegerField(null=True, blank=True)
     pressure_updated_at = models.DateTimeField(null=True, blank=True)
 
+    # Email list activity monitoring (populated by email_monitor app)
+    email_list_activity_score = models.FloatField(null=True, blank=True)   # 0.0-1.0
+    promotion_willingness_score = models.FloatField(null=True, blank=True)  # 0.0-1.0
+    last_email_list_check_at = models.DateTimeField(null=True, blank=True)
+    promotion_network = models.JSONField(null=True, blank=True)  # promotion network graph
+
     class Meta:
         managed = False  # Django won't create/modify this table
         db_table = 'profiles'

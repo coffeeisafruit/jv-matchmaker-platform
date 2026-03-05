@@ -1999,6 +1999,18 @@ class SupabaseMatchScoringService:
                 total += track_score * 3.0
                 max_total += 10 * 3.0
 
+        # Factor 8: Promotion Willingness (weight 3.0, null-aware)
+        promo_willingness = getattr(target, 'promotion_willingness_score', None)
+        if promo_willingness is not None:
+            pw_score = min(10.0, promo_willingness * 10)
+            factors.append({
+                'name': 'Promotion Willingness', 'score': round(pw_score, 1),
+                'weight': 3.0, 'detail': f'Promotes partners: {promo_willingness:.2f}',
+                'method': 'threshold_score'
+            })
+            total += pw_score * 3.0
+            max_total += 10 * 3.0
+
         score = (total / max_total) * 10 if max_total > 0 else 0
         return {'score': round(score, 2), 'factors': factors}
 
@@ -2329,6 +2341,18 @@ class SupabaseMatchScoringService:
                             'detail': f'Last active {days_since}d ago', 'method': 'threshold_days'})
             total += active_score * 2.0
             max_total += 10 * 2.0
+
+        # Factor 6: Email List Activity (weight 2.5, null-aware)
+        email_activity = getattr(target, 'email_list_activity_score', None)
+        if email_activity is not None:
+            ea_score = min(10.0, email_activity * 10)
+            factors.append({
+                'name': 'Email List Activity', 'score': round(ea_score, 1),
+                'weight': 2.5, 'detail': f'Mailing activity: {email_activity:.2f}',
+                'method': 'threshold_score'
+            })
+            total += ea_score * 2.5
+            max_total += 10 * 2.5
 
         # All fields null → return None score so caller skips this dimension
         if max_total == 0:
