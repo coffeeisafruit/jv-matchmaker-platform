@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluate Match {{ current_position }}/{{ total_items }} · {{ batch.name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #faf8f5;
+            --ink: #1a1a1a;
+            --forest: #1e3a2f;
+            --gold: #c9a962;
+            --gold-light: #e8d5a8;
+            --muted: #8b8680;
+            --blush: #f4e8e1;
+            --card: #ffffff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 32px 20px 80px;
+        }
+        .page { max-width: 960px; margin: 0 auto; }
+
+        /* Top bar */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .back-link {
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+        }
+        .back-link:hover { color: var(--forest); }
+        .progress-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .progress-mini {
+            display: flex;
+            gap: 3px;
+        }
+        .mini-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--gold-light);
+        }
+        .mini-dot.done { background: var(--gold); }
+        .mini-dot.current { background: var(--forest); }
+        .progress-text {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* Profile cards side by side */
+        .profiles-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        @media (max-width: 640px) {
+            .profiles-grid { grid-template-columns: 1fr; }
+        }
+        .profile-card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border: 1px solid rgba(201,169,98,0.12);
+        }
+        .profile-role {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+        .profile-role.client-role { color: var(--forest); }
+        .profile-name {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 18px;
+            font-weight: 500;
+            color: var(--forest);
+            margin-bottom: 4px;
+        }
+        .profile-company {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 14px;
+        }
+        .field-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 4px;
+            margin-top: 12px;
+        }
+        .field-value {
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--ink);
+        }
+        .field-value.empty { color: var(--muted); font-style: italic; }
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            background: var(--cream);
+            border-radius: 12px;
+            color: var(--muted);
+            border: 1px solid var(--gold-light);
+        }
+
+        /* Rating form */
+        .form-card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 24px 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            margin-bottom: 16px;
+        }
+        .form-section-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--forest);
+            margin-bottom: 4px;
+        }
+        .form-hint {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .rating-group {
+            margin-bottom: 24px;
+        }
+        .rating-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--forest);
+            margin-bottom: 10px;
+            display: block;
+        }
+        .rating-label small {
+            font-weight: 400;
+            color: var(--muted);
+        }
+        .radio-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .radio-option input[type="radio"] { display: none; }
+        .radio-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 10px 10px;
+            border: 1.5px solid var(--gold-light);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            color: var(--muted);
+            transition: all 0.15s;
+            min-width: 56px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .radio-option label .num {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--forest);
+        }
+        .radio-option input[type="radio"]:checked + label {
+            background: var(--forest);
+            border-color: var(--forest);
+            color: white;
+        }
+        .radio-option input[type="radio"]:checked + label .num {
+            color: white;
+        }
+        .radio-option label:hover {
+            border-color: var(--gold);
+        }
+
+        /* Failure checkboxes */
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border: 1.5px solid var(--gold-light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.15s;
+        }
+        .checkbox-option:hover { border-color: var(--gold); }
+        .checkbox-option input[type="checkbox"] {
+            width: 16px; height: 16px;
+            accent-color: var(--forest);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .checkbox-option label {
+            font-size: 13px;
+            color: var(--ink);
+            cursor: pointer;
+        }
+
+        /* Text areas */
+        .text-field {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--gold-light);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: var(--ink);
+            background: var(--cream);
+            resize: vertical;
+            line-height: 1.5;
+            transition: border-color 0.15s;
+        }
+        .text-field:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201,169,98,0.12);
+        }
+        .text-field::placeholder { color: var(--muted); }
+
+        /* Detailed mode toggle */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .toggle-link {
+            font-size: 13px;
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .toggle-link:hover { color: var(--forest); }
+        .detail-section {
+            border-top: 1px solid var(--cream);
+            padding-top: 20px;
+            margin-top: 8px;
+        }
+        .dim-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 560px) { .dim-grid { grid-template-columns: 1fr; } }
+
+        /* Submit button */
+        .submit-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .submit-btn {
+            padding: 13px 32px;
+            background: var(--forest);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .submit-btn:hover { background: var(--gold); color: var(--ink); }
+        .skip-link {
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            align-self: center;
+        }
+        .skip-link:hover { color: var(--forest); }
+
+        /* Error messages */
+        .form-errors {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            color: #991b1b;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <!-- Top navigation -->
+    <div class="topbar">
+        <a href="{% url 'matching:eval-batch' batch.id %}" class="back-link">← {{ batch.name }}</a>
+        <div class="progress-info">
+            <div class="progress-mini">
+                {% for i in item.batch.items.all %}
+                <div class="mini-dot {% if forloop.counter < current_position %}done{% elif forloop.counter == current_position %}current{% endif %}"></div>
+                {% endfor %}
+            </div>
+            <span class="progress-text">{{ current_position }} of {{ total_items }}</span>
+        </div>
+    </div>
+
+    <!-- Side-by-side profiles (NO narrative, NO score) -->
+    <div class="profiles-grid">
+        <!-- Client -->
+        <div class="profile-card">
+            <div class="profile-role client-role">Client</div>
+            <div class="profile-name">{{ client.name }}</div>
+            {% if client.company %}<div class="profile-company">{{ client.company }}</div>{% endif %}
+
+            {% if client.what_you_do %}
+            <div class="field-label">What they do</div>
+            <div class="field-value">{{ client.what_you_do }}</div>
+            {% endif %}
+
+            {% if client.who_you_serve %}
+            <div class="field-label">Who they serve</div>
+            <div class="field-value">{{ client.who_you_serve }}</div>
+            {% endif %}
+
+            {% if client.seeking %}
+            <div class="field-label">Seeking</div>
+            <div class="field-value">{{ client.seeking }}</div>
+            {% endif %}
+
+            {% if client.offering %}
+            <div class="field-label">Offering</div>
+            <div class="field-value">{{ client.offering }}</div>
+            {% endif %}
+
+            {% if client.niche %}
+            <div class="field-label">Niche</div>
+            <div class="field-value">{{ client.niche }}</div>
+            {% endif %}
+
+            {% if client.tags %}
+            <div class="field-label">Tags</div>
+            <div class="tags-row">
+                {% for tag in client.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Partner -->
+        <div class="profile-card">
+            <div class="profile-role">Proposed Partner</div>
+            <div class="profile-name">{{ partner.name }}</div>
+            {% if partner.company %}<div class="profile-company">{{ partner.company }}</div>{% endif %}
+
+            {% if partner.what_you_do %}
+            <div class="field-label">What they do</div>
+            <div class="field-value">{{ partner.what_you_do }}</div>
+            {% endif %}
+
+            {% if partner.who_you_serve %}
+            <div class="field-label">Who they serve</div>
+            <div class="field-value">{{ partner.who_you_serve }}</div>
+            {% endif %}
+
+            {% if partner.seeking %}
+            <div class="field-label">Seeking</div>
+            <div class="field-value">{{ partner.seeking }}</div>
+            {% endif %}
+
+            {% if partner.offering %}
+            <div class="field-label">Offering</div>
+            <div class="field-value">{{ partner.offering }}</div>
+            {% endif %}
+
+            {% if partner.niche %}
+            <div class="field-label">Niche</div>
+            <div class="field-value">{{ partner.niche }}</div>
+            {% endif %}
+
+            {% if partner.tags %}
+            <div class="field-label">Tags</div>
+            <div class="tags-row">
+                {% for tag in partner.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Rating form -->
+    <form method="post" id="eval-form">
+        {% csrf_token %}
+        {{ form.started_at }}
+
+        {% if form.non_field_errors or form.partnership_potential.errors or form.recommendation_actionability.errors %}
+        <div class="form-errors">
+            Please fill in all required fields before continuing.
+        </div>
+        {% endif %}
+
+        <div class="form-card">
+            <div class="form-section-title">Rate This Match</div>
+            <p class="form-hint">Judge based on the profiles above only — not contact info, data completeness, or how well the narrative might read.</p>
+
+            <!-- Partnership potential 1-7 -->
+            <div class="rating-group">
+                <span class="rating-label">Partnership potential <small>· How strong is this JV pairing?</small></span>
+                <div class="radio-row">
+                    {% for val, label in form.partnership_potential.field.widget.choices %}
+                    <div class="radio-option">
+                        <input type="radio" name="partnership_potential" id="pp_{{ val }}" value="{{ val }}"
+                            {% if form.partnership_potential.value == val|stringformat:"s" %}checked{% endif %}>
+                        <label for="pp_{{ val }}">
+                            <span class="num">{{ val }}</span>
+                            <span>{{ label|cut:"1 — "|cut:"2 — "|cut:"3 — "|cut:"4 — "|cut:"5 — "|cut:"6 — "|cut:"7 — " }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Actionability 1-4 -->
+            <div class="rating-group">
+                <span class="rating-label">Recommendation actionability <small>· Can we send this as-is?</small></span>
+                <div class="radio-row">
+                    {% for val, label in form.recommendation_actionability.field.widget.choices %}
+                    <div class="radio-option">
+                        <input type="radio" name="recommendation_actionability" id="ra_{{ val }}" value="{{ val }}"
+                            {% if form.recommendation_actionability.value == val|stringformat:"s" %}checked{% endif %}>
+                        <label for="ra_{{ val }}">
+                            <span class="num">{{ val }}</span>
+                            <span>{{ label|cut:"1 — "|cut:"2 — "|cut:"3 — "|cut:"4 — " }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Failure modes -->
+            <div class="rating-group">
+                <span class="rating-label">Failure modes <small>· Check all that apply</small></span>
+                <div class="checkbox-grid">
+                    {% for field in form %}
+                    {% if "failure_" in field.html_name %}
+                    <div class="checkbox-option">
+                        <input type="checkbox" id="{{ field.html_name }}" name="{{ field.html_name }}"
+                            {% if field.value %}checked{% endif %}>
+                        <label for="{{ field.html_name }}">{{ field.label }}</label>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Discovery question -->
+            <div class="rating-group" style="margin-bottom: 12px;">
+                <span class="rating-label">Open question <small>· optional</small></span>
+                <textarea name="discovery_response" class="text-field" rows="2"
+                    placeholder="What's the most important thing about this match the algorithm probably doesn't capture?">{{ form.discovery_response.value|default:"" }}</textarea>
+            </div>
+
+            <!-- Detailed mode toggle -->
+            <div class="toggle-row">
+                {% if detailed %}
+                <a href="?" class="toggle-link">− Hide dimension ratings</a>
+                {% else %}
+                <a href="?mode=detailed" class="toggle-link">+ Add dimension ratings (optional)</a>
+                {% endif %}
+            </div>
+
+            {% if detailed %}
+            <div class="detail-section">
+                <p class="form-hint" style="margin-bottom: 16px;">Rate each ISMC dimension independently (1=Wrong/Missing · 4=Strong).</p>
+                <div class="dim-grid">
+                    <!-- Intent -->
+                    <div class="rating-group" style="margin-bottom: 0;">
+                        <span class="rating-label">Intent</span>
+                        <div class="radio-row">
+                            {% for val, label in form.intent_rating.field.widget.choices %}
+                            <div class="radio-option">
+                                <input type="radio" name="intent_rating" id="ir_{{ val }}" value="{{ val }}"
+                                    {% if form.intent_rating.value == val|stringformat:"s" %}checked{% endif %}>
+                                <label for="ir_{{ val }}"><span class="num">{{ val }}</span></label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Synergy -->
+                    <div class="rating-group" style="margin-bottom: 0;">
+                        <span class="rating-label">Synergy</span>
+                        <div class="radio-row">
+                            {% for val, label in form.synergy_rating.field.widget.choices %}
+                            <div class="radio-option">
+                                <input type="radio" name="synergy_rating" id="sr_{{ val }}" value="{{ val }}"
+                                    {% if form.synergy_rating.value == val|stringformat:"s" %}checked{% endif %}>
+                                <label for="sr_{{ val }}"><span class="num">{{ val }}</span></label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Momentum -->
+                    <div class="rating-group" style="margin-bottom: 0;">
+                        <span class="rating-label">Momentum</span>
+                        <div class="radio-row">
+                            {% for val, label in form.momentum_rating.field.widget.choices %}
+                            <div class="radio-option">
+                                <input type="radio" name="momentum_rating" id="mr_{{ val }}" value="{{ val }}"
+                                    {% if form.momentum_rating.value == val|stringformat:"s" %}checked{% endif %}>
+                                <label for="mr_{{ val }}"><span class="num">{{ val }}</span></label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <!-- Context -->
+                    <div class="rating-group" style="margin-bottom: 0;">
+                        <span class="rating-label">Context</span>
+                        <div class="radio-row">
+                            {% for val, label in form.context_rating.field.widget.choices %}
+                            <div class="radio-option">
+                                <input type="radio" name="context_rating" id="cr_{{ val }}" value="{{ val }}"
+                                    {% if form.context_rating.value == val|stringformat:"s" %}checked{% endif %}>
+                                <label for="cr_{{ val }}"><span class="num">{{ val }}</span></label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="submit-row">
+                <a href="{% url 'matching:eval-batch' batch.id %}" class="skip-link">Save for later</a>
+                <button type="submit" class="submit-btn">Submit & See Narrative →</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Track time spent
+const startTime = Date.now();
+document.getElementById('eval-form').addEventListener('submit', function() {
+    const elapsed = Math.round((Date.now() - startTime) / 1000);
+    // Update hidden time_spent_seconds field
+    const field = this.querySelector('[name="time_spent_seconds"]');
+    if (field) field.value = elapsed;
+});
+</script>
+</body>
+</html>

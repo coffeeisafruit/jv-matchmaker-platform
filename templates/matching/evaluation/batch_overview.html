@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ batch.name }} · Match Evaluation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #faf8f5;
+            --ink: #1a1a1a;
+            --forest: #1e3a2f;
+            --gold: #c9a962;
+            --gold-light: #e8d5a8;
+            --muted: #8b8680;
+            --blush: #f4e8e1;
+            --card: #ffffff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 40px 24px;
+        }
+        .page { max-width: 600px; margin: 0 auto; }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+            margin-bottom: 28px;
+        }
+        .back-link:hover { color: var(--forest); }
+        h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 26px;
+            font-weight: 500;
+            color: var(--forest);
+            margin-bottom: 4px;
+        }
+        .batch-meta {
+            font-size: 14px;
+            color: var(--muted);
+            margin-bottom: 24px;
+        }
+        .progress-card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--cream);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--gold);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .progress-fill.complete { background: #16a34a; }
+        .progress-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--forest);
+            white-space: nowrap;
+        }
+        .cta-btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 12px 24px;
+            background: var(--forest);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.15s;
+        }
+        .cta-btn:hover { background: var(--gold); color: var(--ink); }
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+        .item-list { display: flex; flex-direction: column; gap: 8px; }
+        .item-row {
+            background: var(--card);
+            border-radius: 8px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            border: 1px solid transparent;
+            text-decoration: none;
+            color: var(--ink);
+            transition: border-color 0.15s;
+        }
+        .item-row:hover { border-color: var(--gold); }
+        .item-row.done { opacity: 0.6; }
+        .item-number {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--muted);
+            width: 24px;
+            flex-shrink: 0;
+        }
+        .item-names { flex: 1; }
+        .item-client {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--forest);
+        }
+        .item-partner {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        .item-status {
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+        }
+        .status-done { background: #f0fdf4; color: #166534; }
+        .status-pending { background: var(--blush); color: #7c3d2a; }
+        .status-next { background: var(--forest); color: white; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <a href="{% url 'matching:eval-dashboard' %}" class="back-link">← Dashboard</a>
+
+        <h1>{{ batch.name }}</h1>
+        <p class="batch-meta">{{ batch.get_phase_display }} · {{ total_count }} match{{ total_count|pluralize:"es" }}</p>
+
+        <div class="progress-card">
+            <div class="progress-row">
+                <div class="progress-bar">
+                    <div class="progress-fill {% if pct == 100 %}complete{% endif %}" style="width: {{ pct }}%"></div>
+                </div>
+                <span class="progress-label">{{ completed_count }}/{{ total_count }} done</span>
+            </div>
+            {% if next_item %}
+            <a href="{% url 'matching:eval-item' batch.id next_item.id %}" class="cta-btn">
+                {% if completed_count == 0 %}Start Evaluating{% else %}Continue →{% endif %}
+            </a>
+            {% else %}
+            <a href="{% url 'matching:eval-batch-complete' batch.id %}" class="cta-btn" style="background: #16a34a;">View Summary</a>
+            {% endif %}
+        </div>
+
+        <p class="section-title">All Items</p>
+        <div class="item-list">
+            {% for entry in item_list %}
+            {% with item=entry.item done=entry.is_done %}
+            <a
+                href="{% url 'matching:eval-item' batch.id item.id %}"
+                class="item-row {% if done %}done{% endif %}"
+            >
+                <span class="item-number">#{{ item.position|add:1 }}</span>
+                <div class="item-names">
+                    <div class="item-client">{{ item.client_profile.name }}</div>
+                    <div class="item-partner">↔ {{ item.partner_profile.name }}</div>
+                </div>
+                {% if done %}
+                <span class="item-status status-done">✓ Done</span>
+                {% elif item == next_item %}
+                <span class="item-status status-next">Next →</span>
+                {% else %}
+                <span class="item-status status-pending">Pending</span>
+                {% endif %}
+            </a>
+            {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

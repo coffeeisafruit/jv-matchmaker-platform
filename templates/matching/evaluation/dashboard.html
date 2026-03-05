@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Evaluation · Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #faf8f5;
+            --ink: #1a1a1a;
+            --forest: #1e3a2f;
+            --gold: #c9a962;
+            --gold-light: #e8d5a8;
+            --muted: #8b8680;
+            --blush: #f4e8e1;
+            --card: #ffffff;
+            --success: #166534;
+            --success-bg: #f0fdf4;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 40px 24px;
+        }
+        .page { max-width: 720px; margin: 0 auto; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 36px;
+            gap: 16px;
+        }
+        .header-left h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 28px;
+            font-weight: 500;
+            color: var(--forest);
+            margin-bottom: 4px;
+        }
+        .header-left .welcome {
+            color: var(--muted);
+            font-size: 14px;
+        }
+        .stat-chip {
+            background: var(--forest);
+            color: white;
+            border-radius: 20px;
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 12px;
+        }
+        .batch-card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border: 1px solid rgba(201,169,98,0.15);
+        }
+        .batch-card:hover { border-color: var(--gold); }
+        .batch-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 14px;
+            gap: 12px;
+        }
+        .batch-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--forest);
+        }
+        .batch-meta {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 2px;
+        }
+        .badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+        .badge-calibration { background: #fef9ec; color: #92400e; }
+        .badge-coverage { background: #eff6ff; color: #1e40af; }
+        .badge-validation { background: #f0fdf4; color: var(--success); }
+        .progress-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--cream);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--gold);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+        .progress-fill.complete { background: #16a34a; }
+        .progress-label {
+            font-size: 13px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+        .start-btn {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 10px 20px;
+            background: var(--forest);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.15s;
+        }
+        .start-btn:hover { background: var(--gold); color: var(--ink); }
+        .start-btn.resume { background: var(--gold); color: var(--ink); }
+        .start-btn.resume:hover { background: var(--forest); color: white; }
+        .completed-section { margin-top: 36px; }
+        .completed-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--cream);
+        }
+        .completed-item:last-child { border-bottom: none; }
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--success-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            color: var(--success);
+            font-size: 11px;
+        }
+        .completed-name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--ink);
+        }
+        .completed-phase {
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+            color: var(--muted);
+        }
+        .empty-state h2 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 22px;
+            color: var(--forest);
+            margin-bottom: 8px;
+        }
+        .footer {
+            margin-top: 48px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gold-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .footer-brand {
+            font-size: 12px;
+            color: var(--muted);
+            font-family: 'Playfair Display', Georgia, serif;
+        }
+        .signout-link {
+            font-size: 12px;
+            color: var(--muted);
+            text-decoration: none;
+        }
+        .signout-link:hover { color: var(--forest); }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="header-left">
+                <h1>Your Evaluation Queue</h1>
+                <p class="welcome">Hello, {{ reviewer.name }} · {{ reviewer.total_evaluations }} evaluation{{ reviewer.total_evaluations|pluralize }} completed</p>
+            </div>
+            {% if batch_info %}
+            <div class="stat-chip">{{ batch_info|length }} active batch{{ batch_info|length|pluralize:"es" }}</div>
+            {% endif %}
+        </div>
+
+        {% if batch_info %}
+        <p class="section-title">Active Batches</p>
+        {% for info in batch_info %}
+        <div class="batch-card">
+            <div class="batch-header">
+                <div>
+                    <div class="batch-name">{{ info.batch.name }}</div>
+                    <div class="batch-meta">{{ info.total }} match{{ info.total|pluralize:"es" }} · {{ info.batch.get_phase_display }}</div>
+                </div>
+                <span class="badge badge-{{ info.batch.phase }}">{{ info.batch.get_phase_display }}</span>
+            </div>
+            <div class="progress-row">
+                <div class="progress-bar">
+                    <div class="progress-fill {% if info.pct == 100 %}complete{% endif %}" style="width: {{ info.pct }}%"></div>
+                </div>
+                <span class="progress-label">{{ info.completed }}/{{ info.total }}</span>
+            </div>
+            {% if info.completed < info.total %}
+            <a href="{% url 'matching:eval-batch' info.batch.id %}" class="start-btn {% if info.completed > 0 %}resume{% endif %}">
+                {% if info.completed == 0 %}Start Batch{% else %}Resume Batch{% endif %}
+            </a>
+            {% else %}
+            <a href="{% url 'matching:eval-batch-complete' info.batch.id %}" class="start-btn" style="background: var(--success-bg); color: var(--success); margin-top: 14px; display: inline-block; padding: 10px 20px; border-radius: 6px; font-size: 13px; font-weight: 600; text-decoration: none;">✓ View Summary</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div class="empty-state">
+            <h2>No batches assigned yet</h2>
+            <p>Check back soon — new calibration batches are added periodically.</p>
+        </div>
+        {% endif %}
+
+        {% if completed_batches %}
+        <div class="completed-section">
+            <p class="section-title">Recently Completed</p>
+            {% for batch in completed_batches %}
+            <div class="completed-item">
+                <div class="check-icon">✓</div>
+                <span class="completed-name">{{ batch.name }}</span>
+                <span class="completed-phase">{{ batch.get_phase_display }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            <span class="footer-brand">JV Matchmaker · Evaluation System</span>
+            <a href="{% url 'matching:eval-access' %}" class="signout-link">Sign out</a>
+        </div>
+    </div>
+</body>
+</html>

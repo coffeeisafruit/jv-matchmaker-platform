@@ -9,6 +9,7 @@ from django.views.generic import RedirectView
 
 from . import views
 from . import views_verification
+from . import views_evaluation
 
 app_name = 'matching'
 
@@ -65,6 +66,14 @@ urlpatterns = [
 
     # Pipeline stats API (for architecture_diagram.html live data)
     path('api/pipeline-stats/', views.PipelineStatsAPIView.as_view(), name='pipeline-stats-api'),
+
+    # Match Evaluation System (access-code auth, no login required)
+    path('eval/', views_evaluation.EvalAccessView.as_view(), name='eval-access'),
+    path('eval/dashboard/', views_evaluation.EvalDashboardView.as_view(), name='eval-dashboard'),
+    path('eval/<int:batch_id>/', views_evaluation.EvalBatchView.as_view(), name='eval-batch'),
+    path('eval/<int:batch_id>/item/<int:item_id>/', views_evaluation.EvalItemView.as_view(), name='eval-item'),
+    path('eval/<int:batch_id>/item/<int:item_id>/narrative/', views_evaluation.EvalNarrativeView.as_view(), name='eval-narrative'),
+    path('eval/<int:batch_id>/complete/', views_evaluation.EvalBatchCompleteView.as_view(), name='eval-batch-complete'),
 
     # Client profile verification (token-gated, no login required)
     path('verify/<uuid:token>/', views_verification.ProfileVerificationView.as_view(), name='verification-form'),

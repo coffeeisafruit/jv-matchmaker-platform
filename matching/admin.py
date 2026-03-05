@@ -7,6 +7,8 @@ from .models import (
     MemberReport, ReportPartner, OutreachEvent,
     EngagementSummary, AnalyticsInsight, AnalyticsIntervention,
     ClientVerification, MonthlyProcessingResult, SearchCostLog,
+    EvaluationReviewer, EvaluationBatch, EvaluationItem,
+    MatchEvaluation, WeightExperiment,
 )
 
 
@@ -291,6 +293,64 @@ class SearchCostLogAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+
+# =============================================================================
+# MATCH EVALUATION SYSTEM
+# =============================================================================
+
+@admin.register(EvaluationReviewer)
+class EvaluationReviewerAdmin(admin.ModelAdmin):
+    list_display = ['name', 'email', 'access_code', 'is_active', 'total_evaluations', 'last_evaluation_at']
+    list_filter = ['is_active']
+    search_fields = ['name', 'email', 'access_code']
+    readonly_fields = ['total_evaluations', 'last_evaluation_at', 'created_at']
+
+
+class EvaluationItemInline(admin.TabularInline):
+    model = EvaluationItem
+    extra = 0
+    fields = ['position', 'client_profile', 'partner_profile', 'algorithm_score']
+    readonly_fields = ['algorithm_score']
+    ordering = ['position']
+
+
+@admin.register(EvaluationBatch)
+class EvaluationBatchAdmin(admin.ModelAdmin):
+    list_display = ['name', 'phase', 'status', 'total_items', 'created_at']
+    list_filter = ['phase', 'status']
+    search_fields = ['name']
+    filter_horizontal = ['assigned_reviewers']
+    readonly_fields = ['created_at', 'completed_at']
+    inlines = [EvaluationItemInline]
+
+
+@admin.register(EvaluationItem)
+class EvaluationItemAdmin(admin.ModelAdmin):
+    list_display = ['__str__', 'batch', 'client_profile', 'partner_profile', 'algorithm_score', 'position']
+    list_filter = ['batch__phase', 'batch']
+    search_fields = ['client_profile__name', 'partner_profile__name']
+    readonly_fields = ['algorithm_score', 'algorithm_breakdown', 'why_fit_narrative']
+
+
+@admin.register(MatchEvaluation)
+class MatchEvaluationAdmin(admin.ModelAdmin):
+    list_display = ['item', 'rater', 'mode', 'partnership_potential', 'recommendation_actionability',
+                    'narrative_quality', 'failure_data_quality', 'completed_at']
+    list_filter = ['mode', 'rater', 'failure_data_quality', 'item__batch__phase']
+    search_fields = ['rater__name', 'item__client_profile__name']
+    readonly_fields = ['completed_at', 'time_spent_seconds']
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(WeightExperiment)
+class WeightExperimentAdmin(admin.ModelAdmin):
+    list_display = ['name', 'status', 'created_at']
+    list_filter = ['status']
+    search_fields = ['name']
+    readonly_fields = ['created_at']
 
     def has_change_permission(self, request, obj=None):
         return False

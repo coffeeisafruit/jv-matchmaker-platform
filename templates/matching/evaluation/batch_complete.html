@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Batch Complete · {{ batch.name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #faf8f5;
+            --ink: #1a1a1a;
+            --forest: #1e3a2f;
+            --gold: #c9a962;
+            --gold-light: #e8d5a8;
+            --muted: #8b8680;
+            --blush: #f4e8e1;
+            --card: #ffffff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 60px 24px;
+        }
+        .page { max-width: 540px; margin: 0 auto; text-align: center; }
+        .checkmark {
+            width: 64px; height: 64px;
+            background: #f0fdf4;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 28px;
+        }
+        h1 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 30px;
+            font-weight: 500;
+            color: var(--forest);
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 15px;
+            color: var(--muted);
+            margin-bottom: 36px;
+            line-height: 1.5;
+        }
+
+        /* Stats row */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 20px 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--forest);
+            margin-bottom: 4px;
+        }
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* Failure mode summary */
+        .failure-card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 20px 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            margin-bottom: 28px;
+            text-align: left;
+        }
+        .failure-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--forest);
+            margin-bottom: 14px;
+        }
+        .failure-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--cream);
+            font-size: 13px;
+        }
+        .failure-row:last-child { border-bottom: none; }
+        .failure-count {
+            font-weight: 700;
+            color: #c2410c;
+            background: #fff7ed;
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-size: 12px;
+        }
+
+        .cta-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .primary-btn {
+            display: inline-block;
+            padding: 14px 40px;
+            background: var(--forest);
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background 0.15s;
+        }
+        .primary-btn:hover { background: var(--gold); color: var(--ink); }
+        .secondary-link {
+            font-size: 13px;
+            color: var(--muted);
+            text-decoration: none;
+        }
+        .secondary-link:hover { color: var(--forest); }
+
+        .divider {
+            border: none;
+            border-top: 1px solid var(--gold-light);
+            margin: 36px 0;
+        }
+        .phase-note {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="checkmark">✓</div>
+    <h1>Batch Complete</h1>
+    <p class="subtitle">
+        You've finished <strong>{{ batch.name }}</strong>.<br>
+        Your ratings help calibrate the matching algorithm.
+    </p>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ total }}</div>
+            <div class="stat-label">Matches rated</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ avg_potential|default:"—" }}</div>
+            <div class="stat-label">Avg partnership score</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ avg_narrative|default:"—" }}</div>
+            <div class="stat-label">Avg narrative score</div>
+        </div>
+    </div>
+
+    {% if failure_counts %}
+    <div class="failure-card">
+        <div class="failure-title">Issues You Flagged</div>
+        {% for label, count in failure_counts.items %}
+        <div class="failure-row">
+            <span>{{ label }}</span>
+            <span class="failure-count">{{ count }}×</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="cta-group">
+        <a href="{% url 'matching:eval-dashboard' %}" class="primary-btn">Back to Dashboard</a>
+        <a href="{% url 'matching:eval-batch' batch.id %}" class="secondary-link">Review this batch</a>
+    </div>
+
+    <hr class="divider">
+    <p class="phase-note">
+        <strong>{{ batch.get_phase_display }} phase</strong> ·
+        Your ratings are stored anonymously against algorithm scores for calibration.
+        You'll never see the algorithm score for a match you've rated.
+    </p>
+</div>
+</body>
+</html>

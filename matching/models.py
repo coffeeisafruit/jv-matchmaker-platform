@@ -1120,3 +1120,302 @@ class SearchCostLog(models.Model):
 
     def __str__(self):
         return f"{self.tool}: ${self.cost_usd} ({self.results_useful}/{self.results_returned} useful)"
+
+
+# =============================================================================
+# MATCH EVALUATION SYSTEM (Team feedback for algorithm calibration)
+# =============================================================================
+
+class EvaluationReviewer(models.Model):
+    """
+    A team member who reviews matches. Access-code authenticated (no Django login).
+    Each reviewer gets a permanent access code they can bookmark.
+    """
+    name = models.CharField(max_length=100, unique=True)
+    email = models.EmailField()
+    access_code = models.CharField(max_length=20, unique=True, db_index=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    # Progress tracking
+    total_evaluations = models.IntegerField(default=0)
+    last_evaluation_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Evaluation Reviewer'
+
+    def __str__(self):
+        return f"{self.name} ({self.total_evaluations} evals)"
+
+
+class EvaluationBatch(models.Model):
+    """
+    A batch of matches assigned to team members for evaluation.
+    Supports calibration (all raters), coverage (distributed), and validation modes.
+    """
+    class Phase(models.TextChoices):
+        CALIBRATION = 'calibration', 'Calibration (all raters)'
+        COVERAGE = 'coverage', 'Coverage (2+ raters)'
+        VALIDATION = 'validation', 'Validation (holdout)'
+
+    class Status(models.TextChoices):
+        DRAFT = 'draft', 'Draft'
+        ACTIVE = 'active', 'Active'
+        COMPLETED = 'completed', 'Completed'
+        ARCHIVED = 'archived', 'Archived'
+
+    name = models.CharField(max_length=100)
+    phase = models.CharField(max_length=20, choices=Phase.choices)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.DRAFT)
+
+    # Who should review this batch
+    assigned_reviewers = models.ManyToManyField(
+        EvaluationReviewer, blank=True, related_name='assigned_batches'
+    )
+
+    # Selection criteria used to generate this batch
+    selection_criteria = models.JSONField(
+        default=dict, blank=True,
+        help_text='{"strategy": "stratified", "score_bands": [...], "tiers": [...]}'
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = 'Evaluation Batches'
+
+    def __str__(self):
+        return f"{self.name} ({self.phase}/{self.status})"
+
+    @property
+    def total_items(self):
+        return self.items.count()
+
+    def completion_for_reviewer(self, reviewer):
+        """Returns (completed, total) for a specific reviewer."""
+        total = self.items.count()
+        completed = MatchEvaluation.objects.filter(
+            item__batch=self, rater=reviewer
+        ).count()
+        return completed, total
+
+
+class EvaluationItem(models.Model):
+    """
+    A single match presented for evaluation within a batch.
+    Stores algorithm score snapshot at creation time for later analysis.
+    """
+    batch = models.ForeignKey(
+        EvaluationBatch, on_delete=models.CASCADE, related_name='items'
+    )
+
+    # The match being evaluated
+    client_profile = models.ForeignKey(
+        SupabaseProfile, on_delete=models.CASCADE,
+        related_name='eval_items_as_client'
+    )
+    partner_profile = models.ForeignKey(
+        SupabaseProfile, on_delete=models.CASCADE,
+        related_name='eval_items_as_partner'
+    )
+    report_partner = models.ForeignKey(
+        ReportPartner, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='eval_items',
+        help_text='Link to frozen ReportPartner snapshot if from a live report'
+    )
+
+    # Algorithm snapshot at evaluation time (hidden from reviewers)
+    algorithm_score = models.FloatField(
+        help_text='Harmonic mean at evaluation time'
+    )
+    algorithm_breakdown = models.JSONField(
+        default=dict,
+        help_text='Full ISMC breakdown: {intent: {score, factors}, synergy: {...}, ...}'
+    )
+    why_fit_narrative = models.TextField(blank=True)
+
+    # Display order within batch
+    position = models.IntegerField(default=0)
+
+    class Meta:
+        ordering = ['batch', 'position']
+        unique_together = ['batch', 'client_profile', 'partner_profile']
+
+    def __str__(self):
+        return f"Item #{self.position} in {self.batch.name}"
+
+
+class MatchEvaluation(models.Model):
+    """
+    A single rater's evaluation of a match.
+    Captures partnership potential, actionability, narrative quality,
+    failure modes, and optional ISMC dimension ratings.
+    """
+    class Mode(models.TextChoices):
+        QUICK = 'quick', 'Quick (~30s)'
+        DETAILED = 'detailed', 'Detailed (~2-3min)'
+
+    item = models.ForeignKey(
+        EvaluationItem, on_delete=models.CASCADE, related_name='evaluations'
+    )
+    rater = models.ForeignKey(
+        EvaluationReviewer, on_delete=models.CASCADE, related_name='evaluations'
+    )
+    mode = models.CharField(max_length=10, choices=Mode.choices, default=Mode.QUICK)
+
+    # --- Step 1: Match Quality (profile-blind, no narrative) ---
+    partnership_potential = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(7)],
+        help_text='1=Terrible, 4=Acceptable, 7=Excellent'
+    )
+    recommendation_actionability = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(4)],
+        help_text='1=Not actionable, 4=Ready to go'
+    )
+
+    # --- Step 2: Narrative Quality (shown after Step 1) ---
+    narrative_quality = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(7)],
+        help_text='1=Misleading, 4=Acceptable, 7=Excellent (send as-is)'
+    )
+    narrative_notes = models.TextField(
+        blank=True, help_text='What the narrative got wrong or missed'
+    )
+
+    # --- Failure mode checkboxes ---
+    failure_wrong_audience = models.BooleanField(default=False)
+    failure_one_sided_value = models.BooleanField(default=False)
+    failure_stale_profile = models.BooleanField(default=False)
+    failure_missing_contact = models.BooleanField(default=False)
+    failure_scale_mismatch = models.BooleanField(default=False)
+    failure_same_niche_no_complement = models.BooleanField(default=False)
+    failure_data_quality = models.BooleanField(default=False)
+
+    # --- Per-dimension ratings (detailed mode only, 1-4) ---
+    intent_rating = models.IntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(4)],
+        help_text='1=Wrong/Missing, 2=Weak, 3=Reasonable, 4=Strong'
+    )
+    synergy_rating = models.IntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(4)]
+    )
+    momentum_rating = models.IntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(4)]
+    )
+    context_rating = models.IntegerField(
+        null=True, blank=True,
+        validators=[MinValueValidator(1), MaxValueValidator(4)]
+    )
+
+    # --- Open discovery question ---
+    discovery_response = models.TextField(
+        blank=True,
+        help_text='What is the most important thing about this match the algorithm probably does not capture?'
+    )
+
+    # --- General notes ---
+    notes = models.TextField(blank=True)
+
+    # --- Timing ---
+    started_at = models.DateTimeField(
+        help_text='When the reviewer opened this evaluation'
+    )
+    completed_at = models.DateTimeField(auto_now_add=True)
+    time_spent_seconds = models.IntegerField(
+        default=0, help_text='Auto-computed from JS timer'
+    )
+
+    class Meta:
+        ordering = ['-completed_at']
+        unique_together = ['item', 'rater']
+        indexes = [
+            models.Index(fields=['rater', '-completed_at']),
+        ]
+
+    def __str__(self):
+        return f"{self.rater.name} rated {self.item} — {self.partnership_potential}/7"
+
+    @property
+    def has_failure_modes(self):
+        return any([
+            self.failure_wrong_audience, self.failure_one_sided_value,
+            self.failure_stale_profile, self.failure_missing_contact,
+            self.failure_scale_mismatch, self.failure_same_niche_no_complement,
+            self.failure_data_quality,
+        ])
+
+    @property
+    def failure_mode_list(self):
+        modes = []
+        if self.failure_wrong_audience:
+            modes.append('Wrong audience')
+        if self.failure_one_sided_value:
+            modes.append('One-sided value')
+        if self.failure_stale_profile:
+            modes.append('Stale profile')
+        if self.failure_missing_contact:
+            modes.append('Missing contact info')
+        if self.failure_scale_mismatch:
+            modes.append('Scale mismatch')
+        if self.failure_same_niche_no_complement:
+            modes.append('Same niche, no complement')
+        if self.failure_data_quality:
+            modes.append('Data quality issues')
+        return modes
+
+
+class WeightExperiment(models.Model):
+    """
+    Records a weight adjustment experiment with statistical basis.
+    Deferred until Phase 3 (after enough evaluation data is collected).
+    """
+    class Status(models.TextChoices):
+        PROPOSED = 'proposed', 'Proposed'
+        RUNNING = 'running', 'Running'
+        MEASURED = 'measured', 'Measured'
+        ACCEPTED = 'accepted', 'Accepted'
+        REJECTED = 'rejected', 'Rejected'
+
+    name = models.CharField(max_length=200)
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.PROPOSED
+    )
+
+    # Weight changes
+    old_weights = models.JSONField(
+        help_text='{"intent": 0.45, "synergy": 0.25, "momentum": 0.20, "context": 0.10}'
+    )
+    new_weights = models.JSONField(
+        help_text='Proposed new dimension weights'
+    )
+    sub_factor_changes = models.JSONField(
+        default=dict, blank=True,
+        help_text='Changes to sub-factor weights within dimensions'
+    )
+
+    # Statistical basis
+    sample_size = models.IntegerField()
+    reliability_alpha = models.FloatField(
+        null=True, blank=True, help_text='Krippendorff alpha at time of analysis'
+    )
+    mean_quality_before = models.FloatField(null=True, blank=True)
+    mean_quality_after = models.FloatField(null=True, blank=True)
+    p_value = models.FloatField(null=True, blank=True)
+    effect_size = models.FloatField(null=True, blank=True)
+    regression_coefficients = models.JSONField(default=dict, blank=True)
+
+    rationale = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.name} ({self.status})"

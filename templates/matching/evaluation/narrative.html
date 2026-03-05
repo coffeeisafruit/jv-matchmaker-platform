@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate Narrative {{ current_position }}/{{ total_items }} · {{ batch.name }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cream: #faf8f5;
+            --ink: #1a1a1a;
+            --forest: #1e3a2f;
+            --gold: #c9a962;
+            --gold-light: #e8d5a8;
+            --muted: #8b8680;
+            --blush: #f4e8e1;
+            --card: #ffffff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', -apple-system, sans-serif;
+            background: var(--cream);
+            color: var(--ink);
+            min-height: 100vh;
+            padding: 32px 20px 80px;
+        }
+        .page { max-width: 680px; margin: 0 auto; }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .back-link { font-size: 13px; color: var(--muted); text-decoration: none; }
+        .back-link:hover { color: var(--forest); }
+        .progress-text { font-size: 13px; color: var(--muted); }
+
+        /* Step indicator */
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+        .step-dot {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            background: var(--gold-light);
+            color: var(--forest);
+        }
+        .step.done .step-dot { background: var(--forest); color: white; }
+        .step.current .step-dot { background: var(--gold); color: var(--ink); }
+        .step.current { color: var(--ink); font-weight: 600; }
+        .step-divider {
+            flex: 1;
+            height: 1px;
+            background: var(--gold-light);
+        }
+
+        /* Score reveal (your Step 1 answer) */
+        .step1-summary {
+            background: var(--blush);
+            border-radius: 8px;
+            padding: 14px 18px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .step1-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .step1-label {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .step1-val {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--forest);
+        }
+
+        /* The narrative itself */
+        .narrative-card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 24px 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            border-left: 3px solid var(--gold);
+        }
+        .narrative-eyebrow {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 12px;
+        }
+        .narrative-match-names {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--forest);
+            margin-bottom: 14px;
+        }
+        .narrative-text {
+            font-size: 15px;
+            line-height: 1.7;
+            color: var(--ink);
+        }
+        .narrative-empty {
+            font-size: 14px;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* Rating form */
+        .form-card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 24px 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .form-section-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--forest);
+            margin-bottom: 6px;
+        }
+        .form-hint {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .rating-group { margin-bottom: 20px; }
+        .rating-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--forest);
+            margin-bottom: 10px;
+            display: block;
+        }
+        .radio-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .radio-option input[type="radio"] { display: none; }
+        .radio-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            padding: 10px 10px;
+            border: 1.5px solid var(--gold-light);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            color: var(--muted);
+            transition: all 0.15s;
+            min-width: 56px;
+            text-align: center;
+            line-height: 1.3;
+        }
+        .radio-option label .num {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--forest);
+        }
+        .radio-option input[type="radio"]:checked + label {
+            background: var(--gold);
+            border-color: var(--gold);
+            color: var(--ink);
+        }
+        .radio-option input[type="radio"]:checked + label .num { color: var(--ink); }
+        .radio-option label:hover { border-color: var(--gold); }
+
+        .text-field {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--gold-light);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: var(--ink);
+            background: var(--cream);
+            resize: vertical;
+            line-height: 1.5;
+            transition: border-color 0.15s;
+        }
+        .text-field:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,169,98,0.12); }
+        .text-field::placeholder { color: var(--muted); }
+
+        .submit-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .submit-btn {
+            padding: 13px 32px;
+            background: var(--forest);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .submit-btn:hover { background: var(--gold); color: var(--ink); }
+
+        .form-errors {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            color: #991b1b;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="topbar">
+        <a href="{% url 'matching:eval-batch' batch.id %}" class="back-link">← {{ batch.name }}</a>
+        <span class="progress-text">{{ current_position }} of {{ total_items }}</span>
+    </div>
+
+    <!-- Two-step indicator -->
+    <div class="step-indicator">
+        <div class="step done">
+            <div class="step-dot">✓</div>
+            <span>Match quality</span>
+        </div>
+        <div class="step-divider"></div>
+        <div class="step current">
+            <div class="step-dot">2</div>
+            <span>Narrative quality</span>
+        </div>
+    </div>
+
+    <!-- Step 1 recap (your scores, no algorithm score) -->
+    <div class="step1-summary">
+        <div class="step1-item">
+            <span class="step1-label">Your partnership rating</span>
+            <span class="step1-val">{{ evaluation.partnership_potential }}/7</span>
+        </div>
+        <div class="step1-item">
+            <span class="step1-label">Actionability</span>
+            <span class="step1-val">{{ evaluation.recommendation_actionability }}/4</span>
+        </div>
+        {% if evaluation.failure_wrong_audience or evaluation.failure_one_sided_value or evaluation.failure_stale_profile or evaluation.failure_missing_contact or evaluation.failure_scale_mismatch or evaluation.failure_same_niche_no_complement or evaluation.failure_data_quality %}
+        <div class="step1-item">
+            <span class="step1-label">Flags</span>
+            <span class="step1-val" style="font-size: 14px; line-height: 1.5;">
+                {% if evaluation.failure_wrong_audience %}Wrong audience · {% endif %}
+                {% if evaluation.failure_one_sided_value %}One-sided · {% endif %}
+                {% if evaluation.failure_stale_profile %}Stale · {% endif %}
+                {% if evaluation.failure_missing_contact %}No contact · {% endif %}
+                {% if evaluation.failure_scale_mismatch %}Scale mismatch · {% endif %}
+                {% if evaluation.failure_same_niche_no_complement %}Same niche · {% endif %}
+                {% if evaluation.failure_data_quality %}Data quality{% endif %}
+            </span>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Narrative reveal -->
+    <div class="narrative-card">
+        <div class="narrative-eyebrow">Algorithm's Why-Fit Narrative</div>
+        <div class="narrative-match-names">{{ item.client_profile.name }} ↔ {{ item.partner_profile.name }}</div>
+        {% if item.why_fit_narrative %}
+        <div class="narrative-text">{{ item.why_fit_narrative }}</div>
+        {% else %}
+        <div class="narrative-empty">No narrative generated for this match.</div>
+        {% endif %}
+    </div>
+
+    <!-- Step 2 form -->
+    <form method="post">
+        {% csrf_token %}
+
+        {% if form.non_field_errors or form.narrative_quality.errors %}
+        <div class="form-errors">Please select a narrative quality rating before continuing.</div>
+        {% endif %}
+
+        <div class="form-card">
+            <div class="form-section-title">Rate the Narrative</div>
+            <p class="form-hint">How well does this explanation capture the value of the partnership you just rated? Does it convey the right signals to a client?</p>
+
+            <div class="rating-group">
+                <span class="rating-label">Narrative quality</span>
+                <div class="radio-row">
+                    {% for val, label in form.narrative_quality.field.widget.choices %}
+                    <div class="radio-option">
+                        <input type="radio" name="narrative_quality" id="nq_{{ val }}" value="{{ val }}"
+                            {% if form.narrative_quality.value == val|stringformat:"s" %}checked{% endif %}>
+                        <label for="nq_{{ val }}">
+                            <span class="num">{{ val }}</span>
+                            <span>{{ label|cut:"1 — "|cut:"2 — "|cut:"3 — "|cut:"4 — "|cut:"5 — "|cut:"6 — "|cut:"7 — " }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="rating-group" style="margin-bottom: 0;">
+                <span class="rating-label">Narrative notes <small style="font-weight:400;color:var(--muted);">· optional</small></span>
+                <textarea name="narrative_notes" class="text-field" rows="2"
+                    placeholder="What did the narrative get wrong or miss?">{{ form.narrative_notes.value|default:"" }}</textarea>
+            </div>
+
+            <div class="submit-row">
+                <button type="submit" class="submit-btn">
+                    {% if current_position < total_items %}Next Match →{% else %}Finish Batch →{% endif %}
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+</body>
+</html>
