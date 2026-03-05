@@ -277,6 +277,7 @@ class EvalItemView(EvalAccessMixin, View):
             failure_scale_mismatch=d.get('failure_scale_mismatch', False),
             failure_same_niche_no_complement=d.get('failure_same_niche_no_complement', False),
             failure_data_quality=d.get('failure_data_quality', False),
+            failure_timing_readiness=d.get('failure_timing_readiness', False),
             intent_rating=d.get('intent_rating'),
             synergy_rating=d.get('synergy_rating'),
             momentum_rating=d.get('momentum_rating'),
@@ -442,10 +443,14 @@ class EvalBatchCompleteView(EvalAccessMixin, View):
             ('Scale mismatch', 'failure_scale_mismatch'),
             ('Same niche', 'failure_same_niche_no_complement'),
             ('Data quality', 'failure_data_quality'),
+            ('Timing / readiness', 'failure_timing_readiness'),
         ]:
             count = evaluations.filter(**{field: True}).count()
             if count > 0:
                 failure_counts[label] = count
+
+        # Check if this reviewer already submitted reflection notes
+        existing_notes = batch.completion_notes.get(str(reviewer.id), {})
 
         context = {
             'reviewer': reviewer,
@@ -455,5 +460,27 @@ class EvalBatchCompleteView(EvalAccessMixin, View):
             'avg_narrative': avg_narrative,
             'avg_actionability': avg_actionability,
             'failure_counts': failure_counts,
+            'existing_notes': existing_notes,
+            'notes_submitted': bool(existing_notes),
         }
         return render(request, 'matching/evaluation/batch_complete.html', context)
+
+    def post(self, request, batch_id):
+        reviewer, error = self.get_reviewer_or_redirect(request)
+        if error:
+            return error
+
+        batch = get_object_or_404(
+            EvaluationBatch, id=batch_id, assigned_reviewers=reviewer
+        )
+
+        notes = batch.completion_notes or {}
+        notes[str(reviewer.id)] = {
+            'q1': request.POST.get('q1', '').strip(),
+            'q2': request.POST.get('q2', '').strip(),
+            'q3': request.POST.get('q3', '').strip(),
+        }
+        batch.completion_notes = notes
+        batch.save(update_fields=['completion_notes'])
+
+        return redirect('matching:eval-batch-complete', batch_id=batch_id)

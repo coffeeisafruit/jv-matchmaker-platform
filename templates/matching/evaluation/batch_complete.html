@@ -146,6 +146,68 @@
             color: var(--muted);
             line-height: 1.6;
         }
+
+        /* Reflection form */
+        .reflection-card {
+            background: var(--card);
+            border-radius: 10px;
+            padding: 24px 28px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            margin-bottom: 28px;
+            text-align: left;
+        }
+        .reflection-title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 17px;
+            font-weight: 500;
+            color: var(--forest);
+            margin-bottom: 6px;
+        }
+        .reflection-hint {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .reflection-q {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--forest);
+            margin-bottom: 8px;
+            display: block;
+        }
+        .reflection-field {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid var(--gold-light);
+            border-radius: 8px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 13px;
+            color: var(--ink);
+            background: var(--cream);
+            resize: vertical;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        .reflection-field:focus { outline: none; border-color: var(--gold); }
+        .reflection-submit {
+            padding: 11px 28px;
+            background: var(--forest);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .reflection-submit:hover { background: var(--gold); color: var(--ink); }
+        .reflection-done {
+            font-size: 13px;
+            color: var(--muted);
+            font-style: italic;
+            padding: 12px 0;
+        }
     </style>
 </head>
 <body>
@@ -191,6 +253,28 @@
     </div>
 
     <hr class="divider">
+
+    {% if notes_submitted %}
+    <div class="reflection-card">
+        <p class="reflection-done">Thanks for sharing your reflections. This helps us align on what makes a great match.</p>
+    </div>
+    {% else %}
+    <div class="reflection-card">
+        <div class="reflection-title">One Last Thing</div>
+        <p class="reflection-hint">3 quick questions to help us align on what "quality" means. Optional but very useful.</p>
+        <form method="post">
+            {% csrf_token %}
+            <label class="reflection-q">When you gave a match a 6 or 7, what made it excellent?</label>
+            <textarea name="q1" class="reflection-field" rows="2" placeholder="e.g. complementary audiences, clear mutual value..."></textarea>
+            <label class="reflection-q">When you gave a match a 1 or 2, what was the core problem?</label>
+            <textarea name="q2" class="reflection-field" rows="2" placeholder="e.g. totally different niches, no obvious partnership angle..."></textarea>
+            <label class="reflection-q">Was there anything you felt uncertain about when rating?</label>
+            <textarea name="q3" class="reflection-field" rows="2" placeholder="e.g. hard to tell without knowing their current launch status..."></textarea>
+            <button type="submit" class="reflection-submit">Submit Reflections</button>
+        </form>
+    </div>
+    {% endif %}
+
     <p class="phase-note">
         <strong>{{ batch.get_phase_display }} phase</strong> ·
         Your ratings are stored anonymously against algorithm scores for calibration.

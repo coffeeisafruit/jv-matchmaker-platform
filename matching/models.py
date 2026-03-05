@@ -1183,6 +1183,10 @@ class EvaluationBatch(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True)
 
+    # Retrospective norming: rater reflections submitted on batch completion
+    # Stored as {reviewer_id: {q1: "...", q2: "...", q3: "..."}}
+    completion_notes = models.JSONField(default=dict, blank=True)
+
     class Meta:
         ordering = ['-created_at']
         verbose_name_plural = 'Evaluation Batches'
@@ -1293,6 +1297,10 @@ class MatchEvaluation(models.Model):
     failure_scale_mismatch = models.BooleanField(default=False)
     failure_same_niche_no_complement = models.BooleanField(default=False)
     failure_data_quality = models.BooleanField(default=False)
+    failure_timing_readiness = models.BooleanField(
+        default=False,
+        help_text='Timing / launch readiness mismatch — prospect not currently positioned to execute a JV'
+    )
 
     # --- Per-dimension ratings (detailed mode only, 1-4) ---
     intent_rating = models.IntegerField(
@@ -1347,7 +1355,7 @@ class MatchEvaluation(models.Model):
             self.failure_wrong_audience, self.failure_one_sided_value,
             self.failure_stale_profile, self.failure_missing_contact,
             self.failure_scale_mismatch, self.failure_same_niche_no_complement,
-            self.failure_data_quality,
+            self.failure_data_quality, self.failure_timing_readiness,
         ])
 
     @property
@@ -1367,6 +1375,8 @@ class MatchEvaluation(models.Model):
             modes.append('Same niche, no complement')
         if self.failure_data_quality:
             modes.append('Data quality issues')
+        if self.failure_timing_readiness:
+            modes.append('Timing / launch readiness')
         return modes
 
 

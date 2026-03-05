@@ -43,6 +43,7 @@ class MatchQualityForm(forms.Form):
     failure_scale_mismatch = forms.BooleanField(required=False, label='Scale mismatch')
     failure_same_niche_no_complement = forms.BooleanField(required=False, label='Same niche, no complement')
     failure_data_quality = forms.BooleanField(required=False, label='Data quality issues')
+    failure_timing_readiness = forms.BooleanField(required=False, label='Timing / launch readiness mismatch')
 
     # Open discovery question
     discovery_response = forms.CharField(

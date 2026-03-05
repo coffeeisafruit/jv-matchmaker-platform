@@ -272,7 +272,7 @@
             <span class="step1-label">Actionability</span>
             <span class="step1-val">{{ evaluation.recommendation_actionability }}/4</span>
         </div>
-        {% if evaluation.failure_wrong_audience or evaluation.failure_one_sided_value or evaluation.failure_stale_profile or evaluation.failure_missing_contact or evaluation.failure_scale_mismatch or evaluation.failure_same_niche_no_complement or evaluation.failure_data_quality %}
+        {% if evaluation.failure_wrong_audience or evaluation.failure_one_sided_value or evaluation.failure_stale_profile or evaluation.failure_missing_contact or evaluation.failure_scale_mismatch or evaluation.failure_same_niche_no_complement or evaluation.failure_data_quality or evaluation.failure_timing_readiness %}
         <div class="step1-item">
             <span class="step1-label">Flags</span>
             <span class="step1-val" style="font-size: 14px; line-height: 1.5;">
@@ -282,7 +282,8 @@
                 {% if evaluation.failure_missing_contact %}No contact · {% endif %}
                 {% if evaluation.failure_scale_mismatch %}Scale mismatch · {% endif %}
                 {% if evaluation.failure_same_niche_no_complement %}Same niche · {% endif %}
-                {% if evaluation.failure_data_quality %}Data quality{% endif %}
+                {% if evaluation.failure_data_quality %}Data quality · {% endif %}
+                {% if evaluation.failure_timing_readiness %}Timing/readiness{% endif %}
             </span>
         </div>
         {% endif %}
