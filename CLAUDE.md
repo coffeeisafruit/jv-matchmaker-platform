@@ -60,6 +60,19 @@ Environment variables:
 
 ---
 
+## Scoring & Matching Pipeline
+
+Key architectural rules:
+- `score_against_all_clients()` in `matching/enrichment/flows/cross_client_scoring.py` is the canonical function for creating `match_suggestions` rows
+- `bulk_recalculate_matches()` ONLY updates existing rows — never creates new matches
+- `enrichment_metadata.enrichment_context` tracks why a profile was enriched: `"batch"`, `"acquisition"`, `"manual"`
+- Weekly scoring job: `python3 manage.py score_new_enrichments`
+- Vector pre-filter stub ready in `score_against_all_clients(pre_filter=...)` — activate after embedding backfill
+
+See `v2.0/docs/planning/POST_ENRICHMENT_WIRING.md` for full plan.
+
+---
+
 ## Code Style
 
 - Use type hints for function signatures

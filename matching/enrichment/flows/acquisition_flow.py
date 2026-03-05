@@ -61,6 +61,7 @@ class AcquisitionResult:
     discovery_cost: float = 0.0
     enrichment_cost: float = 0.0
     budget_cap_reached: bool = False
+    new_matches_created: int = 0
 
 
 # ---------------------------------------------------------------------------
@@ -89,6 +90,66 @@ def _load_client_profile(client_profile_id: str) -> dict | None:
         return dict(row) if row else None
     finally:
         conn.close()
+
+
+def _filter_needs_enrichment(
+    profile_ids: list[str],
+    min_jvr: float = 50.0,
+    max_stale_days: int = 30,
+) -> tuple[list[str], int]:
+    """Return profile IDs that actually need enrichment.
+
+    Profiles are skipped if they have:
+      - jv_readiness_score >= min_jvr (50 = "matchable"), AND
+      - last_enriched_at within max_stale_days
+
+    Returns (ids_needing_enrichment, skipped_count).
+    """
+    if not profile_ids:
+        return [], 0
+
+    dsn = os.environ["DATABASE_URL"]
+    conn = psycopg2.connect(dsn)
+    try:
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            """
+            SELECT id, jv_readiness_score, last_enriched_at
+            FROM profiles
+            WHERE id = ANY(%s::uuid[])
+            """,
+            (profile_ids,),
+        )
+        rows = {str(r["id"]): r for r in cursor.fetchall()}
+    finally:
+        conn.close()
+
+    from datetime import datetime, timedelta, timezone
+
+    cutoff = datetime.now(timezone.utc) - timedelta(days=max_stale_days)
+    needs = []
+    skipped = 0
+
+    for pid in profile_ids:
+        row = rows.get(pid)
+        if not row:
+            needs.append(pid)  # Not found in DB — enrich to be safe
+            continue
+
+        jvr = float(row.get("jv_readiness_score") or 0)
+        enriched_at = row.get("last_enriched_at")
+
+        # Normalize naive timestamps to UTC for comparison
+        if enriched_at and enriched_at.tzinfo is None:
+            enriched_at = enriched_at.replace(tzinfo=timezone.utc)
+
+        # Skip if JVR is high enough AND recently enriched
+        if jvr >= min_jvr and enriched_at and enriched_at >= cutoff:
+            skipped += 1
+        else:
+            needs.append(pid)
+
+    return needs, skipped
 
 
 def _log_budget_alert(client_id: str, client_name: str, total_cost: float):
@@ -252,22 +313,63 @@ def acquisition_flow(
         logger.info("DRY RUN -- skipping DB search")
 
     # ------------------------------------------------------------------
-    # Step 3b: Adjust external budget based on DB results
+    # Step 3b: Pre-score DB prospects to gauge quality before external decision
     # ------------------------------------------------------------------
-    external_budget = min(budget, CLIENT_BUDGET_CAP)
-    if result.db_search_count >= result.gap_detected * 2:
-        external_budget *= 0.25
-        logger.info("DB found 2x gap — external budget reduced to $%.2f", external_budget)
-    elif result.db_search_count >= result.gap_detected:
-        external_budget *= 0.50
-        logger.info("DB found 1x gap — external budget reduced to $%.2f", external_budget)
+    db_candidates = [p for p in db_prospects if p.get("_db_profile_id")]
+    if db_candidates:
+        logger.info(
+            "Pre-scoring %d DB-sourced prospects at threshold 64",
+            len(db_candidates),
+        )
+        scored_db = prescore_prospects(
+            client_profile=client_profile,
+            prospects=db_candidates,
+            threshold=64,
+        )
+        db_above = [p for p in scored_db if p.get("_above_threshold")]
+        db_borderline = [
+            p for p in scored_db
+            if not p.get("_above_threshold")
+            and (p.get("_pre_score") or 0) >= 55
+        ]
     else:
-        logger.info("DB found < gap — full external budget $%.2f", external_budget)
+        scored_db = []
+        db_above = []
+        db_borderline = []
+
+    db_quality_count = len(db_above) + len(db_borderline)
+
+    logger.info(
+        "DB pre-score: %d above 64, %d borderline (55-63), %d below 55",
+        len(db_above), len(db_borderline),
+        len(db_candidates) - len(db_above) - len(db_borderline),
+    )
 
     # ------------------------------------------------------------------
-    # Step 3c: External discovery (Exa + Apollo)
+    # Step 3c: Adjust external budget based on quality-adjusted DB results
     # ------------------------------------------------------------------
-    remaining_slots = max_prospects - len(db_prospects)
+    # Use quality count (above + borderline), not raw total, to decide
+    # whether external discovery is needed.
+    external_budget = min(budget, CLIENT_BUDGET_CAP)
+    if db_quality_count >= result.gap_detected * 2:
+        external_budget *= 0.25
+        logger.info("DB quality 2x gap — external budget reduced to $%.2f", external_budget)
+    elif db_quality_count >= result.gap_detected:
+        external_budget *= 0.50
+        logger.info("DB quality 1x gap — external budget reduced to $%.2f", external_budget)
+    else:
+        logger.info(
+            "DB quality (%d) < gap (%d) — full external budget $%.2f",
+            db_quality_count, result.gap_detected, external_budget,
+        )
+
+    # ------------------------------------------------------------------
+    # Step 3d: External discovery (Exa + Apollo)
+    # ------------------------------------------------------------------
+    # remaining_slots is based on how many MORE we need, not raw DB count.
+    # If DB found 20 but only 5 are quality, we still need external help.
+    remaining_need = max(0, result.gap_detected - db_quality_count)
+    remaining_slots = min(remaining_need, max_prospects - len(db_prospects))
     if remaining_slots > 0 and external_budget > 0.05:
         logger.info(
             "Discovering external prospects (max=%d, budget=$%.2f)",
@@ -311,32 +413,26 @@ def acquisition_flow(
         logger.warning("Budget cap reached ($%.2f >= $%.2f)", result.cost, CLIENT_BUDGET_CAP)
 
     # ------------------------------------------------------------------
-    # Step 4: Pre-score prospects
+    # Step 4: Separate external prospects (DB already prescored in 3b)
     # ------------------------------------------------------------------
-    logger.info("Pre-scoring %d prospects (gap=%d)", len(all_prospects), result.gap_detected)
-    scored_prospects = prescore_prospects(
-        client_profile=client_profile,
-        prospects=all_prospects,
-        threshold=60,
-        gap_size=result.gap_detected,
-    )
+    # External prospects skip prescoring — intelligent targeting is the
+    # filter.  They go straight to enrichment for full ISMC scoring.
+    external_candidates = [p for p in all_prospects if not p.get("_db_profile_id")]
 
-    above_threshold = [
-        p for p in scored_prospects if p.get("_above_threshold")
-    ]
-    result.above_threshold = len(above_threshold)
+    result.above_threshold = len(db_above) + len(db_borderline) + len(external_candidates)
 
     logger.info(
-        "Pre-scoring complete: %d/%d above threshold (60+)",
-        len(above_threshold), len(scored_prospects),
+        "Quality candidates: %d DB above 64, %d DB borderline (55-63), "
+        "%d external (skip prescore) = %d total",
+        len(db_above), len(db_borderline), len(external_candidates),
+        result.above_threshold,
     )
 
     # ------------------------------------------------------------------
-    # Step 5: Ingest prospects to database
+    # Step 5: Ingest external prospects to database
     # ------------------------------------------------------------------
-    # Skip DB-sourced prospects (they already exist in the database)
-    new_prospects = [p for p in scored_prospects if not p.get("_db_profile_id")]
-    db_sourced = [p for p in scored_prospects if p.get("_db_profile_id")]
+    # DB-sourced prospects already exist; only external ones need ingestion.
+    new_prospects = external_candidates
 
     if dry_run:
         logger.info("DRY RUN -- skipping DB ingestion")
@@ -349,7 +445,7 @@ def acquisition_flow(
     elif new_prospects:
         logger.info(
             "Ingesting %d new prospects to database (skipping %d DB-sourced)",
-            len(new_prospects), len(db_sourced),
+            len(new_prospects), len(scored_db),
         )
         ingestion_result = ingest_prospects(
             prospects=new_prospects,
@@ -369,39 +465,72 @@ def acquisition_flow(
 
     logger.info(
         "Ingestion: %d new, %d duplicates, %d DB-sourced (skipped)",
-        result.saved_to_db, result.duplicates, len(db_sourced),
+        result.saved_to_db, result.duplicates, len(scored_db),
     )
 
     # ------------------------------------------------------------------
-    # Step 6: Feed high-scorers into enrichment pipeline
+    # Step 6: Feed prospects into enrichment pipeline
     # ------------------------------------------------------------------
-    # Collect IDs for enrichment: new inserts + DB-sourced above threshold
-    high_scorer_ids = []
+    # Three paths to enrichment:
+    #   - External prospects: ALL get enriched (they're new, no data yet)
+    #   - DB above 64: enrichment gate (JVR 50+ & recent → skip)
+    #   - DB borderline 55-63: enrichment gate (same check — these might
+    #     jump above 64 with better data)
+    #
+    # JVR gate: skip if JVR >= 50 AND enriched within 30 days.
+    # JVR 50+ = "matchable" — enough data to be in our DB.
+    # Profiles below JVR 50 need enrichment to become matchable.
+    # Borderline profiles (55-63) are close — enrichment could push
+    # them over 64 by filling in sparse offering/seeking/who_you_serve.
+    enrich_ids = []
 
-    # From newly ingested
+    # External: all newly-ingested prospects get enriched
     for prospect, new_id in _match_prospects_to_ids(new_prospects, new_ids):
-        if prospect.get("_above_threshold") and new_id:
-            high_scorer_ids.append(new_id)
+        if new_id:
+            enrich_ids.append(new_id)
+    ext_count = len(enrich_ids)
 
-    # From DB-sourced (already have profile IDs)
-    for prospect in db_sourced:
-        if prospect.get("_above_threshold") and prospect.get("_db_profile_id"):
-            high_scorer_ids.append(prospect["_db_profile_id"])
+    # DB-sourced: above 64 + borderline 55-63, both go through JVR gate
+    db_enrich_candidates = db_above + db_borderline
+    db_candidate_ids = [
+        p["_db_profile_id"] for p in db_enrich_candidates
+        if p.get("_db_profile_id")
+    ]
+    if db_candidate_ids:
+        enrich_ids_db, skipped_db = _filter_needs_enrichment(
+            db_candidate_ids, min_jvr=50, max_stale_days=30,
+        )
+        enrich_ids.extend(enrich_ids_db)
+        logger.info(
+            "Enrichment gate: %d/%d DB candidates need enrichment "
+            "(%d above-64 + %d borderline 55-63), "
+            "%d skipped (JVR >= 50 + enriched within 30 days)",
+            len(enrich_ids_db), len(db_candidate_ids),
+            len(db_above), len(db_borderline), skipped_db,
+        )
+    else:
+        enrich_ids_db = []
 
-    if high_scorer_ids and not dry_run and not result.budget_cap_reached:
+    if enrich_ids and not dry_run and not result.budget_cap_reached:
         remaining_budget = CLIENT_BUDGET_CAP - result.cost
         if remaining_budget > 0.10:
             logger.info(
-                "Triggering enrichment for %d high-scoring prospects "
-                "(remaining budget: $%.2f)",
-                len(high_scorer_ids), remaining_budget,
+                "Triggering enrichment for %d prospects "
+                "(%d external + %d DB needing enrichment, "
+                "remaining budget: $%.2f)",
+                len(enrich_ids), ext_count, len(enrich_ids_db),
+                remaining_budget,
             )
             try:
                 from matching.enrichment.flows.enrichment_flow import enrichment_flow
 
+                # refresh_mode=True: if we're paying for enrichment,
+                # new data should overwrite same-priority stale data.
                 enrichment_result = enrichment_flow(
-                    profile_ids=high_scorer_ids,
+                    profile_ids=enrich_ids,
+                    refresh_mode=True,
                     dry_run=dry_run,
+                    enrichment_context="acquisition",
                 )
                 result.enriched = enrichment_result.profiles_researched
                 result.enrichment_cost = enrichment_result.total_cost
@@ -428,13 +557,36 @@ def acquisition_flow(
             )
     elif dry_run:
         logger.info(
-            "DRY RUN -- would enrich %d high-scoring prospects",
-            len(high_scorer_ids),
+            "DRY RUN -- would enrich %d prospects",
+            len(enrich_ids),
         )
     elif result.budget_cap_reached:
         logger.warning("Budget cap reached — skipping enrichment")
     else:
-        logger.info("No high-scoring new prospects to enrich")
+        logger.info("No prospects to enrich")
+
+    # ------------------------------------------------------------------
+    # Step 7: Score enriched profiles against all active clients
+    # ------------------------------------------------------------------
+    if enrich_ids and not dry_run and not result.budget_cap_reached:
+        try:
+            from matching.enrichment.flows.cross_client_scoring import (
+                score_against_all_clients,
+                flag_reports_for_update,
+            )
+            high_quality = score_against_all_clients(
+                profile_ids=enrich_ids,
+                score_threshold=64,
+            )
+            result.new_matches_created = len(high_quality)
+            if high_quality:
+                flag_reports_for_update(high_quality)
+            logger.info(
+                "Scoring complete: %d high-quality matches created (>= 64)",
+                result.new_matches_created,
+            )
+        except Exception as exc:
+            logger.error("Cross-client scoring failed: %s", exc)
 
     # ------------------------------------------------------------------
     # Done
@@ -444,13 +596,14 @@ def acquisition_flow(
     logger.info(
         "Acquisition complete for %s: "
         "%d discovered, %d saved, %d duplicates, %d above threshold, "
-        "%d enriched, $%.3f cost, %.1fs runtime",
+        "%d enriched, %d new matches, $%.3f cost, %.1fs runtime",
         result.client_name,
         result.total_discovered,
         result.saved_to_db,
         result.duplicates,
         result.above_threshold,
         result.enriched,
+        result.new_matches_created,
         result.cost,
         result.runtime_seconds,
     )

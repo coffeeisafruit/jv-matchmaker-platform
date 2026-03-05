@@ -92,6 +92,8 @@ def enrichment_flow(
     cache_only: bool = False,
     enable_ai_verification: bool = False,
     concurrency: int = 5,
+    score_against_clients: bool = False,
+    enrichment_context: str = "batch",
     dry_run: bool = False,
 ) -> EnrichmentFlowResult:
     """Run the full enrichment pipeline.
@@ -110,6 +112,10 @@ def enrichment_flow(
         cache_only: Only use cached results (no live API calls).
         enable_ai_verification: Run L3 AI verification (slower, optional).
         concurrency: Max parallel AI research tasks.
+        score_against_clients: If True, score all enriched profiles against
+            active clients after writing to DB.
+        enrichment_context: Why this enrichment was triggered: "batch",
+            "acquisition", or "manual". Stored in enrichment_metadata.
         dry_run: If True, skip DB writes.
 
     Returns:
@@ -275,11 +281,36 @@ def enrichment_flow(
                 validation_results=validations,
                 refresh_mode=refresh_mode,
                 stale_days=stale_days,
+                enrichment_context=enrichment_context,
             )
             result.profiles_written = write_stats.get("profiles_updated", 0)
             result.failed_writes = write_stats.get("failed", 0)
         else:
             logger.info("No writable profiles after validation")
+
+        # Optional: score enriched profiles against all active clients
+        if score_against_clients and writable:
+            try:
+                from matching.enrichment.flows.cross_client_scoring import (
+                    score_against_all_clients,
+                    flag_reports_for_update,
+                )
+                scoreable_ids = [
+                    str(r['profile_id']) for r in writable if r.get('profile_id')
+                ]
+                if scoreable_ids:
+                    high_quality = score_against_all_clients(
+                        profile_ids=scoreable_ids,
+                        score_threshold=64,
+                    )
+                    if high_quality:
+                        flag_reports_for_update(high_quality)
+                    logger.info(
+                        "Post-enrichment scoring: %d high-quality matches created",
+                        len(high_quality),
+                    )
+            except Exception as exc:
+                logger.error("Post-enrichment cross-client scoring failed: %s", exc)
 
     # ------------------------------------------------------------------
     # Done

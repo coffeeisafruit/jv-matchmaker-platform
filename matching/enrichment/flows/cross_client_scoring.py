@@ -126,6 +126,22 @@ def _save_match_record(
     )
 
 
+def _vector_pre_filter(
+    prospects: list,
+    top_k: int = 200,
+) -> list:
+    """Pre-filter prospects by embedding similarity (not yet implemented).
+
+    Activate after running: python3 manage.py backfill_embeddings
+    Then flip pre_filter="vector" in monthly orchestrator / score_new_enrichments.
+    """
+    raise NotImplementedError(
+        "Vector pre-filter requires embedding backfill. "
+        "Run: python3 manage.py backfill_embeddings --tier B --tier C "
+        "then set pre_filter='vector'."
+    )
+
+
 # ---------------------------------------------------------------------------
 # Main scoring task
 # ---------------------------------------------------------------------------
@@ -133,7 +149,9 @@ def _save_match_record(
 @task(name="score-against-all-clients")
 def score_against_all_clients(
     profile_ids: list[str],
-    score_threshold: int = 70,
+    score_threshold: int = 64,
+    pre_filter: str = "none",
+    pre_filter_top_k: int = 200,
 ) -> list[NewMatchResult]:
     """Score new profiles against ALL active clients using full ISMC.
 
@@ -184,12 +202,17 @@ def score_against_all_clients(
         logger.warning("No eligible prospects after enrichment filter; skipping scoring.")
         return []
 
+    pair_count = len(prospects) * len(clients)
     logger.info(
-        "Scoring %d prospects against %d active clients (%d pairs)",
+        "Scoring %d prospects against %d active clients (%d pairs, pre_filter=%s)",
         len(prospects),
         len(clients),
-        len(prospects) * len(clients),
+        pair_count,
+        pre_filter,
     )
+
+    if pre_filter == "vector":
+        prospects = _vector_pre_filter(prospects, pre_filter_top_k)
 
     scorer = SupabaseMatchScoringService()
     high_quality: list[NewMatchResult] = []

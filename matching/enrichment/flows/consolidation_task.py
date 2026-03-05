@@ -227,6 +227,7 @@ def consolidate_to_db(
     validation_results: list | None = None,
     refresh_mode: bool = False,
     stale_days: int = 30,
+    enrichment_context: str = "batch",
 ) -> dict:
     """Batch write enriched profile data to Supabase/Postgres.
 
@@ -259,6 +260,9 @@ def consolidate_to_db(
         refresh_mode:       When ``True``, JSONB fields use deep/union merge
                             and equal-priority staleness checks are honoured.
         stale_days:         Staleness threshold for equal-priority overwrites.
+        enrichment_context: Why this enrichment was triggered: "batch",
+                            "acquisition", or "manual". Stored in
+                            enrichment_metadata for traceability.
 
     Returns:
         ``dict`` with write stats::
@@ -620,6 +624,7 @@ def consolidate_to_db(
             # Build enrichment_metadata JSON payload (M3).
             meta_payload: dict[str, Any] = {
                 'last_enrichment': 'exa_pipeline',
+                'enrichment_context': enrichment_context,
                 'enriched_at': enriched_at.isoformat(),
                 'tier': result.get('_tier', 0),
                 'field_meta': field_meta_update,
@@ -775,7 +780,7 @@ def consolidate_to_db(
                 # Fetch current enrichment_metadata for every enriched profile.
                 cursor.execute(
                     "SELECT id, enrichment_metadata "
-                    "FROM profiles WHERE id = ANY(%s)",
+                    "FROM profiles WHERE id = ANY(%s::uuid[])",
                     [enriched_ids],
                 )
                 rows = cursor.fetchall()
