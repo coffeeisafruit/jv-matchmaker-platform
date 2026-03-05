@@ -729,7 +729,7 @@ class Command(BaseCommand):
         delivered = ReportPartner.objects.filter(
             report__supabase_profile=client_sp,
             report__is_active=True,
-            created_at__gte=cutoff,
+            report__created_at__gte=cutoff,
             source_profile__isnull=False,
         ).values_list('source_profile_id', flat=True).distinct()
 
