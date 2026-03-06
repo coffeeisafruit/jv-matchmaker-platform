@@ -2162,3 +2162,33 @@ class SalesPageView(View):
         if not request.session.get('sales_page_access'):
             return redirect('matching:sales-access')
         return render(request, 'matching/sales/page.html')
+
+
+# ─── ARCHITECTURE DIAGRAM (password-gated internal view) ───
+
+ARCHITECTURE_PASSWORD = 'coffeeisafruit'
+
+
+class ArchitectureAccessView(View):
+    """Password-gate for the platform architecture diagram."""
+
+    def get(self, request):
+        if request.session.get('architecture_access'):
+            return redirect('matching:architecture-diagram')
+        return render(request, 'matching/architecture_access.html')
+
+    def post(self, request):
+        password = request.POST.get('password', '')
+        if password == ARCHITECTURE_PASSWORD:
+            request.session['architecture_access'] = True
+            return redirect('matching:architecture-diagram')
+        return render(request, 'matching/architecture_access.html', {'error': 'Incorrect password.'})
+
+
+class ArchitectureDiagramView(View):
+    """Serve the architecture diagram after password auth."""
+
+    def get(self, request):
+        if not request.session.get('architecture_access'):
+            return redirect('matching:architecture-access')
+        return render(request, 'matching/architecture_diagram.html')

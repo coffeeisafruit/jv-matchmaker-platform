@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import os
 import uuid
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
@@ -126,6 +127,71 @@ def _save_match_record(
     )
 
 
+def _score_client_batch(
+    client_id: str,
+    prospect_ids: list[str],
+    score_threshold: int,
+    lightweight_threshold: int = 35,
+) -> tuple[list[dict], list[dict]]:
+    """Score one client against all prospects. Runs in a subprocess.
+
+    Two-stage scoring for speed:
+      Stage 1: lightweight score all pairs — skip those clearly below threshold.
+      Stage 2: full score only on candidates that passed stage 1.
+
+    Returns (all_rows, high_quality_rows) as plain dicts (picklable).
+    """
+    import django
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'matchmaker.settings')
+    django.setup()
+
+    from matching.services import SupabaseMatchScoringService
+    from matching.models import SupabaseProfile
+
+    client = SupabaseProfile.objects.get(id=client_id)
+    prospects = list(SupabaseProfile.objects.filter(id__in=prospect_ids))
+    scorer = SupabaseMatchScoringService()
+
+    rows = []
+    high_quality = []
+    stage1_pass = 0
+
+    for prospect in prospects:
+        if str(prospect.id) == client_id:
+            continue
+
+        # Stage 1: fast pre-screen
+        try:
+            lw = scorer.score_pair_lightweight(client, prospect)
+        except Exception:
+            continue
+
+        if lw["harmonic_mean"] < lightweight_threshold:
+            continue  # Skip — clearly not a match
+        stage1_pass += 1
+
+        # Stage 2: full ISMC score
+        try:
+            scores = scorer.score_pair(client, prospect)
+        except Exception:
+            continue
+
+        row = {
+            "client_id": str(client.id),
+            "client_name": client.name,
+            "prospect_id": str(prospect.id),
+            "prospect_name": prospect.name,
+            "harmonic_mean": scores["harmonic_mean"],
+            "score_ab": scores["score_ab"],
+            "score_ba": scores["score_ba"],
+        }
+        rows.append(row)
+        if scores["harmonic_mean"] >= score_threshold:
+            high_quality.append(row)
+
+    return rows, high_quality
+
+
 def _vector_pre_filter(
     prospects: list,
     top_k: int = 200,
@@ -214,62 +280,62 @@ def score_against_all_clients(
     if pre_filter == "vector":
         prospects = _vector_pre_filter(prospects, pre_filter_top_k)
 
-    scorer = SupabaseMatchScoringService()
     high_quality: list[NewMatchResult] = []
-    total_scored = 0
     total_saved = 0
     COMMIT_EVERY = 500
 
+    client_ids = [str(c.id) for c in clients]
+    prospect_ids = [str(p.id) for p in prospects]
+    n_workers = min(len(clients), os.cpu_count() or 4)
+
+    logger.info("Parallel scoring: %d workers for %d clients", n_workers, len(clients))
+
+    all_rows: list[dict] = []
+    with ProcessPoolExecutor(max_workers=n_workers) as pool:
+        futures = {
+            pool.submit(_score_client_batch, cid, prospect_ids, score_threshold): cid
+            for cid in client_ids
+        }
+        for future in as_completed(futures):
+            cid = futures[future]
+            try:
+                rows, hq_rows = future.result()
+                all_rows.extend(rows)
+                for r in hq_rows:
+                    high_quality.append(
+                        NewMatchResult(
+                            client_id=r["client_id"],
+                            client_name=r["client_name"],
+                            prospect_id=r["prospect_id"],
+                            prospect_name=r["prospect_name"],
+                            harmonic_mean=r["harmonic_mean"],
+                            score_ab=r["score_ab"],
+                            score_ba=r["score_ba"],
+                        )
+                    )
+                logger.info("Client %s done: %d pairs, %d high-quality", cid, len(rows), len(hq_rows))
+            except Exception as exc:
+                logger.warning("Worker for client %s failed: %s", cid, exc)
+
+    # Write all rows to DB in batches
     conn = _get_connection()
     try:
         conn.autocommit = False
         cur = conn.cursor()
 
-        for client in clients:
-            for prospect in prospects:
-                # Skip self-matches
-                if str(client.id) == str(prospect.id):
-                    continue
+        # Build lightweight proxy objects for _save_match_record
+        client_map = {str(c.id): c for c in clients}
+        prospect_map = {str(p.id): p for p in prospects}
 
-                try:
-                    scores = scorer.score_pair(client, prospect)
-                except Exception as exc:
-                    logger.warning(
-                        "score_pair failed for %s <-> %s: %s",
-                        client.name,
-                        prospect.name,
-                        exc,
-                    )
-                    continue
-
-                total_scored += 1
-                hm = scores["harmonic_mean"]
-
-                # Save all match records regardless of score
-                _save_match_record(cur, client, prospect, scores)
+        for row in all_rows:
+            client = client_map.get(row["client_id"])
+            prospect = prospect_map.get(row["prospect_id"])
+            if client and prospect:
+                _save_match_record(cur, client, prospect, row)
                 total_saved += 1
-
-                if hm >= score_threshold:
-                    high_quality.append(
-                        NewMatchResult(
-                            client_id=str(client.id),
-                            client_name=client.name,
-                            prospect_id=str(prospect.id),
-                            prospect_name=prospect.name,
-                            harmonic_mean=hm,
-                            score_ab=scores["score_ab"],
-                            score_ba=scores["score_ba"],
-                        )
-                    )
-
-                # Commit in batches so progress is visible and crash-safe
                 if total_saved % COMMIT_EVERY == 0:
                     conn.commit()
-                    logger.info(
-                        "Progress: %d pairs saved so far (%d high-quality)",
-                        total_saved,
-                        len(high_quality),
-                    )
+                    logger.info("Progress: %d pairs saved (%d high-quality)", total_saved, len(high_quality))
 
         conn.commit()
 

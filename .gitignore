@@ -57,5 +57,3 @@ community_graph_data.js
 # HuggingFace cache
 Chelsea_clients/hf_cache/
 
-# Architecture diagram
-architecture_diagram.html

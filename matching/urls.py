@@ -79,6 +79,10 @@ urlpatterns = [
     path('pitch/', views.SalesPageAccessView.as_view(), name='sales-access'),
     path('pitch/page/', views.SalesPageView.as_view(), name='sales-page'),
 
+    # Architecture Diagram (password-gated internal view)
+    path('architecture/', views.ArchitectureAccessView.as_view(), name='architecture-access'),
+    path('architecture/diagram/', views.ArchitectureDiagramView.as_view(), name='architecture-diagram'),
+
     # Client profile verification (token-gated, no login required)
     path('verify/<uuid:token>/', views_verification.ProfileVerificationView.as_view(), name='verification-form'),
     path('verify/<uuid:token>/submit/', views_verification.ProfileVerificationSubmitView.as_view(), name='verification-submit'),
