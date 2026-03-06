@@ -140,7 +140,7 @@ class Command(BaseCommand):
         from django.db.models import Count
 
         ERROR_CODES = {'http_403', 'http_404', 'http_other', 'timeout', 'js_required',
-                       'no_form', 'captcha', 'error'}
+                       'no_form', 'captcha', 'error', 'bad_discovery'}
         rows = (
             MonitoredSubscription.objects
             .filter(status='failed', signup_url__in=ERROR_CODES)
@@ -152,14 +152,15 @@ class Command(BaseCommand):
         self.stdout.write(f'{"Error code":<20} {"Count":>6}  Retry strategy')
         self.stdout.write('-' * 60)
         retry_hints = {
-            'http_403':  'Crawl4AI with stealth headers',
-            'http_404':  'Check/fix profile URL',
-            'http_other': 'Investigate individually',
-            'timeout':   'Crawl4AI or longer timeout',
-            'js_required': 'Crawl4AI headless',
-            'no_form':   'Manual subscribe or headless',
-            'captcha':   'Headless browser with delay',
-            'error':     'Investigate individually',
+            'http_403':     'Crawl4AI with stealth headers',
+            'http_404':     'Check/fix profile URL',
+            'http_other':   'Investigate individually',
+            'timeout':      'Crawl4AI or longer timeout',
+            'js_required':  'Crawl4AI headless',
+            'no_form':      'Manual subscribe or headless',
+            'captcha':      'Headless browser with delay',
+            'error':        'Investigate individually',
+            'bad_discovery': 'Re-run discovery (junk URL detected)',
         }
         total = 0
         for row in rows:

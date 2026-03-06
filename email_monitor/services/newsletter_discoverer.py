@@ -122,10 +122,26 @@ def _detect_esp(html: str) -> str:
     return ''
 
 
+# Forms with these attributes/classes are NOT newsletter signup forms
+CONTACT_FORM_SIGNALS = re.compile(
+    r'(contact|message|comment|login|signin|sign.in|search|password|phone|tel\b|subject\b|inquiry)',
+    re.IGNORECASE,
+)
+# Newsletter forms must mention one of these specifically
+NEWSLETTER_KEYWORDS = [
+    'subscribe', 'newsletter', 'email updates', 'email list', 'mailing list',
+    'sign up for', 'stay updated', 'stay in the loop', 'get notified',
+    'weekly', 'monthly digest', 'insider', 'exclusive content',
+]
+
+
 def _find_signup_form(html: str, base_url: str) -> tuple[str, str]:
     """
     Find newsletter signup form in HTML.
     Returns (signup_url, form_action) or ('', '') if not found.
+
+    Strict detection: requires newsletter-specific keywords AND rejects
+    contact/login/comment/search forms to avoid false positives.
     """
     try:
         from bs4 import BeautifulSoup
@@ -134,24 +150,42 @@ def _find_signup_form(html: str, base_url: str) -> tuple[str, str]:
         for form in soup.find_all('form'):
             email_input = (
                 form.find('input', {'type': 'email'}) or
-                form.find('input', {'name': re.compile(r'email', re.I)})
+                form.find('input', {'name': re.compile(r'^email', re.I)})
             )
             if not email_input:
                 continue
 
             action = form.get('action', '')
+            # Skip forms with no action and no ESP-specific action URL —
+            # these are usually JS-handled contact/login forms
+            if not action:
+                # Only accept no-action forms if they have strong newsletter signals
+                form_html = str(form).lower()
+                if not any(kw in form_html for kw in ['subscribe', 'newsletter', 'email.list', 'mailing']):
+                    continue
+
             form_action = urljoin(base_url, action) if action else base_url
 
+            form_html_str = str(form)
             form_text = form.get_text(' ', strip=True).lower()
-            form_html = str(form).lower()
-            is_newsletter = any(kw in form_text or kw in form_html for kw in [
-                'subscribe', 'newsletter', 'email list', 'join', 'updates',
-                'weekly', 'free', 'tips', 'list', 'get access', 'sign up',
-            ])
+            form_html = form_html_str.lower()
+
+            # Reject if form looks like contact/login/search/comment
+            form_attrs = ' '.join([
+                form.get('id', ''), form.get('class', [''])[0] if form.get('class') else '',
+                form.get('name', ''), form.get('action', ''),
+            ]).lower()
+            if CONTACT_FORM_SIGNALS.search(form_attrs):
+                continue
+            # Also check if there are password/phone inputs (login/contact forms)
+            if form.find('input', {'type': 'password'}) or form.find('input', {'type': 'tel'}):
+                continue
+
+            is_newsletter = any(kw in form_text or kw in form_html for kw in NEWSLETTER_KEYWORDS)
             if is_newsletter:
                 return base_url, form_action
 
-        # No form — look for newsletter page link to follow
+        # No form found — look for newsletter page link to follow
         for a in soup.find_all('a', href=True):
             if NEWSLETTER_URL_PATTERNS.search(a['href']):
                 return urljoin(base_url, a['href']), urljoin(base_url, a['href'])
