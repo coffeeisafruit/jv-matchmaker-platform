@@ -2193,14 +2193,13 @@ class JaneWarrProfileView(View):
 # ─── ARCHITECTURE DIAGRAM (password-gated internal view) ───
 
 ARCHITECTURE_PASSWORD = 'coffeeisafruit'
+_ARCH_COOKIE = 'arch_access'
+_ARCH_COOKIE_VALUE = 'granted'
 
 
 def _arch_session_get(request):
-    """Read architecture_access from session, returning False on DB errors."""
-    try:
-        return request.session.get('architecture_access', False)
-    except Exception:
-        return False
+    """Check architecture access via signed cookie (no DB needed)."""
+    return request.COOKIES.get(_ARCH_COOKIE) == _ARCH_COOKIE_VALUE
 
 
 class ArchitectureAccessView(View):
@@ -2214,11 +2213,13 @@ class ArchitectureAccessView(View):
     def post(self, request):
         password = request.POST.get('password', '')
         if password == ARCHITECTURE_PASSWORD:
-            try:
-                request.session['architecture_access'] = True
-            except Exception:
-                pass
-            return redirect('matching:architecture-diagram')
+            response = redirect('matching:architecture-diagram')
+            response.set_cookie(
+                _ARCH_COOKIE, _ARCH_COOKIE_VALUE,
+                max_age=60 * 60 * 24 * 30,  # 30 days
+                httponly=True, samesite='Lax',
+            )
+            return response
         return render(request, 'matching/architecture_access.html', {'error': 'Incorrect password.'})
 
 
