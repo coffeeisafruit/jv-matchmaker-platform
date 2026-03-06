@@ -151,6 +151,7 @@ def subscribe_and_confirm(
     form_action: str,
     esp_detected: str,
     profile_name: str = '',
+    confirm_timeout: int = 60,  # seconds to wait for confirmation email (default: 60s, Railway cron uses 300)
 ) -> SubscriptionResult:
     """
     Subscribe to a newsletter and auto-confirm the double opt-in.
@@ -158,19 +159,32 @@ def subscribe_and_confirm(
     Tries ESP API first, then form POST, then headless browser.
     After subscribing, polls Gmail up to 5 min for confirmation email.
     """
+    # If no form_action was stored, re-discover it from the signup URL
+    if not form_action and signup_url and not signup_url.startswith('http_'):
+        from email_monitor.services.newsletter_discoverer import _fetch_page, _find_signup_form
+        html, _ = _fetch_page(signup_url)
+        if html:
+            _, rediscovered_action = _find_signup_form(html, signup_url)
+            if rediscovered_action:
+                form_action = rediscovered_action
+
     # Method 1: ESP API
     if esp_detected == 'ConvertKit':
         result = _subscribe_convertkit(form_action or signup_url, monitor_address, profile_name)
     elif esp_detected == 'Mailchimp':
-        result = _subscribe_mailchimp(form_action, monitor_address)
+        result = _subscribe_mailchimp(form_action or signup_url, monitor_address)
     else:
         result = SubscriptionResult(status='failed', reason='ESP not matched — trying form POST')
 
-    # Method 2: Form POST
-    if result.status == 'failed' and form_action:
+    # Method 2: Form POST (only when we have a real form action, not just a page URL)
+    if result.status == 'failed' and form_action and form_action != signup_url:
         result = _subscribe_form_post(form_action, monitor_address)
 
-    # Method 3: Headless (last resort)
+    # Method 2b: If no form_action but we have a signup_url, try posting to it directly
+    if result.status == 'failed' and signup_url and not esp_detected:
+        result = _subscribe_form_post(signup_url, monitor_address)
+
+    # Method 3: Headless (last resort — only if owl_framework available)
     if result.status == 'failed' and signup_url:
         result = _subscribe_headless(signup_url, monitor_address)
 
@@ -183,7 +197,7 @@ def subscribe_and_confirm(
         # Gmail not configured — return pending_confirm, cron will handle
         return SubscriptionResult(status='pending_confirm', reason='Gmail not configured', esp=result.esp)
 
-    confirmation_email = _wait_for_confirmation_email(monitor_address, timeout_seconds=300)
+    confirmation_email = _wait_for_confirmation_email(monitor_address, timeout_seconds=confirm_timeout)
     if confirmation_email and _extract_and_click_confirm_link(confirmation_email):
         return SubscriptionResult(status='active', esp=result.esp)
 
