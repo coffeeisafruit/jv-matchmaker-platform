@@ -2952,48 +2952,55 @@
         All output runs through <code>TextSanitizer.validate_match_reason()</code> to strip keyword arrays, warning emojis, and score references.
       </div>
     </div>
-    <!-- ========== SCORING OPPORTUNITIES ========== -->
+    <!-- ========== SCORING SIGNAL AUDIT ========== -->
     <div style="margin-top:32px">
-      <h3 style="font-size:18px;font-weight:700;margin-bottom:6px;color:#f0a04b">Scoring Opportunities &mdash; Extracted but Unused Data</h3>
-      <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px">Fields already in the database that could improve match accuracy if wired into ISMC components.</p>
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:6px;color:#f0a04b">ISMC Signal Audit &mdash; Field Usage Status</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin-bottom:16px">All extracted fields vs. actual ISMC scoring usage. Last audited 2026-03-06.</p>
     </div>
 
     <div class="formula-box" style="text-align:left;border-left:3px solid #5b8af5">
-      <h4>Intent (45%) &mdash; Missing Signals</h4>
+      <h4>Intent (45%)</h4>
       <div class="formula-note">
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Network centrality</strong> &mdash; pagerank, degree, betweenness computed for 1,558 profiles but completely unused in scoring<br/><br/>
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Social media reach</strong> &mdash; facebook, instagram, youtube, twitter fields extracted but not factored into partnership intent<br/><br/>
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Booking link</strong> &mdash; indicates openness to partnerships; available but only displayed, not scored<br/><br/>
-        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>Seeking field</strong> &mdash; checked for boolean presence only; content depth not analyzed<br/><br/>
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Recommendation pressure</strong> &mdash; recommendation_pressure_30d computed but not used as intent signal
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Booking link</strong> &mdash; Intent Factor 2 (weight 3.5): 8.0 if present, 3.0 if absent<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Promotion willingness</strong> &mdash; Intent Factor 8 (weight 3.0): 0–1 float scaled to 0–10<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Apollo intent signal</strong> &mdash; Intent Factor 9 (weight 2.5): show_intent=True → 9.0, False → 4.0<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Apollo engagement likelihood</strong> &mdash; Intent Factor 10 (weight 2.0): is_likely_to_engage=True → 8.0, False → 4.0<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Decision authority / seniority</strong> &mdash; Intent Factor 11 (weight 2.0): owner/founder → 10, c_suite → 9, vp → 7.5, director → 6.5<br/><br/>
+        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>Seeking field</strong> &mdash; boolean presence checked as part of Profile Investment (Factor 3); content depth not analyzed<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Network centrality</strong> &mdash; pagerank, degree, betweenness computed for 1,558 profiles; used in Synergy (network_influence factor) but not Intent<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Social media handles</strong> &mdash; facebook, instagram, youtube, twitter extracted but not used; aggregate social_reach field is scored in Momentum
       </div>
     </div>
 
     <div class="formula-box" style="text-align:left;border-left:3px solid #4ecb8d;margin-top:12px">
-      <h4>Synergy (25%) &mdash; Missing Signals</h4>
+      <h4>Synergy (25%)</h4>
       <div class="formula-note">
-        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>Content platform diversity</strong> &mdash; podcast, YouTube, newsletter extracted at 100% fill but not compared between partners<br/><br/>
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Niche specificity</strong> &mdash; niche at 85.5% fill but no granularity scoring for sub-niche alignment<br/><br/>
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Offering-to-seeking match</strong> &mdash; semantic match of what one offers vs what the other seeks; only done in match reasons, not ISMC<br/><br/>
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Audience engagement</strong> &mdash; audience_engagement_score at 39.2% fill, extracted but not used
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Offering-to-seeking match</strong> &mdash; Synergy Factor 1 (weight 3.5): embedding cosine similarity, falls back to word overlap<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Audience alignment</strong> &mdash; Synergy Factor 2 (weight 3.0): who_you_serve vs who_you_serve, embedding-based<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Network centrality</strong> &mdash; Synergy Factor 6 (weight 2.0): pagerank + degree + betweenness bilateral average<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Content platform overlap</strong> &mdash; Synergy Factor 5 (weight 2.0): shared platform count (podcast, YouTube, etc.)<br/><br/>
+        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>Niche specificity</strong> &mdash; niche text used in Offering↔Seeking overlap; sub-niche granularity not scored separately
       </div>
     </div>
 
     <div class="formula-box" style="text-align:left;border-left:3px solid #f0a04b;margin-top:12px">
-      <h4>Momentum (20%) &mdash; Missing Signals</h4>
+      <h4>Momentum (20%)</h4>
       <div class="formula-note">
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Last active date</strong> &mdash; not currently tracked; no recency signal for profile activity<br/><br/>
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Publication frequency</strong> &mdash; content_platforms extracted but publication recency not assessed<br/><br/>
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>View/contact rates</strong> &mdash; PartnerRecommendation tracks was_viewed and was_contacted but data not fed back<br/><br/>
-        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>JV history</strong> &mdash; checked for boolean presence only; partner overlap and recency not analyzed
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Audience engagement score</strong> &mdash; Momentum Factor 1 (weight 3.0): 0–1 float scaled to 0–10<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Email list activity</strong> &mdash; Momentum Factor 6 (weight 2.5): email_list_activity_score 0–1 → 0–10<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>List size</strong> &mdash; Momentum Factor 4 (weight 2.5): tiered thresholds 1K→9, 10K→7, 50K→8, 100K→9<br/><br/>
+        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>JV history</strong> &mdash; Intent Factor 1 (weight 4.0) counts partnerships; recency and partner overlap not analyzed<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>View/contact rates</strong> &mdash; PartnerRecommendation tracks was_viewed and was_contacted but not fed back into scoring
       </div>
     </div>
 
     <div class="formula-box" style="text-align:left;border-left:3px solid #a87bf5;margin-top:12px">
-      <h4>Context (10%) &mdash; Missing Signals</h4>
+      <h4>Context (10%)</h4>
       <div class="formula-note">
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Profile confidence</strong> &mdash; 100% fill, AI-computed quality score but not used as scoring factor<br/><br/>
-        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Explanation source</strong> &mdash; provenance metadata (llm_verified, llm_partial, template_fallback) ignored<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Profile confidence</strong> &mdash; Context Factor 5 (weight 2.0): AI-computed quality score 0–1 → 0–10<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Recommendation freshness</strong> &mdash; Context Factor 6 (weight 1.5): recommendation_pressure_30d inverse-scored<br/><br/>
+        <span class="model-tag" style="border-color:#4ecb8d;color:#4ecb8d">SCORED</span> <strong>Contact availability</strong> &mdash; Context Factor 4 (weight 2.5): email → 9, LinkedIn → 7, phone → 6, none → 2<br/><br/>
+        <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Explanation source</strong> &mdash; provenance metadata (llm_verified, llm_partial, template_fallback) not factored in<br/><br/>
         <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NOT SCORED</span> <strong>Verification status</strong> &mdash; ClientVerification records not factored into data confidence
       </div>
     </div>
@@ -3002,7 +3009,7 @@
       <h4>System-Wide Gaps</h4>
       <div class="formula-note">
         <span class="model-tag" style="border-color:#f06b6b;color:#f06b6b">NO FEEDBACK LOOP</span> <strong>MatchLearningSignal</strong> &mdash; B5 signals collected (feedback_tier2, contact_made, view_pattern, outreach_used) but no model retraining. Designed for batch analysis at 200+ outcomes.<br/><br/>
-        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>JV history depth</strong> &mdash; only boolean presence checked; could analyze partner overlap, format preferences, and recency for better recommendations
+        <span class="model-tag" style="border-color:#f0a04b;color:#f0a04b">PARTIAL</span> <strong>JV history depth</strong> &mdash; count of past partnerships scored; partner overlap, format preferences, and recency not analyzed
       </div>
     </div>
   </div>
@@ -3333,7 +3340,7 @@
       <h2>Database Enrichment Health</h2>
       <p>Fill rates from Supabase &mdash; <span id="dh-live-status" style="font-size:11px;font-weight:600;">Loading live data...</span></p>
       <div class="dh-stat-row dh-hero">
-        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-blue)">1,175,922</span><span class="dh-stat-label">Total Profiles</span></div>
+        <div class="dh-stat"><span id="stat-total" class="dh-stat-val" style="color:var(--accent-blue)">1,175,922</span><span class="dh-stat-label">Total Profiles</span></div>
         <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-green)">~$5</span><span class="dh-stat-label">Enrichment/18K</span></div>
         <div class="dh-stat"><span id="stat-enriched" class="dh-stat-val" style="color:var(--accent-purple)">139,665</span><span class="dh-stat-label">Enriched</span></div>
         <div class="dh-stat"><span id="stat-match-total" class="dh-stat-val" style="color:var(--accent-orange)">249,402</span><span class="dh-stat-label">Match Pairs Scored</span></div>
@@ -4954,9 +4961,9 @@ function fetchLiveDataHealth() {
     var headerCount = document.getElementById('header-profile-count');
     if (headerCount) headerCount.textContent = data.total_profiles.toLocaleString();
 
-    // Update profile counts across SVG and text
+    // Update profile counts across SVG, hero stat, and text
     var profileFmt = data.total_profiles.toLocaleString();
-    ['svg-profile-count', 'svg-supabase-count', 'cov-total'].forEach(function(id) {
+    ['svg-profile-count', 'svg-supabase-count', 'cov-total', 'stat-total'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) el.textContent = profileFmt;
     });
