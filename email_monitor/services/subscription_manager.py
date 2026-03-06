@@ -74,34 +74,72 @@ def _subscribe_mailchimp(form_action: str, email: str) -> SubscriptionResult:
         return SubscriptionResult(status='failed', reason=str(exc))
 
 
-def _subscribe_form_post(form_action: str, email: str) -> SubscriptionResult:
-    """Subscribe via direct HTTP form POST (Method 2)."""
+def _build_browser_headers(url: str) -> dict:
+    """Build realistic browser headers for form submissions."""
+    parsed = urlparse(url)
+    origin = f'{parsed.scheme}://{parsed.netloc}'
+    return {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) '
+                       'AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Origin': origin,
+        'Referer': url,
+        'Content-Type': 'application/x-www-form-urlencoded',
+    }
+
+
+def _subscribe_form_post(form_action: str, email: str, name: str = '') -> SubscriptionResult:
+    """Subscribe via direct HTTP form POST (Method 2).
+
+    Tries POST first, then GET fallback for 405 errors.
+    Sends first_name for forms that require it.
+    Only flags CAPTCHA on failed responses (avoids false positives).
+    """
     import requests
 
     if not form_action:
         return SubscriptionResult(status='failed', reason='No form action URL')
 
+    headers = _build_browser_headers(form_action)
+    first_name = name.split()[0] if name else ''
+    form_data = {
+        'email': email, 'EMAIL': email, 'email_address': email,
+        'name': name, 'first_name': first_name, 'FNAME': first_name,
+    }
+
     try:
         resp = requests.post(
-            form_action,
-            data={'email': email, 'EMAIL': email, 'email_address': email},
-            headers={
-                'User-Agent': 'Mozilla/5.0',
-                'Referer': form_action,
-            },
-            timeout=15,
-            allow_redirects=True,
+            form_action, data=form_data, headers=headers,
+            timeout=15, allow_redirects=True,
         )
+
+        # GET fallback: some forms (especially ESPs) only accept GET
+        if resp.status_code == 405:
+            headers.pop('Content-Type', None)
+            resp = requests.get(
+                form_action, params={'email': email, 'EMAIL': email},
+                headers=headers, timeout=15, allow_redirects=True,
+            )
+
         body = resp.text.lower()
-        if CAPTCHA_PATTERNS.search(body):
+
+        # Only flag CAPTCHA if the response indicates failure
+        # (many successful pages mention 'recaptcha' in scripts/footer)
+        if resp.status_code >= 400 and CAPTCHA_PATTERNS.search(body):
             return SubscriptionResult(status='failed', reason='CAPTCHA detected')
+
         if resp.status_code < 400:
+            # Check for hard CAPTCHA gate (entire page is a challenge, not just a mention)
+            if re.search(r'(please verify|complete the challenge|prove you.re human)', body):
+                return SubscriptionResult(status='failed', reason='CAPTCHA challenge page')
             return SubscriptionResult(status='pending_confirm')
+
         return SubscriptionResult(
             status='failed', reason=f'Form POST returned {resp.status_code}'
         )
     except Exception as exc:
-        return SubscriptionResult(status='failed', reason=str(exc))
+        return SubscriptionResult(status='failed', reason=str(exc)[:200])
 
 
 def _subscribe_headless(signup_url: str, email: str) -> SubscriptionResult:
@@ -159,46 +197,48 @@ def subscribe_and_confirm(
     Tries ESP API first, then form POST, then headless browser.
     After subscribing, polls Gmail up to 5 min for confirmation email.
     """
-    # If no form_action was stored, re-discover it from the signup URL
+    # If no form_action stored, try a quick single-page re-discovery (no subpage crawl)
     if not form_action and signup_url and not signup_url.startswith('http_'):
-        from email_monitor.services.newsletter_discoverer import _fetch_page, _find_signup_form
-        html, _ = _fetch_page(signup_url)
-        if html:
-            _, rediscovered_action = _find_signup_form(html, signup_url)
-            if rediscovered_action:
-                form_action = rediscovered_action
+        try:
+            from email_monitor.services.newsletter_discoverer import _fetch_page, _find_signup_form
+            html, _ = _fetch_page(signup_url)
+            if html:
+                _, rediscovered_action = _find_signup_form(html, signup_url)
+                if rediscovered_action:
+                    form_action = rediscovered_action
+        except Exception:
+            pass  # Don't let re-discovery failures block subscription
 
-    # Method 1: ESP API
-    if esp_detected == 'ConvertKit':
+    # Method 1: ESP API (ConvertKit/Kit and Mailchimp have direct API support)
+    if esp_detected in ('ConvertKit', 'Kit'):
         result = _subscribe_convertkit(form_action or signup_url, monitor_address, profile_name)
     elif esp_detected == 'Mailchimp':
         result = _subscribe_mailchimp(form_action or signup_url, monitor_address)
     else:
-        result = SubscriptionResult(status='failed', reason='ESP not matched — trying form POST')
+        result = SubscriptionResult(status='failed', reason='No ESP API — trying form POST')
 
-    # Method 2: Form POST (only when we have a real form action, not just a page URL)
-    if result.status == 'failed' and form_action and form_action != signup_url:
-        result = _subscribe_form_post(form_action, monitor_address)
+    # Method 2: Form POST to discovered form action
+    if result.status == 'failed' and form_action:
+        result = _subscribe_form_post(form_action, monitor_address, profile_name)
 
-    # Method 2b: If no form_action but we have a signup_url, try posting to it directly
-    if result.status == 'failed' and signup_url and not esp_detected:
-        result = _subscribe_form_post(signup_url, monitor_address)
-
-    # Method 3: Headless (last resort — only if owl_framework available)
-    if result.status == 'failed' and signup_url:
-        result = _subscribe_headless(signup_url, monitor_address)
+    # Method 2b: POST to signup_url directly (works for many ESPs that accept POST on page URL)
+    if result.status == 'failed' and signup_url and signup_url != form_action:
+        result = _subscribe_form_post(signup_url, monitor_address, profile_name)
 
     if result.status == 'failed':
         return result
 
-    # Attempt immediate confirmation (5 min window)
+    # Skip confirmation polling if confirm_timeout=0 (bulk mode — cron handles async)
+    if confirm_timeout <= 0:
+        return SubscriptionResult(status='pending_confirm', reason='Bulk mode — cron will confirm', esp=result.esp)
+
+    # Attempt immediate confirmation
     from django.conf import settings
     if not settings.GMAIL_MONITOR_REFRESH_TOKEN:
-        # Gmail not configured — return pending_confirm, cron will handle
         return SubscriptionResult(status='pending_confirm', reason='Gmail not configured', esp=result.esp)
 
     confirmation_email = _wait_for_confirmation_email(monitor_address, timeout_seconds=confirm_timeout)
     if confirmation_email and _extract_and_click_confirm_link(confirmation_email):
         return SubscriptionResult(status='active', esp=result.esp)
 
-    return SubscriptionResult(status='pending_confirm', reason='Confirmation email not received within 5 min', esp=result.esp)
+    return SubscriptionResult(status='pending_confirm', reason='Confirmation email not received', esp=result.esp)

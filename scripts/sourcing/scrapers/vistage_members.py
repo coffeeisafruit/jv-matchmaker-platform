@@ -1,441 +1,337 @@
 """
-Vistage peer advisory group scraper.
+Vistage Chair Finder scraper — REST API version.
 
 Vistage is the world's largest CEO coaching and peer advisory
 organization with 45,000+ members. Their website lists Chairs
-(facilitators/coaches) and group information by location.
+(facilitators/coaches) via a JSON REST API:
 
-Strategy: Scrape the Vistage Chair directory at
-  vistage.com/find-a-chair
-which lists Vistage Chairs (executive coaches) by location.
-Also scrape the general resources/events for organizational contacts.
+    GET /wp-json/vistage/v1/chairfinder/?lat=...&lng=...&radius=100
 
-Chairs are high-value JV targets: executive coaches who serve
-CEOs and senior leaders.
+Strategy:
+  - Generate a grid of lat/lng coordinates covering all major US metro
+    areas and mid-size cities (100-mile radius per query).
+  - The API returns JSON with chair records (name, city, mission, etc.).
+  - Dedup by vistage_id since overlapping radius searches return the
+    same chairs.
 
-Estimated yield: 500-2,000 chairs + organizational contacts
+Estimated yield: 800–2,000 unique chairs across the US.
 """
 
 from __future__ import annotations
 
-import json
 import re
-from typing import Iterator
+from datetime import datetime
+from typing import Iterator, Optional
 
 from scripts.sourcing.base import BaseScraper, ScrapedContact
 
 
-# US states for geographic search
-US_STATES = [
-    "Alabama", "Alaska", "Arizona", "Arkansas", "California",
-    "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
-    "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
-    "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
-    "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri",
-    "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey",
-    "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
-    "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
-    "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
-    "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming",
-]
+# ---------------------------------------------------------------------------
+# Lat/lng grid covering major US metros and mid-size cities.
+# 100-mile radius circles from these points blanket the continental US,
+# Alaska, and Hawaii.
+# ---------------------------------------------------------------------------
+US_CITY_COORDS: list[tuple[str, float, float]] = [
+    # Northeast
+    ("New York, NY", 40.7128, -74.0060),
+    ("Boston, MA", 42.3601, -71.0589),
+    ("Philadelphia, PA", 39.9526, -75.1652),
+    ("Pittsburgh, PA", 40.4406, -79.9959),
+    ("Hartford, CT", 41.7658, -72.6734),
+    ("Providence, RI", 41.8240, -71.4128),
+    ("Albany, NY", 42.6526, -73.7562),
+    ("Buffalo, NY", 42.8864, -78.8784),
+    ("Syracuse, NY", 43.0481, -76.1474),
+    ("Portland, ME", 43.6591, -70.2568),
+    ("Burlington, VT", 44.4759, -73.2121),
 
-# Metro areas for zip-based searches
-METRO_ZIPS = [
-    "10001", "90001", "60601", "77001", "85001", "19101",
-    "75201", "95101", "78701", "94101", "98101", "80201",
-    "20001", "37201", "33101", "97201", "30301", "02101",
-    "44101", "55401", "84101", "27601", "32801", "63101",
-    "48201", "46201", "28201", "45201", "15201", "40201",
+    # Mid-Atlantic / DC corridor
+    ("Washington, DC", 38.9072, -77.0369),
+    ("Baltimore, MD", 39.2904, -76.6122),
+    ("Richmond, VA", 37.5407, -77.4360),
+    ("Virginia Beach, VA", 36.8529, -75.9780),
+
+    # Southeast
+    ("Atlanta, GA", 33.7490, -84.3880),
+    ("Charlotte, NC", 35.2271, -80.8431),
+    ("Raleigh, NC", 35.7796, -78.6382),
+    ("Charleston, SC", 32.7765, -79.9311),
+    ("Jacksonville, FL", 30.3322, -81.6557),
+    ("Miami, FL", 25.7617, -80.1918),
+    ("Tampa, FL", 27.9506, -82.4572),
+    ("Orlando, FL", 28.5383, -81.3792),
+    ("Nashville, TN", 36.1627, -86.7816),
+    ("Memphis, TN", 35.1495, -90.0490),
+    ("Birmingham, AL", 33.5207, -86.8025),
+    ("New Orleans, LA", 29.9511, -90.0715),
+    ("Savannah, GA", 32.0809, -81.0912),
+    ("Knoxville, TN", 35.9606, -83.9207),
+
+    # Midwest
+    ("Chicago, IL", 41.8781, -87.6298),
+    ("Detroit, MI", 42.3314, -83.0458),
+    ("Minneapolis, MN", 44.9778, -93.2650),
+    ("Milwaukee, WI", 43.0389, -87.9065),
+    ("Cleveland, OH", 41.4993, -81.6944),
+    ("Columbus, OH", 39.9612, -82.9988),
+    ("Cincinnati, OH", 39.1031, -84.5120),
+    ("Indianapolis, IN", 39.7684, -86.1581),
+    ("St. Louis, MO", 38.6270, -90.1994),
+    ("Kansas City, MO", 39.0997, -94.5786),
+    ("Omaha, NE", 41.2565, -95.9345),
+    ("Des Moines, IA", 41.5868, -93.6250),
+    ("Madison, WI", 43.0731, -89.4012),
+    ("Grand Rapids, MI", 42.9634, -85.6681),
+
+    # South Central
+    ("Dallas, TX", 32.7767, -96.7970),
+    ("Houston, TX", 29.7604, -95.3698),
+    ("San Antonio, TX", 29.4241, -98.4936),
+    ("Austin, TX", 30.2672, -97.7431),
+    ("Oklahoma City, OK", 35.4676, -97.5164),
+    ("Tulsa, OK", 36.1540, -95.9928),
+    ("Little Rock, AR", 34.7465, -92.2896),
+    ("El Paso, TX", 31.7619, -106.4850),
+    ("Lubbock, TX", 33.5779, -101.8552),
+
+    # Mountain West
+    ("Denver, CO", 39.7392, -104.9903),
+    ("Salt Lake City, UT", 40.7608, -111.8910),
+    ("Phoenix, AZ", 33.4484, -112.0740),
+    ("Tucson, AZ", 32.2226, -110.9747),
+    ("Albuquerque, NM", 35.0844, -106.6504),
+    ("Las Vegas, NV", 36.1699, -115.1398),
+    ("Boise, ID", 43.6150, -116.2023),
+    ("Billings, MT", 45.7833, -108.5007),
+    ("Missoula, MT", 46.8721, -114.0000),
+    ("Cheyenne, WY", 41.1400, -104.8202),
+    ("Colorado Springs, CO", 38.8339, -104.8214),
+
+    # Pacific West
+    ("Los Angeles, CA", 34.0522, -118.2437),
+    ("San Francisco, CA", 37.7749, -122.4194),
+    ("San Diego, CA", 32.7157, -117.1611),
+    ("San Jose, CA", 37.3382, -121.8863),
+    ("Sacramento, CA", 38.5816, -121.4944),
+    ("Seattle, WA", 47.6062, -122.3321),
+    ("Portland, OR", 45.5152, -122.6784),
+    ("Spokane, WA", 47.6588, -117.4260),
+    ("Eugene, OR", 44.0521, -123.0868),
+    ("Fresno, CA", 36.7378, -119.7871),
+    ("Reno, NV", 39.5296, -119.8138),
+    ("Redding, CA", 40.5865, -122.3917),
+
+    # Alaska & Hawaii
+    ("Anchorage, AK", 61.2181, -149.9003),
+    ("Honolulu, HI", 21.3069, -157.8583),
+
+    # Additional coverage — fill gaps in less dense regions
+    ("Fargo, ND", 46.8772, -96.7898),
+    ("Sioux Falls, SD", 43.5460, -96.7313),
+    ("Wichita, KS", 37.6872, -97.3301),
+    ("Baton Rouge, LA", 30.4515, -91.1871),
+    ("Jackson, MS", 32.2988, -90.1848),
+    ("Charleston, WV", 38.3498, -81.6326),
+    ("Lexington, KY", 38.0406, -84.5037),
+    ("Louisville, KY", 38.2527, -85.7585),
+    ("Wilmington, DE", 39.7391, -75.5398),
+    ("Manchester, NH", 42.9956, -71.4548),
+    ("Bangor, ME", 44.8016, -68.7712),
+    ("Rapid City, SD", 44.0805, -103.2310),
+    ("Bismarck, ND", 46.8083, -100.7837),
+    ("Great Falls, MT", 47.5053, -111.3008),
 ]
 
 
 class Scraper(BaseScraper):
+    """Vistage Chair Finder scraper using the REST API."""
+
     SOURCE_NAME = "vistage_members"
     BASE_URL = "https://www.vistage.com"
-    REQUESTS_PER_MINUTE = 5
+    API_URL = "https://www.vistage.com/wp-json/vistage/v1/chairfinder/"
+    REQUESTS_PER_MINUTE = 10
+    SEARCH_RADIUS = 100  # miles
+
+    TYPICAL_ROLES = ["executive coach", "CEO coach", "peer advisory chair"]
+    TYPICAL_NICHES = ["executive coaching", "CEO peer groups", "leadership development"]
+    TYPICAL_OFFERINGS = ["peer advisory groups", "executive coaching", "CEO mastermind"]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self._seen_chairs: set[str] = set()
+        self._seen_ids: set[str] = set()
 
     def generate_urls(self, **kwargs) -> Iterator[str]:
-        """Yield Vistage directory URLs."""
-        # Main find-a-chair pages
-        yield f"{self.BASE_URL}/find-a-chair"
-        yield f"{self.BASE_URL}/find-a-chair/"
-
-        # State-based searches
-        for state in US_STATES:
-            state_slug = state.lower().replace(" ", "-")
-            yield f"{self.BASE_URL}/find-a-chair/{state_slug}"
-            yield f"{self.BASE_URL}/find-a-chair?state={state_slug}"
-
-        # Zip-based searches
-        for zip_code in METRO_ZIPS:
-            yield f"{self.BASE_URL}/find-a-chair?zip={zip_code}"
-
-        # Chair listing pages
-        yield f"{self.BASE_URL}/chairs"
-        yield f"{self.BASE_URL}/our-chairs"
-
-        # Speakers and events (often list members/chairs)
-        yield f"{self.BASE_URL}/speakers"
-        yield f"{self.BASE_URL}/events"
-
-        # Sitemap for additional discovery
-        yield f"{self.BASE_URL}/sitemap.xml"
+        """Yield API URLs for each lat/lng coordinate in the grid."""
+        for city_name, lat, lng in US_CITY_COORDS:
+            yield (
+                f"{self.API_URL}?lat={lat}&lng={lng}"
+                f"&radius={self.SEARCH_RADIUS}"
+            )
 
     def scrape_page(self, url: str, html: str) -> list[ScrapedContact]:
-        """Parse Vistage pages for chair and member data."""
-        if url.endswith("sitemap.xml"):
-            return self._parse_sitemap(html)
+        """Not used — we override run() to call fetch_json() instead."""
+        return []
 
-        soup = self.parse_html(html)
-        contacts = []
+    def run(
+        self,
+        max_pages: int = 0,
+        max_contacts: int = 0,
+        checkpoint: Optional[dict] = None,
+    ) -> Iterator[ScrapedContact]:
+        """Fetch chair data from the JSON API for each coordinate.
 
-        # Try JSON-LD
-        for script in soup.find_all("script", type="application/ld+json"):
-            if script.string:
-                try:
-                    data = json.loads(script.string)
-                    items = data if isinstance(data, list) else [data]
-                    for item in items:
-                        contact = self._parse_jsonld(item, url)
-                        if contact:
-                            contacts.append(contact)
-                except (json.JSONDecodeError, KeyError):
-                    pass
+        Overrides the base run() because the API returns JSON, not HTML.
+        Uses fetch_json() and deduplicates by vistage_id.
+        """
+        pages_done = 0
+        contacts_yielded = 0
+        start_from = (checkpoint or {}).get("last_url")
+        past_checkpoint = start_from is None
 
-        # Try Next.js data
-        next_data = soup.find("script", id="__NEXT_DATA__")
-        if next_data and next_data.string:
-            try:
-                data = json.loads(next_data.string)
-                props = data.get("props", {}).get("pageProps", {})
-                chairs = (
-                    props.get("chairs", [])
-                    or props.get("results", [])
-                    or props.get("data", {}).get("chairs", [])
-                )
-                for chair in chairs:
-                    contact = self._parse_chair_data(chair, url)
-                    if contact:
-                        contacts.append(contact)
-            except (json.JSONDecodeError, KeyError):
-                pass
-
-        # Search for embedded JSON data in scripts
-        for script in soup.find_all("script"):
-            text = script.string or ""
-            if ("chair" in text.lower() and "{" in text) or "searchResults" in text:
-                try:
-                    # Find JSON objects with chair data
-                    for match in re.finditer(r'\{[^{}]*"name"[^{}]*"location"[^{}]*\}', text):
-                        try:
-                            chair_data = json.loads(match.group(0))
-                            contact = self._parse_chair_data(chair_data, url)
-                            if contact:
-                                contacts.append(contact)
-                        except json.JSONDecodeError:
-                            pass
-                except Exception:
-                    pass
-
-        # Parse chair cards from HTML
-        for card in soup.find_all(class_=re.compile(
-            r"chair|coach|advisor|member|profile|card|listing|result", re.I
-        )):
-            contact = self._parse_chair_card(card, url)
-            if contact:
-                contacts.append(contact)
-
-        # Follow chair profile links
-        profile_links = set()
-        for a in soup.find_all("a", href=True):
-            href = a.get("href", "")
-            text = a.get_text(strip=True)
-            # Chair profile URLs
-            if ("/chair/" in href or "/chairs/" in href or "/profile/" in href) and text:
-                full_url = href if href.startswith("http") else f"{self.BASE_URL}{href}"
-                slug = full_url.rstrip("/").split("/")[-1]
-                if slug and slug not in self._seen_chairs and slug not in ("chairs", "find-a-chair"):
-                    self._seen_chairs.add(slug)
-                    profile_links.add(full_url)
-
-        for profile_url in profile_links:
-            profile_html = self.fetch_page(profile_url)
-            if profile_html:
-                profile_contacts = self._parse_chair_profile(profile_url, profile_html)
-                contacts.extend(profile_contacts)
-
-        return contacts
-
-    def _parse_sitemap(self, xml_text: str) -> list[ScrapedContact]:
-        """Extract chair/profile URLs from sitemap."""
-        contacts = []
-        urls = re.findall(r"<loc>(https?://[^<]+)</loc>", xml_text)
-
-        chair_urls = [
-            u for u in urls
-            if "/chair/" in u or "/chairs/" in u or "/profile/" in u
-        ]
-
-        self.logger.info("Sitemap: found %d chair/profile URLs", len(chair_urls))
-
-        for chair_url in chair_urls[:500]:
-            slug = chair_url.rstrip("/").split("/")[-1]
-            if slug in self._seen_chairs:
-                continue
-            self._seen_chairs.add(slug)
-
-            html = self.fetch_page(chair_url)
-            if html:
-                page_contacts = self._parse_chair_profile(chair_url, html)
-                contacts.extend(page_contacts)
-
-        return contacts
-
-    def _parse_jsonld(self, data: dict, source_url: str) -> ScrapedContact | None:
-        """Parse JSON-LD data."""
-        data_type = data.get("@type", "")
-        if data_type not in ("Person", "Organization", "ProfessionalService"):
-            return None
-
-        name = (data.get("name") or "").strip()
-        if not name or len(name) < 2:
-            return None
-
-        name_key = name.lower()
-        if name_key in self._seen_chairs:
-            return None
-        self._seen_chairs.add(name_key)
-
-        website = (data.get("url") or "").strip()
-        description = (data.get("description") or "")[:500]
-        email = (data.get("email") or "").strip()
-        phone = (data.get("telephone") or "").strip()
-
-        address = data.get("address", {})
-        location = ""
-        if isinstance(address, dict):
-            parts = [
-                (address.get("addressLocality") or "").strip(),
-                (address.get("addressRegion") or "").strip(),
-            ]
-            location = ", ".join(p for p in parts if p)
-
-        bio_parts = ["Vistage Chair"]
-        if location:
-            bio_parts.append(location)
-        if description:
-            bio_parts.append(description[:300])
-
-        return ScrapedContact(
-            name=name,
-            email=email,
-            company="Vistage",
-            website=website or source_url,
-            linkedin="",
-            phone=phone,
-            bio=" | ".join(bio_parts),
-            source_url=source_url,
-            source_category="executive_coaching",
+        self.logger.info(
+            "Starting %s scraper (max_pages=%s, checkpoint=%s, %d grid points)",
+            self.SOURCE_NAME,
+            max_pages or "unlimited",
+            start_from or "none",
+            len(US_CITY_COORDS),
         )
 
-    def _parse_chair_data(self, data: dict, source_url: str) -> ScrapedContact | None:
-        """Parse chair info from JSON data."""
-        name = (
-            data.get("name")
-            or data.get("fullName")
-            or data.get("chairName")
-            or ""
-        ).strip()
+        for url in self.generate_urls():
+            if not past_checkpoint:
+                if url == start_from:
+                    past_checkpoint = True
+                continue
 
+            data = self.fetch_json(url)
+            if data is None:
+                continue
+
+            # API may return a list directly or a dict with a results key
+            chairs = []
+            if isinstance(data, list):
+                chairs = data
+            elif isinstance(data, dict):
+                chairs = (
+                    data.get("results", [])
+                    or data.get("chairs", [])
+                    or data.get("data", [])
+                )
+                # If the dict itself looks like a single chair record
+                if not chairs and "name" in data:
+                    chairs = [data]
+
+            for chair in chairs:
+                contact = self._parse_chair(chair, url)
+                if contact is None:
+                    continue
+
+                contact.source_platform = self.SOURCE_NAME
+                contact.source_url = url
+                contact.scraped_at = datetime.now().isoformat()
+                contact.email = contact.clean_email()
+
+                if contact.is_valid():
+                    self.stats["contacts_valid"] += 1
+                    contacts_yielded += 1
+                    yield contact
+
+                    if max_contacts and contacts_yielded >= max_contacts:
+                        self.logger.info("Reached max_contacts=%d", max_contacts)
+                        return
+
+                self.stats["contacts_found"] += 1
+
+            pages_done += 1
+            if pages_done % 10 == 0:
+                self.logger.info(
+                    "Progress: %d/%d grid points, %d unique chairs found",
+                    pages_done, len(US_CITY_COORDS),
+                    self.stats["contacts_valid"],
+                )
+
+            if max_pages and pages_done >= max_pages:
+                self.logger.info("Reached max_pages=%d", max_pages)
+                break
+
+        self.logger.info(
+            "Scraper complete: %d grid points queried, %d unique chairs. Stats: %s",
+            pages_done, self.stats["contacts_valid"], self.stats,
+        )
+
+    def _parse_chair(self, chair: dict, source_url: str) -> Optional[ScrapedContact]:
+        """Parse a single chair record from the API response.
+
+        Expected fields from the API:
+            name, city, mission, chair_site_url, vistage_id,
+            and possibly state, email, phone, linkedin, etc.
+        """
+        # Dedup by vistage_id (primary) or name (fallback)
+        vistage_id = str(chair.get("vistage_id") or "").strip()
+        if vistage_id:
+            if vistage_id in self._seen_ids:
+                return None
+            self._seen_ids.add(vistage_id)
+        else:
+            # Fallback dedup by name
+            name_key = (chair.get("name") or "").strip().lower()
+            if not name_key or name_key in self._seen_ids:
+                return None
+            self._seen_ids.add(name_key)
+
+        name = (chair.get("name") or "").strip()
         if not name or len(name) < 2:
             return None
 
-        name_key = name.lower()
-        if name_key in self._seen_chairs:
-            return None
-        self._seen_chairs.add(name_key)
-
-        location = (data.get("location") or "").strip()
-        city = (data.get("city") or "").strip()
-        state = (data.get("state") or "").strip()
-        if not location and (city or state):
-            parts = [p for p in [city, state] if p]
-            location = ", ".join(parts)
-
-        title = (data.get("title") or data.get("headline") or "").strip()
-        bio_text = (data.get("bio") or data.get("description") or "").strip()
-        specialties = (data.get("specialties") or data.get("expertise") or "").strip()
-
-        email = (data.get("email") or "").strip()
-        phone = (data.get("phone") or "").strip()
-        website = (data.get("website") or data.get("url") or "").strip()
-        linkedin = (data.get("linkedin") or data.get("linkedinUrl") or "").strip()
-
+        # Website: prefer chair_site_url, then website, then url
+        website = (
+            chair.get("chair_site_url")
+            or chair.get("website")
+            or chair.get("url")
+            or ""
+        ).strip()
         if website and not website.startswith("http"):
             website = f"https://{website}"
 
+        # Location
+        city = (chair.get("city") or "").strip()
+        state = (chair.get("state") or "").strip()
+        location_parts = [p for p in [city, state] if p]
+        location = ", ".join(location_parts)
+
+        # Mission / bio
+        mission = (chair.get("mission") or "").strip()
+        # Strip HTML tags from mission text
+        if mission:
+            mission = re.sub(r"<[^>]+>", " ", mission)
+            mission = re.sub(r"\s+", " ", mission).strip()
+
+        title = (chair.get("title") or chair.get("headline") or "").strip()
+
         bio_parts = ["Vistage Chair | Executive Peer Advisory"]
         if title:
-            bio_parts.append(title[:100])
+            bio_parts.append(title[:150])
         if location:
             bio_parts.append(location)
-        if specialties:
-            bio_parts.append(specialties[:200])
-        elif bio_text:
-            clean_bio = re.sub(r"<[^>]+>", " ", bio_text).strip()[:200]
-            bio_parts.append(clean_bio)
+        if mission:
+            bio_parts.append(mission[:500])
+
+        email = (chair.get("email") or "").strip()
+        phone = (chair.get("phone") or chair.get("telephone") or "").strip()
+        linkedin = (chair.get("linkedin") or chair.get("linkedin_url") or "").strip()
+
+        categories = (chair.get("specialties") or chair.get("expertise") or "").strip()
 
         return ScrapedContact(
             name=name,
             email=email,
             company="Vistage",
-            website=website or source_url,
+            website=website,
             linkedin=linkedin,
             phone=phone,
             bio=" | ".join(bio_parts),
+            location=location,
+            categories=categories or "executive_coaching",
             source_url=source_url,
             source_category="executive_coaching",
+            raw_data=chair,
         )
-
-    def _parse_chair_card(self, card, source_url: str) -> ScrapedContact | None:
-        """Parse a chair card element."""
-        name = ""
-        website = ""
-
-        for tag in ["h2", "h3", "h4", "strong"]:
-            el = card.find(tag)
-            if el:
-                link = el.find("a", href=True)
-                if link:
-                    name = link.get_text(strip=True)
-                    href = link.get("href", "")
-                    website = href if href.startswith("http") else f"{self.BASE_URL}{href}"
-                else:
-                    name = el.get_text(strip=True)
-                if name and len(name) > 2 and len(name) < 100:
-                    break
-                name = ""
-
-        if not name or len(name) < 2:
-            return None
-
-        name_key = name.lower()
-        if name_key in self._seen_chairs:
-            return None
-        self._seen_chairs.add(name_key)
-
-        # Location
-        location = ""
-        loc_el = card.find(class_=re.compile(r"location|city|region|address", re.I))
-        if loc_el:
-            location = loc_el.get_text(strip=True)[:100]
-
-        # Title/specialty
-        title = ""
-        title_el = card.find(class_=re.compile(r"title|specialty|role|description", re.I))
-        if title_el:
-            title = title_el.get_text(strip=True)[:200]
-
-        linkedin = self.extract_linkedin(str(card))
-        emails = self.extract_emails(str(card))
-        email = emails[0] if emails else ""
-
-        bio_parts = ["Vistage Chair"]
-        if location:
-            bio_parts.append(location)
-        if title:
-            bio_parts.append(title)
-
-        return ScrapedContact(
-            name=name,
-            email=email,
-            company="Vistage",
-            website=website or source_url,
-            linkedin=linkedin,
-            phone="",
-            bio=" | ".join(bio_parts),
-            source_url=source_url,
-            source_category="executive_coaching",
-        )
-
-    def _parse_chair_profile(self, url: str, html: str) -> list[ScrapedContact]:
-        """Parse a Vistage chair profile page."""
-        soup = self.parse_html(html)
-        contacts = []
-
-        name = ""
-        h1 = soup.find("h1")
-        if h1:
-            name = h1.get_text(strip=True)
-
-        if not name:
-            og = soup.find("meta", property="og:title")
-            if og:
-                name = (og.get("content") or "").split("|")[0].split("-")[0].strip()
-
-        if not name or len(name) < 2:
-            return []
-
-        # Clean name
-        name = re.sub(r"\s*[|–-]\s*Vistage.*$", "", name, flags=re.I).strip()
-
-        name_key = name.lower()
-        if name_key in self._seen_chairs:
-            return []
-        self._seen_chairs.add(name_key)
-
-        bio = ""
-        meta_desc = soup.find("meta", attrs={"name": "description"})
-        if meta_desc:
-            bio = (meta_desc.get("content") or "")[:500]
-
-        # External website
-        website = ""
-        for a in soup.find_all("a", href=True):
-            href = a.get("href", "")
-            text = a.get_text(strip=True).lower()
-            if ("website" in text or "visit" in text) and href.startswith("http"):
-                if "vistage.com" not in href.lower():
-                    website = href
-                    break
-
-        if not website:
-            for a in soup.find_all("a", href=True):
-                href = a.get("href", "")
-                if (href.startswith("http")
-                        and "vistage.com" not in href.lower()
-                        and "facebook.com" not in href.lower()
-                        and "twitter.com" not in href.lower()
-                        and "instagram.com" not in href.lower()
-                        and "linkedin.com" not in href.lower()):
-                    website = href
-                    break
-
-        emails = self.extract_emails(html)
-        email = emails[0] if emails else ""
-        linkedin = self.extract_linkedin(html)
-
-        phone = ""
-        phone_match = re.search(
-            r"(?:1[-.\s]?)?(?:\(\d{3}\)|\d{3})[-.\s]?\d{3}[-.\s]?\d{4}", html
-        )
-        if phone_match:
-            phone = phone_match.group(0)
-
-        contacts.append(ScrapedContact(
-            name=name,
-            email=email,
-            company="Vistage",
-            website=website or url,
-            linkedin=linkedin,
-            phone=phone,
-            bio=f"Vistage Chair | {bio}" if bio else "Vistage Chair | CEO Peer Advisory Group",
-            source_url=url,
-            source_category="executive_coaching",
-        ))
-
-        return contacts

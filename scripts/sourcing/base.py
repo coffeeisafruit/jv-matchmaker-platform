@@ -140,6 +140,7 @@ class BaseScraper(ABC):
     TYPICAL_ROLES: list[str] = []       # Canonical roles this scraper yields
     TYPICAL_NICHES: list[str] = []      # Canonical niches this scraper targets
     TYPICAL_OFFERINGS: list[str] = []   # Common offering keywords from this source
+    RETRY_STATUS_FORCELIST: list[int] = [429, 500, 502, 503, 504]  # HTTP codes to retry
 
     def __init__(self, rate_limiter=None):
         self.session = self._build_session()
@@ -158,7 +159,7 @@ class BaseScraper(ABC):
         retry = Retry(
             total=3,
             backoff_factor=1.5,
-            status_forcelist=[429, 500, 502, 503, 504],
+            status_forcelist=self.RETRY_STATUS_FORCELIST,
         )
         adapter = HTTPAdapter(max_retries=retry)
         session.mount("https://", adapter)

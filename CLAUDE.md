@@ -58,6 +58,12 @@ Environment variables:
 - Drop-in replacement for Claude calls
 - Saves $150-400/month at scale
 
+**GPU selection rule (cost-optimized):**
+- **Always use RTX 4090 (~$0.30/hr)** for enrichment jobs — not H200/H200 NVL
+- Qwen3-30B-A3B fits in 24GB VRAM; 4090 is ~8x cheaper than H200 for same output
+- Require: `gpu_ram>=24 disk_space>=80 inet_down>=500 dph_total<0.5`
+- H200 ($2.57/hr) confirmed overkill — only use if 4090 unavailable and time-critical
+
 ---
 
 ## Scoring & Matching Pipeline

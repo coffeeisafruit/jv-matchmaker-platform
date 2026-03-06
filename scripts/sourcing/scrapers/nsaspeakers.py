@@ -6,14 +6,19 @@ whitelabel directory at espeakers.com/s/nsas. Each speaker profile is
 a Next.js SSR page with rich JSON data embedded in __NEXT_DATA__.
 
 Strategy:
-  1. Fetch the NSA whitelabel landing page to get the first speaker ID
-  2. Iterate through eSpeakers marketplace profile IDs to find NSA members
-  3. Extract full profile data from __NEXT_DATA__ JSON on each profile page
+  1. Iterate through eSpeakers marketplace profile IDs
+  2. Extract full profile data from __NEXT_DATA__ JSON on each profile page
+  3. Filter for NSA members (associations containing "NSA" or "National
+     Speakers", or awards containing "CSP"/"CPAE")
 
 The eSpeakers profile ID space is sparse (IDs range from ~5000 to ~55000+).
-NSA members are tagged with the "nsas" whitelabel association. We scan
-the marketplace profiles and filter for speakers who list NSA-related
-associations or who appear in the NSA directory.
+The NSA whitelabel at espeakers.com/s/nsas exists but has no paginated
+API to list members, so we scan marketplace profiles and filter.
+
+Domain migration note (2026-03):
+  Profile URLs now 301 redirect through balboa.espeakers.com. Invalid
+  IDs return 500 from the redirect endpoint. We must NOT retry 500s
+  (they mean "profile doesn't exist") and must follow redirects.
 
 Estimated yield: 2,000-4,000 professional speakers
 """
@@ -23,6 +28,10 @@ from __future__ import annotations
 import json
 import re
 from typing import Iterator, Optional
+
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from scripts.sourcing.base import BaseScraper, ScrapedContact
 
@@ -37,14 +46,34 @@ ID_STEP = 1  # Check every ID
 class Scraper(BaseScraper):
     SOURCE_NAME = "nsaspeakers"
     BASE_URL = "https://www.espeakers.com"
-    REQUESTS_PER_MINUTE = 8  # Polite rate limit
+    REQUESTS_PER_MINUTE = 30  # Site tolerates higher rate
     TYPICAL_ROLES = ["Thought Leader", "Educator"]
     TYPICAL_NICHES = ["speaking", "corporate_training"]
     TYPICAL_OFFERINGS = ["speaking", "keynote", "presentations"]
 
+    # Don't retry 500 — eSpeakers returns 500 for non-existent profile IDs
+    RETRY_STATUS_FORCELIST = [429, 502, 503, 504]
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._seen_ids: set[int] = set()
+
+    def fetch_page(self, url: str, timeout: int = 30) -> Optional[str]:
+        """Fetch URL, following redirects. Treat 500 as skip, not error."""
+        if self.rate_limiter:
+            self.rate_limiter.wait(self.SOURCE_NAME, self.REQUESTS_PER_MINUTE)
+        try:
+            resp = self.session.get(url, timeout=timeout, allow_redirects=True)
+            if resp.status_code == 500:
+                self.logger.debug("Profile not found (500): %s", url)
+                return None
+            resp.raise_for_status()
+            self.stats["pages_scraped"] += 1
+            return resp.text
+        except requests.RequestException as exc:
+            self.logger.warning("Fetch failed for %s: %s", url, exc)
+            self.stats["errors"] += 1
+            return None
 
     def generate_urls(self, **kwargs) -> Iterator[str]:
         """Yield eSpeakers marketplace profile URLs by ID.

@@ -14,8 +14,14 @@ Strategy:
 
 The eSpeakers speaker ID space ranges from ~5000 to ~55000+. Not
 all IDs correspond to active profiles -- invalid/empty profiles
-are skipped gracefully. Profile pages that return HTTP 200 with
-an empty name are treated as inactive.
+are skipped gracefully.
+
+Domain migration note (2026-03):
+  Profile URLs at www.espeakers.com/marketplace/profile/{ID} now 301
+  redirect to balboa.espeakers.com/screen/redirectprofileslug, which
+  redirects again to the slug-based URL. Invalid/non-existent IDs
+  return a 500 from the redirect endpoint. We must NOT retry 500s
+  (they mean "profile doesn't exist") and must follow redirects.
 
 Estimated yield: 8,000-15,000 speakers
 """
@@ -25,6 +31,10 @@ from __future__ import annotations
 import json
 import re
 from typing import Iterator, Optional
+
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from scripts.sourcing.base import BaseScraper, ScrapedContact
 
@@ -38,14 +48,34 @@ ID_END = 55000
 class Scraper(BaseScraper):
     SOURCE_NAME = "espeakers"
     BASE_URL = "https://www.espeakers.com"
-    REQUESTS_PER_MINUTE = 10  # Moderate rate
+    REQUESTS_PER_MINUTE = 30  # Site tolerates higher rate
     TYPICAL_ROLES = ["Thought Leader", "Educator"]
     TYPICAL_NICHES = ["speaking", "corporate_training", "leadership_coaching"]
     TYPICAL_OFFERINGS = ["speaking", "keynote", "workshops", "training"]
 
+    # Don't retry 500 — eSpeakers returns 500 for non-existent profile IDs
+    RETRY_STATUS_FORCELIST = [429, 502, 503, 504]
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._seen_ids: set[int] = set()
+
+    def fetch_page(self, url: str, timeout: int = 30) -> Optional[str]:
+        """Fetch URL, following redirects. Treat 500 as skip, not error."""
+        if self.rate_limiter:
+            self.rate_limiter.wait(self.SOURCE_NAME, self.REQUESTS_PER_MINUTE)
+        try:
+            resp = self.session.get(url, timeout=timeout, allow_redirects=True)
+            if resp.status_code == 500:
+                self.logger.debug("Profile not found (500): %s", url)
+                return None
+            resp.raise_for_status()
+            self.stats["pages_scraped"] += 1
+            return resp.text
+        except requests.RequestException as exc:
+            self.logger.warning("Fetch failed for %s: %s", url, exc)
+            self.stats["errors"] += 1
+            return None
 
     def generate_urls(self, **kwargs) -> Iterator[str]:
         """Yield eSpeakers marketplace profile URLs by speaker ID.

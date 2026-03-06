@@ -42,7 +42,7 @@ BLOG_BASE = "https://jointventures.jvnotifypro.com"
 V3_BASE = "https://v3.jvnotifypro.com"
 
 # Maximum blog pages to crawl (each page has ~10 posts, each post has 1-5 entries)
-MAX_BLOG_PAGES = 100
+MAX_BLOG_PAGES = 500  # Full archive goes back to 2005
 
 # Regex patterns for extracting structured data from entry text
 DATE_RE = re.compile(

@@ -36,6 +36,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('--limit', type=int, default=200,
                             help='Max profiles to process (default: 200)')
+        parser.add_argument('--offset', type=int, default=0,
+                            help='Skip first N candidates (for parallel batching, default: 0)')
         parser.add_argument('--subscribe', action='store_true',
                             help='Subscribe after discovering (default: discover only)')
         parser.add_argument('--tier', type=str, default='',
@@ -53,6 +55,7 @@ class Command(BaseCommand):
             return
 
         limit = options['limit']
+        offset = options['offset']
         subscribe = options['subscribe']
         tier_filter = options['tier'].upper() if options['tier'] else ''
         retry_code = options['retry_failed']
@@ -63,8 +66,8 @@ class Command(BaseCommand):
                 f'Retrying {len(profiles)} profiles with error={retry_code}'
             )
         else:
-            profiles = self._fetch_candidates(limit, tier_filter)
-            self.stdout.write(f'Found {len(profiles)} profiles to process')
+            profiles = self._fetch_candidates(limit, tier_filter, offset)
+            self.stdout.write(f'Found {len(profiles)} profiles to process (offset={offset})')
 
         discovered = 0
         subscribed = 0
@@ -139,8 +142,7 @@ class Command(BaseCommand):
         from email_monitor.models import MonitoredSubscription
         from django.db.models import Count
 
-        ERROR_CODES = {'http_403', 'http_404', 'http_other', 'timeout', 'js_required',
-                       'no_form', 'captcha', 'error', 'bad_discovery'}
+        from email_monitor.constants import DISCOVERY_ERROR_CODES as ERROR_CODES
         rows = (
             MonitoredSubscription.objects
             .filter(status='failed', signup_url__in=ERROR_CODES)
@@ -180,9 +182,15 @@ class Command(BaseCommand):
         'yelp.com', 'bbb.org', 'trustpilot.com',
         'clutch.co', 'g2.com', 'capterra.com',
         'icf.org', 'therapists.psychologytoday.com',
+        # Podcast feed/hosting platforms (not personal websites)
+        'podcasts.apple.com', 'feeds.captivate.fm', 'feeds.simplecast.com',
+        'feeds.acast.com', 'api.riverside.fm', 'feeds.buzzsprout.com',
+        'anchor.fm', 'podcasters.spotify.com', 'feed.pod.co',
+        'redcircle.com', 'podomatic.com', 'podbean.com', 'buzzsprout.com',
+        'feeds.libsyn.com', 'libsyn.com', 'rss.com/podcasts',
     )
 
-    def _fetch_candidates(self, limit: int, tier: str) -> list[dict]:
+    def _fetch_candidates(self, limit: int, tier: str, offset: int = 0) -> list[dict]:
         """Profiles with personal websites and no subscription attempt yet.
         Excludes directory/social domains that are not personal websites."""
         from email_monitor.models import MonitoredSubscription
@@ -191,7 +199,7 @@ class Command(BaseCommand):
         dir_exclusions = ' AND '.join(
             f"p.website NOT ILIKE '%%{d}%%'" for d in self.DIRECTORY_DOMAINS
         )
-        params = [tier, limit] if tier else [limit]
+        params = [tier, limit, offset] if tier else [limit, offset]
         sql = f"""
             SELECT p.id, p.name, p.website, p.jv_tier, p.jv_readiness_score
             FROM profiles p
@@ -201,7 +209,7 @@ class Command(BaseCommand):
               AND {dir_exclusions}
               {tier_clause}
             ORDER BY p.jv_readiness_score DESC NULLS LAST
-            LIMIT %s
+            LIMIT %s OFFSET %s
         """
         with connection.cursor() as cursor:
             cursor.execute(sql, params)
@@ -283,6 +291,7 @@ class Command(BaseCommand):
             profile_id=profile_id,
             monitor_address=self._make_monitor_address(),
             signup_url=result.signup_url,
+            form_action=result.form_action or '',
             esp_detected=result.esp_detected,
             discovery_method=DISCOVERY_METHOD,
             status='pending',

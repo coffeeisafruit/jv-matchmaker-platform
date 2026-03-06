@@ -85,12 +85,15 @@ def _is_platform_url(url: str | None) -> bool:
 
 TIER_A_SOURCES = {
     "muncheye", "muncheye_launches", "jvnotifypro",
+    "clickbank", "jvzoo", "warriorplus",  # Affiliate marketplace vendors — JV-native
 }
 
 TIER_B_SOURCES = {
     "apple_podcasts", "apple_podcasts_full", "podcastindex", "youtube_api",
     "coaching_federation", "noomii", "speaking_com", "espeakers", "nsaspeakers",
     "tedx", "sessionize", "lifecoach_directory", "psychology_today", "toastmasters",
+    "gumroad", "substack", "medium", "udemy", "speakerhub",  # Content/audience owners
+    "podchaser", "expertfile", "clarity_fm", "summit_speakers",  # Speakers/experts
 }
 
 TIER_C_SOURCES = {
@@ -131,14 +134,17 @@ IRS_EXEMPT_SOURCE = "irs_exempt"
 SOURCE_JV_AFFINITY = {
     # Tier A — JV-native
     "muncheye": 100, "muncheye_launches": 100, "jvnotifypro": 100,
+    "clickbank": 95, "jvzoo": 95, "warriorplus": 90,  # Affiliate marketplace vendors
     # Affiliate networks
     "shareasale": 85, "shareasale_merchants": 85, "cj_affiliates": 85, "impact_partners": 85,
     # Coaches/speakers (audience owners)
     "coaching_federation": 75, "noomii": 75, "lifecoach_directory": 75,
     "speaking_com": 75, "espeakers": 75,
-    # Content creators
+    # Content creators / audience owners
     "apple_podcasts": 70, "apple_podcasts_full": 70, "podcastindex": 70,
     "youtube_api": 70, "sessionize": 70, "tedx": 70,
+    "substack": 75, "gumroad": 70, "medium": 60, "udemy": 65,
+    "speakerhub": 70, "podchaser": 65, "summit_speakers": 70,
     # Startup/product platforms
     "producthunt": 60, "betalist": 60, "indie_hackers": 60,
     "startupgrind": 60, "f6s_startups": 60,

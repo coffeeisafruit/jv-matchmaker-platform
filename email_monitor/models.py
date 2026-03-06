@@ -26,11 +26,13 @@ class MonitoredSubscription(models.Model):
     )
     monitor_address = models.EmailField(unique=True)  # jvmonitor+{uuid[:8]}@gmail.com
     signup_url = models.TextField(blank=True)
+    form_action = models.TextField(blank=True, default='')  # POST target URL (stored at discovery time)
     esp_detected = models.CharField(max_length=50, blank=True)  # ConvertKit / Mailchimp / etc.
     discovery_method = models.CharField(
         max_length=20, choices=DISCOVERY_METHOD_CHOICES, default='crawl4ai_form'
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    failure_reason = models.TextField(blank=True, default='')  # why subscription failed (for retry logic)
     subscribed_at = models.DateTimeField(auto_now_add=True)
     last_email_received_at = models.DateTimeField(null=True, blank=True)
     total_emails_received = models.IntegerField(default=0)
