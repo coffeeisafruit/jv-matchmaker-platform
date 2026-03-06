@@ -59,26 +59,32 @@ def _get_connection() -> psycopg2.extensions.connection:
     return psycopg2.connect(os.environ["DATABASE_URL"])
 
 
-def _load_active_client_profiles() -> list[SupabaseProfile]:
+def _load_active_client_profiles(client_id_filter: str | None = None) -> list[SupabaseProfile]:
     """Return SupabaseProfile objects for all clients with active reports.
 
     A "client" is a profile that has at least one active MemberReport
-    (is_active=True).
+    (is_active=True). Pass client_id_filter to restrict to a single client
+    (used for parallel per-client scoring runs).
     """
-    active_report_profile_ids = (
+    qs = (
         MemberReport.objects.filter(is_active=True)
         .exclude(supabase_profile__isnull=True)
         .values_list("supabase_profile_id", flat=True)
         .distinct()
     )
-    return list(
-        SupabaseProfile.objects.filter(id__in=active_report_profile_ids)
-    )
+    profiles_qs = SupabaseProfile.objects.filter(id__in=qs)
+    if client_id_filter:
+        profiles_qs = profiles_qs.filter(id=client_id_filter)
+    return list(profiles_qs)
 
 
-def _load_profiles_by_ids(profile_ids: list[str]) -> list[SupabaseProfile]:
-    """Load SupabaseProfile objects by a list of UUID strings."""
-    return list(SupabaseProfile.objects.filter(id__in=profile_ids))
+def _load_profiles_by_ids(profile_ids: list[str], chunk_size: int = 1000) -> list[SupabaseProfile]:
+    """Load SupabaseProfile objects in chunks to avoid statement timeouts."""
+    results = []
+    for i in range(0, len(profile_ids), chunk_size):
+        chunk = profile_ids[i:i + chunk_size]
+        results.extend(SupabaseProfile.objects.filter(id__in=chunk))
+    return results
 
 
 def _save_match_record(
@@ -149,7 +155,10 @@ def _score_client_batch(
     from matching.models import SupabaseProfile
 
     client = SupabaseProfile.objects.get(id=client_id)
-    prospects = list(SupabaseProfile.objects.filter(id__in=prospect_ids))
+    # Load in chunks of 500 to keep memory per worker manageable
+    prospects = []
+    for i in range(0, len(prospect_ids), 500):
+        prospects.extend(SupabaseProfile.objects.filter(id__in=prospect_ids[i:i+500]))
     scorer = SupabaseMatchScoringService()
 
     rows = []
@@ -218,6 +227,7 @@ def score_against_all_clients(
     score_threshold: int = 64,
     pre_filter: str = "none",
     pre_filter_top_k: int = 200,
+    client_id_filter: str | None = None,
 ) -> list[NewMatchResult]:
     """Score new profiles against ALL active clients using full ISMC.
 
@@ -239,7 +249,7 @@ def score_against_all_clients(
     """
     logger = get_run_logger()
 
-    clients = _load_active_client_profiles()
+    clients = _load_active_client_profiles(client_id_filter=client_id_filter)
     if not clients:
         logger.warning("No active client profiles found; skipping scoring.")
         return []
@@ -284,60 +294,57 @@ def score_against_all_clients(
     total_saved = 0
     COMMIT_EVERY = 500
 
-    client_ids = [str(c.id) for c in clients]
-    prospect_ids = [str(p.id) for p in prospects]
-    n_workers = min(len(clients), os.cpu_count() or 4)
+    scorer = SupabaseMatchScoringService()
+    logger.info("Scoring %d clients × %d prospects with 2-stage filter (lw_threshold=35)",
+                len(clients), len(prospects))
 
-    logger.info("Parallel scoring: %d workers for %d clients", n_workers, len(clients))
-
-    all_rows: list[dict] = []
-    with ProcessPoolExecutor(max_workers=n_workers) as pool:
-        futures = {
-            pool.submit(_score_client_batch, cid, prospect_ids, score_threshold): cid
-            for cid in client_ids
-        }
-        for future in as_completed(futures):
-            cid = futures[future]
-            try:
-                rows, hq_rows = future.result()
-                all_rows.extend(rows)
-                for r in hq_rows:
-                    high_quality.append(
-                        NewMatchResult(
-                            client_id=r["client_id"],
-                            client_name=r["client_name"],
-                            prospect_id=r["prospect_id"],
-                            prospect_name=r["prospect_name"],
-                            harmonic_mean=r["harmonic_mean"],
-                            score_ab=r["score_ab"],
-                            score_ba=r["score_ba"],
-                        )
-                    )
-                logger.info("Client %s done: %d pairs, %d high-quality", cid, len(rows), len(hq_rows))
-            except Exception as exc:
-                logger.warning("Worker for client %s failed: %s", cid, exc)
-
-    # Write all rows to DB in batches
     conn = _get_connection()
     try:
         conn.autocommit = False
         cur = conn.cursor()
 
-        # Build lightweight proxy objects for _save_match_record
-        client_map = {str(c.id): c for c in clients}
-        prospect_map = {str(p.id): p for p in prospects}
+        for client in clients:
+            client_saved = 0
+            for prospect in prospects:
+                if str(client.id) == str(prospect.id):
+                    continue
 
-        for row in all_rows:
-            client = client_map.get(row["client_id"])
-            prospect = prospect_map.get(row["prospect_id"])
-            if client and prospect:
-                _save_match_record(cur, client, prospect, row)
+                # Stage 1: fast pre-screen
+                try:
+                    lw = scorer.score_pair_lightweight(client, prospect)
+                except Exception:
+                    continue
+                if lw["harmonic_mean"] < 35:
+                    continue
+
+                # Stage 2: full ISMC
+                try:
+                    scores = scorer.score_pair(client, prospect)
+                except Exception as exc:
+                    logger.warning("score_pair failed %s<->%s: %s", client.name, prospect.name, exc)
+                    continue
+
+                _save_match_record(cur, client, prospect, scores)
                 total_saved += 1
+                client_saved += 1
+
+                if scores["harmonic_mean"] >= score_threshold:
+                    high_quality.append(NewMatchResult(
+                        client_id=str(client.id),
+                        client_name=client.name,
+                        prospect_id=str(prospect.id),
+                        prospect_name=prospect.name,
+                        harmonic_mean=scores["harmonic_mean"],
+                        score_ab=scores["score_ab"],
+                        score_ba=scores["score_ba"],
+                    ))
+
                 if total_saved % COMMIT_EVERY == 0:
                     conn.commit()
-                    logger.info("Progress: %d pairs saved (%d high-quality)", total_saved, len(high_quality))
+                    logger.info("Progress: %d pairs saved, %d high-quality", total_saved, len(high_quality))
 
-        conn.commit()
+            conn.commit()
+            logger.info("Client %s done: %d pairs saved", client.name, client_saved)
 
     except Exception:
         conn.rollback()
@@ -346,8 +353,7 @@ def score_against_all_clients(
         conn.close()
 
     logger.info(
-        "Scoring complete: %d pairs scored, %d saved, %d high-quality (>=%d)",
-        total_scored,
+        "Scoring complete: %d pairs saved, %d high-quality (>=%d)",
         total_saved,
         len(high_quality),
         score_threshold,

@@ -54,6 +54,10 @@ class Command(BaseCommand):
                  'Can be repeated: --tier A --tier B. '
                  'Matches are still evaluated against ALL active clients.',
         )
+        parser.add_argument(
+            '--client-id', type=str, default=None,
+            help='Only score against this specific client UUID (for parallel runs).',
+        )
 
     def handle(self, *args, **options):
         since_str = options['since']
@@ -61,6 +65,7 @@ class Command(BaseCommand):
         dry_run = options['dry_run']
         limit = options['limit']
         tiers = options.get('tiers') or []
+        client_id_filter = options.get('client_id')
 
         start_time = time.time()
 
@@ -170,6 +175,7 @@ class Command(BaseCommand):
             high_quality = score_against_all_clients(
                 profile_ids=profile_ids,
                 score_threshold=threshold,
+                client_id_filter=client_id_filter,
             )
         except Exception as exc:
             self.stderr.write(f'Scoring failed: {exc}')
