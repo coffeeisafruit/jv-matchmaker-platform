@@ -1957,13 +1957,17 @@ class AnalyticsInsightDismissView(LoginRequiredMixin, View):
 
 # ─── PIPELINE STATS API (for architecture_diagram.html live data) ───
 
-class PipelineStatsAPIView(LoginRequiredMixin, View):
+class PipelineStatsAPIView(View):
     """
     JSON endpoint returning live pipeline health stats from Supabase.
     Used by architecture_diagram.html Data Health tab.
+    Accepts: Django login OR architecture session password.
     """
 
     def get(self, request):
+        if not request.user.is_authenticated and not request.session.get('architecture_access'):
+            from django.http import JsonResponse as _JR
+            return _JR({'error': 'Unauthorized'}, status=401)
         from django.db.models import Count, Q
         from django.db.models.functions import Coalesce
 
@@ -2049,11 +2053,24 @@ class PipelineStatsAPIView(LoginRequiredMixin, View):
         except Exception:
             source_distribution = {'error': 'Could not query source distribution'}
 
+        # Match suggestions stats
+        match_stats = {}
+        try:
+            from django.db import connection as _conn
+            with _conn.cursor() as _cur:
+                _cur.execute("SELECT COUNT(*) FROM match_suggestions")
+                match_stats['total'] = _cur.fetchone()[0]
+                _cur.execute("SELECT COUNT(*) FROM match_suggestions WHERE harmonic_mean >= 64")
+                match_stats['high_quality'] = _cur.fetchone()[0]
+        except Exception:
+            match_stats = {'total': 0, 'high_quality': 0}
+
         return JsonResponse({
             'total_profiles': total,
             'field_coverage': field_coverage,
             'pipeline_stages': pipeline_stages,
             'source_distribution': source_distribution,
+            'match_stats': match_stats,
         })
 
 

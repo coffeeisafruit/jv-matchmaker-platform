@@ -1856,7 +1856,7 @@
     <rect x="390" y="190" width="320" height="100" rx="10" fill="rgba(168,123,245,0.06)" stroke="#a87bf5" stroke-width="1.2"/>
     <text x="550" y="215" text-anchor="middle" fill="#a87bf5" font-size="14" font-weight="700">Matching Engine</text>
     <text x="550" y="234" text-anchor="middle" fill="#8b90a8" font-size="10">ISMC: Intent 45% | Synergy 25% | Momentum 20% | Context 10%</text>
-    <text x="550" y="252" text-anchor="middle" fill="#8b90a8" font-size="10">1,175,922 Profiles &middot; Embedding-based &middot; Harmonic Mean</text>
+    <text x="550" y="252" text-anchor="middle" fill="#8b90a8" font-size="10"><tspan id="svg-profile-count">1,175,922</tspan> Profiles &middot; Embedding-based &middot; Harmonic Mean</text>
     <text x="550" y="270" text-anchor="middle" fill="#8b90a8" font-size="10">Member Reports &middot; Access-Code Delivery</text>
     <text x="550" y="284" text-anchor="middle" fill="#a87bf5" font-size="9" font-weight="500">Provenance-stamped data protection</text>
 
@@ -2002,7 +2002,7 @@
     <!-- Services row — evenly spaced -->
     <rect x="50" y="682" width="170" height="48" rx="8" fill="#1a1d27" stroke="#4ecb8d" stroke-width="0.8"/>
     <text x="135" y="703" text-anchor="middle" fill="#4ecb8d" font-size="11" font-weight="600">Supabase PostgreSQL</text>
-    <text x="135" y="720" text-anchor="middle" fill="#8b90a8" font-size="9">1,175,922 profiles</text>
+    <text x="135" y="720" text-anchor="middle" fill="#8b90a8" font-size="9"><tspan id="svg-supabase-count">1,175,922</tspan> profiles</text>
 
     <rect x="240" y="682" width="170" height="48" rx="8" fill="#1a1d27" stroke="#a87bf5" stroke-width="0.8"/>
     <text x="325" y="703" text-anchor="middle" fill="#a87bf5" font-size="11" font-weight="600">Claude Sonnet</text>
@@ -2934,7 +2934,7 @@
     <div class="formula-box" style="margin-top:16px;border-left:3px solid var(--accent-purple)">
       <h4>Production Validation (Feb 2026)</h4>
       <div class="formula-note">
-        <strong>158,031</strong> matches scored. 4,830 high-quality (≥64 ISMC). Mean: 55.9. Wave 2 scoring in progress (215K additional pairs).<br/>
+        <strong id="prod-match-total">249,402</strong> matches scored. <strong id="prod-match-hq">8,074</strong> high-quality (≥64 ISMC). Tier A + B complete.<br/>
         Upgraded: <strong>25,776 (86.3%)</strong> | Downgraded: 2,126 (7.1%) | Rescued: <strong>8,991</strong><br/>
         Semantic (embedding): 58,796 evaluations | Word overlap fallback: 930
       </div>
@@ -3335,9 +3335,9 @@
       <div class="dh-stat-row dh-hero">
         <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-blue)">1,175,922</span><span class="dh-stat-label">Total Profiles</span></div>
         <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-green)">~$5</span><span class="dh-stat-label">Enrichment/18K</span></div>
-        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-purple)">92,685</span><span class="dh-stat-label">Enriched (7.9%)</span></div>
-        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-orange)">158,031</span><span class="dh-stat-label">Match Pairs Scored</span></div>
-        <div class="dh-stat"><span class="dh-stat-val" style="color:var(--accent-cyan)">4,830</span><span class="dh-stat-label">High-Quality (≥64)</span></div>
+        <div class="dh-stat"><span id="stat-enriched" class="dh-stat-val" style="color:var(--accent-purple)">139,665</span><span class="dh-stat-label">Enriched</span></div>
+        <div class="dh-stat"><span id="stat-match-total" class="dh-stat-val" style="color:var(--accent-orange)">249,402</span><span class="dh-stat-label">Match Pairs Scored</span></div>
+        <div class="dh-stat"><span id="stat-match-hq" class="dh-stat-val" style="color:var(--accent-cyan)">8,074</span><span class="dh-stat-label">High-Quality (≥64)</span></div>
       </div>
     </div>
 
@@ -3776,7 +3776,7 @@
         <span class="dh-insight-icon">&#128269;</span>
         <h4>Enrichment Coverage</h4>
         <span class="dh-big-num" style="color:var(--accent-green)">100%</span>
-        <p><strong>92,685</strong> of 1,175,922 profiles AI-enriched (7.9% — Tier A + B complete). <strong>158,031</strong> match pairs scored, <strong>4,830</strong> high-quality (≥64 ISMC). Tier C/D enrichment in progress.</p>
+        <p><strong id="cov-enriched">139,665</strong> of <strong id="cov-total">1,175,922</strong> profiles AI-enriched (Tier A + B complete). <strong id="cov-match-total">249,402</strong> match pairs scored, <strong id="cov-match-hq">8,074</strong> high-quality (≥64 ISMC). Tier C/D enrichment in progress.</p>
       </div>
       <div class="dh-insight" style="border-left: 3px solid var(--accent-red)">
         <span class="dh-insight-icon">&#9888;</span>
@@ -4953,6 +4953,36 @@ function fetchLiveDataHealth() {
     if (heroStats.length > 0) heroStats[0].textContent = data.total_profiles.toLocaleString();
     var headerCount = document.getElementById('header-profile-count');
     if (headerCount) headerCount.textContent = data.total_profiles.toLocaleString();
+
+    // Update profile counts across SVG and text
+    var profileFmt = data.total_profiles.toLocaleString();
+    ['svg-profile-count', 'svg-supabase-count', 'cov-total'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = profileFmt;
+    });
+
+    // Update enriched count
+    if (data.pipeline_stages && data.pipeline_stages.enriched) {
+      var enrichedFmt = data.pipeline_stages.enriched.toLocaleString();
+      ['stat-enriched', 'cov-enriched'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = enrichedFmt;
+      });
+    }
+
+    // Update match stats
+    if (data.match_stats) {
+      var matchTotalFmt = data.match_stats.total.toLocaleString();
+      var matchHqFmt = data.match_stats.high_quality.toLocaleString();
+      ['stat-match-total', 'prod-match-total', 'cov-match-total'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = matchTotalFmt;
+      });
+      ['stat-match-hq', 'prod-match-hq', 'cov-match-hq'].forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = matchHqFmt;
+      });
+    }
 
     // Update pipeline stage funnel
     var funnelEl = document.getElementById('pipeline-funnel');
