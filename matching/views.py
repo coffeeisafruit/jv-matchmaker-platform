@@ -1965,7 +1965,7 @@ class PipelineStatsAPIView(View):
     """
 
     def get(self, request):
-        if not request.user.is_authenticated and not request.session.get('architecture_access'):
+        if not request.user.is_authenticated and not _arch_session_get(request):
             from django.http import JsonResponse as _JR
             return _JR({'error': 'Unauthorized'}, status=401)
         from django.db.models import Count, Q
@@ -2195,18 +2195,29 @@ class JaneWarrProfileView(View):
 ARCHITECTURE_PASSWORD = 'coffeeisafruit'
 
 
+def _arch_session_get(request):
+    """Read architecture_access from session, returning False on DB errors."""
+    try:
+        return request.session.get('architecture_access', False)
+    except Exception:
+        return False
+
+
 class ArchitectureAccessView(View):
     """Password-gate for the platform architecture diagram."""
 
     def get(self, request):
-        if request.session.get('architecture_access'):
+        if _arch_session_get(request):
             return redirect('matching:architecture-diagram')
         return render(request, 'matching/architecture_access.html')
 
     def post(self, request):
         password = request.POST.get('password', '')
         if password == ARCHITECTURE_PASSWORD:
-            request.session['architecture_access'] = True
+            try:
+                request.session['architecture_access'] = True
+            except Exception:
+                pass
             return redirect('matching:architecture-diagram')
         return render(request, 'matching/architecture_access.html', {'error': 'Incorrect password.'})
 
@@ -2215,6 +2226,6 @@ class ArchitectureDiagramView(View):
     """Serve the architecture diagram after password auth."""
 
     def get(self, request):
-        if not request.session.get('architecture_access'):
+        if not _arch_session_get(request):
             return redirect('matching:architecture-access')
         return render(request, 'matching/architecture_diagram.html')
