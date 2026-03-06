@@ -2011,6 +2011,50 @@ class SupabaseMatchScoringService:
             total += pw_score * 3.0
             max_total += 10 * 3.0
 
+        # Factor 9: Apollo intent signal (weight 2.5, null-aware)
+        # Apollo show_intent = True means the contact is actively researching/buying
+        intent_sig = getattr(target, 'intent_signal', None)
+        if intent_sig is not None:
+            int_score = 9.0 if intent_sig else 4.0
+            factors.append({
+                'name': 'Apollo Intent Signal', 'score': int_score,
+                'weight': 2.5, 'detail': 'Active intent signal' if intent_sig else 'No intent signal',
+                'method': 'apollo_boolean'
+            })
+            total += int_score * 2.5
+            max_total += 10 * 2.5
+
+        # Factor 10: Apollo engagement likelihood (weight 2.0, null-aware)
+        # Apollo is_likely_to_engage = True means outreach is likely to get a response
+        engage = getattr(target, 'engagement_likelihood', None)
+        if engage is not None:
+            eng_score = 8.0 if engage else 4.0
+            factors.append({
+                'name': 'Engagement Likelihood', 'score': eng_score,
+                'weight': 2.0, 'detail': 'Likely to engage' if engage else 'Lower engagement likelihood',
+                'method': 'apollo_boolean'
+            })
+            total += eng_score * 2.0
+            max_total += 10 * 2.0
+
+        # Factor 11: Seniority / decision-maker signal (weight 2.0, null-aware)
+        # Owners/founders/C-suite can greenlight JVs without approval chains
+        seniority = (getattr(target, 'seniority', None) or '').strip().lower()
+        _SENIORITY_SCORES = {
+            'owner': 10.0, 'founder': 10.0, 'c_suite': 9.0,
+            'vp': 7.5, 'director': 6.5, 'manager': 5.0,
+            'senior': 4.0, 'entry': 3.0,
+        }
+        if seniority and seniority in _SENIORITY_SCORES:
+            sen_score = _SENIORITY_SCORES[seniority]
+            factors.append({
+                'name': 'Decision Authority', 'score': sen_score,
+                'weight': 2.0, 'detail': f'Seniority: {seniority}',
+                'method': 'lookup_table'
+            })
+            total += sen_score * 2.0
+            max_total += 10 * 2.0
+
         score = (total / max_total) * 10 if max_total > 0 else 0
         return {'score': round(score, 2), 'factors': factors}
 
