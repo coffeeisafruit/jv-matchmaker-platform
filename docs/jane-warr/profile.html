@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selling on the Spot &middot; Client Profile</title>
+    <title>Jane Warr · Selling on the Spot · Client Profile</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">
@@ -12,91 +12,259 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--cream); color: var(--ink); line-height: 1.5; -webkit-font-smoothing: antialiased; min-height: 100vh; }
         body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.03; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+        .review-banner { background: var(--forest); color: var(--gold-light); font-size: 13px; text-align: center; padding: 10px 20px; letter-spacing: 0.02em; }
         .container { max-width: 820px; margin: 0 auto; padding: 24px 20px 80px; position: relative; }
-        .hub-link { margin-bottom: 16px; font-size: 13px; }
-        .hub-link a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
         .header { text-align: center; padding: 32px 0 24px; border-bottom: 1px solid var(--gold-light); margin-bottom: 32px; }
         .header-eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
         .header h1 { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 500; color: var(--forest); letter-spacing: -0.02em; }
         .header-meta { margin-top: 12px; font-size: 13px; color: var(--muted); }
         .header-meta a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
-        .main { margin-bottom: 2rem; }
         .client-card { background: var(--card); border-radius: 8px; padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; gap: 1rem; align-items: flex-start; }
         .client-avatar { width: 56px; height: 56px; background: var(--forest); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gold); font-weight: 600; font-size: 1.25rem; flex-shrink: 0; }
         .client-info h2 { font-family: 'Playfair Display', Georgia, serif; font-size: 1.125rem; font-weight: 500; color: var(--forest); }
         .client-company { color: var(--muted); font-size: 0.875rem; }
-        .client-title { color: var(--ink); font-size: 0.8125rem; margin-top: 0.25rem; }
+        .client-tagline { color: var(--ink); font-size: 0.8125rem; margin-top: 0.25rem; line-height: 1.4; }
         .section { background: var(--card); border-radius: 8px; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); overflow: hidden; }
         .section-header { padding: 0.875rem 1.25rem; border-bottom: 1px solid var(--gold-light); background: var(--cream); }
         .section-title { font-family: 'Playfair Display', Georgia, serif; font-size: 16px; font-weight: 500; color: var(--forest); }
         .section-body { padding: 1.25rem; }
         .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
         @media (max-width: 480px) { .info-grid { grid-template-columns: 1fr; } }
+        .info-item { margin-bottom: 0.25rem; }
         .info-item label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.25rem; }
         .info-item .value { font-weight: 600; font-size: 0.9375rem; color: var(--ink); }
-        .info-item .sub { font-size: 0.75rem; color: var(--muted); }
         .info-item .highlight { color: var(--gold); }
         .info-item a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
-        .commission-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1.25rem; }
-        .commission-box { text-align: center; padding: 1rem; background: var(--blush); border-radius: 6px; }
-        .commission-box.highlight { background: var(--forest); }
-        .commission-value { font-size: 1.25rem; font-weight: 700; color: var(--ink); }
-        .commission-box.highlight .commission-value { color: var(--gold); }
-        .commission-label { font-size: 0.6875rem; color: var(--muted); margin-top: 0.25rem; }
-        .commission-box.highlight .commission-label { color: var(--gold-light); }
+        .stat-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .stat-box { flex: 1; min-width: 110px; text-align: center; padding: 1rem; background: var(--blush); border-radius: 6px; }
+        .stat-box.green { background: var(--forest); }
+        .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--ink); }
+        .stat-box.green .stat-value { color: var(--gold); }
+        .stat-label { font-size: 0.6875rem; color: var(--muted); margin-top: 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .stat-box.green .stat-label { color: var(--gold-light); }
         .text-block { font-size: 0.875rem; color: var(--ink); }
-        .text-block p { margin-bottom: 1rem; }
-        .text-block p:last-child { margin-bottom: 0; }
-        .text-block strong { color: var(--forest); }
-        .text-block ul { list-style: none; margin: 0.5rem 0; }
-        .text-block li { padding: 0.25rem 0; padding-left: 1rem; position: relative; }
+        .text-block ul { list-style: none; }
+        .text-block li { padding: 0.3rem 0; padding-left: 1rem; position: relative; }
         .text-block li::before { content: "\2022"; position: absolute; left: 0; color: var(--gold); }
+        .divider { border: none; border-top: 1px solid #f0f0f0; margin: 1rem 0; }
+        .headline { font-family: 'Playfair Display', Georgia, serif; font-size: 1rem; font-weight: 500; color: var(--forest); margin-bottom: 0.75rem; line-height: 1.4; font-style: italic; }
+        .tier-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; }
+        .tier-card { border: 1px solid var(--gold-light); border-radius: 6px; padding: 1rem; }
+        .tier-name { font-weight: 600; color: var(--forest); font-size: 0.9375rem; margin-bottom: 0.25rem; }
+        .tier-price { font-size: 0.8125rem; color: var(--muted); margin-bottom: 0.5rem; }
+        .tier-desc { font-size: 0.8125rem; color: var(--ink); margin-bottom: 0.5rem; }
+        .tier-commission { font-size: 0.75rem; color: var(--gold); font-weight: 600; }
+        .faq-item { border-bottom: 1px solid #f0f0f0; padding: 0.875rem 0; }
+        .faq-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .faq-q { font-weight: 600; font-size: 0.875rem; color: var(--forest); margin-bottom: 0.35rem; }
+        .faq-a { font-size: 0.875rem; color: var(--ink); }
+        .stage-names { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .stage-tag { background: var(--blush); border-radius: 4px; padding: 0.25rem 0.625rem; font-size: 0.8125rem; color: var(--ink); }
+        .review-note { background: #fffbf0; border: 1px solid var(--gold-light); border-radius: 6px; padding: 0.875rem 1.125rem; font-size: 0.8125rem; color: var(--ink); margin-bottom: 1.25rem; line-height: 1.6; }
+        .review-note strong { color: var(--forest); }
         .contact-footer { background: var(--card); border-radius: 8px; padding: 1.25rem; text-align: center; font-size: 0.8125rem; color: var(--muted); margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
         .contact-footer a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
         .footer { border-top: 1px solid var(--gold-light); padding: 1.5rem; text-align: center; font-size: 0.75rem; color: var(--muted); }
-        .footer a { color: var(--forest); text-decoration: underline; text-underline-offset: 2px; }
     </style>
 </head>
 <body>
+    <div class="review-banner">Please review your profile below and let us know if anything needs updating.</div>
     <div class="container">
-        <p class="hub-link"><a href="index.html">&larr; Partner report home</a></p>
+
         <header class="header">
-            <div class="header-eyebrow">Client Profile</div>
+            <div class="header-eyebrow">Client Profile &middot; For Your Review</div>
             <h1>Jane Warr</h1>
-            <div class="header-meta">Selling on the Spot</div>
+            <div class="header-meta">Selling on the Spot &nbsp;&middot;&nbsp; <a href="https://sellingonthespot.com/member-plans" target="_blank" rel="noopener">sellingonthespot.com/member-plans</a></div>
         </header>
-        <main class="main">
-            <div class="client-card">
-                <div class="client-avatar">JW</div>
-                <div class="client-info">
-                    <h2>Jane Warr</h2>
-                    <div class="client-company">Selling on the Spot</div>
-                    <div class="client-title">business training</div>
+
+        <div class="review-note">
+            <strong>Hi Jane &mdash;</strong> This is the profile we&rsquo;ve built for you based on your intake form. We use this to match you with the right JV partners. Please look it over and let us know if anything is off, missing, or needs a tweak before we send your matches.
+        </div>
+
+        <div class="client-card">
+            <div class="client-avatar">JW</div>
+            <div class="client-info">
+                <h2>Jane Warr</h2>
+                <div class="client-company">Selling on the Spot Inc.</div>
+                <div class="client-tagline">Founder &amp; CEO &middot; Award-winning Communications &amp; Sales Trainer &middot; 5X International Bestselling Author</div>
+            </div>
+        </div>
+
+        <!-- Reach -->
+        <div class="section">
+            <div class="section-header"><span class="section-title">Your Reach</span></div>
+            <div class="section-body">
+                <div class="stat-row">
+                    <div class="stat-box green"><div class="stat-value">8K</div><div class="stat-label">Email Subscribers</div></div>
+                    <div class="stat-box green"><div class="stat-value">19K</div><div class="stat-label">Other Audience</div></div>
+                    <div class="stat-box green"><div class="stat-value">27K+</div><div class="stat-label">Combined Reach</div></div>
+                    <div class="stat-box"><div class="stat-value">8+</div><div class="stat-label">Years in Business</div></div>
+                    <div class="stat-box"><div class="stat-value">5</div><div class="stat-label">Int'l Bestsellers</div></div>
                 </div>
             </div>
-            <div class="section">
-                <div class="section-header"><span class="section-title">The Profile</span></div>
-                <div class="section-body"><div class="info-grid"><div class="info-item"><label>Current Focus</label><div class="value">Jane Warr is the Founder &amp; CEO of Selling on the Spot Inc..</div></div><div class="info-item"><label>Niche</label><div class="value highlight">business training</div></div><div class="info-item"><label>Target Audience</label><div class="value">Jane serves entrepreneurs and business owners globally, helping them to grow their businesses and thrive despite challenges.</div></div><div class="info-item"><label>Network Reach</label><div class="value">30K</div><div class="sub">Jane Warr&#x27;s subscriber network</div></div></div><div style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f0f0f0;"><div class="info-item"><label>Main Website</label><a href="https://www.sellingonthespotmarketplace.com/bio---jane-warr" target="_blank" rel="noopener">https://www.sellingonthespotmarketplace.com/bio---jane-warr</a></div></div></div>
-            </div>
-            
-            <div class="section">
-                <div class="section-header"><span class="section-title">What Jane Warr Offers Partners</span></div>
-                <div class="section-body"><div class="commission-grid"><div class="commission-box highlight"><div class="commission-value">30K</div><div class="commission-label">Email List</div></div><div class="commission-box"><div class="commission-value">10K</div><div class="commission-label">Social Reach</div></div><div class="commission-box"><div class="commission-value">55%</div><div class="commission-label">Engagement</div></div></div><div class="text-block" style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid #f0f0f0;"><p><strong>What You Get:</strong></p><ul><li>Networking Groups</li><li>Sales Training</li></ul></div></div>
-            </div>
-            
-            <div class="section">
-                <div class="section-header"><span class="section-title">About Jane Warr</span></div>
-                <div class="section-body text-block"><p>Award-winning Communications &amp; Sales Trainer, 5X international best-selling Author, international Speaker, and has grown the Selling on the Spot brand for over 8 years.</p><p><strong>Credentials / Core Offers:</strong></p><ul><li><strong>Networking Groups</strong></li><li><strong>Sales Training</strong></li></ul></div>
-            </div>
-            <div class="section"><div class="section-header"><span class="section-title">Resources &amp; Links</span></div><div class="section-body text-block"><ul><li><a href="https://www.sellingonthespotmarketplace.com/bio---jane-warr" target="_blank" rel="noopener">sellingonthespotmarketplace.com/bio---jane-warr</a> &mdash; Main website</li><li><a href="https://ca.linkedin.com/in/janewarr" target="_blank" rel="noopener">LinkedIn Profile</a></li><li><a href="https://www.youtube.com/watch?v=SiW5QZ76dT4" target="_blank" rel="noopener">YouTube</a></li></ul></div></div>
-            <div class="section"><div class="section-header"><span class="section-title">Ideal Partner Profile</span></div><div class="section-body text-block"><p>Partners serving <strong>Jane serves entrepreneurs and business owners globally, helping them to grow their businesses and thrive despite challenges.</strong>.</p><p style="color:var(--muted); margin-top: 0.75rem;">Jane Warr is the Founder &amp; CEO of Selling on the Spot Inc., a global business training company that focuses on providing a platform for business owners to market and sell their products.</p></div></div>
-            <div class="section"><div class="section-header"><span class="section-title">What Jane Warr Is Seeking</span></div><div class="section-body text-block"><p><strong>JV Partnership Goals:</strong></p><ul><li>Interested in becoming a Licensee or Facilitator.</li></ul></div></div>
-            <div class="section"><div class="section-header"><span class="section-title">Areas of Expertise</span></div><div class="section-body text-block"><ul><li>business training</li><li>sales training</li><li>entrepreneurship</li><li>coaching</li><li>marketing</li><li>events</li><li>online business</li></ul></div></div>
-            <div class="contact-footer"><div>Questions or updates?</div><a href="mailto:help@jvmatches.com">help@jvmatches.com</a></div>
-        </main>
-        <div class="footer">
-            Selling on the Spot &middot; <a href="index.html">Partner report</a> &middot; Client Profile &middot; <a href="https://www.sellingonthespotmarketplace.com/bio---jane-warr" target="_blank" rel="noopener">sellingonthespotmarketplace.com/bio---jane-warr</a>
         </div>
+
+        <!-- Profile -->
+        <div class="section">
+            <div class="section-header"><span class="section-title">Your Profile</span></div>
+            <div class="section-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <label>What You Do</label>
+                        <div class="value" style="font-weight:400;font-size:0.875rem;">Jane Warr is the Founder &amp; CEO of Selling on the Spot Inc., a global business training company that provides a platform for business owners to market and sell their products effectively and ethically through engaging events.</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Who You Serve</label>
+                        <div class="value" style="font-weight:400;font-size:0.875rem;">Entrepreneurs and business owners globally who want to grow their businesses and thrive.</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Niche</label>
+                        <div class="value highlight">Business Training &amp; Ethical Selling</div>
+                    </div>
+                    <div class="info-item">
+                        <label>Target Audience</label>
+                        <div class="value">Entrepreneurs &amp; Business Owners</div>
+                    </div>
+                </div>
+                <hr class="divider">
+                <div class="info-item">
+                    <label>Signature Programs</label>
+                    <div class="value" style="font-weight:400;font-size:0.875rem;">Selling on the Spot Membership, Affiliate Program, e-Market, Master Class, Marketing Mastery, Media Training Academy, Systems, Money, Mindset &amp; Resources</div>
+                </div>
+                <hr class="divider">
+                <div class="info-item">
+                    <label>Main Website</label>
+                    <a href="https://sellingonthespot.com/member-plans" target="_blank" rel="noopener">sellingonthespot.com/member-plans</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seeking -->
+        <div class="section">
+            <div class="section-header"><span class="section-title">What You&rsquo;re Seeking</span></div>
+            <div class="section-body">
+                <div class="text-block">
+                    <ul>
+                        <li>Audience / Exposure, Affiliates / Promoters, Leads / Referrals</li>
+                        <li>Especially focused on growing your Membership and converting leads to Members at scale</li>
+                        <li>Referral partners who serve clients <em>before</em> you in the journey (upstream providers in mindset, branding, lead generation, productivity)</li>
+                        <li>Affiliates for your 3&times; annual Marketplace events</li>
+                        <li>Preferred partnership type to start: Referral &ndash; Before (open to peer/bundle as next step)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Offering -->
+        <div class="section">
+            <div class="section-header"><span class="section-title">What You Offer Partners</span></div>
+            <div class="section-body">
+                <div class="text-block">
+                    <ul>
+                        <li>Co-promotion emails to your 8K subscriber list for partner launches and events</li>
+                        <li>Affiliate tracking + commissions for Marketplace event referrals (3&times; per year)</li>
+                        <li>Speaking or guest expert opportunity inside the Selling on the Spot Membership community</li>
+                        <li>Social media cross-promotion across your 19K+ other audience channels</li>
+                        <li>Referral introductions to your network of past JV partners</li>
+                    </ul>
+                </div>
+                <hr class="divider">
+                <p style="font-size:0.8125rem;color:var(--muted);">Offering categories: Email List / Audience &middot; Coaching / Training &middot; Courses / Programs &middot; Software / Tech &middot; Referrals / Introductions &middot; Events / Speaking</p>
+            </div>
+        </div>
+
+        <!-- Positioning -->
+        <div class="section">
+            <div class="section-header"><span class="section-title">Your Partner Positioning</span></div>
+            <div class="section-body">
+                <p class="headline">&ldquo;Jane Warr gives your audience a proven, ethical system for selling more &mdash; and a thriving Membership community to keep growing inside.&rdquo;</p>
+                <div class="text-block">
+                    <ul>
+                        <li>27K+ combined audience of entrepreneurs and business owners ready to grow their sales skills</li>
+                        <li>8K engaged email subscribers plus 19K social/community reach for co-promotion and affiliate campaigns</li>
+                        <li>3&times; annual Marketplace events &mdash; high-converting promotional moments for affiliate partners</li>
+                        <li>Selling on the Spot Membership: recurring revenue program with a clear conversion path for referred leads</li>
+                        <li>5X international bestselling author and award-winning Communications &amp; Sales Trainer &mdash; proven credibility that converts</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partnership Opportunities -->
+        <div class="section">
+            <div class="section-header"><span class="section-title">Partnership Opportunities</span></div>
+            <div class="section-body">
+                <div class="tier-grid">
+                    <div class="tier-card">
+                        <div class="tier-name">Selling on the Spot Membership</div>
+                        <div class="tier-price">See sellingonthespot.com/member-plans</div>
+                        <div class="tier-desc">Monthly/annual membership giving entrepreneurs access to training, tools, software, and the Selling on the Spot community and Marketplace events.</div>
+                        <div class="tier-commission">Affiliate commissions available &mdash; contact Jane for details</div>
+                    </div>
+                    <div class="tier-card">
+                        <div class="tier-name">Marketplace Affiliate Partner</div>
+                        <div class="tier-price">Commission-based &mdash; contact Jane</div>
+                        <div class="tier-desc">3&times; annual Marketplace events where affiliate partners promote to Jane&rsquo;s 27K audience. Includes tracking links, promotional assets, and commission on referred sales.</div>
+                        <div class="tier-commission">Affiliate commission structure &mdash; inquire directly</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Past JV Partners -->
+        <div class="section">
+            <div class="section-header"><span class="section-title">Past JV Partners</span></div>
+            <div class="section-body">
+                <div class="stage-names">
+                    <span class="stage-tag">Robert Martinez</span>
+                    <span class="stage-tag">Shiraz Baboo</span>
+                    <span class="stage-tag">Catharine O&rsquo;Leary</span>
+                    <span class="stage-tag">Orly Amor</span>
+                    <span class="stage-tag">Joe Apfelbaum</span>
+                    <span class="stage-tag">Thomas Gay</span>
+                    <span class="stage-tag">Iman Aghay</span>
+                    <span class="stage-tag">Steve Brossman</span>
+                    <span class="stage-tag">Mike Filsaime</span>
+                    <span class="stage-tag">Chuck Anderson</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQs -->
+        <div class="section">
+            <div class="section-header"><span class="section-title">Partner FAQs</span></div>
+            <div class="section-body">
+                <div class="faq-item">
+                    <div class="faq-q">What does Jane offer JV partners?</div>
+                    <div class="faq-a">Jane offers co-promotion to her 8K email list and 19K+ other audience, affiliate opportunities at her 3&times; annual Marketplace events, speaking slots inside her Membership community, and reciprocal referrals from her established JV network.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">Who is the ideal partner for Jane?</div>
+                    <div class="faq-a">Partners who serve entrepreneurs and business owners &mdash; especially those upstream in the journey (mindset, branding, lead gen, productivity) who can refer clients ready to work on their sales and marketing skills.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">What is the Selling on the Spot Membership?</div>
+                    <div class="faq-a">A recurring-revenue community for business owners who want to market and sell their products ethically through events. Members get training, tools (including software and courses), and a Marketplace platform to grow their business.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">How do the Marketplace events work for affiliates?</div>
+                    <div class="faq-a">Jane runs 3 Marketplace events per year where affiliates can promote to her audience. Affiliate partners receive tracking links, promotional support, and commissions on referred sales.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q">What partnership types is Jane prioritizing right now?</div>
+                    <div class="faq-a">Jane is prioritizing referral partnerships with upstream service providers, and affiliate relationships for her Marketplace events. She&rsquo;s open to peer bundles and cross-promotions but wants to start with one focused partnership type.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="contact-footer">
+            Questions or changes? Reply to this email or reach us at <a href="mailto:help@jvmatches.com">help@jvmatches.com</a>
+        </div>
+
+        <div class="footer">
+            Prepared by JV Matchmaker &nbsp;&middot;&nbsp; Confidential &mdash; for Jane Warr&rsquo;s review only
+        </div>
+
     </div>
 </body>
 </html>
