@@ -225,10 +225,10 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-# CSRF Trusted Origins (for DigitalOcean)
+# CSRF Trusted Origins (for Railway)
 CSRF_TRUSTED_ORIGINS = os.environ.get(
     "CSRF_TRUSTED_ORIGINS",
-    "https://*.ondigitalocean.app"
+    "https://*.up.railway.app"
 ).split(",")
 
 # ---------------------------------------------------------------------------
