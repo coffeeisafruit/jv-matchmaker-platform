@@ -1907,6 +1907,13 @@ class SupabaseMatchScoringService:
         'linkedin', 'audience_type', 'network_role',
     ]
 
+    # Seniority → decision-authority score (used by Factor 11)
+    _SENIORITY_SCORES = {
+        'owner': 10.0, 'founder': 10.0, 'c_suite': 9.0,
+        'vp': 7.5, 'director': 6.5, 'manager': 5.0,
+        'senior': 4.0, 'entry': 3.0,
+    }
+
     def _score_intent(self, target: SupabaseProfile, outcome_data=None) -> dict:
         """Score partnership readiness signals for target profile."""
         factors = []
@@ -2040,13 +2047,8 @@ class SupabaseMatchScoringService:
         # Factor 11: Seniority / decision-maker signal (weight 2.0, null-aware)
         # Owners/founders/C-suite can greenlight JVs without approval chains
         seniority = (getattr(target, 'seniority', None) or '').strip().lower()
-        _SENIORITY_SCORES = {
-            'owner': 10.0, 'founder': 10.0, 'c_suite': 9.0,
-            'vp': 7.5, 'director': 6.5, 'manager': 5.0,
-            'senior': 4.0, 'entry': 3.0,
-        }
-        if seniority and seniority in _SENIORITY_SCORES:
-            sen_score = _SENIORITY_SCORES[seniority]
+        if seniority and seniority in self._SENIORITY_SCORES:
+            sen_score = self._SENIORITY_SCORES[seniority]
             factors.append({
                 'name': 'Decision Authority', 'score': sen_score,
                 'weight': 2.0, 'detail': f'Seniority: {seniority}',
@@ -2597,7 +2599,9 @@ class SupabaseMatchScoringService:
     def _score_intent_lightweight(self, target: SupabaseProfile) -> float:
         """Simplified intent score (0-10): booking_link + profile investment.
 
-        Skips JV history and website presence to stay fast on partial data.
+        Skips JV history, website presence, and Apollo signals (Factors 9-11)
+        to stay fast on partial data. Apollo factors are null-aware in the full
+        scorer so omitting them here only matters for pre-screening thresholds.
         """
         total = 0.0
         max_total = 0.0

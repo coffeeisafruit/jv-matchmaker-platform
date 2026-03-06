@@ -1972,11 +1972,9 @@ class PipelineStatsAPIView(View):
 
     def get(self, request):
         if not request.user.is_authenticated and not _arch_session_get(request):
-            from django.http import JsonResponse as _JR
-            return _JR({'error': 'Unauthorized'}, status=401)
+            return JsonResponse({'error': 'Unauthorized'}, status=401)
 
-        import time as _time
-        now = _time.time()
+        now = time.time()
         if _pipeline_stats_cache['data'] and now < _pipeline_stats_cache['expires']:
             return JsonResponse(_pipeline_stats_cache['data'])
 
@@ -2034,9 +2032,17 @@ class PipelineStatsAPIView(View):
                 # Add name coverage (= total since we filtered on it)
                 field_coverage['name'] = {'count': total, 'pct': 100.0}
 
-                # Scored + reported (smaller tables, fast)
-                cur.execute("SELECT COUNT(DISTINCT profile_id) FROM match_suggestions WHERE harmonic_mean IS NOT NULL")
-                scored = cur.fetchone()[0]
+                # Match suggestions stats (single scan)
+                cur.execute("""
+                    SELECT
+                        COUNT(*) AS total,
+                        COUNT(DISTINCT profile_id) FILTER (WHERE harmonic_mean IS NOT NULL) AS scored,
+                        COUNT(*) FILTER (WHERE harmonic_mean >= 64) AS high_quality
+                    FROM match_suggestions
+                """)
+                ms = cur.fetchone()
+                match_total, scored, match_hq = ms[0], ms[1], ms[2]
+
                 cur.execute("SELECT COUNT(*) FROM member_reports WHERE is_active = true")
                 reported = cur.fetchone()[0]
 
@@ -2047,12 +2053,6 @@ class PipelineStatsAPIView(View):
                     'scored': scored,
                     'reported': reported,
                 }
-
-                # Match stats
-                cur.execute("SELECT COUNT(*) FROM match_suggestions")
-                match_total = cur.fetchone()[0]
-                cur.execute("SELECT COUNT(*) FROM match_suggestions WHERE harmonic_mean >= 64")
-                match_hq = cur.fetchone()[0]
                 match_stats = {'total': match_total, 'high_quality': match_hq}
 
         except Exception:
@@ -2250,7 +2250,7 @@ class ArchitectureAccessView(View):
             response.set_cookie(
                 _ARCH_COOKIE, _ARCH_COOKIE_VALUE,
                 max_age=60 * 60 * 24 * 30,  # 30 days
-                httponly=True, samesite='Lax',
+                httponly=True, samesite='Lax', secure=True,
             )
             return response
         return render(request, 'matching/architecture_access.html', {'error': 'Incorrect password.'})
