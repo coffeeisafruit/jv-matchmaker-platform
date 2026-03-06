@@ -2164,6 +2164,15 @@ class SalesPageView(View):
         return render(request, 'matching/sales/page.html')
 
 
+# ─── CLIENT PROFILE REVIEW PAGES (no auth required) ───
+
+class JaneWarrProfileView(View):
+    """Standalone client profile page for Jane Warr to review."""
+
+    def get(self, request):
+        return render(request, 'matching/jane_warr_profile.html')
+
+
 # ─── ARCHITECTURE DIAGRAM (password-gated internal view) ───
 
 ARCHITECTURE_PASSWORD = 'coffeeisafruit'

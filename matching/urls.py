@@ -83,6 +83,9 @@ urlpatterns = [
     path('architecture/', views.ArchitectureAccessView.as_view(), name='architecture-access'),
     path('architecture/diagram/', views.ArchitectureDiagramView.as_view(), name='architecture-diagram'),
 
+    # Client profile review pages (no auth required)
+    path('profile-review/jane-warr/', views.JaneWarrProfileView.as_view(), name='jane-warr-profile'),
+
     # Client profile verification (token-gated, no login required)
     path('verify/<uuid:token>/', views_verification.ProfileVerificationView.as_view(), name='verification-form'),
     path('verify/<uuid:token>/submit/', views_verification.ProfileVerificationSubmitView.as_view(), name='verification-submit'),
