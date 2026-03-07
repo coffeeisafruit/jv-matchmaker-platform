@@ -56,7 +56,7 @@ SCRAPER_QUALITY_QUERY = """
 def _get_db_connection() -> psycopg2.extensions.connection:
     """Create a new psycopg2 connection, preferring direct over pgbouncer."""
     dsn = os.environ.get("DIRECT_DATABASE_URL") or os.environ["DATABASE_URL"]
-    return psycopg2.connect(dsn)
+    return psycopg2.connect(dsn, options="-c statement_timeout=0")
 
 
 # ---------------------------------------------------------------------------
