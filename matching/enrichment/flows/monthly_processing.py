@@ -348,10 +348,11 @@ def rescore_all_matches(dry_run: bool = False) -> dict[str, Any]:
 
 @task(name="run-gap-detection", retries=1, retry_delay_seconds=10)
 def run_gap_detection(
-    target_score: int = 70,
+    target_score: int = 64,
     target_count: int = 10,
+    client_limit: int = 0,
 ) -> list[dict[str, Any]]:
-    """Run gap detection for all active clients.
+    """Run gap detection for active clients.
 
     Delegates to ``detect_gaps_batch`` from the gap_detection module.
 
@@ -364,16 +365,48 @@ def run_gap_detection(
     from matching.enrichment.flows.gap_detection import detect_gaps_batch
 
     logger.info(
-        "Running gap detection: target_score=%d, target_count=%d",
+        "Running gap detection: target_score=%d, target_count=%d, client_limit=%d",
         target_score,
         target_count,
+        client_limit,
     )
 
-    # Call the underlying task function directly (we're already in a flow)
-    gaps = detect_gaps_batch.fn(
-        target_score=target_score,
-        target_count=target_count,
-    )
+    if client_limit > 0:
+        # Run on a subset of clients for faster testing / incremental runs
+        from matching.enrichment.flows.gap_detection import (
+            detect_match_gaps,
+            _get_db_connection,
+            _ACTIVE_CLIENTS_SQL,
+        )
+        from psycopg2.extras import RealDictCursor
+
+        conn = _get_db_connection()
+        try:
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            cur.execute(_ACTIVE_CLIENTS_SQL)
+            rows = cur.fetchall()
+            client_ids = [str(r["profile_id"]) for r in rows][:client_limit]
+        finally:
+            conn.close()
+
+        logger.info("Gap detection on %d clients (limited from %d)", len(client_ids), len(rows))
+        gaps = []
+        for cid in client_ids:
+            try:
+                result = detect_match_gaps.fn(
+                    client_profile_id=cid,
+                    target_score=target_score,
+                    target_count=target_count,
+                )
+                gaps.append(result if isinstance(result, dict) else {"client_id": cid})
+            except Exception as exc:
+                logger.warning("Gap detection failed for %s: %s", cid, exc)
+    else:
+        # Full batch — all clients
+        gaps = detect_gaps_batch.fn(
+            target_score=target_score,
+            target_count=target_count,
+        )
 
     clients_with_gaps = sum(1 for g in gaps if g.get("has_gap"))
     logger.info(
@@ -511,6 +544,7 @@ def monthly_processing_flow(
     stale_days: int = 30,
     target_score: int = 64,
     target_count: int = 10,
+    client_limit: int = 0,
     skip_acquisition: bool = False,
     dry_run: bool = False,
 ) -> MonthlyProcessingResult:
@@ -603,6 +637,7 @@ def monthly_processing_flow(
     gaps = run_gap_detection(
         target_score=target_score,
         target_count=target_count,
+        client_limit=client_limit,
     )
     result.gaps_detected = sum(1 for g in gaps if g.get("has_gap"))
 
