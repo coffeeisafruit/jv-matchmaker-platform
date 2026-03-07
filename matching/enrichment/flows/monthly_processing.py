@@ -151,7 +151,6 @@ def flag_low_confidence_profiles(
             "low_confidence_count": len(low_conf_ids),
             "stale_count": len(stale_ids),
             "total_flagged": len(combined_ids),
-            "profile_ids": combined_ids,
         }
     finally:
         conn.close()
@@ -160,13 +159,13 @@ def flag_low_confidence_profiles(
 @task(name="re-enrich-stale-profiles", retries=1, retry_delay_seconds=30)
 def re_enrich_stale_profiles(
     stale_days: int = 30,
-    priority_ids: list[str] | None = None,
+    priority_count: int = 0,
     dry_run: bool = False,
 ) -> dict[str, Any]:
     """Re-enrich profiles whose data is older than *stale_days*.
 
-    When *priority_ids* is provided, those profiles are enriched first
-    (via ``profile_ids`` parameter on the enrichment flow), before
+    When *priority_count* > 0, runs a priority enrichment pass first
+    (low-confidence profiles, capped at 200 per run), before
     falling back to the standard refresh-mode selection.
 
     Delegates to the existing ``enrichment_flow`` in refresh mode.
@@ -184,16 +183,21 @@ def re_enrich_stale_profiles(
     priority_cost = 0.0
 
     # Phase A: Enrich priority (low-confidence / stale) profiles first
-    if priority_ids:
+    # Cap at 200 per run to avoid Prefect API payload limits.
+    # The enrichment flow queries the DB itself in refresh_mode.
+    if priority_count > 0:
+        batch_limit = min(priority_count, 200)
         logger.info(
-            "Re-enriching %d priority profiles (low-confidence/stale) before "
-            "standard refresh (dry_run=%s)",
-            len(priority_ids),
+            "Re-enriching up to %d priority profiles (of %d flagged) "
+            "before standard refresh (dry_run=%s)",
+            batch_limit,
+            priority_count,
             dry_run,
         )
         priority_result = enrichment_flow(
-            limit=len(priority_ids),
-            profile_ids=priority_ids,
+            limit=batch_limit,
+            priority="low_confidence",
+            refresh_mode=True,
             dry_run=dry_run,
         )
         priority_written = priority_result.profiles_written
@@ -558,12 +562,12 @@ def monthly_processing_flow(
         stale_days=29,
         dry_run=dry_run,
     )
-    priority_ids = flag_result.get("profile_ids", [])
-    result.priority_profiles_flagged = flag_result.get("total_flagged", 0)
+    priority_count = flag_result.get("total_flagged", 0)
+    result.priority_profiles_flagged = priority_count
     logger.info(
         "Flagged %d profiles for priority re-enrichment "
         "(%d low-confidence, %d stale)",
-        flag_result.get("total_flagged", 0),
+        priority_count,
         flag_result.get("low_confidence_count", 0),
         flag_result.get("stale_count", 0),
     )
@@ -572,7 +576,7 @@ def monthly_processing_flow(
     logger.info("Step 2/10: Re-enriching profiles (priority + stale)")
     enrich_result = re_enrich_stale_profiles(
         stale_days=stale_days,
-        priority_ids=priority_ids if priority_ids else None,
+        priority_count=priority_count,
         dry_run=dry_run,
     )
     result.profiles_re_enriched = enrich_result.get("profiles_written", 0)
