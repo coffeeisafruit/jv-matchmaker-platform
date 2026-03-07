@@ -67,7 +67,9 @@ class IngestionRecord:
 def _get_connection() -> psycopg2.extensions.connection:
     """Open a psycopg2 connection, preferring direct connection over pgbouncer."""
     url = os.environ.get("DIRECT_DATABASE_URL") or os.environ["DATABASE_URL"]
-    return psycopg2.connect(url)
+    conn = psycopg2.connect(url)
+    conn.cursor().execute("SET statement_timeout = 0")
+    return conn
 
 
 def _normalize_domain(raw: str | None) -> str:

@@ -55,8 +55,11 @@ class NewMatchResult:
 # ---------------------------------------------------------------------------
 
 def _get_connection() -> psycopg2.extensions.connection:
-    """Open a psycopg2 connection from DATABASE_URL."""
-    return psycopg2.connect(os.environ["DATABASE_URL"])
+    """Open a psycopg2 connection, preferring direct over pgbouncer."""
+    dsn = os.environ.get("DIRECT_DATABASE_URL") or os.environ["DATABASE_URL"]
+    conn = psycopg2.connect(dsn)
+    conn.cursor().execute("SET statement_timeout = 0")
+    return conn
 
 
 def _load_active_client_profiles(client_id_filter: str | None = None) -> list[SupabaseProfile]:
