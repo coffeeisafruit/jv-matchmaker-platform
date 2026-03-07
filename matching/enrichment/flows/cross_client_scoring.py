@@ -148,7 +148,7 @@ def _score_client_batch(
     Returns (all_rows, high_quality_rows) as plain dicts (picklable).
     """
     import django
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'matchmaker.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     django.setup()
 
     from matching.services import SupabaseMatchScoringService

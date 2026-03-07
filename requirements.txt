@@ -27,3 +27,9 @@ phonenumbers>=8.13.0
 # Production
 gunicorn>=21.0.0
 whitenoise>=6.6.0
+
+# Orchestration
+prefect>=3.6.0
+
+# YAML parsing (deploy_flows management command)
+PyYAML>=6.0

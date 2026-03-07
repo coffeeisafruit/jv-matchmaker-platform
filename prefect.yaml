@@ -27,6 +27,8 @@ deployments:
   # -----------------------------------------------------------------------
   - name: monthly-orchestrator
     entrypoint: matching/enrichment/flows/monthly_orchestrator.py:monthly_orchestrator_flow
+    work_pool:
+      name: railway-pool
     schedule:
       cron: "0 6 1 * *"
       timezone: "America/New_York"
@@ -43,6 +45,8 @@ deployments:
   # -----------------------------------------------------------------------
   - name: change-detection
     entrypoint: matching/enrichment/flows/change_detection_flow.py:change_detection_flow
+    work_pool:
+      name: railway-pool
     schedule:
       cron: "0 2 1-7 * 1"
       timezone: "America/New_York"
@@ -62,6 +66,8 @@ deployments:
   # -----------------------------------------------------------------------
   - name: client-verification
     entrypoint: matching/enrichment/flows/client_verification.py:client_verification_flow
+    work_pool:
+      name: railway-pool
     schedule:
       cron: "0 9 15-21 * 1"
       timezone: "America/New_York"
@@ -79,6 +85,8 @@ deployments:
   # -----------------------------------------------------------------------
   - name: monthly-processing
     entrypoint: matching/enrichment/flows/monthly_processing.py:monthly_processing_flow
+    work_pool:
+      name: railway-pool
     schedule:
       cron: "0 2 22-28 * 1"
       timezone: "America/New_York"
@@ -99,6 +107,8 @@ deployments:
   # -----------------------------------------------------------------------
   - name: admin-notification
     entrypoint: matching/enrichment/flows/admin_notification.py:admin_notification_flow
+    work_pool:
+      name: railway-pool
     schedule:
       cron: "0 9 22-28 * 2"
       timezone: "America/New_York"
@@ -116,6 +126,8 @@ deployments:
   # -----------------------------------------------------------------------
   - name: report-delivery
     entrypoint: matching/enrichment/flows/report_delivery.py:report_delivery_flow
+    work_pool:
+      name: railway-pool
     schedule:
       cron: "0 8 1 * *"
       timezone: "America/New_York"

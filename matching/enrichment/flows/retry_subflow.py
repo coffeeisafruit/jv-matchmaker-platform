@@ -155,6 +155,7 @@ def rebuild_profile_for_retry(record: dict) -> dict:
     name="retry-quarantined",
     description="Auto-retry quarantined profiles with adaptive strategies",
     retries=0,
+    timeout_seconds=1800,
 )
 def retry_quarantined_flow(
     quarantine_file: str = "",

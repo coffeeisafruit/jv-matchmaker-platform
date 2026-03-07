@@ -194,7 +194,7 @@ def final_judge_task(
     try:
         # --- Step 1: Load report data ---
         import django
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jv_matchmaker.settings')
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
         try:
             django.setup()
         except RuntimeError:
@@ -665,7 +665,7 @@ def _result_to_dict(result: JudgeResult) -> dict:
 if __name__ == '__main__':
     import argparse
     import django
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'jv_matchmaker.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     django.setup()
 
     parser = argparse.ArgumentParser(description='Run Final Production Judge')

@@ -16,8 +16,14 @@ Usage (Prefect):
 
 from __future__ import annotations
 
-import json
 import os
+
+# Django bootstrap — required when run by Prefect worker outside Django web process
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+import django  # noqa: E402
+django.setup()
+
+import json
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -476,13 +482,14 @@ def send_admin_email(
         return True
 
     try:
-        from outreach.email_service import EmailService
+        from django.core.mail import send_mail
 
-        email_svc = EmailService()
-        email_svc.send_email(
-            to=admin_email,
+        send_mail(
             subject=f"[JV Matchmaker] Monthly Admin Report -- {datetime.utcnow().strftime('%B %Y')}",
-            body=body,
+            message=body,
+            from_email=None,  # Uses DEFAULT_FROM_EMAIL from settings
+            recipient_list=[admin_email],
+            fail_silently=False,
         )
         logger.info("Admin notification sent to %s", admin_email)
         return True
@@ -499,6 +506,7 @@ def send_admin_email(
     name="admin-notification",
     description="Week 4 Tue: Generate admin report with AI analysis and suggestions",
     retries=0,
+    timeout_seconds=1800,
 )
 def admin_notification_flow(
     dry_run: bool = False,

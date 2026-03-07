@@ -17,6 +17,12 @@ Usage (Prefect):
 from __future__ import annotations
 
 import os
+
+# Django bootstrap — required when run by Prefect worker outside Django web process
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+import django  # noqa: E402
+django.setup()
+
 import secrets
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
@@ -348,6 +354,7 @@ def send_delivery_email(
     name="report-delivery",
     description="1st of month: Deliver updated reports with new access codes",
     retries=0,
+    timeout_seconds=1800,
 )
 def report_delivery_flow(
     dry_run: bool = False,

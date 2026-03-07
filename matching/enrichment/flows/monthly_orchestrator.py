@@ -155,6 +155,7 @@ def _day_of_week_name(dt: date | None = None) -> str:
     name="monthly-orchestrator",
     description="Top-level monthly cycle: freshness -> verification -> processing -> notification -> delivery",
     retries=0,
+    timeout_seconds=14400,
 )
 def monthly_orchestrator_flow(
     phase: str = "auto",

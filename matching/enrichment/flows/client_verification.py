@@ -9,9 +9,9 @@ Schedule:
     Wednesday - Follow-up if not yet confirmed
     Friday    - Final reminder with urgency
 
-Uses the existing EmailService from ``outreach.email_service`` and tracks
-verification status in the ``enrichment_metadata`` JSON column on the
-client's SupabaseProfile.
+Uses ``django.core.mail.send_mail`` for system notification emails and
+tracks verification status in the ``enrichment_metadata`` JSON column on
+the client's SupabaseProfile.
 
 Usage (CLI):
     python -m matching.enrichment.flows.client_verification --day monday
@@ -25,6 +25,12 @@ Usage (Prefect):
 from __future__ import annotations
 
 import os
+
+# Django bootstrap — required when run by Prefect worker outside Django web process
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+import django  # noqa: E402
+django.setup()
+
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -278,13 +284,14 @@ def send_verification_email(
     if dry_run:
         logger.info("[DRY RUN] Would send '%s' to %s", subject, client["email"])
     else:
-        from outreach.email_service import EmailService
+        from django.core.mail import send_mail
 
-        email_svc = EmailService()
-        email_svc.send_email(
-            to=client["email"],
+        send_mail(
             subject=subject,
-            body=body,
+            message=body,
+            from_email=None,  # Uses DEFAULT_FROM_EMAIL from settings
+            recipient_list=[client["email"]],
+            fail_silently=False,
         )
         logger.info("Sent '%s' to %s", template_key, client["email"])
 
@@ -349,6 +356,7 @@ def _update_verification_tracking(
     name="client-verification",
     description="Week 3: Send verification emails with escalating urgency",
     retries=0,
+    timeout_seconds=3600,
 )
 def client_verification_flow(
     day_of_week: str = "monday",
