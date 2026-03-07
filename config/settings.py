@@ -99,8 +99,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
-# Use PostgreSQL (Supabase) if DATABASE_URL is set, otherwise SQLite
-DATABASE_URL = os.environ.get("DATABASE_URL")
+# Prefer DIRECT_DATABASE_URL (port 5432, no statement timeout) over
+# DATABASE_URL (pgbouncer, port 6543) for long-running queries.
+DATABASE_URL = os.environ.get("DIRECT_DATABASE_URL") or os.environ.get("DATABASE_URL")
 
 if DATABASE_URL:
     import dj_database_url
