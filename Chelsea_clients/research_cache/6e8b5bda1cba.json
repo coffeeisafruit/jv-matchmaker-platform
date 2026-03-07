@@ -1,16 +1,45 @@
 {
   "name": "Sophia Soul",
   "company": "Our Sacred Community",
-  "website": "https://www.facebook.com/SophiaSoul11",
-  "list_size": 2000,
-  "offering": "Business Coaching, Coach Promotion, Content Marketing, Email Newsletters to Advertise, Event Hosting, Membership Platform, Networking Groups, Social Media Marketing, Speaking Opportunities, Spiritual Coaching",
-  "content_platforms": {
-    "linkedin": "https://www.linkedin.com/in/sophiasoul/",
-    "apple_podcast": "https://podcasts.apple.com/au/podcast/her-journey-home-a-personal-growth-podcast-for/id1784151151",
-    "instagram": "https://www.instagram.com/p/DQZhte5jgkG/",
-    "youtube": "https://www.youtube.com/watch?v=sIFh0VgvkOY"
-  },
-  "audience_engagement_score": 0.6000000000000001,
   "linkedin": "https://www.linkedin.com/in/sophiasoul/",
+  "list_size": 2000,
+  "seeking": "Seeking spiritual coaches and content creators for sacred community membership growth. Event hosts and networking groups for speaking opportunities and email newsletter swaps.",
+  "who_you_serve": "Women, spiritual coaches, and service providers seeking community connection, empowerment, and sacred networking opportunities.",
+  "what_you_do": "Build sacred community membership platforms and facilitate women's empowerment through spiritual coaching and networking events.",
+  "offering": "Business Coaching, Coach Promotion, Content Marketing, Email Newsletters to Advertise, Event Hosting, Membership Platform, Networking Groups, Social Media Marketing, Speaking Opportunities, Spiritual Coaching",
+  "facebook": "https://www.facebook.com/SophiaSoul11",
+  "instagram": "https://www.instagram.com/p/DQZhte5jgkG/",
+  "youtube": "https://www.youtube.com/watch?v=sIFh0VgvkOY",
+  "niche": "civic & social organization",
+  "tags": [
+    "community",
+    "personal growth",
+    "business development",
+    "education",
+    "tribe"
+  ],
+  "bio": "Sophia Soul is the Co-Founder/Women's Empowerment Facilitator\u2502Community Connector & Organiser of Our Sacred Community. They specialize in civic & social organization.",
+  "signature_programs": "Inspire, Innovate, Ignite; Shining The Light On Our Community",
+  "revenue_tier": "emerging",
+  "service_provided": "community membership, master classes, panel discussions, community engagement, affiliate program",
+  "current_projects": "Inspire, Innovate, Ignite July-Sept 2023, Shining The Light On Our Community",
+  "business_size": "small_team",
+  "business_focus": "Build sacred community membership platforms and facilitate women's empowerment through spiritual coaching and networking events. (civic & social organization)",
+  "audience_type": "Women, spiritual coaches, and service providers seeking community connection, empowerment, and sacre",
+  "content_platforms": {
+    "linkedin": "https://au.linkedin.com/in/sophiasoul",
+    "youtube": "https://www.youtube.com/watch?v=jRG35efEtx8",
+    "instagram": "https://www.instagram.com/p/DQZhte5jgkG/"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Reshmi Sha'uri Ha'nah Purmar | Heal Shame & Sadness to be the leader you crave to be. Reactivate you",
+      "format": "endorsement",
+      "source_quote": " an Indian woman I have witnessed and experienced, how silence often surrounds life\u2019s most painful and personal experiences.  ...   I am a spiritual healer and coach with a mission to support women an",
+      "source_url": "https://linkedin.com/in/sacredsoul"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001,
+  "website": "https://oursacredcommunity.com/",
   "_cache_schema_version": 2
 }

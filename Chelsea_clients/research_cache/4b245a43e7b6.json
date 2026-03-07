@@ -1,45 +1,54 @@
 {
   "name": "Tammy Lawman",
+  "email": "support@rockstarjv.com",
   "company": "Lawman Communications Inc.",
+  "website": "https://rockstarjv.com/gift/",
+  "linkedin": "https://www.linkedin.com/in/tammylawman",
   "list_size": 150000,
+  "seeking": "Seeking six-figure entrepreneurs for affiliate launch partnerships and summit collaborations. LinkedIn marketers and spiritual coaches for integrated communication training programs.",
+  "who_you_serve": "Aspiring Joint Venture and Affiliate Managers who want to build a thriving online business.",
+  "what_you_do": "Master networker and one of the top Joint Venture and Affiliate Managers in the personal development industry, helping others create a work-from-anywhere career as a JV & Affiliate Manager.",
   "offering": "Affiliate Managers, Business Consulting, Communication Training, Content Marketing, Copywriting, Email List Building, Joint Venture Resources, Launches for Online Programs, Linkedin Marketing, Marketing Coach, Sales Training, Speaker Promotion, Speaking Opportunities, Spiritual Coaching, Summit Creation",
+  "niche": "Joint Venture Management",
+  "tags": [
+    "entrepreneurship",
+    "relationship management",
+    "affiliate marketing",
+    "personal development"
+  ],
+  "bio": "Tammy Lawman serves as Chief Executive Officer at Lawman Communications Inc. They are dedicated to delivering exceptional results for their clients.",
+  "email_method": "website_scrape",
+  "signature_programs": "Free ebook on 5 easy steps to start as a JV & Affiliate Manager",
+  "revenue_tier": "emerging",
+  "service_provided": "1:1 coaching, group programs, courses, speaking, consulting",
+  "business_size": "small_team",
+  "social_proof": "Endorsements from industry leaders such as Mark Porteous, Christy Whitman, Marci Shimoff, and Debra Poneman.",
+  "business_focus": "Master networker and one of the top Joint Venture and Affiliate Managers in the personal development industry, helping others create a work-from-anywhere career as a JV & Affiliate Manager. (Joint Venture Management)",
+  "audience_type": "B2B",
   "content_platforms": {
     "linkedin": "https://www.linkedin.com/in/tammylawman",
-    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-lawmans-lounge/id1506222575"
+    "facebook": "https://www.facebook.com/UScellular/posts/today-were-excited-to-share-that-uscellular-is-now-part-of-t-mobile-to-bring-cus/1180956227394894/"
   },
   "jv_history": [
     {
       "partner_name": "Tammy Lawman - Lawman Communications, Inc.",
       "format": "endorsement",
-      "source_quote": "my Lawman is the CEO of Lawman Communications Inc. and her ... offers, and selling more of your products and services. Tammy Lawman is the CEO and her super power is networking and ... Link Lab LLC is",
+      "source_quote": "Tammy Lawman is the CEO of Lawman Communications Inc. and her  ...    offers, and selling more of your products and services. Tammy Lawman is the CEO and her super power is networking and  ...    Link",
       "source_url": "https://www.linkedin.com/in/tammylawman"
     },
     {
       "partner_name": "#amazonwebservices #telco #globalpartner #innovation #happy | Tammy Whyman | 123 comments",
       "format": "endorsement",
-      "source_quote": "Tammy Whyman Global Head of Partnerships at AWS-Telco industry \\| Growth \\| GenAI \\| Strategy and Transformation\n\n2y ... - [**Blinding Pride** \\",
+      "source_quote": " a new position as Global Partner Lead, Telco at [Amazon Web Services  ...   ![Tammy Wh",
       "source_url": "https://www.linkedin.com/posts/tammywhyman_amazonwebservices-telco-globalpartner-activity-6976547795063222273-B3gA"
+    },
+    {
+      "partner_name": "Allison Shuell - Director of Paid Social @ Spectrum Science",
+      "format": "affiliate",
+      "source_quote": " at Sterling Communications  ...    Sterling Communications is a PRSSA nationally affiliated student-run PR firm. As",
+      "source_url": "https://www.linkedin.com/in/allisonshuell"
     }
   ],
-  "website": "https://rockstarjv.com/gift/",
-  "linkedin": "https://www.linkedin.com/in/tammylawman",
-  "_cache_schema_version": 2,
-  "what_you_do": "Master networker and one of the top Joint Venture and Affiliate Managers in the personal development industry, helping others create a work-from-anywhere career as a JV & Affiliate Manager.",
-  "who_you_serve": "Aspiring Joint Venture and Affiliate Managers who want to build a thriving online business.",
-  "social_proof": "Endorsed by Mark Porteous (Co-Founder of Inspired Messengers Network), Christy Whitman (New York Times Bestselling Author), Marci Shimoff (Bestselling Author), and Debra Poneman (Bestselling Author). Over 20 years of experience in sales and marketing.",
-  "signature_programs": "Rock Star JV 5-Step Master Plan Ebook",
-  "niche": "Joint Venture Management",
-  "tags": [
-    "joint venture management",
-    "affiliate management",
-    "personal development",
-    "networking",
-    "online business",
-    "sales and marketing"
-  ],
-  "audience_type": "Aspiring JV/affiliate managers, online entrepreneurs",
-  "business_focus": "Training and mentoring aspiring Joint Venture and Affiliate Managers to build successful careers in the personal development industry.",
-  "service_provided": "JV and affiliate management, training, ebook, mentoring",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T00:27:23.736658"
+  "audience_engagement_score": 0.4,
+  "_cache_schema_version": 2
 }

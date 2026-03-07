@@ -1,31 +1,39 @@
 {
   "name": "Tim",
+  "company": "Tim Storey",
+  "website": "https://www.timstorey.com/",
   "list_size": 0,
   "seeking": "Tim, identified only as a business professional with no niche detail, likely seeks JV partners who can refer clients or provide complementary services within general business consulting or professional services. The absence of specifics suggests openness to a range of collaborative structures including referral agreements or co-promotion with established service providers. More data would be needed to target the right partnership type precisely.",
-  "content_platforms": {
-    "youtube": "https://www.youtube.com/c/WalkWithMeTim",
-    "spotify_podcast": "https://open.spotify.com/album/6Ad1E9vl75ZB3Ir87zwXIJ"
-  },
-  "audience_engagement_score": 0.55,
-  "social_reach": 25000,
-  "website": "https://www.timstorey.com/",
-  "_cache_schema_version": 2,
-  "what_you_do": "Tim Storey is an acclaimed culture influencing thought-leader, life strategist, author, speaker and counselor.",
   "who_you_serve": "Tim Storey connects on a personal level with people of all walks of life, from entertainment executives, celebrities, business moguls, and professional athletes to adults and children in neighborhoods throughout America and in the most deprived and war-torn regions of the world.",
-  "social_proof": "Tim Storey has been labeled as the Original Comeback Coach. He has worked with high-profile individuals such as Robert Downey, Jr., Charlie Sheen, Grant Cardone, Lewis Howes, Vidal Sassoon, Kanye West, and Christina Hall.",
-  "signature_programs": "The Miracle Mentality, Comeback & Beyond, Utmost Living",
-  "booking_link": "https://www.timstorey.com/booking",
+  "what_you_do": "Tim Storey is an acclaimed culture influencing thought-leader, life strategist, author, speaker and counselor.",
+  "offering": "Tim Storey brings rare cross-sector credibility as a thought-leader who connects with everyone from celebrities and executives to underserved communities worldwide, making him a high-reach partner for life coaching and personal development initiatives. His existing platform in coaching, speaking, and counseling offers JV partners broad audience access and strong brand association for transformational content or programs.",
+  "facebook": "http://www.facebook.com/timstoreyofficial",
+  "instagram": "http://instagram.com/timstoreyofficial",
+  "youtube": "https://www.youtube.com/c/WalkWithMeTim",
+  "twitter": "https://twitter.com/timstorey",
   "niche": "life coaching, personal development",
-  "company": "Tim Storey",
   "tags": [
+    "motivational speaker",
     "life coach",
     "personal development",
-    "author",
-    "speaker"
+    "leadership",
+    "public speaking"
   ],
-  "audience_type": "B2B, B2C",
-  "business_focus": "Tim Storey provides coaching, speaking, and counseling services to help people in personal recovery and discovery.",
-  "service_provided": "coaching, speaking, counseling",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T03:25:36.429375"
+  "bio": "Tim is a professional service provider offering specialized expertise. They work with clients to deliver tailored solutions and achieve meaningful outcomes in their field.",
+  "signature_programs": "Lead with Love Mastermind, Master the Stage",
+  "service_provided": "1:1 coaching, group programs, speaking engagements, counseling",
+  "current_projects": "Lead with Love Mastermind in Miami, YouTube channel, various speaking engagements",
+  "social_proof": "Endorsements from Oprah Winfrey, Steve Harvey, Robert Downey Jr.",
+  "business_focus": "Tim Storey is an acclaimed culture influencing thought-leader, life strategist, author, speaker and counselor. (life coaching, personal development)",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "youtube": "https://www.youtube.com/watch?v=3qZXJhEiELI",
+    "instagram": "http://instagram.com/timstoreyofficial",
+    "facebook": "http://www.facebook.com/timstoreyofficial",
+    "twitter": "https://twitter.com/timstorey",
+    "linkedin": "https://linkedin.com/in/chrysta-marquez-24263799",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/how-to-make-a-comeback/id1181233130?i=1000407594429&mt=2"
+  },
+  "audience_engagement_score": 0.65,
+  "_cache_schema_version": 2
 }

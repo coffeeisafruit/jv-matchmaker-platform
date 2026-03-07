@@ -1,43 +1,56 @@
 {
   "name": "Manny Wolfe",
+  "email": "petewiniarski@gmail.com",
   "company": "Opus Speaker Services",
+  "website": "https://dreamsarereal.libsyn.com/ep-55-the-brutal-journey-from-cult-to-coach-with-opus-speaker-services-founder-manny-wolfe",
+  "linkedin": "https://www.linkedin.com/in/mannywolfe",
   "list_size": 10000,
+  "seeking": "JV partnerships with speaking bureaus and event organizers needing outbound booking systems. Affiliate relationships with CRM and lead generation tools for speakers. Co-created speaking business programs with complementary visibility and marketing experts.",
+  "who_you_serve": "Busy, successful, visionary coaches",
+  "what_you_do": "Manny helps busy, successful, visionary coaches to get on stages and grow their businesses.",
+  "offering": "podcast appearances, speaking opportunities, media interviews",
+  "facebook": "https://www.facebook.com/therealmannywolfe/",
+  "youtube": "https://www.youtube.com/watch?v=ZgOC5N0URWo",
+  "niche": "speaking, coaching",
+  "tags": [
+    "coaching",
+    "public speaking",
+    "marketing",
+    "business growth"
+  ],
+  "bio": "founder of Opus Speaker Services, podcast host of The Manny Wolfe Show, sought-after speaker",
+  "email_method": "linkedin_scrape",
+  "signature_programs": "The Tao of the Unbreakable Man, The 7 Habits of Highly Successful People",
+  "revenue_tier": "emerging",
+  "service_provided": "public speaking coaching, marketing strategy, business growth consulting",
+  "social_proof": "Built multiple 6 and 7-figure businesses, author, speaker, helped numerous entrepreneurs grow their customer base and sales.",
+  "business_focus": "Manny helps busy, successful, visionary coaches to get on stages and grow their businesses. (speaking, coaching)",
+  "audience_type": "Busy, successful, visionary coaches",
   "content_platforms": {
+    "facebook": "https://www.facebook.com/OpusSpeakerServices/",
     "youtube": "https://www.youtube.com/watch?v=ZgOC5N0URWo",
-    "facebook": "https://www.facebook.com/therealmannywolfe/",
-    "linkedin": "https://www.linkedin.com/posts/onfleet_onfleet-welcomes-cory-woolf-as-chief-financial-activity-7026581498040369152-E3jL"
+    "linkedin": "https://www.linkedin.com/pulse/top-13-speaker-bureausagents-21-brant-menswar"
   },
   "jv_history": [
     {
-      "partner_name": "We're thrilled to make two announcements at Manifest: The Future of Logistics today!",
-      "format": "endorsement",
-      "source_quote": "Cory Woolf has been ... Onfleet Welcomes Cory Woolf as Chief Financial Officer and Announces New Partnership Ecosystem\n] \n```` ... ### Delivering Delight or Disappointment? How Last Mile",
-      "source_url": "https://www.linkedin.com/posts/onfleet_onfleet-welcomes-cory-woolf-as-chief-financial-activity-7026581498040369152-E3jL"
-    },
-    {
       "partner_name": "10 TIPS ON BOOKING A KEYNOTE SPEAKER AT YOUR EVENT",
       "format": "summit_speaker",
-      "source_quote": "10 TIPS ON BOOKING A KEYNOTE SPEAKER AT YOUR EVENT] ... event. www.wolfgangriebe",
+      "source_quote": "10 TIPS ON BOOKING A KEYNOTE SPEAKER AT YOUR EVENT ... event. www.wolfgangriebe",
       "source_url": "https://www.linkedin.com/pulse/10-tips-booking-keynote-speaker-your-event-riebe--nusjf"
+    },
+    {
+      "partner_name": "Hire The Best Sales Keynote Speaker | Wes- Schaeffer",
+      "format": "summit_speaker",
+      "source_quote": "knows a good speaker agent who wants to represent a magnificently mediocre speaker who is sporadically spectacular, ... The Wingman. I help Leaders Accelerate Cultures of Courage, Collaboration, & Tru",
+      "source_url": "https://www.linkedin.com/posts/thesaleswhisperer_hire-the-best-sales-keynote-speaker-activity-7213602071218900992-ATVk"
+    },
+    {
+      "partner_name": "Keppler Speakers Bureau | LinkedIn",
+      "format": "summit_speaker",
+      "source_quote": "company\u2019s growth trajectory has included an expanding client base that includes: Fortune 500 companies across a ... above it, the Keppler Speakers live event experience is weaved into programs that in",
+      "source_url": "https://br.linkedin.com/company/keppler-speakers"
     }
   ],
   "audience_engagement_score": 0.6000000000000001,
-  "website": "https://dreamsarereal.libsyn.com/ep-55-the-brutal-journey-from-cult-to-coach-with-opus-speaker-services-founder-manny-wolfe",
-  "linkedin": "https://www.linkedin.com/in/mannywolfe",
-  "_cache_schema_version": 2,
-  "what_you_do": "Manny helps busy, successful, visionary coaches to get on stages and grow their businesses.",
-  "who_you_serve": "Busy, successful, visionary coaches",
-  "social_proof": "Responsible for building multiple 6 and 7-figure businesses",
-  "signature_programs": "The Tao of the Unbreakable Man (Free Download)",
-  "niche": "speaking, coaching",
-  "tags": [
-    "entrepreneurship",
-    "self-improvement",
-    "management"
-  ],
-  "audience_type": "coaches",
-  "business_focus": "Helping coaches get on stages and grow their businesses",
-  "service_provided": "speaking services, marketing strategies",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T01:14:49.050432"
+  "_cache_schema_version": 2
 }

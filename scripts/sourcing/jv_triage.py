@@ -427,6 +427,7 @@ def get_connection():
 def ensure_columns(conn):
     """Add jv_tier, jv_readiness_score, and Apollo-derived columns if they don't exist."""
     with conn.cursor() as cur:
+        cur.execute("SET statement_timeout = '120s'")
         cur.execute("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS jv_tier VARCHAR(1);")
         cur.execute("ALTER TABLE profiles ADD COLUMN IF NOT EXISTS jv_readiness_score FLOAT;")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_profiles_jv_tier ON profiles (jv_tier);")
@@ -655,9 +656,10 @@ def main():
     print(f"Connected to database.")
 
     # Step 0: Ensure columns exist (skip in dry-run)
-    if not args.dry_run:
-        print("\nStep 0: Ensuring jv_tier + jv_readiness_score columns...")
-        ensure_columns(conn)
+    # Columns already exist in prod — skip ALTER TABLE to avoid statement timeout
+    # if not args.dry_run:
+    #     print("\nStep 0: Ensuring jv_tier + jv_readiness_score columns...")
+    #     ensure_columns(conn)
 
     # Step 1: Stream all profiles, classify + score
     print("\nStep 1: Streaming profiles, classifying tiers + scoring...")

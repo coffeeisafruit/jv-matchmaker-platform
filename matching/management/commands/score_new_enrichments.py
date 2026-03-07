@@ -109,7 +109,7 @@ class Command(BaseCommand):
                     SELECT id
                     FROM profiles
                     WHERE last_enriched_at >= %s
-                      AND jv_readiness_score >= 20
+                      AND jv_readiness_score >= 45
                       AND jv_tier = ANY(%s)
                     ORDER BY last_enriched_at DESC
                 """
@@ -119,7 +119,7 @@ class Command(BaseCommand):
                     SELECT id
                     FROM profiles
                     WHERE last_enriched_at >= %s
-                      AND jv_readiness_score >= 20
+                      AND jv_readiness_score >= 45
                     ORDER BY last_enriched_at DESC
                 """
                 params = [since_dt]

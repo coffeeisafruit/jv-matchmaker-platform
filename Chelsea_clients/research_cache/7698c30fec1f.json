@@ -1,37 +1,32 @@
 {
   "name": "Olga Alexeeva",
-  "company": "UltraVerity",
-  "list_size": 100,
-  "what_you_do": "Talks is a platform designed to help podcast hosts and guests collaborate effectively to increase their listeners, leads, and clients.",
-  "who_you_serve": "They serve podcast hosts and guests, particularly experts looking to amplify their message and reach a wider audience.",
-  "niche": "podcast collaboration",
-  "business_size": "small_team",
-  "tags": [
-    "podcast",
-    "collaboration",
-    "online events",
-    "lead generation",
-    "entrepreneurship"
-  ],
   "email": "support@talks.co",
+  "company": "UltraVerity",
+  "website": "https://talks.co/olgaalexeeva/",
+  "linkedin": "https://www.linkedin.com/in/olga-alexeeva-ultraverity",
+  "list_size": 100,
+  "seeking": "Podcast production services, guest booking agencies, and content marketing platforms for collaboration tool promotion. B2B partnerships with podcasting software and co-created growth strategies.",
+  "who_you_serve": "They serve podcast hosts and guests, particularly experts looking to amplify their message and reach a wider audience.",
+  "what_you_do": "Talks is a platform designed to help podcast hosts and guests collaborate effectively to increase their listeners, leads, and clients.",
+  "offering": "Talks is a platform designed to help podcast hosts and guests collaborate effectively to increase their listeners, leads, and clients.",
+  "youtube": "https://www.youtube.com/watch?v=qrIEXarfgEk",
+  "niche": "podcast collaboration",
+  "tags": [
+    "coaching",
+    "art",
+    "public speaking",
+    "women over 50",
+    "personal growth"
+  ],
   "bio": "Founded by Liam Austin, Alessandro Chisari, and Sarah Thorslund, with experience hosting numerous online events and building a substantial email list.",
+  "service_provided": "Coaching, speaking, podcast guest appearances, artistic and transformational storytelling.",
+  "business_size": "solo",
+  "social_proof": "Author of personal transformation book, 20+ years as gallery owner, bilingual Russian-American perspective.",
   "business_focus": "Talks is a platform designed to help podcast hosts and guests collaborate effectively to increase their listeners, leads, and clients. (podcast collaboration)",
   "audience_type": "They serve podcast hosts and guests, particularly experts looking to amplify their message and reach",
   "content_platforms": {
-    "linkedin": "https://www.linkedin.com/posts/olgaalex_great-conversation-oninside-aibyepfl-ai-activity-7298397304191868928-JvKY",
-    "apple_podcast": "https://podcasts.apple.com/ie/podcast/olga-lagunova/id1704935377?i=1000656252929",
-    "youtube": "https://www.youtube.com/watch?v=qrIEXarfgEk"
+    "linkedin": "https://www.linkedin.com/posts/olgaalex_united-by-unique-the-new-world-cancer-activity-7292565194281566210-z1z3",
+    "apple_podcast": "https://podcasts.apple.com/gb/podcast/alexandra-tachalova-the-future-of-seo-adapting/id1506728866?i=1000678227995"
   },
-  "jv_history": [
-    {
-      "partner_name": "",
-      "format": "podcast_guest",
-      "source_quote": "ga Zarr\u2019s Post\n View profile for Olga Zarr ... \ud83c\udf89I'm thrilled to announce that I recently had the honor of interviewing the legendary Aleyda Sol\u00eds on my podcast! Aleyda",
-      "source_url": "https://www.linkedin.com/posts/olgazarr_how-to-build-a-successful-career-in-seo-consulting-activity-7148274302545551360-iYEF"
-    }
-  ],
-  "audience_engagement_score": 0.55,
-  "website": "https://talks.co/olgaalexeeva/",
-  "linkedin": "https://www.linkedin.com/in/olga-alexeeva-ultraverity",
   "_cache_schema_version": 2
 }

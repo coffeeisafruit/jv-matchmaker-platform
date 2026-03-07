@@ -1,31 +1,52 @@
 {
   "name": "Rita Thomas",
   "company": "Rita Thomas Enterprises",
+  "website": "https://ritathomasenterprises.com/",
+  "linkedin": "http://www.linkedin.com/in/ritafillingerthomas",
   "list_size": 0,
-  "offering": "Branding, Business Consulting, Calendar Software, Joint Venture Resources, Lead Generation Specialists, Online Education for Business Owners, Opt-In Page Creation, Podcast Marketing, Social Media Marketing, Startup Coaches, Video Marketing, Virtual Assistant",
-  "what_you_do": "Rita Thomas Enterprises helps small businesses automate their processes to create a more personal, efficient, and profitable experience for their clients.",
+  "seeking": "Partners with automation software providers and CRM platforms for affiliate revenue and integration partnerships. Access to small business owners through podcast guest appearances and co-hosted webinars on efficiency.",
   "who_you_serve": "Small business owners looking to streamline their operations and improve customer engagement through automation.",
+  "what_you_do": "Rita Thomas Enterprises helps small businesses automate their processes to create a more personal, efficient, and profitable experience for their clients.",
+  "offering": "Branding, Business Consulting, Calendar Software, Joint Venture Resources, Lead Generation Specialists, Online Education for Business Owners, Opt-In Page Creation, Podcast Marketing, Social Media Marketing, Startup Coaches, Video Marketing, Virtual Assistant",
+  "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Frita.thomas.10888%2F",
+  "youtube": "https://www.youtube.com/watch?v=DVVfgHZdV60",
   "niche": "business automation",
-  "revenue_tier": "emerging",
-  "service_provided": "1:1 coaching, consulting",
-  "business_size": "small_team",
   "tags": [
-    "business automation",
+    "automation",
     "crm",
     "small business",
-    "efficiency",
-    "profitability",
-    "customer engagement"
+    "coaching",
+    "support"
   ],
   "bio": "Keap certified partner",
+  "signature_programs": "Automation support and branding packages",
+  "revenue_tier": "emerging",
+  "service_provided": "CRM setup, automation coaching, support packages, branding, landing pages, analytics, integrations, invoicing, calendar management, emails & texts, business line setup",
+  "business_size": "small_team",
+  "social_proof": "Keap certified partner",
   "business_focus": "Rita Thomas Enterprises helps small businesses automate their processes to create a more personal, efficient, and profitable experience for their clients. (business automation)",
   "audience_type": "B2B",
   "content_platforms": {
-    "linkedin": "https://www.linkedin.com/in/ritafillingerthomas",
-    "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Frita.thomas.10888%2F",
-    "youtube": "https://www.youtube.com/watch?v=DVVfgHZdV60"
+    "facebook": "https://www.facebook.com/ritathomasphotography",
+    "instagram": "https://www.instagram.com/ritathomasphoto/",
+    "twitter": "https://twitter.com/RitaThomasPhoto",
+    "linkedin": "https://www.linkedin.com/company/rita-thomas-enterprises",
+    "youtube": "https://www.youtube.com/watch?v=qIssh2q-qHw"
   },
-  "audience_engagement_score": 0.6000000000000001,
-  "website": "https://ritathomasenterprises.com/",
+  "jv_history": [
+    {
+      "partner_name": "Rita Rua | Events Manager",
+      "format": "endorsement",
+      "source_quote": " more - Responsible for providing business analysis on major system enhancements as well as coordinating and providing support to ensure continuity of Universal Music's physical and digital scheduling",
+      "source_url": "https://linkedin.com/in/rita-rua"
+    },
+    {
+      "partner_name": "Rita Williams | Heritage and tourism professional",
+      "format": "endorsement",
+      "source_quote": " And Tourism Manager, Centre Of Vocational Excellence at [Greenwich Community College]<web_link>Company: 5001-10,000 employees \u2022 Educational \u2022 Education Administration Programs A brilliant role which ",
+      "source_url": "https://linkedin.com/in/rita-williams-7b086317"
+    }
+  ],
+  "audience_engagement_score": 0.65,
   "_cache_schema_version": 2
 }

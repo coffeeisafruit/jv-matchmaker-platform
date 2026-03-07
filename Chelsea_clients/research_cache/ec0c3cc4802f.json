@@ -1,31 +1,49 @@
 {
   "name": "Sierra Sullivan",
+  "email": "sierra@portalpriestess.com",
   "company": "Portal Priestess Mystery",
-  "list_size": 11855,
-  "content_platforms": {
-    "facebook": "https://www.facebook.com/groups/771060553031657/posts/3184118981725790/",
-    "apple_podcast": "https://podcasts.apple.com/us/podcast/death-priestess-society/id1711073475",
-    "youtube": "https://www.youtube.com/watch?v=bqraWb-66rM",
-    "instagram": "https://www.instagram.com/mountshastagoddess/p/DHBlqHuxMPq/"
-  },
-  "audience_engagement_score": 0.65,
   "website": "https://portalpriestess.com/about/",
-  "_cache_schema_version": 2,
-  "what_you_do": "Sierra J. Sullivan is an Empowerment Mentor, Ritualist, Pussy Oracle, Ceremony Officiant & Sacred Journey Guide.",
-  "who_you_serve": "Women & couples who seek more connection and alignment in life, love and relationship.",
+  "list_size": 11855,
   "seeking": "The Portal Priestess Mystery School thrives on collaboration with other feminine leaders who host podcasts, mastermind groups and live events for women.",
+  "who_you_serve": "Women & couples who seek more connection and alignment in life, love and relationship.",
+  "what_you_do": "Sierra J. Sullivan is an Empowerment Mentor, Ritualist, Pussy Oracle, Ceremony Officiant & Sacred Journey Guide.",
   "offering": "The Portal Priestess Mystery School offers collaboration opportunities.",
-  "signature_programs": "Free Mini-Course, Temple of the Sacred Portal, Portal Quest Private Immersion, Portal Initiation Group Program",
+  "facebook": "https://www.facebook.com/groups/771060553031657/posts/3184118981725790/",
+  "instagram": "https://www.instagram.com/mountshastagoddess/p/DHBlqHuxMPq/",
+  "youtube": "https://www.youtube.com/watch?v=bqraWb-66rM",
   "niche": "feminine empowerment, sacred sexuality",
   "tags": [
     "empowerment",
     "ritual",
     "sacred sexuality",
-    "feminine leadership"
+    "divine feminine",
+    "coaching"
   ],
-  "audience_type": "B2C, coaches",
-  "business_focus": "To ignite a global movement where 1-million women worldwide are practicing the Art of Pussyology to create a wave of evolutionary healing for humanity.",
-  "service_provided": "empowerment mentoring, ritual facilitation, sacred journey guidance, pussy oracle readings",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T01:12:54.990601"
+  "bio": "Sierra Sullivan is an Empowerment Mentor, Ritualist, and Sacred Journey Guide at Portal Priestess Mystery School who guides women and couples toward deeper connection, alignment, and embodied living. Through empowerment mentoring, ritual facilitation, and sacred sexuality education, she supports clients in awakening feminine power and relational wholeness. Sierra is driven by a mission to ignite a global healing movement through the transformative practice of Pussyology.",
+  "service_provided": "coaching, ritual facilitation, ceremonies, mentorship, sacred journey guidance",
+  "social_proof": "Helped women worldwide to embrace their true selves and eradicate pussy shame, co-founder of Eden World, a private membership club for evolutionary couples.",
+  "business_focus": "Sierra J. Sullivan is an Empowerment Mentor, Ritualist, Pussy Oracle, Ceremony Officiant & Sacred Journey Guide. (feminine empowerment, sacred sexuality)",
+  "audience_type": "Women & couples who seek more connection and alignment in life, love and relationship.",
+  "content_platforms": {
+    "facebook": "https://www.facebook.com/groups/771060553031657/posts/3184118981725790/",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/death-priestess-society/id1711073475",
+    "linkedin": "https://www.linkedin.com/pulse/lions-gate-portal-sirius-galactivation-anna-allen",
+    "youtube": "https://www.youtube.com/watch?v=0QgicEmygA4"
+  },
+  "jv_history": [
+    {
+      "partner_name": "NEW ERA! Channeler REVEALS Ascended Masters MYSTERIES From 'The Sophia Code' | Kaia Ra",
+      "format": "endorsement",
+      "source_quote": " Masters for her online Mystery School which you  ...    connecting with the Sophia Dragon tribe. The conversation explores the ancient mystery school training and the role of  ...    Leaders\\n\\n_____",
+      "source_url": "https://www.youtube.com/watch?v=82HljRFmKxk"
+    },
+    {
+      "partner_name": "Sierra Hull Returns",
+      "format": "podcast_guest",
+      "source_quote": " guest this week is Sierra Hull. Since I spoke to Sierra for the podcast back in January 2023 she's been ridiculously busy touring and recording. We  ...    For info and tour dates head to Sierra's we",
+      "source_url": "https://podcasts.apple.com/us/podcast/sierra-hull-returns/id1556697198?i=1000675877954"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2
 }

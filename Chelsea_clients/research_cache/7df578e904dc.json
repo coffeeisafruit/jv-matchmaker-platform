@@ -1,30 +1,35 @@
 {
   "name": "Casey Lightbody",
+  "email": "casey@quietcollective.com.au",
   "company": "The Quiet Collective",
-  "list_size": 10800,
-  "offering": "Business Coaching, Business Consulting, Event Hosting, Internet Marketing Expert, Lead Generation Specialists, Marketing Coach, Online Education for Business Owners, Summit Creation, TeleSummits",
-  "content_platforms": {
-    "linkedin": "https://www.linkedin.com/pulse/embracing-quiet-luxury-how-apparel-cfbkc",
-    "youtube": "https://www.youtube.com/watch?v=rixm0cNJ8VY",
-    "apple_podcast": "https://podcasts.apple.com/be/podcast/the-conscious-builder-show-with-casey-grey/id1188092758?l=nl",
-    "instagram": "https://www.instagram.com/peakerealestate/p/DGzFiWjTnvK/",
-    "facebook": "https://www.facebook.com/caseycrimepage/posts/three-men-have-been-charged-and-a-range-of-stolen-property-seized-yesterday-as-p/1149257790337419/"
-  },
-  "audience_engagement_score": 0.65,
   "website": "https://events.quietcollective.com.au/booked_solid_brisbane_nonvip_confirmation",
-  "_cache_schema_version": 2,
-  "what_you_do": "Casey Lightbody's business is to help grow businesses with trust, not tactics.",
+  "linkedin": "http://www.linkedin.com/in/caseylightbody",
+  "list_size": 10800,
+  "seeking": "Civic organizations, summit creators, and lead generation experts. Co-produced telesummits and collaborative marketing campaigns would serve social impact entrepreneurs.",
   "who_you_serve": "Women coaches and consultants",
-  "booking_link": "https://calget.com/65zdnbno",
+  "what_you_do": "Casey Lightbody's business is to help grow businesses with trust, not tactics.",
+  "offering": "Business Coaching, Business Consulting, Event Hosting, Internet Marketing Expert, Lead Generation Specialists, Marketing Coach, Online Education for Business Owners, Summit Creation, TeleSummits",
+  "facebook": "https://www.facebook.com/caseycrimepage/posts/three-men-have-been-charged-and-a-range-of-stolen-property-seized-yesterday-as-p/1149257790337419/",
+  "instagram": "https://www.instagram.com/peakerealestate/p/DGzFiWjTnvK/",
+  "youtube": "https://www.youtube.com/watch?v=rixm0cNJ8VY",
   "niche": "business growth",
   "tags": [
     "business growth",
     "marketing",
-    "partnerships"
+    "coaching",
+    "networking"
   ],
-  "audience_type": "B2C, coaches, consultants",
-  "business_focus": "Helping women coaches and consultants grow their businesses with trust, not tactics.",
-  "service_provided": "Business growth workshop, implementation coaching",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T01:13:58.609092"
+  "bio": "Casey Lightbody is the founder of The Quiet Collective, specializing in Business Coaching,  Business Consulting, serving civic & social organization.",
+  "email_method": "website_scrape",
+  "signature_programs": "Partnership Growth Shortcut, VIP coaching workshop",
+  "revenue_tier": "emerging",
+  "service_provided": "workshops, coaching, consulting, templates, scripts, tools",
+  "business_focus": "Casey Lightbody's business is to help grow businesses with trust, not tactics. (business growth)",
+  "audience_type": "Women coaches and consultants",
+  "content_platforms": {
+    "linkedin": "https://uk.linkedin.com/in/eleanor-lightbody-69a6b784",
+    "youtube": "https://www.youtube.com/watch?v=rixm0cNJ8VY"
+  },
+  "audience_engagement_score": 0.55,
+  "_cache_schema_version": 2
 }

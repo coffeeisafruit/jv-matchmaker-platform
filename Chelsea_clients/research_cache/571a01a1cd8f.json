@@ -1,26 +1,63 @@
 {
   "name": "Sara Geyer",
+  "website": "https://www.saracentanni.com/workshop-overcoming-obstacles",
+  "linkedin": "https://www.linkedin.com/in/sara-geyer97",
   "list_size": 0,
-  "what_you_do": "Sara Centanni provides workshops, retreats, and speaking events designed to empower leaders with tools and insights for wellness-driven leadership.",
+  "seeking": "Sara is likely seeking partnerships with corporate wellness programs, HR leaders, or retreat venues that can amplify her workshops and speaking engagements. She would be a strong fit for joint ventures with burnout prevention platforms or companies investing in employee well-being and leadership culture.",
   "who_you_serve": "Sara serves organizations looking to enhance their leadership through wellness, targeting corporate leaders and teams.",
+  "what_you_do": "Sara Centanni provides workshops, retreats, and speaking events designed to empower leaders with tools and insights for wellness-driven leadership.",
+  "offering": "Sara Geyer delivers workshops, retreats, and speaking engagements focused on wellness-driven leadership for corporate teams and executives. JV partners can tap into her established corporate audience seeking burnout prevention and team empowerment solutions.",
+  "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Fsara.geater%2F",
   "niche": "wellness leadership",
-  "service_provided": "workshops, retreats, speaking",
-  "business_size": "solo",
   "tags": [
-    "leadership",
-    "wellness",
-    "corporate culture",
-    "burnout prevention",
-    "team empowerment"
+    "personal development",
+    "life coaching",
+    "obstacles",
+    "workshops"
   ],
+  "bio": "Sara Geyer is a wellness leadership expert who delivers workshops, retreats, and speaking engagements designed to equip corporate leaders and teams with tools for sustainable, wellness-driven performance. She works with organizations seeking to reduce burnout and cultivate a thriving culture by integrating well-being into their leadership practices. Through her programs, Sara empowers leaders to lead with clarity, resilience, and a people-first mindset.",
+  "signature_programs": "Overcoming Obstacles in Your Life workshop",
+  "revenue_tier": "emerging",
+  "company": "Sara Geyer Coaching",
+  "service_provided": "workshops, coaching",
+  "phone": "null",
+  "current_projects": "Overcoming Obstacles in Your Life workshop on December 13, 2022",
+  "business_size": "solo",
+  "social_proof": "null",
   "business_focus": "Sara Centanni provides workshops, retreats, and speaking events designed to empower leaders with tools and insights for wellness-driven leadership. (wellness leadership)",
   "audience_type": "B2B",
   "content_platforms": {
-    "linkedin": "https://www.linkedin.com/in/sara-geyer97",
-    "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Fsara.geater%2F"
+    "facebook": "https://www.facebook.com/sarageyercoaching",
+    "instagram": "https://www.instagram.com/sara_geyer_coaching",
+    "linkedin": "https://de.linkedin.com/in/sarahegy",
+    "youtube": "https://www.youtube.com/watch?v=WhCEk-cCUz8"
   },
-  "audience_engagement_score": 0.4,
-  "website": "https://www.saracentanni.com/workshop-overcoming-obstacles",
-  "linkedin": "https://www.linkedin.com/in/sara-geyer97",
+  "jv_history": [
+    {
+      "partner_name": "Sara Van der Donckt | Organisation psychologist\nLeadership coaching - Team coaching - Career coachin",
+      "format": "endorsement",
+      "source_quote": " I work as a certified career coach in partnership with Aligno (possibility to use career cheques via VDAB).Want to know more about team coaching, leadership coaching or career coaching? On my website",
+      "source_url": "https://linkedin.com/in/saravanderdonckt"
+    },
+    {
+      "partner_name": "Gaye Hardiman | Adler Trained Coach @ GOYAworks | ATC",
+      "format": "endorsement",
+      "source_quote": "16 years of C Suite consultative sales experience. High level of expertise at all stages of the sales and client cycle. Natural connector/networker who consistently builds trust-based long term relati",
+      "source_url": "https://linkedin.com/in/gayehardiman"
+    },
+    {
+      "partner_name": "Sara Geyer | Accountant at Universal Stone Ltd.",
+      "format": "endorsement",
+      "source_quote": "https://www.linkedin.com/posts/nicholas-jacob-architects_ipswich-dilapidated-tudor-building-gets-activity-7047530881799905280-MslBIt was good to see our award-winning project mentioned on the BBC webs",
+      "source_url": "https://linkedin.com/in/sara-geyer-210a5637"
+    },
+    {
+      "partner_name": "I remember several times throughout my entrepreneurial journey being\u2026 | Sara Mueller | 38 comments",
+      "format": "summit_speaker",
+      "source_quote": "Sara Mueller Emotional Intelligence (EQ) Leadership Training: self-mastery & \"soft\" skills for engaged teams, remarkable service & high-performing culture (without the burnout) Keynote Speaker",
+      "source_url": "https://www.linkedin.com/posts/saramueller8_i-remember-several-times-throughout-my-entrepreneurial-activity-7303048485551915008-q_Ii"
+    }
+  ],
+  "audience_engagement_score": 0.65,
   "_cache_schema_version": 2
 }

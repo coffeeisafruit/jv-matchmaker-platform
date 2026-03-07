@@ -1,15 +1,42 @@
 {
   "name": "Tracy Eisenman",
+  "email": "tracy@tracylinn.com",
   "company": "Tracylinn",
-  "website": "https://www.linkedin.com/in/tracyeisenman",
+  "linkedin": "https://www.linkedin.com/in/tracyeisenman",
   "list_size": 4617,
+  "seeking": "Looking for management consultants and intuitive coaches for podcast marketing and speaker promotion. Joint venture partners and solopreneurs for coaching collaborations.",
+  "who_you_serve": "Management professionals and solopreneurs seeking intuitive coaching and genetics-based wellness insights.",
+  "what_you_do": "Provide Genetics-Edge Integration consulting with business coaching, intuition coaching, and podcast marketing for fitness and wellness solopreneurs.",
   "offering": "Business Coaching, Group Coaching, Intuition Coaching, Joint Venture Resources, Podcast Marketing, Speaker Promotion",
+  "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Ftracyeinny%2F%3Flocale%3Des_LA",
+  "instagram": "https://www.instagram.com/get.your.sexy.back/",
+  "niche": "management consulting",
+  "tags": [
+    "performance coaching",
+    "health",
+    "wellness",
+    "fitness",
+    "mentoring"
+  ],
+  "bio": "Tracy Eisenman is a Genetics-Edge Integration| Founder at Tracylinn. They focus on fitness, lifestyle, natural health, self improvement.",
+  "service_provided": "1:1 coaching, mentoring relationships",
+  "business_size": "solo",
+  "business_focus": "Provide Genetics-Edge Integration consulting with business coaching, intuition coaching, and podcast marketing for fitness and wellness solopreneurs. (management consulting)",
+  "audience_type": "Management professionals and solopreneurs seeking intuitive coaching and genetics-based wellness ins",
   "content_platforms": {
     "linkedin": "https://www.linkedin.com/in/tracyeisenman",
     "instagram": "https://www.instagram.com/get.your.sexy.back/",
-    "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Ftracyeinny%2F%3Flocale%3Des_LA"
+    "facebook": "https://www.facebook.com/traci.eisenstadt.5/"
   },
+  "jv_history": [
+    {
+      "partner_name": "Tracy Little-OLY | 2X Olympic Athlete | 5X World Championship Medalist | Content Writer | Creating H",
+      "format": "endorsement",
+      "source_quote": "Entail.AI, an Al-powered marketing platform helping businesses generate targeted organic traffic at scale.  ...   As an expert in health and fitness, I research and write engaging pieces on a variety ",
+      "source_url": "https://linkedin.com/in/littletracy"
+    }
+  ],
   "audience_engagement_score": 0.45,
-  "linkedin": "https://www.linkedin.com/in/tracyeisenman",
+  "website": "https://www.pushfar.com/member/Tracy-Eisenman/50488/",
   "_cache_schema_version": 2
 }

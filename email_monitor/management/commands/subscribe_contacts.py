@@ -61,14 +61,28 @@ class Command(BaseCommand):
             claim_size = min(batch_size, limit - processed)
             with connection.cursor() as cur:
                 # Step 1: fast single-table scan
-                cur.execute("""
-                    SELECT id, profile_id, monitor_address, signup_url,
-                           form_action, esp_detected
-                    FROM email_monitor_monitoredsubscription
-                    WHERE status = %s
-                    ORDER BY id
-                    LIMIT %s
-                """, [status, claim_size])
+                # For failed retries: only pick rows with real URLs (not error codes)
+                # and no failure_reason yet (haven't been tried with improved logic)
+                if status == 'failed':
+                    cur.execute("""
+                        SELECT id, profile_id, monitor_address, signup_url,
+                               form_action, esp_detected
+                        FROM email_monitor_monitoredsubscription
+                        WHERE status = 'failed'
+                          AND signup_url LIKE 'http%%'
+                          AND (failure_reason = '' OR failure_reason IS NULL)
+                        ORDER BY id
+                        LIMIT %s
+                    """, [claim_size])
+                else:
+                    cur.execute("""
+                        SELECT id, profile_id, monitor_address, signup_url,
+                               form_action, esp_detected
+                        FROM email_monitor_monitoredsubscription
+                        WHERE status = %s
+                        ORDER BY id
+                        LIMIT %s
+                    """, [status, claim_size])
                 ms_rows = cur.fetchall()
             if not ms_rows:
                 break

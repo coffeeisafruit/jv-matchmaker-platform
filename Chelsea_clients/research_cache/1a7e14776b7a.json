@@ -1,41 +1,40 @@
 {
   "name": "Phil Herrington",
+  "email": "hello@philtheconnector.com",
   "company": "The Connector Community",
+  "website": "https://www.philtheconnector.com/about",
+  "linkedin": "https://www.linkedin.com/in/philtheconnector",
   "list_size": 14658,
+  "seeking": "JV partnerships with business growth coaches for networking and lead generation programs. Speaking opportunities at sales training and business development events. Email list collaborations with entrepreneurs seeking connection and referrals.",
+  "who_you_serve": "go-getters and passionate professionals",
+  "what_you_do": "I'm all about building relationships that turn into successful business opportunities. With 39 years of sales experience, I'm here to pass on that wisdom to you!",
   "offering": "Communication Training, Joint Venture Resources, Lead Generation Specialists, Membership Platform, Sales Training",
+  "facebook": "https://www.facebook.com/phil.herrington.313/videos/-the-connector-community-is-growing-fast-hey-there-friends-and-future-connectors/424376130344288/",
+  "niche": "networking, sales",
+  "tags": [
+    "networking",
+    "sales",
+    "relationship building"
+  ],
+  "bio": "Known as 'Phil the Connector', has podcast appearances, described as relationship-driven sales veteran",
+  "email_method": "website_scrape",
+  "service_provided": "1:1 coaching, group programs, courses, networking events",
+  "phone": "(208) 577-8091",
+  "business_size": "solo",
+  "business_focus": "I'm all about building relationships that turn into successful business opportunities. With 39 years of sales experience, I'm here to pass on that wisdom to you! (networking, sales)",
+  "audience_type": "go-getters and passionate professionals",
   "content_platforms": {
-    "linkedin": "https://www.linkedin.com/in/philtheconnector",
-    "facebook": "https://www.facebook.com/phil.herrington.313/videos/-the-connector-community-is-growing-fast-hey-there-friends-and-future-connectors/424376130344288/"
+    "facebook": "https://www.facebook.com/phil.herrington.313/posts/-the-connector-community-is-growing-fast-hey-there-friends-and-future-connectors/2692054727640026/",
+    "linkedin": "https://www.linkedin.com/posts/philtheconnector_givetogrow-networkingmagic-connectorcommunity-activity-7270100152894263297-LeW6"
   },
   "jv_history": [
     {
-      "partner_name": "The O'Connor Group\u2019s Post",
-      "format": "summit_speaker",
-      "source_quote": "The O&#39;Connor Group] ] \n The O'Connor Group 23,348 followers\n3mo\n* Report this post \n\ud83d\ude80Hot off the press! Our latest edition of The Connector is here! Inside this issue:\nTOC's P3 Executive Summit \u2013I",
-      "source_url": "https://www.linkedin.com/posts/tocgrp_the-connector-edition-128-activity-7381705299780583425-Xpfj"
-    },
-    {
       "partner_name": "#connectorswhocare #tocgrp #top3 #podcast #entrepreneur #downtopod\u2026 | The O'Connor Group",
       "format": "podcast_guest",
-      "source_quote": "# The O'Connor Group\u2019s Post\n\n The O'Connor Group ... In this special episode of Top 3, our #ConnectorsWhoCare Philanthropic Club and Podcast Club collaborated ... 22,332 followers\n\n View Profile Follo",
+      "source_quote": "# The O'Connor Group\u2019s Post\n\nThe O'Connor Group  ...    In this special episode of Top 3, our #ConnectorsWhoCare Philanthropic Club and Podcast Club collaborated  ...    22,332 followers\n\nView Profile",
       "source_url": "https://www.linkedin.com/posts/tocgrp_connectorswhocare-tocgrp-top3-activity-7130571209720651776-RaXb"
     }
   ],
   "audience_engagement_score": 0.4,
-  "website": "https://www.philtheconnector.com/about",
-  "_cache_schema_version": 2,
-  "what_you_do": "I'm all about building relationships that turn into successful business opportunities. With 39 years of sales experience, I'm here to pass on that wisdom to you!",
-  "who_you_serve": "go-getters and passionate professionals",
-  "niche": "networking, sales",
-  "phone": "(208) 577-8091",
-  "tags": [
-    "networking",
-    "sales",
-    "relationships"
-  ],
-  "audience_type": "B2B",
-  "business_focus": "To empower you to fill your calendar, connect with the right people, and turbocharge your sales.",
-  "service_provided": "networking coaching, sales strategies",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T01:09:44.517064"
+  "_cache_schema_version": 2
 }

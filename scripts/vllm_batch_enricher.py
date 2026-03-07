@@ -374,9 +374,22 @@ async def call_vllm(
     """POST to vLLM /v1/chat/completions with guided_json decoding. Returns parsed array or None."""
     # Truncate scraped_text per profile to stay within context window.
     # 10 profiles × 1500 chars ≈ 3750 tokens input, leaving 4000+ for output.
+    # Detect franchise/shared-website boilerplate: if multiple profiles share the
+    # same scraped_text prefix (first 200 chars), fall back to bio field instead.
+    scraped_prefixes: dict[str, int] = {}
+    for p in profiles:
+        prefix = (p.get("scraped_text") or "")[:200].strip()
+        if prefix:
+            scraped_prefixes[prefix] = scraped_prefixes.get(prefix, 0) + 1
+
     truncated = []
     for p in profiles:
         pc = dict(p)
+        prefix = (pc.get("scraped_text") or "")[:200].strip()
+        if prefix and scraped_prefixes.get(prefix, 0) > 1:
+            # Shared boilerplate detected — use bio instead
+            log.debug("Boilerplate scraped_text for %s, falling back to bio", pc.get("name", "?"))
+            pc["scraped_text"] = pc.get("bio") or ""
         if pc.get("scraped_text"):
             pc["scraped_text"] = pc["scraped_text"][:1500]
         truncated.append(pc)

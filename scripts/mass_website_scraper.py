@@ -145,6 +145,13 @@ async def fetch_url(
         return None
 
 
+# Track scraped website domains to detect franchise/shared-site boilerplate.
+# If N+ profiles share the same domain, use bio instead of re-scraping.
+_scraped_domains: dict[str, str] = {}  # domain → first scraped_text
+_domain_counts: dict[str, int] = {}     # domain → count
+FRANCHISE_THRESHOLD = 3  # fallback to bio after this many profiles share a domain
+
+
 async def scrape_profile(
     session: aiohttp.ClientSession,
     profile: dict,
@@ -154,6 +161,18 @@ async def scrape_profile(
     url = clean_url(profile.get("website") or "")
     if not url:
         return {**profile, "scraped_text": profile.get("bio") or ""}
+
+    # Franchise detection: if many profiles share the same website domain,
+    # the scraped_text will be identical boilerplate. Use bio instead.
+    from urllib.parse import urlparse
+    domain = urlparse(url).netloc.lower()
+    _domain_counts[domain] = _domain_counts.get(domain, 0) + 1
+    if _domain_counts[domain] > FRANCHISE_THRESHOLD and domain in _scraped_domains:
+        bio = profile.get("bio") or ""
+        if bio:
+            log.debug("Franchise site %s (seen %dx), using bio for %s",
+                       domain, _domain_counts[domain], profile.get("name", "?"))
+            return {**profile, "scraped_text": bio}
 
     async with semaphore:
         # Fetch homepage + all secondary pages concurrently (8s timeout)
@@ -181,6 +200,10 @@ async def scrape_profile(
     scraped = " | ".join(p for p in parts if p)
     if not scraped:
         scraped = profile.get("bio") or ""
+
+    # Cache first scrape per domain for franchise detection
+    if domain and domain not in _scraped_domains and scraped:
+        _scraped_domains[domain] = scraped[:200]
 
     return {
         **profile,

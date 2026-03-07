@@ -1,14 +1,40 @@
 {
   "name": "Angela Legh",
-  "list_size": 6500,
-  "what_you_do": "Author/creative writer and storyteller Author of Bella Santini Chronicles; books teaching kids emotional resilience and consciousness",
-  "business_focus": "Author/creative writer and storyteller Author of Bella Santini Chronicles; books teaching kids emotional resilience and consciousness",
-  "content_platforms": {
-    "linkedin": "https://www.linkedin.com/in/angela-legh-6b913b184",
-    "apple_podcast": "https://podcasts.apple.com/at/podcast/ep140-stories-of-resilience-exploring-emotional/id1684739538?i=1000682405989",
-    "facebook": "https://www.facebook.com/IamAngelaLeggett/"
-  },
-  "audience_engagement_score": 0.4,
+  "email": "angela@angelalegh.com",
+  "company": "Thriving Women Network, Inc.",
   "website": "https://angelalegh.com/",
+  "linkedin": "http://www.linkedin.com/in/angela-legh-6b913b184",
+  "list_size": 6500,
+  "seeking": "Podcast appearances on parenting and education shows, partnerships with children's book distributors and educational organizations, and speaking opportunities at schools and family-focused events.",
+  "who_you_serve": "children and parents",
+  "what_you_do": "Author/creative writer and storyteller Author of Bella Santini Chronicles; books teaching kids emotional resilience and consciousness",
+  "offering": "podcast appearances, speaking engagements",
+  "facebook": "https://www.facebook.com/IamAngelaLeggett/",
+  "niche": "media production",
+  "tags": [
+    "children's literature",
+    "parenting",
+    "emotional resilience",
+    "conscious parenting"
+  ],
+  "bio": "bestselling children's author and newspaper columnist",
+  "email_method": "website_scrape",
+  "signature_programs": "Parent's Promise",
+  "service_provided": "Writing, parenting resources, speaking, articles, programs",
+  "current_projects": "Build Emotionally Resilient Kids, Parent's Promise",
+  "social_proof": "Featured in Los Angeles Tribune, USA Today, DeMode Magazine, Medium.com",
+  "business_focus": "Author/creative writer and storyteller Author of Bella Santini Chronicles; books teaching kids emotional resilience and consciousness (media production)",
+  "audience_type": "B2C",
+  "content_platforms": {
+    "linkedin": "https://linkedin.com/in/sheri-bolden-b131bb168"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Debbie Prediger Founder BEWN and EYC Communities | Holistic Empowerment Mentor & Community Builder \ud83d\udc95",
+      "format": "endorsement",
+      "source_quote": " the founder of the Empowering You Community and Be Extraordinary Women\u2019s Network (BEWN), I guide heart-led, mission-driven entrepreneurs to break free from outdated models, step boldly into aligned l",
+      "source_url": "https://linkedin.com/in/debbieprediger"
+    }
+  ],
   "_cache_schema_version": 2
 }

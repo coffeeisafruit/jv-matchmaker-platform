@@ -1,29 +1,37 @@
 {
   "name": "Melinda Meszaros",
+  "email": "info@tmenergetics.com",
   "company": "Transformational Energetics",
-  "list_size": 0,
-  "content_platforms": {
-    "linkedin": "https://www.linkedin.com/pulse/what-gift-giving-really-all-melinda-meszaros-ph-d--sdzmc",
-    "instagram": "https://www.instagram.com/guidance311/p/CxYYgNXtYKO/",
-    "apple_podcast": "https://podcasts.apple.com/us/podcast/energy-alchemy-tapping-into-personal-energy-with/id1666079631?i=1000652099785",
-    "facebook": "https://www.facebook.com/groups/636104827225749/posts/1422636471905910/"
-  },
-  "audience_engagement_score": 0.45,
   "website": "https://www.tmenergetics.com/about1",
-  "_cache_schema_version": 2,
-  "what_you_do": "I practice and teach tools that enable people's conscious and non-conscious mind to work synergistically, so that they are able to access its full power no matter what is going on in their life. I specialize in deep inner work, helping people discover and transform hidden beliefs, subconscious programs and realign relationships.",
+  "linkedin": "http://www.linkedin.com/in/melinda-meszaros-ph-d-0b441512",
+  "list_size": 0,
+  "seeking": "Energy healing practitioners and transformational coaches for integrated wellness offerings. Podcast interviews and summit speaking in the conscious business and spiritual development space.",
   "who_you_serve": "I help clients uncover and reshape the hidden landscape of their mind, paving the way for a leap in personal growth and a more expansive and fulfilling life.",
-  "social_proof": "Melinda has natural talents and instincts for energy work which she infuses with her intelligence to do unique sessions. I am a blessed recipient of her very detailed and caring service. Through her sessions, Melinda has quickly discovered challenges and obstacles in me that years of psychological therapy likely would not have ever uncovered.",
-  "signature_programs": "Transformational Energetics",
+  "what_you_do": "I practice and teach tools that enable people's conscious and non-conscious mind to work synergistically, so that they are able to access its full power no matter what is going on in their life. I specialize in deep inner work, helping people discover and transform hidden beliefs, subconscious programs and realign relationships.",
+  "offering": "Teacher and Practitioner - Your Woo-free Guide to the Hidden Mind services for clients and organizations.",
+  "facebook": "https://www.facebook.com/groups/636104827225749/posts/1422636471905910/",
+  "instagram": "https://www.instagram.com/guidance311/p/CxYYgNXtYKO/",
   "niche": "energy work, personal growth",
   "tags": [
-    "energy work",
-    "personal growth",
-    "deep inner work"
+    "personal development",
+    "energy healing",
+    "subconscious mind",
+    "transformational work"
   ],
-  "audience_type": "individuals",
-  "business_focus": "Helping people access the full power of their conscious and non-conscious mind through deep inner work and transformational tools.",
-  "service_provided": "energy work, counseling, coaching",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T01:57:57.590982"
+  "bio": "Melinda Meszaros leads Transformational Energetics, specializing in Teacher and Practitioner - Your Woo-free Guide to the Hidden Mind, serving professional training & coaching The business focuses on Natural Health, Self Improvement Currently seeking Energy healing practitioners and transformational coaches for integrated wellness offerings. Podcast interviews and summit speaking in the conscio...",
+  "email_method": "website_scrape",
+  "signature_programs": "Transformational Energetics, Awakening Dynamics\u00ae",
+  "service_provided": "1:1 coaching, energy healing sessions, transformational workshops",
+  "social_proof": "Testimonials from clients praising her effectiveness and clarity in facilitating personal transformation.",
+  "business_focus": "I practice and teach tools that enable people's conscious and non-conscious mind to work synergistically, so that they are able to access its full power no matter what is going on in their life. I specialize in deep inner work, helping people discover and transform hidden beliefs, subconscious programs and realign relationships. (energy work, personal growth)",
+  "audience_type": "B2C",
+  "content_platforms": {
+    "linkedin": "https://ca.linkedin.com/in/melinda-meszaros-ph-d-0b441512",
+    "facebook": "https://www.facebook.com/profile.php?id=61555255456169",
+    "instagram": "https://www.instagram.com/guidance311/p/CxYYgNXtYKO/",
+    "apple_podcast": "https://podcasts.apple.com/ca/podcast/38-stepping-out-of-the-3d-way-of-thinking-to/id1534759564?i=1000536395023",
+    "youtube": "https://www.youtube.com/watch?v=gYuXpIL_FE0"
+  },
+  "audience_engagement_score": 0.65,
+  "_cache_schema_version": 2
 }

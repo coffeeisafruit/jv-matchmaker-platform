@@ -1,29 +1,50 @@
 {
   "name": "John Assaraf",
+  "email": "scott@scottdclary.com",
   "company": "NeuroGym",
+  "website": "https://www.scottdclary.com/john-assaraf/",
+  "linkedin": "https://www.linkedin.com/in/johnassaraf",
   "list_size": 1154000,
-  "what_you_do": "Scott D. Clary hosts the Success Story podcast, where he shares inspiring stories of entrepreneurs and business leaders to motivate and educate listeners.",
+  "seeking": "Podcast swap opportunities with personal development and entrepreneurship hosts to cross-promote audiences. Co-creation partnerships for goal achievement courses with complementary neuroscience or mindset experts. Affiliate partnerships with business coaching platforms.",
   "who_you_serve": "The podcast targets entrepreneurs, business professionals, and anyone interested in personal development and success stories.",
+  "what_you_do": "Scott D. Clary hosts the Success Story podcast, where he shares inspiring stories of entrepreneurs and business leaders to motivate and educate listeners.",
+  "offering": "JV partner agreements, courses on goal achievement and brain training",
+  "facebook": "https://www.facebook.com/johnassarafpage/videos/i-learned-the-secrets-to-success-many-years-ago-and-believe-me-ive-faced-my-fair/1866900043783099/",
+  "instagram": "https://instagram.com/scottdclary",
+  "youtube": "https://www.youtube.com/c/Neurogym",
+  "twitter": "https://twitter.com/scottdclary",
   "niche": "podcasting",
-  "service_provided": "podcast",
-  "business_size": "small_team",
   "tags": [
-    "podcasting",
-    "entrepreneurship",
-    "success stories",
+    "mindset",
+    "brain training",
     "personal development"
   ],
   "bio": "The podcast has over 321,000 subscribers and features various successful guests.",
+  "email_method": "website_scrape",
+  "service_provided": "brain training programs, coaching, speaking engagements, corporate training",
+  "business_size": "small_team",
+  "social_proof": "Appeared on Larry King Live, Anderson Cooper, The Ellen DeGeneres Show; built 5 multimillion-dollar companies; written 2 New York Times Bestselling books; featured in 8 movies including 'The Secret'",
   "business_focus": "Scott D. Clary hosts the Success Story podcast, where he shares inspiring stories of entrepreneurs and business leaders to motivate and educate listeners. (podcasting)",
   "audience_type": "B2B",
   "content_platforms": {
     "youtube": "https://www.youtube.com/c/Neurogym",
-    "facebook": "https://www.facebook.com/johnassarafpage/videos/i-learned-the-secrets-to-success-many-years-ago-and-believe-me-ive-faced-my-fair/1866900043783099/",
-    "apple_podcast": "https://podcasts.apple.com/bg/podcast/john-assaraf-using-neuroscience-to-change-your-reality/id1548923376?i=1000530365561",
-    "linkedin": "https://www.linkedin.com/posts/johnassaraf_neuroscience-neurogym-thesecret-activity-7212092334732193794--giM"
+    "twitter": "https://twitter.com/scottdclary",
+    "facebook": "https://www.facebook.com/NeuroGym/",
+    "linkedin": "https://linkedin.com/in/howardbifson",
+    "instagram": "https://instagram.com/scottdclary",
+    "spotify_podcast": "https://open.spotify.com/show/7erC37gNfA2UExnnx1Ikbo",
+    "tiktok": "https://tiktok.com/@scottdclarypage",
+    "apple_podcast": "https://podcasts.apple.com/bg/podcast/john-assaraf-using-neuroscience-to-change-your-reality/id1548923376?i=1000530365561"
   },
-  "audience_engagement_score": 0.6000000000000001,
-  "website": "https://www.scottdclary.com/john-assaraf/",
-  "linkedin": "https://www.linkedin.com/in/johnassaraf",
+  "jv_history": [
+    {
+      "partner_name": "Alistair Horscroft | Founder of LimitlessOS | Founder The Mind Academy | Brain Training | Human Perf",
+      "format": "endorsement",
+      "source_quote": " 2005, I founded The Mind Academy Australia with a vision to transform the field of mind sciences.  ...   Show less As the Co-Owner of Frontier Supplements, I help establish a new standard of excellen",
+      "source_url": "https://linkedin.com/in/alistairhorscroft"
+    }
+  ],
+  "audience_engagement_score": 0.7000000000000001,
+  "social_reach": 344100,
   "_cache_schema_version": 2
 }

@@ -1,37 +1,54 @@
 {
   "name": "Andy Hussong",
+  "email": "andy@endorsedtrafficpros.com",
   "company": "Endorsed Traffic Pros",
+  "website": "https://endorsedtrafficpros.com/",
   "list_size": 4500,
+  "seeking": "We are looking for people who can send decent traffic to an offer, or have a solid offer for our contacts to consider.",
+  "who_you_serve": "Affiliate marketers and online course creators seeking endorsed traffic and JV partnerships.",
+  "what_you_do": "We help people find high-converting offers to promote, cross-promotion partners, and affiliates.",
   "offering": "Affiliate Managers, Affiliate Marketplace, Joint Venture Resources, Webinar Training",
+  "facebook": "https://www.facebook.com/groups/251145835476950/posts/1755731595018359/",
+  "youtube": "https://www.youtube.com/watch?v=fQ4-DKjBFI8",
+  "niche": "marketing, affiliate marketing, webinars",
+  "tags": [
+    "affiliate marketing",
+    "traffic generation",
+    "offer promotion",
+    "partnerships"
+  ],
+  "bio": "Andy Hussong works at Endorsed Traffic Pros. They provide Affiliate Managers, Affiliate Marketplace, Joint Venture Resources, Webinar Training. Their services include Affiliate Managers, Affiliate Marketplace, Joint Venture Resources, Webinar Training.",
+  "email_method": "website_scrape",
+  "service_provided": "Offer promotion, cross-promotions, partnerships, collaborations.",
+  "current_projects": "Connecting marketers with offers and partners, facilitating collaborations.",
+  "business_size": "small_team",
+  "social_proof": "Worked with top marketers like Jason Fladlien, Anik Singal, Rich Schefren, and others.",
+  "business_focus": "We help people find high-converting offers to promote, cross-promotion partners, and affiliates. (marketing, affiliate marketing, webinars)",
+  "audience_type": "Affiliate marketers and online course creators seeking endorsed traffic and JV partnerships.",
   "content_platforms": {
-    "facebook": "https://www.facebook.com/groups/251145835476950/posts/1755731595018359/",
-    "youtube": "https://www.youtube.com/watch?v=fQ4-DKjBFI8",
-    "linkedin": "https://www.linkedin.com/pulse/complete-guide-website-traffic-sources-plus-18-tips-andy-crestodina-1e",
-    "apple_podcast": "https://podcasts.apple.com/us/podcast/combo-prospecting-with-tony-j-hughes/id1487319280?i=1000591919211"
+    "linkedin": "https://www.linkedin.com/in/andyhussong",
+    "facebook": "https://www.facebook.com/groups/251145835476950/posts/1755731595018359/"
   },
   "jv_history": [
     {
-      "partner_name": "",
-      "format": "summit_speaker",
-      "source_quote": "PROSPECTING on the\u00a0 Heads Up Adviser Show. Learn how to leverage different marketing ... of Selling. About Tony J. Hughes:\u00a0 Best-selling author, keynote speaker and trainer #1 Sales Blogger Worldwide ",
-      "source_url": "https://podcasts.apple.com/us/podcast/combo-prospecting-with-tony-j-hughes/id1487319280?i=1000591919211"
+      "partner_name": "Andy Hussong - Aspire Ventures (Focused on Online Marketing Companies & Entrepreneurs Seeking Joint ",
+      "format": "endorsement",
+      "source_quote": " marketing veteran, helping clients expand their influence via endorsed traffic promotions & joint ventures.  ...    ### Founder at Aspire Vent",
+      "source_url": "https://www.linkedin.com/in/andyhussong"
+    },
+    {
+      "partner_name": "Andy H. | Digital Marketing Expert\u25ba Digital Media Agency \u25ba Digital Media Training\u25baDigital Ads \u25baGoogl",
+      "format": "endorsement",
+      "source_quote": " for Imparture who are a global leader in digital media training with offices in London and San Francisco  ...   digital \u2022 training \u2022 consultancy \u2022 facebook \u2022 marketing \u2022 analytics \u2022 design \u2022 strategy",
+      "source_url": "https://linkedin.com/in/datadrivendigital"
+    },
+    {
+      "partner_name": "My biggest announcement ever\u2026\n\nI\u2019ve refocused Profit Automation on the\u2026 | Andrew Schultz /... // | 1",
+      "format": "endorsement",
+      "source_quote": " Schultz /... //\u2019s Post\n\nAndrew Schultz /... // Sales Pipeline On Demand for Tech Partner Businesses \\| Dad of 5 \\| I'm trying to be like Jesus-online and offline  ...    To view or add a comment, sig",
+      "source_url": "https://www.linkedin.com/posts/andrew-schultz-utah_my-biggest-announcement-ever-ive-refocused-activity-7275599973260447745-40ra"
     }
   ],
-  "audience_engagement_score": 0.6000000000000001,
-  "website": "https://endorsedtrafficpros.com/",
-  "_cache_schema_version": 2,
-  "what_you_do": "We help people find high-converting offers to promote, cross-promotion partners, and affiliates.",
-  "seeking": "We are looking for people who can send decent traffic to an offer, or have a solid offer for our contacts to consider.",
-  "social_proof": "We've worked with A-list marketers like Jason Fladlien, Anik Singal, Rich Schefren, Marisa Murgatroyd, and others.",
-  "signature_programs": "WebinarCon, which is one of the top live events for webinar marketers.",
-  "niche": "marketing, affiliate marketing, webinars",
-  "tags": [
-    "marketing",
-    "affiliate marketing",
-    "webinars"
-  ],
-  "business_focus": "We help people find high-converting offers to promote, set up cross-promotions, and find affiliates for their offers.",
-  "service_provided": "offer promotion, cross-promotion, affiliate recruitment",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T01:27:59.323667"
+  "audience_engagement_score": 0.4,
+  "_cache_schema_version": 2
 }

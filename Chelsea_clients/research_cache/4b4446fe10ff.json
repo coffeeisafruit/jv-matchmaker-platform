@@ -1,32 +1,48 @@
 {
   "name": "Peggy McColl",
+  "email": "Rodney@RodneyFlowers.com",
   "company": "Dynamic Destinies Inc.",
+  "website": "https://rodneyflowers.com/create-a-bestseller-through-online-marketing-with-peggy-mccoll/",
+  "linkedin": "http://www.linkedin.com/in/peggymccoll",
   "list_size": 50000,
-  "what_you_do": "Peggy McColl is a renowned author and speaker who specializes in helping individuals and businesses achieve their goals through mindset transformation and strategic planning.",
+  "seeking": "Summit speaking opportunities in personal development and goal achievement spaces. Affiliate partnerships with manifestation and mindset transformation programs. Co-created success strategy programs with complementary business and life coaches.",
   "who_you_serve": "She serves entrepreneurs, business leaders, and individuals seeking personal development and success strategies.",
+  "what_you_do": "Peggy McColl is a renowned author and speaker who specializes in helping individuals and businesses achieve their goals through mindset transformation and strategic planning.",
+  "offering": "Courses, podcasts, mentorship programs, and online marketing expertise",
+  "instagram": "https://www.instagram.com/srcsummit/p/DH_aZY6xUxx/",
+  "youtube": "https://www.youtube.com/watch?v=E80wR1NPajg",
   "niche": "personal development",
-  "signature_programs": "Best-selling books, coaching programs, and workshops.",
-  "revenue_tier": "premium",
-  "service_provided": "1:1 coaching, group programs, courses, speaking",
-  "phone": "(800) 915-6827",
-  "business_size": "small_team",
   "tags": [
-    "mindset",
-    "coaching",
-    "personal development",
-    "entrepreneurship",
-    "success strategies"
+    "author",
+    "speaker",
+    "mentor",
+    "goal achievement",
+    "bestseller"
   ],
-  "email": "team@rodneyflowers.com",
   "bio": "Best-selling author, featured in various media outlets, and a sought-after speaker.",
+  "email_method": "website_scrape",
+  "signature_programs": "null",
+  "service_provided": "1:1 coaching, group programs, courses, speaking, consulting",
+  "phone": "(800) 915-6827",
+  "current_projects": "null",
+  "business_size": "null",
+  "social_proof": "New York Times Bestselling author, internationally recognized speaker, mentor, and expert in goal achievement.",
   "business_focus": "Peggy McColl is a renowned author and speaker who specializes in helping individuals and businesses achieve their goals through mindset transformation and strategic planning. (personal development)",
   "audience_type": "B2B",
   "content_platforms": {
-    "linkedin": "https://www.linkedin.com/posts/pegkeough_free-college-success-bootcamp-for-parents-activity-7191079594706231297-EYNN",
-    "youtube": "https://www.youtube.com/watch?v=E80wR1NPajg",
-    "instagram": "https://www.instagram.com/srcsummit/p/DH_aZY6xUxx/"
+    "facebook": "https://www.facebook.com/groups/metaquestseniors/posts/744022587676572/",
+    "instagram": "https://www.instagram.com/inspirationalendeavors/",
+    "linkedin": "https://www.linkedin.com/posts/peggymccoll_lawofattraction-manifesting-manifestation-activity-7167918894190444544-xo9K",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/author-letty-cottin-pogrebin-on-her-decades-of-activism/id1174524789?i=1000658583517"
   },
-  "audience_engagement_score": 0.6000000000000001,
-  "website": "https://rodneyflowers.com/create-a-bestseller-through-online-marketing-with-peggy-mccoll/",
+  "jv_history": [
+    {
+      "partner_name": "The Gritty Facts and Gritty Faith of Surrender.",
+      "format": "podcast_guest",
+      "source_quote": "Polly McGee Co-CEO DISCO || Neuroleadership Designer, Facilitator + Speaker || Somatic Psychotherapist || Author + Podcaster || ... \u201cDr Polly",
+      "source_url": "https://au.linkedin.com/in/pollymcgee"
+    }
+  ],
+  "audience_engagement_score": 0.45,
   "_cache_schema_version": 2
 }

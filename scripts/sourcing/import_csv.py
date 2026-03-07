@@ -460,11 +460,14 @@ def import_csv(csv_path: Path, dry_run: bool = False,
         reader = csv.DictReader(f)
         for row in reader:
             name = (row.get("name") or "").strip()
-            if not name or len(name) < 2:
+            if not name or len(name) < 2 or name.lower() in ("none", "null"):
                 processed += 1
                 continue
 
             mapped = map_to_supabase(row)
+            if not mapped.get("name"):
+                processed += 1
+                continue
 
             if not skip_existing:
                 dup_id = find_duplicate(mapped, email_idx, name_co_idx, name_domain_idx)

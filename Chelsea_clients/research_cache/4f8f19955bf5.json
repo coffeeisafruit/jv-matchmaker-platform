@@ -1,18 +1,15 @@
 {
   "name": "Joe Nicassio",
+  "email": "coach@ib4e.com",
   "company": "Kaleidoscopic Possibilities",
-  "list_size": 7500,
-  "content_platforms": {
-    "facebook": "https://www.facebook.com/DrJoeDispenzaOfficialNewsFanPage/posts/the-beauty-and-novelty-of-a-kaleidoscope-dont-simply-mesmerize-they-allow-us-to-/1283323323152275/",
-    "youtube": "https://www.youtube.com/watch?v=YtCwmkO0XSE"
-  },
-  "audience_engagement_score": 0.6000000000000001,
   "website": "https://www.ib4e-coaching.com/episode-89-joe-nicassio/",
-  "_cache_schema_version": 2,
-  "what_you_do": "Since 1999, Joe Nicassio has been working with startup entrepreneurs and seasoned business owners to align their passions with proven principles for business success.",
+  "list_size": 7500,
+  "seeking": "Speaking engagements at entrepreneurship and business growth conferences, podcast guest swaps with business mentors and startup experts, and partnerships with sales training providers and business strategy consultants.",
   "who_you_serve": "startup entrepreneurs and seasoned business owners",
-  "signature_programs": "Employee Escape Plan",
-  "booking_link": "http://schedule.employeeescapeplan.com/",
+  "what_you_do": "Since 1999, Joe Nicassio has been working with startup entrepreneurs and seasoned business owners to align their passions with proven principles for business success.",
+  "offering": "Keynote speeches, business mentoring, podcast appearances, business growth strategies",
+  "facebook": "https://www.facebook.com/DrJoeDispenzaOfficialNewsFanPage/posts/the-beauty-and-novelty-of-a-kaleidoscope-dont-simply-mesmerize-they-allow-us-to-/1283323323152275/",
+  "youtube": "https://www.youtube.com/watch?v=YtCwmkO0XSE",
   "niche": "business coaching",
   "tags": [
     "businessowner",
@@ -23,9 +20,21 @@
     "leadership",
     "success"
   ],
+  "bio": "Author of 'Resurrecting America's Entrepreneurial Spirit', achieved 600% sales increase for client within 90 days, appeared on multiple podcasts including The Chris Voss Show",
+  "email_method": "website_scrape",
+  "signature_programs": "Employee Escape Plan, Business Success Mastermind group",
+  "revenue_tier": "emerging",
+  "service_provided": "1:1 coaching, group programs, courses, speaking, consulting",
+  "current_projects": "Business Success Mastermind group",
+  "business_size": "small_team",
+  "social_proof": "Since 1999, working with entrepreneurs and business owners, programs and coaching services.",
+  "business_focus": "Since 1999, Joe Nicassio has been working with startup entrepreneurs and seasoned business owners to align their passions with proven principles for business success. (business coaching)",
   "audience_type": "B2B",
-  "business_focus": "Helping entrepreneurs and business owners succeed by aligning their passions with proven business principles.",
-  "service_provided": "business coaching, startup coaching",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T01:19:46.019464"
+  "content_platforms": {
+    "facebook": "https://www.facebook.com/groups/BusinessIncubatorCommunity",
+    "twitter": "https://twitter.com/intent/tweet?text=Episode+89%3A+Joe+Nicassio+%E2%80%93+Courage+to+Reset+and+Create+the+Business+You+Want&url=https%3A%2F%2Fwww.ib4e-coaching.com%2Fepisode-89-joe-nicassio%2F",
+    "linkedin": "https://linkedin.com/in/nicassio"
+  },
+  "audience_engagement_score": 0.4,
+  "_cache_schema_version": 2
 }

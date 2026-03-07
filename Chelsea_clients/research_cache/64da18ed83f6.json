@@ -1,13 +1,17 @@
 {
   "name": "Paul De Cunzo",
+  "email": "scmagazine@scu.edu",
   "company": "Career Transformation Quest",
+  "website": "https://magazine.scu.edu/classnote/paul-decunzo/",
+  "linkedin": "https://www.linkedin.com/in/paul-de-cunzo-69299717",
   "list_size": 100000,
-  "offering": "Affiliate Marketplace, Group Coaching, Online Course Creation, Online Education for Business Owners, Podcast Services, Speakers Bureau, Spiritual Coaching",
-  "what_you_do": "Santa Clara Magazine is a publication provided free of charge to alumni and friends of Santa Clara University, offering insights and stories related to the university community.",
+  "seeking": "Speaking opportunities at career transformation and alumni engagement events. Podcast guest appearances on career change and professional development shows. Co-created career quest programs with complementary executive coaches.",
   "who_you_serve": "The magazine serves alumni, parents of current students, and friends of Santa Clara University, reaching a broad audience of over 100,000 people.",
+  "what_you_do": "Santa Clara Magazine is a publication provided free of charge to alumni and friends of Santa Clara University, offering insights and stories related to the university community.",
+  "offering": "Affiliate Marketplace, Group Coaching, Online Course Creation, Online Education for Business Owners, Podcast Services, Speakers Bureau, Spiritual Coaching",
+  "facebook": "https://www.facebook.com/watch/SantaClaraUniversity/1137661040062461/",
+  "youtube": "https://www.youtube.com/watch?v=8H1sNn7kt28",
   "niche": "university publication",
-  "phone": "408-554-4400",
-  "enriched_list_size": 100000,
   "tags": [
     "magazine",
     "education",
@@ -15,17 +19,20 @@
     "publication",
     "community"
   ],
-  "email": "scmagazine@scu.edu",
   "bio": "Published by Santa Clara University, reaching over 100,000 readers in print and online.",
+  "email_method": "website_scrape",
   "business_focus": "Santa Clara Magazine is a publication provided free of charge to alumni and friends of Santa Clara University, offering insights and stories related to the university community. (university publication)",
   "audience_type": "B2C",
   "content_platforms": {
-    "linkedin": "https://www.linkedin.com/posts/santa-clara-university_the-news-santa-clara-can-use-santa-clara-activity-7083498477661425664-9CX2",
-    "facebook": "https://www.facebook.com/watch/SantaClaraUniversity/1137661040062461/",
-    "youtube": "https://www.youtube.com/watch?v=8H1sNn7kt28"
+    "linkedin": "https://www.linkedin.com/in/paul-de-cunzo-69299717"
   },
-  "audience_engagement_score": 0.6000000000000001,
-  "website": "https://magazine.scu.edu/classnote/paul-decunzo/",
-  "linkedin": "https://www.linkedin.com/in/paul-de-cunzo-69299717",
+  "jv_history": [
+    {
+      "partner_name": "Paul De Cunzo - Self-employed",
+      "format": "endorsement",
+      "source_quote": " solve the following in my Career Transition Quest: Accountability Stress/Frustration Burnout Toxicity/Codependence Time  ...    ### Certified Strategic Strengths Coach Strategic Partner at Career Tra",
+      "source_url": "https://www.linkedin.com/in/paul-de-cunzo-69299717"
+    }
+  ],
   "_cache_schema_version": 2
 }

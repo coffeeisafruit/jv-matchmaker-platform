@@ -457,6 +457,7 @@ def update_profiles():
                 new_meta = dict(existing_meta)
                 new_meta["last_enrichment_source"] = "ai_research"
                 new_meta["last_enrichment_at"] = now
+                new_meta["enrichment_context"] = os.environ.get("ENRICHMENT_CONTEXT", "batch")
                 if profile.get("revenue_amount"):
                     new_meta["revenue_amount"] = profile["revenue_amount"]
                 field_meta = new_meta.get("field_meta", {})

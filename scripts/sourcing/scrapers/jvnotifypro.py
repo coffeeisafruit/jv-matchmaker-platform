@@ -305,7 +305,7 @@ class Scraper(BaseScraper):
             contact = ScrapedContact(
                 name=vendor_clean,
                 company=product or "",
-                website=jv_url or "",
+                website=jv_url or post_url,
                 email="",
                 linkedin="",
                 phone="",

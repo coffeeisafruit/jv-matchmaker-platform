@@ -1,33 +1,38 @@
 {
   "name": "Kimberly Crowe",
+  "email": "Support@EntrepreneursRocketFuel.com",
   "company": "Entrepreneurs Rocket Fuel",
-  "list_size": 155000,
-  "offering": "Affiliate Marketplace, Joint Venture Resources, Podcast Host, Public Speaking, Speaker Organizations, Webinar Training",
-  "content_platforms": {
-    "linkedin": "https://www.linkedin.com/in/kimberly-s-crowe",
-    "facebook": "https://www.facebook.com/kimberly.susan.crowe/",
-    "apple_podcast": "https://podcasts.apple.com/us/podcast/ep-45-from-golden-handcuffs-to-true-freedom-how-kimberly/id1687244015?i=1000703154158",
-    "youtube": "https://www.youtube.com/watch?v=x4FcEHg_7BE"
-  },
-  "audience_engagement_score": 0.6000000000000001,
   "website": "https://entrepreneursrocketfuel.com/",
-  "_cache_schema_version": 2,
-  "what_you_do": "Makes speaking on stages accessible and fun for entrepreneurs and coaches to share their message, with expertise in audience engagement and speak-to-sell.",
+  "linkedin": "http://www.linkedin.com/in/kimberly-s-crowe",
+  "list_size": 155000,
+  "seeking": "Podcast networks for cross-promotion and webinar training collaborations. Entrepreneurs in the $2.5M-$10M range seeking joint venture resources and speaking platforms.",
   "who_you_serve": "Entrepreneurs and coaches who want to share their message through speaking.",
-  "social_proof": "Award-winning international inspirational public speaker, keynote speaker, TEDx speaker, authority on speak-to-sell, broadcast personality of Speakers Playhouse.",
-  "signature_programs": "Speakers Playhouse, Entrepreneurs Rocket Fuel, Keynoting Kamp, Podapalooza, Influencers Cruise, Ten Simple Activities to Become a Recognized Speaker (free guide)",
+  "what_you_do": "Makes speaking on stages accessible and fun for entrepreneurs and coaches to share their message, with expertise in audience engagement and speak-to-sell.",
+  "offering": "Affiliate Marketplace, Joint Venture Resources, Podcast Host, Public Speaking, Speaker Organizations, Webinar Training",
+  "facebook": "https://www.facebook.com/kimberly.susan.crowe/",
+  "youtube": "https://www.youtube.com/watch?v=x4FcEHg_7BE",
   "niche": "Public speaking",
   "tags": [
     "public speaking",
-    "speak-to-sell",
-    "audience engagement",
-    "networking events",
     "entrepreneurship",
-    "virtual stages"
+    "community",
+    "speaker training"
   ],
-  "audience_type": "Entrepreneurs and coaches",
-  "business_focus": "Making speaking on stages accessible and fun for entrepreneurs and coaches through events, training, and community.",
-  "service_provided": "Speaking events, gamified networking events (Speakers Playhouse), speaker training (Keynoting Kamp), podcast events (Podapalooza), networking cruise (Influencers Cruise), entrepreneur community",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T00:26:57.040407"
+  "bio": "Kimberly Crowe is Broadcast Personality at Entrepreneurs Rocket Fuel, specializing in Business Skills and Success within the Business Skills, Success sector. They focus on partnerships with Podcast networks for cross-promotion and webinar training collaborations. Entrepreneurs in the $2.5M-$10M range joint venture resources a.",
+  "email_method": "website_scrape",
+  "signature_programs": "Speakers Playhouse, Entrepreneurs Rocket Fuel community, 'Ten Simple Activities to Become a Recognized Speaker' guide",
+  "service_provided": "public speaking coaching, community support, speaking events, online show, resources for speakers",
+  "current_projects": "Upcoming speaking opportunities, community engagement, free guide on virtual stages",
+  "business_size": "solo",
+  "social_proof": "Award-winning speaker, TEDx speaker, media features, active community",
+  "business_focus": "Makes speaking on stages accessible and fun for entrepreneurs and coaches to share their message, with expertise in audience engagement and speak-to-sell. (Public speaking)",
+  "audience_type": "Entrepreneurs and coaches who want to share their message through speaking.",
+  "content_platforms": {
+    "facebook": "https://www.facebook.com/kimberly.susan.crowe/",
+    "youtube": "https://www.youtube.com/watch?v=Lrl1NzsXrhw",
+    "linkedin": "https://www.linkedin.com/posts/kimberly-s-crowe_ten-ways-to-monetize-your-message-activity-7219407279266107393-uBmI",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/ep-45-from-golden-handcuffs-to-true-freedom-how-kimberly/id1687244015?i=1000703154158"
+  },
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2
 }

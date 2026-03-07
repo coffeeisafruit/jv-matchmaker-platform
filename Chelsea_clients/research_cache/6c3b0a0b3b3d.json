@@ -1,18 +1,53 @@
 {
   "name": "Tom Matzen",
+  "email": "tom@getittogether.com",
   "company": "ICONMAKER Live",
-  "website": "https://calendly.com/links-golf-cafe/45-minute-zoom-meeting-top-priority",
+  "website": "https://www.iconmakerlive.com/",
+  "linkedin": "http://www.linkedin.com/in/tommatzen",
   "list_size": 58286,
+  "seeking": "Partners with impact coaches and industry positioning experts for summit collaborations and mastermind co-hosting. Access to entrepreneurs and consultants scaling their businesses through podcast marketing partnerships and launch support.",
   "who_you_serve": "He serves entrepreneurs, business coaches, and consultants who are looking to grow their businesses and make a significant impact in their industries.",
   "what_you_do": "Tom Matzen helps entrepreneurs, business coaches, and consultants unleash their potential, scale their businesses, and become industry icons, focusing on impact, influence, and income generation.",
   "offering": "Internet Marketing Expert, Joint Venture Resources, Launches for Online Programs, Lead Generation Specialists, Linkedin Training, Marketing Coach, Networking Groups, Podcast Host, Podcast Marketing, Podcast Services, Summit Creation, Webinar Training",
-  "business_focus": "Tom Matzen helps entrepreneurs, business coaches, and consultants unleash their potential, scale their businesses, and become industry icons, focusing on impact, influence, and income generation.",
+  "facebook": "https://www.facebook.com/tom.matzen/",
+  "youtube": "https://www.youtube.com/watch?v=RDqRXOqVKX8",
+  "niche": "entertainment",
+  "tags": [
+    "business coaching",
+    "entrepreneurship",
+    "podcasting",
+    "personal development",
+    "industry leadership"
+  ],
+  "bio": "Past attendees have praised the workshop for its energy, knowledge, and insights, highlighting its effectiveness in building 6 and 7 figure businesses.",
+  "email_method": "linkedin_scrape",
+  "signature_programs": "Iconmaker Workshop",
+  "revenue_tier": "emerging",
+  "service_provided": "Workshops, coaching, podcasting strategies, business development",
+  "current_projects": "Iconmaker Workshop scheduled for March 13th, 2024",
+  "business_size": "solo or small team",
+  "social_proof": "Testimonials from past attendees including industry experts and entrepreneurs.",
+  "business_focus": "Tom Matzen helps entrepreneurs, business coaches, and consultants unleash their potential, scale their businesses, and become industry icons, focusing on impact, influence, and income generation. (entertainment)",
   "audience_type": "B2B",
   "content_platforms": {
-    "linkedin": "https://www.linkedin.com/company/scalesmart-iconmaker",
     "facebook": "https://www.facebook.com/tom.matzen/",
-    "youtube": "https://www.youtube.com/watch?v=RDqRXOqVKX8"
+    "linkedin": "https://www.linkedin.com/posts/tommatzen_entrepreneurs-jointventures-dogoodandmakemoney-activity-7125858529042657281-oRuv",
+    "youtube": "https://www.youtube.com/watch?v=4JVizD_0Jnc"
   },
+  "jv_history": [
+    {
+      "partner_name": "Hey fellow Entrepreneurs,",
+      "format": "endorsement",
+      "source_quote": " us at Links Golf Cafe \u2705the world\u2019s first golf cafe franchise that  ...    * Report this post\nHey fellow Entrepreneurs, Tom here with a very special invite, to come as my guest next week to the",
+      "source_url": "https://www.linkedin.com/posts/tommatzen_entrepreneurs-jointventures-dogoodandmakemoney-activity-7125858529042657281-oRuv"
+    },
+    {
+      "partner_name": "[New Master Class] The #1 Objection To Business Coaching That You Can\u2019t Overcome.",
+      "format": "podcast_guest",
+      "source_quote": " Matzen & Simon Hedley,  ...    ### ATTN ENTREPRENEURS Want To Unleash Your Potential, Scale Your Business Become An Industry Icon at ICONMAKER Joint Venture (Current)  ...    podcast. Presenting the ",
+      "source_url": "https://ca.linkedin.com/in/tommatzen"
+    }
+  ],
   "audience_engagement_score": 0.6000000000000001,
   "_cache_schema_version": 2
 }

@@ -1,19 +1,38 @@
 {
   "name": "Intuition Coach",
-  "company": "More Info",
+  "email": "team@juliereisler.com",
+  "company": "Julie Reisler",
+  "website": "https://juliereisler.com/",
   "list_size": 0,
   "seeking": "Podcast collaborations, Corporate events, Private events",
   "who_you_serve": "Women seeking peace, clarity, and alignment",
   "what_you_do": "Intuitive life coaching and resources to heal energy blocks, tap into your intuition and live with more inner peace, joy and alignment Offers: Inner Voice Sessions, Intuitive Life Coaching, But First, Alignment (online course)",
   "offering": "Inner Voice Sessions, Intuitive Life Coaching, But First, Alignment (online course), Corporate Meditation Classes",
+  "facebook": "https://www.facebook.com/withmirandacharles/",
+  "niche": "Intuitive Life Coaching",
+  "tags": [
+    "spirituality",
+    "intuition",
+    "life coaching",
+    "personal development"
+  ],
+  "bio": "Madison Arnholt, Intuitive Life Coach",
+  "email_method": "website_scrape",
+  "signature_programs": "Intuitive Life Designer\u00ae Coach Academy, 7-Day Manifest Your Dream Life Toolset",
+  "revenue_tier": "emerging",
+  "service_provided": "1:1 coaching, group programs, courses, speaking, certification training",
+  "business_size": "solo",
+  "social_proof": "TEDx speaker, author, Georgetown University faculty, host of You-est You\u00ae Podcast, founder of the Intuitive Life Designer\u00ae Coach Academy",
   "business_focus": "Intuitive life coaching and resources to heal energy blocks, tap into your intuition and live with more inner peace, joy and alignment Offers: Inner Voice Sessions, Intuitive Life Coaching, But First, Alignment (online course)",
   "audience_type": "Women seeking peace, clarity, and alignment",
+  "booking_link": "http://calendly.com/julie-chat/manifestation",
   "content_platforms": {
-    "linkedin": "https://www.linkedin.com/pulse/role-intuition-coaching-personal-development-hhbjc",
-    "facebook": "https://www.facebook.com/withmirandacharles/",
-    "apple_podcast": "https://podcasts.apple.com/nz/podcast/an-intuitive-life-coaching-intuition-midlife-inner/id1253141647"
+    "facebook": "https://www.facebook.com/JulieReislerLifeDesigner/",
+    "instagram": "https://www.instagram.com/juliereisler/",
+    "youtube": "https://www.youtube.com/watch?v=zZdkFlLxlDM",
+    "linkedin": "https://linkedin.com/in/juliereisler",
+    "apple_podcast": "https://podcasts.apple.com/us/podcast/the-you-est-you-podcast/id1329164008"
   },
-  "audience_engagement_score": 0.4,
-  "website": "https://juliereisler.com/",
+  "audience_engagement_score": 0.65,
   "_cache_schema_version": 2
 }

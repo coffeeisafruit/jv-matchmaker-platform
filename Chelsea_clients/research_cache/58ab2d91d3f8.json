@@ -1,20 +1,33 @@
 {
   "name": "Suma Sridhar",
   "company": "SVK Real Estate",
-  "list_size": 1000,
-  "offering": "Affiliate Marketplace, Book Marketing, Book Publishing, Business Coaching, Business Consulting, Coach Marketing Training, Marketing Coach, SEO",
-  "content_platforms": {
-    "linkedin": "https://www.linkedin.com/in/suma-sridhar",
-    "youtube": "https://www.youtube.com/watch?v=VmIAIGIYc1k"
-  },
-  "audience_engagement_score": 0.55,
   "website": "https://www.sumahomes.com/",
   "linkedin": "https://www.linkedin.com/in/suma-sridhar",
-  "_cache_schema_version": 2,
+  "list_size": 1000,
+  "seeking": "Looking for real estate professionals and financial coaches for comprehensive business consulting. Book marketing and SEO specialists for bundled coaching and visibility partnerships.",
+  "who_you_serve": "Real estate professionals and entrepreneurs seeking comprehensive digital marketing and business coaching.",
+  "what_you_do": "Lead real estate brokerage and digital marketing services with comprehensive business consulting offerings.",
+  "offering": "Affiliate Marketplace, Book Marketing, Book Publishing, Business Coaching, Business Consulting, Coach Marketing Training, Marketing Coach, SEO",
+  "youtube": "https://www.youtube.com/watch?v=VmIAIGIYc1k",
   "niche": "real estate",
   "tags": [
-    "real estate"
+    "real estate",
+    "website development"
   ],
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T01:46:42.841723"
+  "bio": "Suma Sridhar is the PRESIDENT andCEO and BROKER andREALTOR & DIGITAL MARKETER of SVK Real Estate. They are dedicated to delivering exceptional results for their clients.",
+  "service_provided": "website development, real estate services",
+  "business_focus": "Lead real estate brokerage and digital marketing services with comprehensive business consulting offerings.",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/in/suma-sridhar"
+  },
+  "jv_history": [
+    {
+      "partner_name": "SR Real Estate Group | LinkedIn",
+      "format": "summit_speaker",
+      "source_quote": ". Real Estate \u00b7 1 employees \u00b7 Summit, United States \u00b7 Founded 1996",
+      "source_url": "https://at.linkedin.com/company/sr-real-estate-group"
+    }
+  ],
+  "_cache_schema_version": 2
 }

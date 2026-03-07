@@ -1,31 +1,37 @@
 {
   "name": "TATIANA BOWERS",
   "company": "Authentic-Success",
-  "list_size": 2,
-  "content_platforms": {
-    "linkedin": "https://www.linkedin.com/in/tatiana-bowers-m-a-lmft-0919a218",
-    "apple_podcast": "https://podcasts.apple.com/us/podcast/own-it-w-tatiana-amico/id1562329607"
-  },
   "website": "https://speakerhub.com/speaker/tatiana-bowers",
-  "_cache_schema_version": 2,
-  "what_you_do": "Tatiana Bowers is a dynamic speaker and founder of Embrace Hope Counseling and Authentic Success, blending mental health and business expertise to inspire individuals and businesses to thrive.",
+  "linkedin": "https://www.linkedin.com/in/tatiana-bowers-m-a-lmft-0919a218",
+  "list_size": 2,
+  "seeking": "Family therapists, group coaching facilitators, and business consultants for collaborative workshops, referral partnerships, and bundled coaching services for entrepreneurs with families.",
   "who_you_serve": "Individuals and businesses seeking to improve relationships, leadership, and achieve success.",
+  "what_you_do": "Tatiana Bowers is a dynamic speaker and founder of Embrace Hope Counseling and Authentic Success, blending mental health and business expertise to inspire individuals and businesses to thrive.",
   "offering": "Speaking engagements on leadership, business, health & well-being, and relationship topics; therapy services; and business relationship facilitation.",
-  "social_proof": "M.A., LMFT (Licensed Marriage and Family Therapist), MHP; adjunct professor at two colleges; bachelor's in business and master's in counseling psychology; founder of two organizations.",
-  "signature_programs": "\"Lead Boldly, Live Fully: Transform Your Business and Your Life to the Next Level!\" (speaking presentation)",
   "niche": "business relationships",
   "tags": [
-    "business relationships",
-    "leadership",
-    "mental health",
-    "marriage family therapy",
-    "speaking",
-    "authenticity",
-    "success"
+    "public speaking",
+    "motivation",
+    "professional development"
   ],
-  "audience_type": "B2B, B2C",
-  "business_focus": "Empowering individuals and businesses through the intersection of mental health expertise and business relationship strategy.",
-  "service_provided": "speaking, marriage and family therapy, business relationship facilitation, counseling, adjunct professor",
-  "_owl_enriched": true,
-  "_owl_timestamp": "2026-02-18T05:21:35.603947"
+  "bio": "TATIANA BOWERS leads Authentic-Success. They specialize in Business Coaching, Business Consulting, Children and Family, Communication Training, Group Coaching.",
+  "service_provided": "speaking engagements",
+  "business_size": "solo",
+  "business_focus": "Tatiana Bowers is a dynamic speaker and founder of Embrace Hope Counseling and Authentic Success, blending mental health and business expertise to inspire individuals and businesses to thrive. (business relationships)",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "linkedin": "https://bo.linkedin.com/company/speakerhub",
+    "instagram": "https://www.instagram.com/p/DS5FAIvFL1b/",
+    "youtube": "https://www.youtube.com/watch?v=_GYorPdowDI"
+  },
+  "jv_history": [
+    {
+      "partner_name": "#shrm #leadership #globalleadership #dc #speakerlife #speaker #hr\u2026 | Natasha Bowman, JD, SPHR | 31 c",
+      "format": "summit_speaker",
+      "source_quote": "# Natasha Bowman, JD, SPHR\u2019s Post Natasha Bowman, JD, SPHR Natasha Bowman, JD, SPHR is an Influencer ... So honored to have been the opening keynote speaker at the DC SHRM Annual Conference yesterday!",
+      "source_url": "https://www.linkedin.com/posts/natashabowmanjd_shrm-leadership-globalleadership-activity-6537287573021184000-R76K"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2
 }

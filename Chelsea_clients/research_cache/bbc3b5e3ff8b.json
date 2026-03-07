@@ -1,30 +1,45 @@
 {
   "name": "Tony Petrozza",
+  "email": "tony@perficio.io",
   "company": "Auxillium LLC",
-  "list_size": 0,
-  "offering": "Content Creation, Course Creation Software, Joint Venture Resources, Launches for Online Programs, Online Course Creation, Podcast Host",
-  "content_platforms": {
-    "linkedin": "https://www.linkedin.com/in/tonypetrozzaauxco",
-    "instagram": "https://www.instagram.com/auxcappartners/p/C4vmiqcL8wU/",
-    "facebook": "https://www.facebook.com/story.php/?story_fbid=820546550084170&id=100063864960365&_rdr",
-    "spotify_podcast": "https://open.spotify.com/concert/1MqZV8jpX1xJY4FcU5rscF"
-  },
-  "audience_engagement_score": 0.45,
   "website": "https://www.brilliancepluspassion.com/tony-petrozza-personal-development-coach/",
   "linkedin": "https://www.linkedin.com/in/tonypetrozzaauxco",
-  "_cache_schema_version": 2,
-  "what_you_do": "Tony Petrozza is a personal development coach who is on a mission to help people live up to their potential.",
+  "list_size": 0,
+  "seeking": "Looking for e-learning creators and podcast hosts for online course creation partnerships. Launch partners and joint venture collaborators for course creation software.",
   "who_you_serve": "Tony serves people interested in personal development and self-help.",
-  "signature_programs": "Perficio (revolutionary self-help coaching product), Self-Help Coaching Podcast",
+  "what_you_do": "Tony Petrozza is a personal development coach who is on a mission to help people live up to their potential.",
+  "offering": "Content Creation, Course Creation Software, Joint Venture Resources, Launches for Online Programs, Online Course Creation, Podcast Host",
+  "facebook": "https://www.facebook.com/story.php/?story_fbid=820546550084170&id=100063864960365&_rdr",
+  "instagram": "https://www.instagram.com/auxcappartners/p/C4vmiqcL8wU/",
   "niche": "personal development, self-help",
   "tags": [
     "personal development",
     "self-help",
     "coaching"
   ],
+  "bio": "Tony Petrozza is a Executive Director at Auxillium LLC. They focus on personal finances, self improvement, service provider, success.",
+  "business_focus": "Tony Petrozza is a personal development coach who is on a mission to help people live up to their potential. (personal development, self-help)",
   "audience_type": "B2C",
-  "business_focus": "Tony Petrozza is a personal development coach who is on a mission to help people live up to their potential.",
-  "service_provided": "personal development coaching",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T02:27:40.828885"
+  "content_platforms": {
+    "linkedin": "https://www.linkedin.com/in/tonypetrozzaauxco",
+    "facebook": "https://www.facebook.com/adamhommey/",
+    "twitter": "https://twitter.com/CoachPerficio",
+    "instagram": "https://www.instagram.com/coachperficio/"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Auxillium USA is pleased to reveal a new partnership with Navigator Aviation and Tourism Management ",
+      "format": "endorsement",
+      "source_quote": "USA https://auxilliumusa.com/ is excited to announce a cooperation and partnership arrangement with ... About Auxillium.\u00a0Auxillium manages contact centers in the US and through a nearshore partner in ",
+      "source_url": "https://www.linkedin.com/posts/amy-grajeda-45033498_auxillium-usa-is-pleased-to-reveal-a-new-activity-7310305151422996480-nFvx"
+    },
+    {
+      "partner_name": "McCaleb Morse | Co-Founder @ AuxtionX | \ud83c\udde8\ud83c\udde6 + \ud83c\uddfa\ud83c\uddf8 Wholesale Market",
+      "format": "endorsement",
+      "source_quote": "Previously, as a Partner overseeing key markets in Utah and Ohio, I contributed to the sale of over 1,500 vehicles in just seven months, leveraging expertise in sales processes and dealer engagement. ",
+      "source_url": "https://linkedin.com/in/mccaleb-morse-598a16135"
+    }
+  ],
+  "audience_engagement_score": 0.45,
+  "_cache_schema_version": 2
 }

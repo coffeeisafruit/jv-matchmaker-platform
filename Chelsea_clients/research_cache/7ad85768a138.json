@@ -1,31 +1,46 @@
 {
   "name": "Thomas Metrick",
-  "list_size": 0,
-  "content_platforms": {
-    "linkedin": "https://www.linkedin.com/in/tom-metrick-83b847a",
-    "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Fmetricks.us%2F",
-    "youtube": "https://www.youtube.com/user/metametrics/about",
-    "spotify_podcast": "https://open.spotify.com/episode/6UATNAnd2YF0dTudPtYkIn"
-  },
-  "audience_engagement_score": 0.6000000000000001,
+  "email": "CornellThomas365@gmail.com",
+  "company": "Cornell Thomas",
   "website": "https://cornellthomas.com/",
   "linkedin": "https://www.linkedin.com/in/tommetrick",
-  "_cache_schema_version": 2,
+  "list_size": 0,
+  "seeking": "Thomas Metrick is likely seeking joint ventures with event organizers, corporate training programs, or publishers who can amplify his speaking and coaching reach. He would be interested in co-created workshops, book bundles, or speaking series partnerships that expand his impact and brand.",
+  "who_you_serve": "Serves both B2B and B2C audiences including corporations, schools, and individuals seeking motivation and personal development. Their ideal clients are organizations and people looking for inspiring speakers, workshops, and coaching to drive meaningful change.",
   "what_you_do": "Cornell Thomas is an international speaker, entrepreneur, author and coach.",
-  "social_proof": "Cornell Thomas is an up and coming thought leader that will inspire you to not only do more, but be more. -Tony Robbins",
-  "signature_programs": "Speaking Engagements, Corporate Workshops, Schools, Get In the Game Speaking Program, Lead From The Front, Books",
-  "booking_link": "https://cornellthomas.com/contact-us/",
+  "offering": "Thomas Metrick offers JV partners access to a versatile motivational speaking and workshop platform spanning corporate and school audiences. His multi-format presence\u2014live events, books, and coaching\u2014enables partners to co-develop scalable inspiration-driven programs and content products.",
+  "facebook": "https://www.facebook.com/login/?next=https%3A%2F%2Fwww.facebook.com%2Fmetricks.us%2F",
+  "youtube": "https://www.youtube.com/user/metametrics/about",
   "niche": "motivational speaking",
-  "company": "Cornell Thomas",
   "tags": [
     "motivational speaker",
+    "leadership coach",
     "author",
-    "entrepreneur",
-    "coach"
+    "mindset coach",
+    "corporate trainer",
+    "educator"
   ],
-  "audience_type": "B2B, B2C",
-  "business_focus": "Inspiring and motivating others through speaking, workshops, and books.",
-  "service_provided": "Speaking Engagements, Corporate Workshops, School Motivational Speaking, Books",
-  "_crawl4ai_enriched": true,
-  "_crawl4ai_timestamp": "2026-02-18T03:27:43.084823"
+  "bio": "Thomas Metrick is an international speaker, entrepreneur, author, and coach who works under the Cornell Thomas brand to inspire and motivate individuals and organizations. He delivers keynote speeches, corporate workshops, and school motivational programs designed to unlock potential and drive meaningful change. Through his books and live engagements, he empowers audiences to pursue excellence and purpose in every area of life.",
+  "email_method": "website_scrape",
+  "signature_programs": "Lead From The Front, Win the Day (W.T.D), Game of Death, Extra-Ordinary, Power of Positivity, The Book of Cornellisms Vol 1, Power of Me | Army of One",
+  "service_provided": "1:1 coaching, group programs, courses, speaking, consulting",
+  "current_projects": "Positivity Summit, Lead From The Front school program, various books and motivational programs",
+  "social_proof": "Tony Robbins endorsement, international speaking experience, published author",
+  "business_focus": "Cornell Thomas is an international speaker, entrepreneur, author and coach. (motivational speaking)",
+  "audience_type": "B2B",
+  "content_platforms": {
+    "facebook": "https://www.facebook.com/cornell.thomas.96",
+    "linkedin": "https://linkedin.com/in/thomas-metrick-49919112",
+    "youtube": "https://www.youtube.com/watch?v=VZNDiICI08A"
+  },
+  "jv_history": [
+    {
+      "partner_name": "Spurious Precision in Meta-Analysis - Tomas Havranek",
+      "format": "affiliate",
+      "source_quote": "\\nBio: Tomas Havranek is Professor of Economics at Charles University, Prague, and Research Affiliate at the Centre for Economic Policy Research, London. Between",
+      "source_url": "https://www.youtube.com/watch?v=VZNDiICI08A"
+    }
+  ],
+  "audience_engagement_score": 0.6000000000000001,
+  "_cache_schema_version": 2
 }
