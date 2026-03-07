@@ -324,18 +324,23 @@ def gap_driven_sourcing(
     )
 
     # ── Load scraper quality history ──────────────────────────────────
+    # NOTE: The `source` column doesn't exist in the profiles table.
+    # Skip gracefully until a proper scraper-tracking column is added.
     quality_map: dict[str, float] = {}
-    conn = _get_db_connection()
     try:
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        cur.execute(SCRAPER_QUALITY_QUERY)
-        for qrow in cur.fetchall():
-            source = qrow["source"]
-            total = qrow["total"] or 0
-            with_data = qrow["with_data"] or 0
-            quality_map[source] = with_data / max(total, 1)
-    finally:
-        conn.close()
+        conn = _get_db_connection()
+        try:
+            cur = conn.cursor(cursor_factory=RealDictCursor)
+            cur.execute(SCRAPER_QUALITY_QUERY)
+            for qrow in cur.fetchall():
+                source = qrow["source"]
+                total = qrow["total"] or 0
+                with_data = qrow["with_data"] or 0
+                quality_map[source] = with_data / max(total, 1)
+        finally:
+            conn.close()
+    except Exception as exc:
+        logger.warning("Scraper quality query skipped (column may not exist): %s", exc)
 
     logger.info(
         "Loaded quality data for %d scraper sources", len(quality_map)
