@@ -214,7 +214,7 @@ def ingest_contacts(
       4. Name fuzzy match (same name + same company)
 
     New profiles created with:
-      - status = 'Prospect'
+      - status = 'Pending'
       - enrichment_metadata.ingestion_source = source
       - enrichment_metadata.ingested_at = now
       - enrichment_metadata.ingested_by = ingested_by (if provided)
@@ -278,7 +278,7 @@ def ingest_contacts(
                     phone, bio, status, enrichment_metadata, created_at, updated_at
                 ) VALUES (
                     %s, %s, %s, %s, %s, %s,
-                    %s, %s, 'Prospect', %s, NOW(), NOW()
+                    %s, %s, 'Pending', %s, NOW(), NOW()
                 )
                 """,
                 (
