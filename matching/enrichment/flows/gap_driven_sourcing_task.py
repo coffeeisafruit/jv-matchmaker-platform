@@ -269,7 +269,6 @@ def _try_ai_create_for_gaps(
 @task(name="gap-driven-sourcing", retries=1, retry_delay_seconds=30)
 def gap_driven_sourcing(
     max_scrapers: int = 5,
-    max_contacts_per_scraper: int = 500,
     dry_run: bool = False,
 ) -> dict[str, Any]:
     """Select and run scrapers that best fill identified market gaps.
@@ -283,9 +282,6 @@ def gap_driven_sourcing(
     ----------
     max_scrapers:
         Maximum number of scrapers to run in this cycle.
-    max_contacts_per_scraper:
-        Cap on contacts per scraper (0 = unlimited). Default 500 to keep
-        the monthly cycle runtime bounded.
     dry_run:
         If True, log the sourcing plan but do not run any scrapers.
 
@@ -432,7 +428,7 @@ def gap_driven_sourcing(
                 source_name=name,
                 batch_size=100,
                 max_pages=0,
-                max_contacts=max_contacts_per_scraper,
+                max_contacts=0,
                 dry_run=False,
                 resume=True,
             )
