@@ -32,6 +32,10 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
 
+import django
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings")
+django.setup()
+
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from prefect import flow, task, get_run_logger
