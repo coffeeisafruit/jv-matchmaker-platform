@@ -30,7 +30,7 @@ from matching.enrichment.market_gaps import MarketGapAnalyzer, generate_gap_repo
 
 PROFILES_QUERY = """
     SELECT id, name, niche, network_role, seeking, offering,
-           what_you_do, who_you_serve, source
+           what_you_do, who_you_serve, jv_tier
     FROM profiles
     WHERE (seeking IS NOT NULL AND seeking != '')
        OR (offering IS NOT NULL AND offering != '')
@@ -57,8 +57,8 @@ INSERT_SNAPSHOT = """
 # ---------------------------------------------------------------------------
 
 def _get_db_connection() -> psycopg2.extensions.connection:
-    """Create a new psycopg2 connection from ``DATABASE_URL``."""
-    dsn = os.environ["DATABASE_URL"]
+    """Create a new psycopg2 connection, preferring direct over pgbouncer."""
+    dsn = os.environ.get("DIRECT_DATABASE_URL") or os.environ["DATABASE_URL"]
     return psycopg2.connect(dsn)
 
 
