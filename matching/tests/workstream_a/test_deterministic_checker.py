@@ -210,8 +210,8 @@ def test_no_fields_returns_empty(checker):
 def test_multiple_fields_checked_together(checker):
     """Multiple fields in a single data dict should each get their own verdict."""
     data = {
-        'email': 'real@company.com',
-        'website': 'https://company.com',
+        'email': 'real@gmail.com',
+        'website': 'https://gmail.com',
         'linkedin': 'https://www.linkedin.com/in/someone',
         'seeking': 'Growth partners',
     }

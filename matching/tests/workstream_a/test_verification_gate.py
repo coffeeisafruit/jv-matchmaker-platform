@@ -96,7 +96,7 @@ def test_non_critical_failure_unverified_0_6(gate):
     """A non-critical failure (e.g. bad website) with a valid email should
     produce UNVERIFIED status with confidence 0.6."""
     data = {
-        'email': 'real@company.com',
+        'email': 'real@gmail.com',
         'website': 'not a url',
     }
     verdict = gate.evaluate(data)

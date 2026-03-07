@@ -91,6 +91,13 @@ def make_supabase_profile(**overrides):
         'embedding_offering': None,
         'embedding_what_you_do': None,
         'embedding_who_you_serve': None,
+        'promotion_willingness_score': None,
+        'email_list_activity_score': None,
+        'intent_signal': None,
+        'engagement_likelihood': None,
+        'seniority': None,
+        'email_confidence': None,
+        'recommendation_pressure_30d': None,
     }
     defaults.update(overrides)
 

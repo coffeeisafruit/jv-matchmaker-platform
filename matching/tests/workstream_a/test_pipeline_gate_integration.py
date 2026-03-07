@@ -102,6 +102,7 @@ class TestVerifiedEmailWritten:
 
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.80
+            scorer_inst.calculate_profile_confidence.return_value = 0.75
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
@@ -128,6 +129,7 @@ class TestQuarantinedEmailSkipped:
 
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.80
+            scorer_inst.calculate_profile_confidence.return_value = 0.75
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
@@ -150,8 +152,13 @@ class TestQuarantineJSONL:
 
         mock_conn = MagicMock()
         with patch.object(pipeline, '_get_conn', _mock_get_conn(mock_conn)), \
-             patch('matching.enrichment.confidence.confidence_scorer.ConfidenceScorer'), \
+             patch('matching.enrichment.confidence.confidence_scorer.ConfidenceScorer') as MockScorer, \
              patch('scripts.automated_enrichment_pipeline_safe.execute_batch'):
+
+            scorer_inst = MockScorer.return_value
+            scorer_inst.calculate_confidence.return_value = 0.80
+            scorer_inst.calculate_profile_confidence.return_value = 0.75
+            scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
 
@@ -183,6 +190,7 @@ class TestUnverifiedConfidenceReduced:
 
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.80
+            scorer_inst.calculate_profile_confidence.return_value = 0.75
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
 
             # Patch the gate to return UNVERIFIED with overall_confidence=0.6
@@ -212,7 +220,7 @@ class TestVerifiedConfidenceUnmodified:
     """A VERIFIED verdict should use base_confidence without reduction."""
 
     def test_verified_gets_full_confidence(self, pipeline, tmp_path):
-        results = [_make_result('p5', 'good@company.com')]
+        results = [_make_result('p5', 'good@gmail.com')]
 
         mock_conn = MagicMock()
         with patch.object(pipeline, '_get_conn', _mock_get_conn(mock_conn)), \
@@ -221,6 +229,7 @@ class TestVerifiedConfidenceUnmodified:
 
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.90
+            scorer_inst.calculate_profile_confidence.return_value = 0.85
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
@@ -245,6 +254,7 @@ class TestEmailMetadataFields:
 
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.85
+            scorer_inst.calculate_profile_confidence.return_value = 0.80
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
@@ -276,6 +286,7 @@ class TestGateStatsCounting:
 
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.80
+            scorer_inst.calculate_profile_confidence.return_value = 0.75
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
 
             asyncio.run(pipeline.consolidate_to_supabase_batch(results))
@@ -301,6 +312,7 @@ class TestAutoFixApplied:
 
             scorer_inst = MockScorer.return_value
             scorer_inst.calculate_confidence.return_value = 0.80
+            scorer_inst.calculate_profile_confidence.return_value = 0.75
             scorer_inst.calculate_expires_at.return_value = datetime(2026, 6, 1)
 
             # Patch the gate to return a verdict with an auto-fix on email

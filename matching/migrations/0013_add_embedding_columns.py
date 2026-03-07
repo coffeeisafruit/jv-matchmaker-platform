@@ -12,6 +12,22 @@ class Migration(migrations.Migration):
                 -- Enable pgvector extension (idempotent)
                 CREATE EXTENSION IF NOT EXISTS vector;
 
+                -- Drop text-typed embedding columns if pre_migrate created them
+                -- (Django model uses TextField but we need vector(1024))
+                DO $$
+                BEGIN
+                    IF EXISTS (
+                        SELECT 1 FROM information_schema.columns
+                        WHERE table_name = 'profiles' AND column_name = 'embedding_seeking'
+                          AND data_type = 'text'
+                    ) THEN
+                        ALTER TABLE profiles DROP COLUMN IF EXISTS embedding_seeking;
+                        ALTER TABLE profiles DROP COLUMN IF EXISTS embedding_offering;
+                        ALTER TABLE profiles DROP COLUMN IF EXISTS embedding_who_you_serve;
+                        ALTER TABLE profiles DROP COLUMN IF EXISTS embedding_what_you_do;
+                    END IF;
+                END $$;
+
                 -- Embedding vectors (1024-dim for BAAI/bge-large-en-v1.5)
                 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS embedding_seeking vector(1024);
                 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS embedding_offering vector(1024);

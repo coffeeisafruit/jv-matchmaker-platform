@@ -303,7 +303,7 @@ class TestResearchAndEnrichProfile:
             instance = MockCache.return_value
             instance.get.return_value = None  # No cache hit
 
-            with patch('matching.enrichment.ai_research.SmartCrawler.crawl_site', return_value=('Website text here', [])), \
+            with patch('matching.enrichment.ai_research.SmartCrawler.crawl_site', return_value=('Bob is a wellness coach helping stressed professionals find balance through mindfulness and meditation. He offers 1-on-1 coaching sessions, group workshops, and online courses for corporate teams seeking stress reduction solutions.', [])), \
                  patch.object(ProfileResearchService, '_call_claude', return_value=ai_response):
                 existing = {'what_you_do': 'short'}  # sparse: no seeking, no who_you_serve
                 result, was_researched = research_and_enrich_profile(
@@ -339,7 +339,7 @@ class TestResearchAndEnrichProfile:
             # Cache has data, but force_research should bypass it
             instance.get.return_value = {'what_you_do': 'stale data'}
 
-            with patch('matching.enrichment.ai_research.SmartCrawler.crawl_site', return_value=('Website text', [])), \
+            with patch('matching.enrichment.ai_research.SmartCrawler.crawl_site', return_value=('Carol is a leadership coach and trainer working with executives and teams to develop emotional intelligence, communication skills, and strategic thinking capabilities for modern organizations. She offers workshops, keynote speaking, and executive coaching programs designed to transform workplace culture and drive results.', [])), \
                  patch.object(ProfileResearchService, '_call_claude', return_value=ai_response):
                 result, was_researched = research_and_enrich_profile(
                     name='Carol',

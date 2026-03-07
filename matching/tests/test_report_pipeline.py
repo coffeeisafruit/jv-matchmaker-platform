@@ -533,13 +533,21 @@ class TestScoreWithISMC:
         self.cmd = Command()
         self.cmd.stdout = StringIO()
 
+    @patch('matching.management.commands.generate_member_report.ReportPartner')
     @patch('matching.management.commands.generate_member_report.SupabaseMatchScoringService')
     @patch('matching.management.commands.generate_member_report.SupabaseProfile')
-    def test_scores_and_sorts_partners(self, MockSP, MockScorer):
+    def test_scores_and_sorts_partners(self, MockSP, MockScorer, MockRP):
         client = make_sp(name='Client User')
 
         partner_a = make_sp(name='Alice Smith', email='alice@test.com')
         partner_b = make_sp(name='Bob Jones', email='bob@test.com')
+
+        # Mock rotation exclusions (empty — no recent deliveries)
+        rp_qs = MagicMock()
+        rp_qs.filter.return_value = rp_qs
+        rp_qs.values_list.return_value = rp_qs
+        rp_qs.distinct.return_value = []
+        MockRP.objects = rp_qs
 
         # Mock the queryset
         qs = MagicMock()
@@ -572,13 +580,20 @@ class TestScoreWithISMC:
         assert results[1]['partner'].name == 'Bob Jones'
         assert results[1]['score'] == 55.0
 
+    @patch('matching.management.commands.generate_member_report.ReportPartner')
     @patch('matching.management.commands.generate_member_report.SupabaseMatchScoringService')
     @patch('matching.management.commands.generate_member_report.SupabaseProfile')
-    def test_filters_non_person_names(self, MockSP, MockScorer):
+    def test_filters_non_person_names(self, MockSP, MockScorer, MockRP):
         client = make_sp(name='Client User')
 
         real_person = make_sp(name='Alice Smith', email='alice@test.com')
         category_entry = make_sp(name='Business Skills, Fitness, Life', email='x@test.com')
+
+        rp_qs = MagicMock()
+        rp_qs.filter.return_value = rp_qs
+        rp_qs.values_list.return_value = rp_qs
+        rp_qs.distinct.return_value = []
+        MockRP.objects = rp_qs
 
         qs = MagicMock()
         qs.filter.return_value = qs
@@ -603,11 +618,18 @@ class TestScoreWithISMC:
         assert len(results) == 1
         assert results[0]['partner'].name == 'Alice Smith'
 
+    @patch('matching.management.commands.generate_member_report.ReportPartner')
     @patch('matching.management.commands.generate_member_report.SupabaseMatchScoringService')
     @patch('matching.management.commands.generate_member_report.SupabaseProfile')
-    def test_respects_top_n(self, MockSP, MockScorer):
+    def test_respects_top_n(self, MockSP, MockScorer, MockRP):
         client = make_sp(name='Client User')
         partners = [make_sp(name=f'Partner {i}', email=f'p{i}@test.com') for i in range(10)]
+
+        rp_qs = MagicMock()
+        rp_qs.filter.return_value = rp_qs
+        rp_qs.values_list.return_value = rp_qs
+        rp_qs.distinct.return_value = []
+        MockRP.objects = rp_qs
 
         qs = MagicMock()
         qs.filter.return_value = qs
@@ -631,7 +653,8 @@ class TestScoreWithISMC:
         scorer_instance.score_pair.side_effect = score_side_effect
 
         results = self.cmd._score_with_ismc(client, top_n=3)
-        assert len(results) == 3
+        # min_partners = max(top_n, 10) enforces at least 10 partners
+        assert len(results) == 10
 
 
 # =============================================================================
@@ -1049,7 +1072,8 @@ class TestGenerateMemberReportCommand:
         assert 'commission' not in report.footer_text
 
         partners = ReportPartner.objects.filter(report=report)
-        assert partners.count() <= 3
+        # min_partners = max(top_n, 10), but may be less if few profiles available
+        assert partners.count() <= 10
         assert partners.count() > 0
 
     @patch('matching.services.SupabaseMatchScoringService.score_pair')

@@ -16,6 +16,16 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 from matching.enrichment.claude_client import ClaudeClient
+from matching.enrichment.cost_guard import get_circuit_breaker
+
+
+@pytest.fixture(autouse=True)
+def _reset_circuit_breaker():
+    """Reset the circuit breaker before each test so prior API failures
+    (e.g. from integration tests hitting real OpenRouter) don't affect us."""
+    cb = get_circuit_breaker()
+    cb._failures.clear()
+    cb._opened_at.clear()
 
 
 # ===================================================================
@@ -145,8 +155,15 @@ class TestClaudeClientCall:
         """call() should return None when required package is not installed."""
         client = ClaudeClient(openrouter_key='or-key')
 
+        original_import = __builtins__.__import__ if hasattr(__builtins__, '__import__') else __import__
+
+        def selective_import(name, *args, **kwargs):
+            if name == 'openai':
+                raise ImportError("No openai")
+            return original_import(name, *args, **kwargs)
+
         with patch.dict('sys.modules', {'openai': None}):
-            with patch('builtins.__import__', side_effect=ImportError("No openai")):
+            with patch('builtins.__import__', side_effect=selective_import):
                 result = client.call("test prompt")
 
         assert result is None
