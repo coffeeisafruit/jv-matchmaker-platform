@@ -94,7 +94,7 @@ deployments:
     tags: ["monthly", "processing"]
     parameters:
       stale_days: 30
-      target_score: 70
+      target_score: 64
       target_count: 10
       skip_acquisition: false
       dry_run: false

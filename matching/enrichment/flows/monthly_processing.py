@@ -509,7 +509,7 @@ def generate_all_reports(dry_run: bool = False) -> dict[str, Any]:
 )
 def monthly_processing_flow(
     stale_days: int = 30,
-    target_score: int = 70,
+    target_score: int = 64,
     target_count: int = 10,
     skip_acquisition: bool = False,
     dry_run: bool = False,
