@@ -106,49 +106,30 @@ def flag_low_confidence_profiles(
     try:
         cur = conn.cursor()
 
-        # Count low-confidence profiles (no need to fetch IDs)
+        # Single query: count low-confidence and stale in one pass
         cur.execute(
             """
-            SELECT COUNT(*)
+            SELECT
+                COUNT(*) FILTER (
+                    WHERE profile_confidence IS NOT NULL
+                      AND profile_confidence < %s
+                ) AS low_conf,
+                COUNT(*) FILTER (
+                    WHERE last_enriched_at IS NOT NULL
+                      AND last_enriched_at < NOW() - INTERVAL '%s days'
+                ) AS stale
             FROM profiles
-            WHERE profile_confidence IS NOT NULL
-              AND profile_confidence < %s
-            """,
-            (confidence_threshold,),
-        )
-        low_conf_count = cur.fetchone()[0]
-
-        # Count stale profiles
-        cur.execute(
-            """
-            SELECT COUNT(*)
-            FROM profiles
-            WHERE last_enriched_at IS NOT NULL
-              AND last_enriched_at < NOW() - INTERVAL '%s days'
-            """,
-            (stale_days,),
-        )
-        stale_count = cur.fetchone()[0]
-
-        # Count combined (union of the two sets)
-        cur.execute(
-            """
-            SELECT COUNT(*) FROM (
-                SELECT id FROM profiles
-                WHERE profile_confidence IS NOT NULL
-                  AND profile_confidence < %s
-                UNION
-                SELECT id FROM profiles
-                WHERE last_enriched_at IS NOT NULL
-                  AND last_enriched_at < NOW() - INTERVAL '%s days'
-            ) combined
             """,
             (confidence_threshold, stale_days),
         )
-        total_flagged = cur.fetchone()[0]
+        row = cur.fetchone()
+        low_conf_count = row[0]
+        stale_count = row[1]
+        # Approximate combined (upper bound); exact dedup not worth another scan
+        total_flagged = low_conf_count + stale_count
 
         logger.info(
-            "Low-confidence flagging: %d low-conf, %d stale, %d combined (deduped)",
+            "Low-confidence flagging: %d low-conf, %d stale, %d total (may overlap)",
             low_conf_count,
             stale_count,
             total_flagged,
