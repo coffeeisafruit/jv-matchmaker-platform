@@ -73,8 +73,9 @@ _CLIENT_PROFILE_SQL = """
 
 def _load_client_profile(client_profile_id: str) -> dict | None:
     """Load full client profile from DB for scoring context."""
-    dsn = os.environ["DATABASE_URL"]
+    dsn = os.environ.get("DIRECT_DATABASE_URL") or os.environ["DATABASE_URL"]
     conn = psycopg2.connect(dsn)
+    conn.cursor().execute("SET statement_timeout = 0")
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(_CLIENT_PROFILE_SQL, (client_profile_id,))
@@ -162,8 +163,9 @@ def prescore_prospects(
     db_profiles_by_id: dict[str, dict] = {}
     if db_ids:
         try:
-            dsn = os.environ["DATABASE_URL"]
+            dsn = os.environ.get("DIRECT_DATABASE_URL") or os.environ["DATABASE_URL"]
             conn = psycopg2.connect(dsn)
+            conn.cursor().execute("SET statement_timeout = 0")
             try:
                 cursor = conn.cursor(cursor_factory=RealDictCursor)
                 cursor.execute(

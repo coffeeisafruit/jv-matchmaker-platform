@@ -55,9 +55,11 @@ _SELECT_COLUMNS = (
 # Database helper
 # ---------------------------------------------------------------------------
 def _get_db_connection() -> psycopg2.extensions.connection:
-    """Create a new psycopg2 connection from the ``DATABASE_URL`` env var."""
-    dsn = os.environ["DATABASE_URL"]
-    return psycopg2.connect(dsn)
+    """Create a psycopg2 connection, preferring direct over pgbouncer."""
+    dsn = os.environ.get("DIRECT_DATABASE_URL") or os.environ["DATABASE_URL"]
+    conn = psycopg2.connect(dsn)
+    conn.cursor().execute("SET statement_timeout = 0")
+    return conn
 
 
 # ---------------------------------------------------------------------------

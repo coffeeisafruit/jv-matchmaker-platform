@@ -57,12 +57,13 @@ def _extract_partner_names(top_match_ids: list[str], max_names: int = 5) -> list
     import psycopg2
     from psycopg2.extras import RealDictCursor
 
-    dsn = os.environ.get("DATABASE_URL", "")
+    dsn = os.environ.get("DIRECT_DATABASE_URL") or os.environ.get("DATABASE_URL", "")
     if not dsn:
         return []
 
     try:
         conn = psycopg2.connect(dsn)
+        conn.cursor().execute("SET statement_timeout = 0")
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         # Fetch jv_history for top matches (limit to 10 for efficiency)
         cursor.execute(

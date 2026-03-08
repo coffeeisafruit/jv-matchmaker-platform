@@ -81,8 +81,9 @@ _CLIENT_PROFILE_SQL = """
 
 def _load_client_profile(client_profile_id: str) -> dict | None:
     """Load client profile from the database."""
-    dsn = os.environ["DATABASE_URL"]
+    dsn = os.environ.get("DIRECT_DATABASE_URL") or os.environ["DATABASE_URL"]
     conn = psycopg2.connect(dsn)
+    conn.cursor().execute("SET statement_timeout = 0")
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(_CLIENT_PROFILE_SQL, (client_profile_id,))
@@ -108,8 +109,9 @@ def _filter_needs_enrichment(
     if not profile_ids:
         return [], 0
 
-    dsn = os.environ["DATABASE_URL"]
+    dsn = os.environ.get("DIRECT_DATABASE_URL") or os.environ["DATABASE_URL"]
     conn = psycopg2.connect(dsn)
+    conn.cursor().execute("SET statement_timeout = 0")
     try:
         cursor = conn.cursor(cursor_factory=RealDictCursor)
         cursor.execute(
