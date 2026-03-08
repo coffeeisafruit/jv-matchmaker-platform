@@ -87,67 +87,29 @@ def flag_low_confidence_profiles(
     stale_days: int = 29,
     dry_run: bool = False,
 ) -> dict[str, Any]:
-    """Identify profiles needing priority re-enrichment.
+    """Signal that priority re-enrichment should run.
 
-    Queries the database for profiles with:
-      - ``profile_confidence`` below *confidence_threshold*, OR
-      - ``last_enriched_at`` older than *stale_days*
-
-    Returns a deduplicated list of profile IDs sorted by confidence (lowest
-    first) so the enrichment flow can prioritise them.
+    Previously counted low-confidence and stale profiles, but scanning 1.17M
+    rows on Supabase (no indexes) takes 10+ minutes.  Step 2's enrichment
+    flow selects its own profiles independently, so this step just signals
+    "yes, run priority enrichment" and returns quickly.
 
     Returns
     -------
-    dict with: low_confidence_count, stale_count, total_flagged, profile_ids.
+    dict with: low_confidence_count, stale_count, total_flagged.
     """
     logger = get_run_logger()
-    conn = _get_db_connection()
-
-    try:
-        cur = conn.cursor()
-
-        # Single query: count low-confidence and stale in one pass
-        cur.execute(
-            """
-            SELECT
-                COUNT(*) FILTER (
-                    WHERE profile_confidence IS NOT NULL
-                      AND profile_confidence < %s
-                ) AS low_conf,
-                COUNT(*) FILTER (
-                    WHERE last_enriched_at IS NOT NULL
-                      AND last_enriched_at < NOW() - INTERVAL '%s days'
-                ) AS stale
-            FROM profiles
-            """,
-            (confidence_threshold, stale_days),
-        )
-        row = cur.fetchone()
-        low_conf_count = row[0]
-        stale_count = row[1]
-        # Approximate combined (upper bound); exact dedup not worth another scan
-        total_flagged = low_conf_count + stale_count
-
-        logger.info(
-            "Low-confidence flagging: %d low-conf, %d stale, %d total (may overlap)",
-            low_conf_count,
-            stale_count,
-            total_flagged,
-        )
-
-        if dry_run:
-            logger.info(
-                "[DRY RUN] Would flag %d profiles for priority re-enrichment",
-                total_flagged,
-            )
-
-        return {
-            "low_confidence_count": low_conf_count,
-            "stale_count": stale_count,
-            "total_flagged": total_flagged,
-        }
-    finally:
-        conn.close()
+    # Always run priority enrichment — the enrichment flow caps at 200
+    # and selects profiles itself.  Exact counts are informational only.
+    logger.info(
+        "Skipping expensive full-table count (1.17M rows, no indexes). "
+        "Step 2 enrichment flow selects its own profiles."
+    )
+    return {
+        "low_confidence_count": -1,
+        "stale_count": -1,
+        "total_flagged": 1,  # >0 so Step 2 Phase A always runs
+    }
 
 
 @task(name="re-enrich-stale-profiles", retries=1, retry_delay_seconds=30)
