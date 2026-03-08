@@ -262,11 +262,13 @@ def apply_verification_updates() -> dict[str, Any]:
 
     sql = """
         SELECT
-            id::text AS client_id,
-            name,
-            enrichment_metadata -> 'verification' -> %s AS vstatus
-        FROM profiles
-        WHERE enrichment_metadata -> 'verification' -> %s IS NOT NULL
+            p.id::text AS client_id,
+            p.name,
+            p.enrichment_metadata -> 'verification' -> %s AS vstatus
+        FROM profiles p
+        JOIN matching_memberreport mr ON mr.supabase_profile_id = p.id
+        WHERE mr.is_active = true
+          AND p.enrichment_metadata -> 'verification' -> %s IS NOT NULL
     """
 
     conn = _get_db_connection()
