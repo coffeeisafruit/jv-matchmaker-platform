@@ -104,59 +104,66 @@ def flag_low_confidence_profiles(
     conn = _get_db_connection()
 
     try:
-        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur = conn.cursor()
 
-        # Low-confidence profiles
+        # Count low-confidence profiles (no need to fetch IDs)
         cur.execute(
             """
-            SELECT id::text
+            SELECT COUNT(*)
             FROM profiles
             WHERE profile_confidence IS NOT NULL
               AND profile_confidence < %s
-            ORDER BY (status = 'Member') DESC, profile_confidence ASC
             """,
             (confidence_threshold,),
         )
-        low_conf_ids = [row["id"] for row in cur.fetchall()]
+        low_conf_count = cur.fetchone()[0]
 
-        # Stale profiles (last_enriched_at older than stale_days)
+        # Count stale profiles
         cur.execute(
             """
-            SELECT id::text
+            SELECT COUNT(*)
             FROM profiles
             WHERE last_enriched_at IS NOT NULL
               AND last_enriched_at < NOW() - INTERVAL '%s days'
-            ORDER BY (status = 'Member') DESC, last_enriched_at ASC
             """,
             (stale_days,),
         )
-        stale_ids = [row["id"] for row in cur.fetchall()]
+        stale_count = cur.fetchone()[0]
 
-        # Combine and deduplicate, preserving low-confidence-first order
-        seen: set[str] = set()
-        combined_ids: list[str] = []
-        for pid in low_conf_ids + stale_ids:
-            if pid not in seen:
-                seen.add(pid)
-                combined_ids.append(pid)
+        # Count combined (union of the two sets)
+        cur.execute(
+            """
+            SELECT COUNT(*) FROM (
+                SELECT id FROM profiles
+                WHERE profile_confidence IS NOT NULL
+                  AND profile_confidence < %s
+                UNION
+                SELECT id FROM profiles
+                WHERE last_enriched_at IS NOT NULL
+                  AND last_enriched_at < NOW() - INTERVAL '%s days'
+            ) combined
+            """,
+            (confidence_threshold, stale_days),
+        )
+        total_flagged = cur.fetchone()[0]
 
         logger.info(
             "Low-confidence flagging: %d low-conf, %d stale, %d combined (deduped)",
-            len(low_conf_ids),
-            len(stale_ids),
-            len(combined_ids),
+            low_conf_count,
+            stale_count,
+            total_flagged,
         )
 
         if dry_run:
             logger.info(
                 "[DRY RUN] Would flag %d profiles for priority re-enrichment",
-                len(combined_ids),
+                total_flagged,
             )
 
         return {
-            "low_confidence_count": len(low_conf_ids),
-            "stale_count": len(stale_ids),
-            "total_flagged": len(combined_ids),
+            "low_confidence_count": low_conf_count,
+            "stale_count": stale_count,
+            "total_flagged": total_flagged,
         }
     finally:
         conn.close()
